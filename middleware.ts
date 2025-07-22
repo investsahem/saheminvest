@@ -41,7 +41,7 @@ export default withAuth(
         
         // Partner routes
         if (pathname.startsWith("/partner")) {
-          return token?.role === "PROJECT_OWNER" || token?.role === "ADMIN"
+          return token?.role === "PARTNER" || token?.role === "ADMIN"
         }
         
         // Dashboard routes (legacy)
@@ -51,7 +51,7 @@ export default withAuth(
         
         // Project owner routes (legacy)
         if (pathname.startsWith("/dashboard/project-owner")) {
-          return token?.role === "PROJECT_OWNER" || token?.role === "ADMIN"
+          return token?.role === "PARTNER" || token?.role === "ADMIN"
         }
         
         // Investor routes (legacy)

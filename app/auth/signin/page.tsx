@@ -36,42 +36,58 @@ export default function SignInPage() {
       if (result?.error) {
         setError(t('auth.signin.invalid_credentials'))
       } else {
-        // Get the session to determine the user role and redirect accordingly
-        const session = await getSession()
-        const role = session?.user?.role
-        
         // Get callback URL from query params if it exists
         const urlParams = new URLSearchParams(window.location.search)
         const callbackUrl = urlParams.get('callbackUrl')
         
-        // If there's a specific callback URL, use it
+        // If there's a specific callback URL, decode it and use it
         if (callbackUrl) {
-          router.replace(callbackUrl)
+          const decodedUrl = decodeURIComponent(callbackUrl)
+          // Small delay to ensure session is updated
+          setTimeout(() => {
+            router.replace(decodedUrl)
+          }, 100)
           return
         }
         
-        // Otherwise, redirect based on user role
-        switch (role) {
-          case 'ADMIN':
-            router.replace('/admin')
-            break
-          case 'DEAL_MANAGER':
-            router.replace('/deal-manager')
-            break
-          case 'FINANCIAL_OFFICER':
-            router.replace('/financial-officer')
-            break
-          case 'PORTFOLIO_ADVISOR':
-            router.replace('/portfolio-advisor')
-            break
-          case 'PARTNER':
-            router.replace('/partner/dashboard')
-            break
-          case 'INVESTOR':
-          default:
-            router.replace('/portfolio')
-            break
+        // Get the session to determine the user role and redirect accordingly
+        // Retry getting session if not available immediately
+        let session = await getSession()
+        let retries = 0
+        
+        while (!session?.user?.role && retries < 3) {
+          await new Promise(resolve => setTimeout(resolve, 200))
+          session = await getSession()
+          retries++
         }
+        
+        const role = session?.user?.role
+        
+        // Add a small delay before redirect to ensure session is fully updated
+        setTimeout(() => {
+          // Redirect based on user role
+          switch (role) {
+            case 'ADMIN':
+              router.replace('/admin')
+              break
+            case 'DEAL_MANAGER':
+              router.replace('/deal-manager')
+              break
+            case 'FINANCIAL_OFFICER':
+              router.replace('/financial-officer')
+              break
+            case 'PORTFOLIO_ADVISOR':
+              router.replace('/portfolio-advisor')
+              break
+            case 'PARTNER':
+              router.replace('/partner/dashboard')
+              break
+            case 'INVESTOR':
+            default:
+              router.replace('/portfolio')
+              break
+          }
+        }, 100)
       }
     } catch (error) {
       console.error('Error during sign in:', error)
