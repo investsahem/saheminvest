@@ -1,0 +1,515 @@
+{
+  "platform": {
+    "name": "Sahem Invest",
+    "slogan": "Invest in the Future of Growth"
+  },
+  "navigation": {
+    "home": "Home",
+    "deals": "Deals",
+    "portfolio": "Portfolio",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "signin": "Sign In",
+    "signup": "Sign Up",
+    "signout": "Sign Out",
+    "go_to_panel": "Go to Panel"
+  },
+  "auth": {
+    "signin": {
+      "title": "Sign In",
+      "subtitle": "Welcome back! Please sign in to your account",
+      "investor_partner": "Investor / Partner",
+      "management_employee": "Management / Employee",
+      "admin_login": "Management Login",
+      "investor_login": "Investor Login",
+      "admin_only": "For company administrators and employees only",
+      "investor_only": "For investors and project partners only",
+      "logging_in": "Signing in...",
+      "invalid_credentials": "Invalid email or password",
+      "error_try_again": "An error occurred. Please try again",
+      "or_signin_with": "Or sign in with",
+      "continue_google": "Continue with Google",
+      "demo_accounts": "Demo Accounts (for testing):",
+      "use": "Use",
+      "password_label": "Password for all demo accounts:",
+      "security_notice": "Your data is protected with bank-level security",
+      "demo_roles": {
+        "admin": "System Administrator",
+        "deal_manager": "Deal Manager",
+        "financial_officer": "Financial Officer", 
+        "portfolio_advisor": "Portfolio Advisor",
+        "investor": "Individual Investor",
+        "partner": "Project Partner"
+      },
+      "role_explanations": {
+        "admin_title": "Management Roles:",
+        "investor_title": "User Roles:",
+        "admin_roles": {
+          "admin": "Complete system control and user management",
+          "deal_manager": "Deal creation and partnership management",
+          "financial_officer": "Financial operations and transactions",
+          "portfolio_advisor": "Investment advice and portfolio management"
+        },
+        "investor_roles": {
+          "investor": "Invest in deals and track portfolio performance",
+          "partner": "Create funding requests and manage projects"
+        }
+      }
+    },
+    "signup": {
+      "title": "Create Account",
+      "subtitle": "Join thousands of investors on our platform"
+    }
+  },
+  "hero": {
+    "title": "Invest in the Future",
+    "subtitle": "with Sahem Invest",
+    "description": "The leading digital investment platform in Saudi Arabia. Discover profitable and secure investment opportunities with guaranteed returns up to 15% annually.",
+    "cta_invest": "Start Investing Now",
+    "cta_explore": "Explore Opportunities",
+    "stats": {
+      "active_investors": "Active Investors",
+      "successful_deals": "Successful Deals",
+      "total_invested": "Total Invested",
+      "average_return": "Average Annual Return"
+    },
+    "video_title": "See How the Platform Works",
+    "video_description": "3-minute explanatory video",
+    "guaranteed_return": "Guaranteed Return",
+    "up_to_return": "Up to 15% annually",
+    "bank_security": "Bank-level Security",
+    "full_protection": "Complete Protection"
+  },
+  "about": {
+    "title": "What is Sahem Invest?",
+    "description": "A licensed digital investment platform that connects investors with profitable business opportunities, enabling everyone to participate in economic growth and achieve rewarding investment returns",
+    "vision": {
+      "title": "Our Vision",
+      "description": "To be the leading investment platform in the region, empowering individuals to achieve financial freedom through smart and secure investments"
+    },
+    "mission": {
+      "title": "Our Mission", 
+      "description": "To provide a transparent and secure investment platform that enables investors to access diverse investment opportunities while ensuring the highest standards of safety and quality"
+    },
+    "values": {
+      "title": "Our Values",
+      "description": "Transparency, integrity, innovation, and excellence in service. We believe that shared success is the foundation of sustainable growth"
+    }
+  },
+  "how_it_works": {
+    "title": "How Does the Platform Work?",
+    "description": "Thoughtful and simplified steps to achieve your investment goals with safety and complete confidence",
+    "steps": {
+      "register": {
+        "title": "Create Account",
+        "description": "Register easily and verify your identity in minutes"
+      },
+      "browse": {
+        "title": "Browse Opportunities",
+        "description": "Explore diverse investment opportunities with detailed analysis"
+      },
+      "invest": {
+        "title": "Invest Securely",
+        "description": "Choose your investment amount and confirm the transaction"
+      },
+      "earn": {
+        "title": "Earn Returns",
+        "description": "Track your profits and receive automatic returns"
+      }
+    }
+  },
+  "live_activity": {
+    "title": "Live Investment Activity",
+    "description": "Follow live investments happening now on the platform",
+    "stats": {
+      "today_total": "Total investments today",
+      "active_investors": "Active investors now"
+    },
+    "recent_activity": "Recent Activity",
+    "just_invested": "just invested",
+    "in_project": "in project",
+    "minutes_ago": "minutes ago"
+  },
+  "testimonials": {
+    "title": "What Our Investors Say",
+    "subtitle": "Real experiences from our investor community",
+    "ahmed": {
+      "name": "Ahmed Mohammed",
+      "role": "Investor",
+      "text": "I achieved excellent returns through Sahem Invest platform. The platform is reliable and easy to use."
+    },
+    "fatima": {
+      "name": "Fatima Al-Ali", 
+      "role": "Entrepreneur",
+      "text": "Excellent platform for getting the necessary funding for my projects. Smooth and transparent process."
+    },
+    "mohammed": {
+      "name": "Mohammed Al-Saadoun",
+      "role": "Experienced Investor", 
+      "text": "The best investment platform I've tried. Diverse opportunities and guaranteed returns."
+    }
+  },
+  "cta": {
+    "title": "Start Your Investment Journey Today",
+    "description": "Join thousands of investors who are achieving rewarding returns through our platform. Start with as little as $1,000 and get returns up to 15% annually",
+    "register_now": "Register Now for Free",
+    "browse_opportunities": "Browse Opportunities"
+  },
+  "footer": {
+    "description": "The leading digital investment platform in Saudi Arabia",
+    "quick_links": "Quick Links",
+    "support": "Support",
+    "legal": "Legal",
+    "about_us": "About Us",
+    "how_it_works": "How It Works", 
+    "contact_us": "Contact Us",
+    "help_center": "Help Center",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "follow_us": "Follow Us",
+    "rights_reserved": "All rights reserved."
+  },
+  "features": {
+    "smart_investments": {
+      "title": "Smart Investments",
+      "description": "Discover vetted investment opportunities with detailed analytics and risk assessments."
+    },
+    "secure_platform": {
+      "title": "Secure Platform",
+      "description": "Your investments are protected with bank-level security and transparent processes."
+    },
+    "automated_returns": {
+      "title": "Automated Returns",
+      "description": "Enjoy automated revenue distribution and real-time portfolio tracking."
+    }
+  },
+  "deals": {
+    "title": "Available Deals",
+    "subtitle": "Explore investment opportunities",
+    "overview": "Deals Overview",
+    "deal_number": "Deal Number",
+    "duration": "Deal Duration",
+    "funding_required": "Required Funding",
+    "expected_profits": "Expected Profits",
+    "expected_return": "Expected Return",
+    "funding_progress": "Funding Progress",
+    "contributors": "Contributors",
+    "contributors_count": "Number of Contributors",
+    "closes_in": "Funding closes in",
+    "days": "days",
+    "hours": "hours",
+    "minutes": "minutes",
+    "seconds": "seconds",
+    "months": "months",
+    "interested": "Interested in the deal? Contact us now",
+    "more_info": "Click for more information",
+    "invest_now": "Invest Now",
+    "funding_completed": "Funding Completed",
+    "completed_deals": "completed deals",
+    "partner": "Partner",
+    "deals_completed": "deals completed",
+    "view_details": "View Details",
+    "manage_deal": "Manage Deal",
+    "total_deals": "Total Deals",
+    "active_deals": "Active Deals",
+    "completed_deals": "Completed Deals",
+    "total_funding": "Total Funding",
+    "filter_all": "All Deals",
+    "filter_active": "Active",
+    "filter_completed": "Completed",
+    "filter_expired": "Expired",
+    "filter_draft": "Draft",
+    "add_new_deal": "Add New Deal",
+    "no_deals_available": "No deals available",
+    "check_back_soon": "Check back soon for new opportunities",
+    "deal_status": {
+      "ACTIVE": "Active",
+      "COMPLETED": "Completed",
+      "EXPIRED": "Expired",
+      "DRAFT": "Draft",
+      "PENDING": "Pending",
+      "CANCELLED": "Cancelled"
+    },
+    "sample_deals": {
+      "phone_title": "Smart Phone Import Deal",
+      "phone_description": "Import latest smartphone models with guaranteed 15% return in 3 months",
+      "electronics_title": "Electronics Trading Fund",
+      "electronics_description": "Wholesale electronics trading with experienced partners",
+      "construction_title": "Construction Development",
+      "construction_description": "Commercial building development in prime location"
+    },
+    "partners": {
+      "advanced_tech": "Advanced Technology Co.",
+      "smart_trading": "Smart Trading Ltd.",
+      "modern_construction": "Modern Construction Group"
+    }
+  },
+  "dealManager": {
+    "dashboard": "Deal Manager Dashboard",
+    "manage_deals": "Manage Deals",
+    "deal_analytics": "Deal Analytics", 
+    "partner_management": "Partner Management",
+    "investor_relations": "Investor Relations",
+    "performance_tracking": "Performance Tracking",
+    "documents": "Documents",
+    "settings": "Settings",
+    "active_deals": "Active Deals",
+    "total_value": "Total Value",
+    "success_rate": "Success Rate",
+    "monthly_growth": "Monthly Growth",
+    "deal_pipeline": "Deal Pipeline",
+    "sector_distribution": "Sector Distribution",
+    "recent_deals": "Recent Deals",
+    "partner_performance": "Partner Performance",
+    "quick_actions": "Quick Actions",
+    "create_new_deal": "Create New Deal",
+    "review_proposals": "Review Proposals",
+    "contact_partners": "Contact Partners",
+    "generate_reports": "Generate Reports",
+    "role": "Deal Manager"
+  },
+  "investor": {
+    "dashboard": "Investor Dashboard",
+    "my_investments": "My Investments",
+    "available_deals": "Available Deals",
+    "wallet": "Wallet",
+    "transaction_history": "Transaction History",
+    "returns_analytics": "Returns Analytics",
+    "documents": "Documents",
+    "profile_settings": "Profile Settings",
+    "portfolio_value": "Portfolio Value",
+    "current_value": "Current Value",
+    "total_invested": "Total Invested",
+    "total_returns": "Total Returns",
+    "monthly_returns": "Monthly Returns",
+    "performance_summary": "Performance Summary",
+    "portfolio_growth": "Portfolio Growth",
+    "investment_distribution": "Investment Distribution",
+    "active_investments": "Active Investments",
+    "recent_activity": "Recent Activity",
+    "quick_actions": "Quick Actions",
+    "invest_now": "Invest Now",
+    "withdraw_funds": "Withdraw Funds",
+    "view_statements": "View Statements",
+    "contact_advisor": "Contact Advisor"
+  },
+  "wallet": {
+    "balance": "Current Balance",
+    "total_invested": "Total Invested",
+    "total_returns": "Total Returns",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "transaction_history": "Transaction History"
+  },
+  "investment": {
+    "amount": "Investment Amount",
+    "confirm": "Confirm Investment",
+    "minimum_amount": "Minimum Investment",
+    "available_balance": "Available Balance",
+    "investment_successful": "Investment Successful"
+  },
+  "partner": {
+    "profile": "Partner Profile",
+    "rating": "Rating",
+    "completed_deals": "Completed Deals",
+    "success_rate": "Success Rate",
+    "total_funding": "Total Funding"
+  },
+  "forms": {
+    "email": "Email",
+    "email_placeholder": "Enter your email address",
+    "password": "Password",
+    "password_placeholder": "Enter your password",
+    "name": "Name",
+    "phone": "Phone Number",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "status": {
+    "pending": "Pending",
+    "active": "Active",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "portfolio": {
+    "title": "My Portfolio",
+    "overview": "Overview",
+    "investments": "Investments",
+    "wallet": "Wallet",
+    "total_portfolio_value": "Total Portfolio Value",
+    "total_invested": "Total Invested",
+    "total_returns": "Total Returns",
+    "active_investments": "Active Investments",
+    "roi": "Return on Investment",
+    "investment_title": "Investment",
+    "expected_return": "Expected Return",
+    "actual_return": "Actual Return",
+    "investment_date": "Investment Date",
+    "completion_date": "Completion Date",
+    "partner_name": "Partner",
+    "no_investments": "No investments yet",
+    "start_investing": "Start Investing",
+    "view_details": "View Details"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "overview": "Overview",
+    "users": "Users",
+    "deals": "Deals",
+    "transactions": "Transactions",
+    "settings": "Settings",
+    "total_users": "Total Users",
+    "total_deals": "Total Deals",
+    "total_investments": "Total Investments",
+    "platform_revenue": "Platform Revenue",
+    "recent_activity": "Recent Activity",
+    "user_registration": "User Registration",
+    "deal_created": "Deal Created",
+    "investment_made": "Investment Made",
+    "withdrawal_request": "Withdrawal Request",
+    "system_activity": "System Activity",
+    "manage_users": "Manage Users",
+    "manage_deals": "Manage Deals",
+    "view_analytics": "View Analytics",
+    "system_settings": "System Settings"
+  },
+  "user_management": {
+    "title": "User Management",
+    "add_user": "Add User",
+    "search_users": "Search users...",
+    "filter_by_role": "Filter by role",
+    "all_roles": "All Roles",
+    "user_name": "Name",
+    "user_email": "Email",
+    "user_role": "Role",
+    "status": "Status",
+    "registration_date": "Registration Date",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "change_role": "Change Role",
+    "activate": "Activate",
+    "deactivate": "Deactivate"
+  },
+  "financialOfficer": {
+    "dashboard": "Financial Officer Dashboard",
+    "monthly_revenue": "Monthly Revenue",
+    "profit_margin": "Profit Margin", 
+    "cash_flow": "Cash Flow",
+    "monthly_growth": "Monthly Growth",
+    "total_transactions": "Total Transactions",
+    "pending_transactions": "Pending Transactions",
+    "revenue_trends": "Revenue Trends",
+    "transaction_categories": "Transaction Categories",
+    "cash_flow_analysis": "Cash Flow Analysis",
+    "recent_transactions": "Recent Transactions",
+    "financial_reports": "Financial Reports",
+    "budget_planning": "Budget Planning",
+    "expense_tracking": "Expense Tracking",
+    "audit_trails": "Audit Trails",
+    "tax_management": "Tax Management",
+    "compliance": "Compliance",
+    "quick_actions": "Quick Actions",
+    "generate_report": "Generate Report",
+    "approve_transactions": "Approve Transactions",
+    "review_budgets": "Review Budgets",
+    "export_data": "Export Data",
+    "revenue": "Revenue",
+    "expenses": "Expenses", 
+    "profit": "Profit",
+    "investments": "Investments",
+    "withdrawals": "Withdrawals",
+    "fees": "Fees",
+    "commissions": "Commissions",
+    "other": "Other",
+    "inflow": "Inflow",
+    "outflow": "Outflow",
+    "investment": "Investment",
+    "withdrawal": "Withdrawal", 
+    "commission": "Commission",
+    "fee": "Fee",
+    "completed": "Completed",
+    "pending": "Pending",
+    "role": "Financial Officer"
+  },
+  "portfolioAdvisor": {
+    "dashboard": "Portfolio Advisor Dashboard",
+    "active_clients": "Active Clients",
+    "average_return": "Average Return",
+    "client_satisfaction": "Client Satisfaction",
+    "monthly_growth": "Monthly Growth",
+    "assets_under_management": "Assets Under Management",
+    "new_clients": "New Clients This Month",
+    "portfolio_performance": "Portfolio Performance",
+    "asset_allocation": "Asset Allocation",
+    "client_performance": "Client Performance by Risk Profile",
+    "top_clients": "Top Performing Clients",
+    "recent_activities": "Recent Activities",
+    "client_management": "Client Management",
+    "risk_assessment": "Risk Assessment",
+    "investment_strategies": "Investment Strategies",
+    "performance_analysis": "Performance Analysis",
+    "client_communications": "Client Communications",
+    "compliance_reports": "Compliance Reports",
+    "quick_actions": "Quick Actions",
+    "schedule_meeting": "Schedule Meeting",
+    "create_proposal": "Create Proposal",
+    "review_portfolios": "Review Portfolios",
+    "contact_clients": "Contact Clients",
+    "portfolio": "Portfolio Value",
+    "benchmark": "Benchmark",
+    "real_estate": "Real Estate",
+    "technology": "Technology", 
+    "healthcare": "Healthcare",
+    "energy": "Energy",
+    "conservative": "Conservative",
+    "moderate": "Moderate",
+    "aggressive": "Aggressive",
+    "clients": "Clients",
+    "avg_return": "Avg Return",
+    "satisfaction": "Satisfaction",
+    "return": "Return",
+    "risk": "Risk Profile",
+    "last_contact": "Last Contact",
+    "portfolio_review": "Portfolio Review",
+    "client_meeting": "Client Meeting",
+    "rebalancing": "Portfolio Rebalancing",
+    "risk_update": "Risk Assessment Update",
+    "performance_report": "Performance Report",
+    "investment_recommendation": "Investment Recommendation",
+    "role": "Portfolio Advisor"
+  },
+  "roles": {
+    "ADMIN": "Admin",
+    "DEAL_MANAGER": "Deal Manager",
+    "FINANCIAL_OFFICER": "Financial Officer",
+    "PORTFOLIO_ADVISOR": "Portfolio Advisor",
+    "INVESTOR": "Investor",
+    "PARTNER": "Partner"
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "error": "Error",
+    "success": "Success",
+    "loading": "Loading...",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "from": "From",
+    "to": "To",
+    "date": "Date",
+    "amount": "Amount",
+    "description": "Description",
+    "currency": "USD",
+    "active": "Active",
+    "inactive": "Inactive",
+    "view_all": "View All",
+    "close": "Close",
+    "save_changes": "Save Changes"
+  }
+} 

@@ -1,0 +1,384 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  INVESTOR
+  PARTNER
+  ADMIN
+  DEAL_MANAGER
+  FINANCIAL_OFFICER
+  PORTFOLIO_ADVISOR
+}
+
+enum PermissionType {
+  READ_DEALS
+  WRITE_DEALS
+  DELETE_DEALS
+  READ_USERS
+  WRITE_USERS
+  DELETE_USERS
+  READ_TRANSACTIONS
+  WRITE_TRANSACTIONS
+  READ_INVESTMENTS
+  WRITE_INVESTMENTS
+  MANAGE_ROLES
+  MANAGE_PARTNERS
+  VIEW_ANALYTICS
+  SYSTEM_SETTINGS
+}
+
+enum ProjectStatus {
+  DRAFT
+  PENDING
+  ACTIVE
+  FUNDED
+  COMPLETED
+  CANCELLED
+}
+
+enum InvestmentStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  INVESTMENT
+  RETURN
+  FEE
+}
+
+enum ApplicationStatus {
+  PENDING
+  IN_PROGRESS
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                String        @id @default(cuid())
+  email             String        @unique
+  name              String?
+  image             String?
+  password          String?
+  role              UserRole      @default(INVESTOR)
+  emailVerified     DateTime?
+  isActive          Boolean       @default(true)
+  
+  // Profile information
+  phone             String?
+  address           String?
+  dateOfBirth       DateTime?
+  kycVerified       Boolean       @default(false)
+  
+  // Financial
+  walletBalance     Decimal       @default(0) @db.Decimal(15, 2)
+  totalInvested     Decimal       @default(0) @db.Decimal(15, 2)
+  totalReturns      Decimal       @default(0) @db.Decimal(15, 2)
+  
+  // Relationships
+  accounts          Account[]
+  sessions          Session[]
+  projects          Project[]
+  investments       Investment[]
+  transactions      Transaction[]
+  notifications     Notification[]
+  partnerReviews    PartnerReview[] @relation("PartnerReviews")
+  permissions       UserPermission[]
+  assignedInvestors UserInvestorAssignment[] @relation("PortfolioAdvisor")
+  advisorFor        UserInvestorAssignment[] @relation("AssignedInvestor")
+  reviewedApplications UserApplication[] @relation("ApplicationReviewer")
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  // Partner relationship
+  partner           Partner?
+  
+  @@map("users")
+}
+
+model UserApplication {
+  id              String            @id @default(cuid())
+  
+  // Personal Information
+  firstName       String
+  lastName        String
+  email           String            @unique
+  phone           String
+  dateOfBirth     DateTime
+  
+  // Address
+  address         String
+  city            String
+  country         String
+  postalCode      String?
+  
+  // Identity & KYC
+  nationalId      String
+  occupation      String
+  employerName    String?
+  monthlyIncome   Decimal?          @db.Decimal(15, 2)
+  
+  // Investment Profile
+  investmentExperience String        // Beginner, Intermediate, Advanced
+  riskTolerance   String            // Low, Medium, High  
+  investmentGoals String            @db.Text
+  initialInvestment Decimal?        @db.Decimal(15, 2)
+  
+  // Application Status
+  status          ApplicationStatus @default(PENDING)
+  rejectionReason String?           @db.Text
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  reviewer        User?             @relation("ApplicationReviewer", fields: [reviewedBy], references: [id])
+  
+  // Documents (URLs/paths to uploaded files)
+  documents       Json?             // Store document URLs and types
+  
+  // Additional Information
+  notes           String?           @db.Text
+  agreeToTerms    Boolean           @default(false)
+  marketingConsent Boolean          @default(false)
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@map("user_applications")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Project {
+  id               String        @id @default(cuid())
+  title            String
+  description      String        @db.Text
+  category         String
+  
+  // Financial details
+  fundingGoal      Decimal       @db.Decimal(15, 2)
+  currentFunding   Decimal       @default(0) @db.Decimal(15, 2)
+  minInvestment    Decimal       @db.Decimal(15, 2)
+  expectedReturn   Decimal       @db.Decimal(5, 2) // Percentage
+  duration         Int           // In days
+  
+  // Status and dates
+  status           ProjectStatus @default(DRAFT)
+  startDate        DateTime?
+  endDate          DateTime?
+  
+  // Media and documents
+  images           String[]
+  documents        String[]
+  
+  // Owner information
+  ownerId          String
+  owner            User          @relation(fields: [ownerId], references: [id])
+  
+  // Partner information
+  partnerId        String?
+  partner          Partner?      @relation(fields: [partnerId], references: [id])
+  
+  // Relationships
+  investments      Investment[]
+  transactions     Transaction[]
+  reviews          PartnerReview[]
+  
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  
+  @@map("projects")
+}
+
+model Investment {
+  id               String           @id @default(cuid())
+  amount           Decimal          @db.Decimal(15, 2)
+  status           InvestmentStatus @default(PENDING)
+  expectedReturn   Decimal          @db.Decimal(15, 2)
+  actualReturn     Decimal          @default(0) @db.Decimal(15, 2)
+  
+  // Relationships
+  investorId       String
+  investor         User             @relation(fields: [investorId], references: [id])
+  projectId        String
+  project          Project          @relation(fields: [projectId], references: [id])
+  
+  // Tracking
+  investmentDate   DateTime         @default(now())
+  lastReturnDate   DateTime?
+  
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  
+  @@map("investments")
+}
+
+model Transaction {
+  id               String          @id @default(cuid())
+  amount           Decimal         @db.Decimal(15, 2)
+  type             TransactionType
+  description      String?
+  status           String          @default("completed")
+  
+  // Relationships
+  userId           String
+  user             User            @relation(fields: [userId], references: [id])
+  projectId        String?
+  project          Project?        @relation(fields: [projectId], references: [id])
+  
+  // Transaction details
+  reference        String?         @unique
+  metadata         Json?
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  @@map("transactions")
+}
+
+model Notification {
+  id               String          @id @default(cuid())
+  title            String
+  message          String          @db.Text
+  type             String          // info, success, warning, error
+  read             Boolean         @default(false)
+  
+  // Relationships
+  userId           String
+  user             User            @relation(fields: [userId], references: [id])
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  @@map("notifications")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model Partner {
+  id               String          @id @default(cuid())
+  
+  // Partner information
+  companyName      String
+  description      String?         @db.Text
+  logo             String?
+  website          String?
+  phone            String?
+  address          String?
+  
+  // Performance metrics
+  totalDeals       Int             @default(0)
+  completedDeals   Int             @default(0)
+  totalFunding     Decimal         @default(0) @db.Decimal(15, 2)
+  averageReturn    Decimal?        @db.Decimal(5, 2)
+  rating           Decimal         @default(0) @db.Decimal(3, 2)
+  totalRatings     Int             @default(0)
+  
+  // Relationships
+  userId           String          @unique
+  user             User            @relation(fields: [userId], references: [id])
+  projects         Project[]
+  reviews          PartnerReview[]
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  @@map("partners")
+}
+
+model PartnerReview {
+  id               String          @id @default(cuid())
+  rating           Int             // 1-5 stars
+  comment          String?         @db.Text
+  
+  // Relationships
+  partnerId        String
+  partner          Partner         @relation(fields: [partnerId], references: [id])
+  investorId       String
+  investor         User            @relation("PartnerReviews", fields: [investorId], references: [id])
+  projectId        String
+  project          Project         @relation(fields: [projectId], references: [id])
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  @@unique([partnerId, investorId, projectId])
+  @@map("partner_reviews")
+}
+
+model UserPermission {
+  id               String          @id @default(cuid())
+  userId           String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission       PermissionType
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  @@unique([userId, permission])
+  @@map("user_permissions")
+}
+
+model UserInvestorAssignment {
+  id               String          @id @default(cuid())
+  
+  advisorId        String
+  advisor          User            @relation("PortfolioAdvisor", fields: [advisorId], references: [id])
+  investorId       String
+  investor         User            @relation("AssignedInvestor", fields: [investorId], references: [id])
+  
+  isActive         Boolean         @default(true)
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  @@unique([advisorId, investorId])
+  @@map("user_investor_assignments")
+}

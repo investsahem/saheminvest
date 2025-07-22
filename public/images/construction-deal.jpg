@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+  <rect width="400" height="300" fill="url(#constructionGradient)"/>
+  <defs>
+    <linearGradient id="constructionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e67e22;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d35400;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Building/Construction Icon -->
+  <g transform="translate(200, 150)">
+    <!-- Main building -->
+    <rect x="-30" y="-40" width="60" height="70" fill="white" opacity="0.9"/>
+    <rect x="-25" y="-35" width="50" height="60" fill="#34495e"/>
+    
+    <!-- Windows -->
+    <rect x="-20" y="-30" width="8" height="8" fill="#3498db"/>
+    <rect x="-8" y="-30" width="8" height="8" fill="#3498db"/>
+    <rect x="4" y="-30" width="8" height="8" fill="#3498db"/>
+    
+    <rect x="-20" y="-18" width="8" height="8" fill="#3498db"/>
+    <rect x="-8" y="-18" width="8" height="8" fill="#3498db"/>
+    <rect x="4" y="-18" width="8" height="8" fill="#3498db"/>
+    
+    <rect x="-20" y="-6" width="8" height="8" fill="#3498db"/>
+    <rect x="-8" y="-6" width="8" height="8" fill="#3498db"/>
+    <rect x="4" y="-6" width="8" height="8" fill="#3498db"/>
+    
+    <!-- Door -->
+    <rect x="-5" y="10" width="10" height="20" fill="#2c3e50"/>
+    
+    <!-- Crane -->
+    <rect x="40" y="-45" width="3" height="75" fill="white"/>
+    <rect x="30" y="-45" width="20" height="3" fill="white"/>
+  </g>
+  
+  <!-- Arabic Text -->
+  <text x="200" y="220" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="Arial">
+    مواد البناء
+  </text>
+  
+  <!-- Decorative elements -->
+  <circle cx="70" cy="70" r="18" fill="white" opacity="0.1"/>
+  <circle cx="330" cy="230" r="25" fill="white" opacity="0.1"/>
+  <circle cx="90" cy="230" r="8" fill="white" opacity="0.1"/>
+</svg> 
