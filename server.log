@@ -1,0 +1,138 @@
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm.
+
+> sahaminvest@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, using available port 3001 instead.
+   ▲ Next.js 15.3.5
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.25.122:3001
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 1165ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.9s (1671 modules)
+ ✓ Compiled /_not-found in 149ms (1657 modules)
+ ⨯ [Error: Cannot find module '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/middleware-manifest.json'
+Require stack:
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/next-server.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/dev/next-dev-server.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/next.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 516ms (1977 modules)
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/next-font-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/next-font-manifest.json'
+}
+ GET / 500 in 4365ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 654ms (981 modules)
+ ⨯ [Error: Cannot find module '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/middleware-manifest.json'
+Require stack:
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/next-server.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/dev/next-dev-server.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/next.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/lib/start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ GET /favicon.ico 500 in 678ms
+ ⨯ Error: Cannot find module './vendor-chunks/next-auth.js'
+Require stack:
+- /Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/webpack-runtime.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app/page.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/require.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/load-components.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/build/utils.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/build/swc/options.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/build/swc/index.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/build/next-config-ts/transpile-config.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/config.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/next.js
+- /Users/mounirbennassar/Documents/clients/sahaminvest/node_modules/next/dist/server/lib/start-server.js
+    at __webpack_require__.f.require (.next/server/webpack-runtime.js:203:28)
+    at <unknown> (.next/server/webpack-runtime.js:116:40)
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (.next/server/webpack-runtime.js:115:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (.next/server/webpack-runtime.js:167:22)
+    at <unknown> (.next/server/app/page.js:314:47)
+    at Object.<anonymous> (.next/server/app/page.js:317:3) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ GET / 500 in 502ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'
+}
+ GET /_next/static/webpack/1cba3c3df54b9973.webpack.hot-update.json 500 in 230ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json',
+  page: '/'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/pages-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/pages-manifest.json'
+}
+ GET / 500 in 246ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'
+}
+ GET /_next/static/chunks/fallback/webpack.js 500 in 264ms
+ GET /_next/static/chunks/fallback/main.js 500 in 264ms
+ GET /_next/static/chunks/fallback/react-refresh.js 500 in 263ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'
+}
+ GET /_next/static/chunks/fallback/pages/_app.js 500 in 245ms
+ GET /_next/static/chunks/fallback/pages/_error.js 500 in 244ms
+ ⨯ [Error: ENOENT: no such file or directory, open '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/mounirbennassar/Documents/clients/sahaminvest/.next/server/app-paths-manifest.json',
+  page: '/favicon.ico'
+}
+ GET /favicon.ico 500 in 17ms
+[?25h

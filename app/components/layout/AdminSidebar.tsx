@@ -43,6 +43,12 @@ const AdminSidebar = () => {
       badge: 12
     },
     {
+      name: 'Advisor Applications',
+      href: '/admin/advisor-applications',
+      icon: UserCheck,
+      current: pathname === '/admin/advisor-applications'
+    },
+    {
       name: t('admin.manage_users'),
       href: '/admin/users',
       icon: Users,

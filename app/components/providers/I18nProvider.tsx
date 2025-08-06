@@ -1,8 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-
-type Language = 'ar' | 'en'
+import { getTranslations, type Language } from '../../lib/translations'
 
 interface I18nContextType {
   locale: Language
@@ -18,37 +17,25 @@ interface I18nProviderProps {
   initialLocale?: Language
 }
 
-export function I18nProvider({ children, initialLocale = 'en' }: I18nProviderProps) {
+export function I18nProvider({ children, initialLocale = 'ar' }: I18nProviderProps) {
   const [locale, setLocale] = useState<Language>(() => {
+    // Check localStorage on client side, otherwise use initialLocale
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('preferred-locale') as Language
       return stored || initialLocale
     }
     return initialLocale
   })
-  const [translations, setTranslations] = useState<Record<string, any>>({})
 
   const isRTL = locale === 'ar'
-
-  useEffect(() => {
-    // Load translations for current locale
-    const loadTranslations = async () => {
-      try {
-        const response = await fetch(`/locales/${locale}/common.json`)
-        const data = await response.json()
-        setTranslations(data)
-      } catch (error) {
-        console.error('Failed to load translations:', error)
-      }
-    }
-
-    loadTranslations()
-  }, [locale])
+  const translations = getTranslations(locale)
 
   useEffect(() => {
     // Update document direction and language
-    document.documentElement.dir = isRTL ? 'rtl' : 'ltr'
-    document.documentElement.lang = locale
+    if (typeof document !== 'undefined') {
+      document.documentElement.dir = isRTL ? 'rtl' : 'ltr'
+      document.documentElement.lang = locale
+    }
   }, [locale, isRTL])
 
   const handleSetLocale = (newLocale: Language) => {
@@ -59,7 +46,7 @@ export function I18nProvider({ children, initialLocale = 'en' }: I18nProviderPro
 
   const t = (key: string): string => {
     const keys = key.split('.')
-    let value = translations
+    let value: any = translations
     
     for (const k of keys) {
       value = value?.[k]

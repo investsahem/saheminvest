@@ -1,411 +1,424 @@
 'use client'
 
-import { useState } from 'react'
-import { Header } from '../../components/layout/Header'
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import PartnerLayout from '../../components/layout/PartnerLayout'
 import { useTranslation } from '../../components/providers/I18nProvider'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { 
+  TrendingUp, TrendingDown, Users, DollarSign, Target, 
+  Eye, Edit, Calendar, Building2, Award, Activity,
+  Briefcase, FileText, BarChart3, MessageSquare, Plus,
+  Star, CheckCircle, Clock, AlertCircle, ArrowUpRight
+} from 'lucide-react'
+import {
+  LineChart, AreaChart, XAxis, YAxis, CartesianGrid, 
+  Tooltip, Legend, ResponsiveContainer, Area, Line
+} from 'recharts'
 
-// Sample data - would come from API/database in real app
-const partnerData = {
-  companyName: 'شركة التقنية المتقدمة',
-  rating: 4.8,
-  totalDeals: 15,
-  completedDeals: 12,
-  activeDeals: 3,
-  totalFunding: 850000,
-  averageReturn: 6.2,
-  successRate: 80,
-  currentDeals: [
+const PartnerDashboard = () => {
+  const { t } = useTranslation()
+  const { data: session } = useSession()
+  const [loading, setLoading] = useState(true)
+
+  // Sample data - would come from API/database in real app
+  const partnerData = {
+    companyName: session?.user?.name || 'Advanced Technology Company',
+    rating: 4.8,
+    totalDeals: 15,
+    completedDeals: 12,
+    activeDeals: 3,
+    totalFunding: 850000,
+    averageReturn: 6.2,
+    successRate: 87,
+    totalInvestors: 125,
+    monthlyGrowth: 15.8,
+    totalRevenue: 189000,
+    pendingApprovals: 2
+  }
+
+  // Performance data for charts
+  const performanceData = [
+    { month: 'Jan', revenue: 45000, deals: 2, investors: 15 },
+    { month: 'Feb', revenue: 67000, deals: 3, investors: 23 },
+    { month: 'Mar', revenue: 89000, deals: 4, investors: 35 },
+    { month: 'Apr', revenue: 125000, deals: 5, investors: 48 },
+    { month: 'May', revenue: 156000, deals: 6, investors: 62 },
+    { month: 'Jun', revenue: 189000, deals: 7, investors: 78 }
+  ]
+
+  const currentDeals = [
     {
       id: '1',
-      title: 'هواتف مستعملة',
+      title: 'Used Phones Trading',
       fundingGoal: 20000,
       currentFunding: 20000,
       expectedReturn: 5,
       duration: 2,
       status: 'FUNDED',
-      stage: 5,
-      investorsCount: 1
+      investorsCount: 15,
+      stage: 'Execution'
     },
     {
       id: '2',
-      title: 'تجارة أجهزة كهربائية',
+      title: 'Electronics Commerce',
       fundingGoal: 35000,
       currentFunding: 28000,
       expectedReturn: 6,
       duration: 3,
       status: 'ACTIVE',
-      stage: 2,
-      investorsCount: 8
+      investorsCount: 23,
+      stage: 'Funding'
     },
     {
       id: '3',
-      title: 'استيراد أدوات منزلية',
+      title: 'Home Goods Import',
       fundingGoal: 50000,
       currentFunding: 15000,
       expectedReturn: 7,
       duration: 4,
       status: 'ACTIVE',
-      stage: 1,
-      investorsCount: 3
+      investorsCount: 12,
+      stage: 'Planning'
     }
   ]
-}
 
-const dealStages = [
-  'فتح الصفقة',
-  'بدء التمويل',
-  'إغلاق التمويل',
-  'شراء البضائع',
-  'استلام البضائع',
-  'بدء البيع',
-  'توزيع جزئي للأرباح',
-  'توزيع كامل للأرباح',
-  'إغلاق الصفقة'
-]
+  const recentActivities = [
+    {
+      id: '1',
+      type: 'investment',
+      message: 'New investment of $5,000 in Electronics Commerce',
+      time: '2 hours ago',
+      icon: DollarSign,
+      color: 'text-green-600'
+    },
+    {
+      id: '2',
+      type: 'approval',
+      message: 'Deal "Home Goods Import" approved by admin',
+      time: '5 hours ago',
+      icon: CheckCircle,
+      color: 'text-blue-600'
+    },
+    {
+      id: '3',
+      type: 'completion',
+      message: 'Used Phones Trading deal fully funded',
+      time: '1 day ago',
+      icon: Target,
+      color: 'text-purple-600'
+    },
+    {
+      id: '4',
+      type: 'message',
+      message: 'New message from investor Ahmed Al-Rashid',
+      time: '2 days ago',
+      icon: MessageSquare,
+      color: 'text-orange-600'
+    }
+  ]
 
-export default function PartnerDashboard() {
-  const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState<'overview' | 'deals' | 'performance'>('overview')
+  useEffect(() => {
+    // Simulate loading
+    setTimeout(() => setLoading(false), 1000)
+  }, [])
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('ar-SA').format(num)
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount)
   }
 
-  const getStatusBadge = (status: string) => {
-    const baseClasses = "text-xs px-2 py-1 rounded-full font-medium"
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'ACTIVE':
-        return `${baseClasses} bg-blue-100 text-blue-800`
-      case 'FUNDED':
-        return `${baseClasses} bg-green-100 text-green-800`
-      case 'COMPLETED':
-        return `${baseClasses} bg-gray-100 text-gray-800`
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-800`
+      case 'FUNDED': return 'bg-green-100 text-green-800'
+      case 'ACTIVE': return 'bg-blue-100 text-blue-800'
+      case 'DRAFT': return 'bg-gray-100 text-gray-800'
+      default: return 'bg-gray-100 text-gray-800'
     }
   }
 
-  const getStageProgress = (stage: number) => {
-    return (stage / dealStages.length) * 100
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'FUNDED': return <CheckCircle className="w-4 h-4" />
+      case 'ACTIVE': return <Activity className="w-4 h-4" />
+      case 'DRAFT': return <Clock className="w-4 h-4" />
+      default: return <AlertCircle className="w-4 h-4" />
+    }
+  }
+
+  if (loading) {
+    return (
+      <PartnerLayout title={t('partner.dashboard')}>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </PartnerLayout>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">لوحة تحكم الشريك</h1>
-          <p className="text-gray-600">مرحباً بك {partnerData.companyName}</p>
-        </div>
-
-        {/* Navigation Tabs */}
-        <div className="border-b border-gray-200 mb-8">
-          <nav className="flex space-x-8">
-            {[
-              { key: 'overview', label: 'نظرة عامة' },
-              { key: 'deals', label: 'صفقاتي' },
-              { key: 'performance', label: 'الأداء' }
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
-                  activeTab === tab.key
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {/* Overview Tab */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600">إجمالي الصفقات</p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {formatNumber(partnerData.totalDeals)}
-                      </p>
-                      <p className="text-xs text-green-600">
-                        {formatNumber(partnerData.activeDeals)} نشطة
-                      </p>
-                    </div>
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <span className="text-2xl">💼</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600">معدل النجاح</p>
-                      <p className="text-2xl font-bold text-green-600">
-                        {partnerData.successRate}%
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatNumber(partnerData.completedDeals)} مكتملة
-                      </p>
-                    </div>
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <span className="text-2xl">✅</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600">إجمالي التمويل</p>
-                      <p className="text-2xl font-bold text-purple-600">
-                        {formatNumber(partnerData.totalFunding)}
-                      </p>
-                      <p className="text-xs text-gray-500">ريال سعودي</p>
-                    </div>
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <span className="text-2xl">💰</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center">
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-600">متوسط العائد</p>
-                      <p className="text-2xl font-bold text-orange-600">
-                        {partnerData.averageReturn}%
-                      </p>
-                      <p className="text-xs text-gray-500">سنوياً</p>
-                    </div>
-                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                      <span className="text-2xl">📈</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Rating */}
-            <Card>
+    <PartnerLayout title={t('partner.dashboard')}>
+      <div className="space-y-6">
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Link href="/partner/deals/create">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
               <CardContent className="p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">تقييم الشريك</h3>
-                <div className="flex items-center">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <svg
-                        key={star}
-                        className={`w-8 h-8 ${
-                          star <= Math.floor(partnerData.rating)
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300'
-                        }`}
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <Plus className="w-6 h-6 text-blue-600" />
                   </div>
-                  <span className="mr-2 text-2xl font-bold text-gray-900">{partnerData.rating}</span>
-                  <span className="text-gray-500">من 5 نجوم</span>
+                  <div>
+                    <h3 className="font-semibold text-blue-900">Create Deal</h3>
+                    <p className="text-sm text-blue-700">New opportunity</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          </div>
-        )}
+          </Link>
 
-        {/* Deals Tab */}
-        {activeTab === 'deals' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">صفقاتي</h2>
-              <Button>إنشاء صفقة جديدة</Button>
-            </div>
+          <Link href="/partner/deals">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <Briefcase className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-green-900">My Deals</h3>
+                    <p className="text-sm text-green-700">{partnerData.activeDeals} active</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
 
-            <div className="grid grid-cols-1 gap-6">
-              {partnerData.currentDeals.map((deal) => (
-                <Card key={deal.id}>
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{deal.title}</h3>
-                        <p className="text-sm text-gray-600">
-                          {formatNumber(deal.investorsCount)} مستثمر • مدة {deal.duration} أشهر
-                        </p>
-                      </div>
-                      <span className={getStatusBadge(deal.status)}>
-                        {deal.status === 'ACTIVE' ? 'نشطة' : deal.status === 'FUNDED' ? 'ممولة' : 'مكتملة'}
+          <Link href="/partner/analytics">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <BarChart3 className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-purple-900">Analytics</h3>
+                    <p className="text-sm text-purple-700">{partnerData.successRate}% success</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/partner/investors">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <Users className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-orange-900">Investors</h3>
+                    <p className="text-sm text-orange-700">{partnerData.totalInvestors} total</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-700">Total Revenue</p>
+                  <p className="text-2xl font-bold text-blue-900">{formatCurrency(partnerData.totalRevenue)}</p>
+                  <p className="text-xs text-blue-600 flex items-center mt-1">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    +{partnerData.monthlyGrowth}% this month
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-700">Active Deals</p>
+                  <p className="text-2xl font-bold text-green-900">{partnerData.activeDeals}</p>
+                  <p className="text-xs text-green-600 flex items-center mt-1">
+                    <Target className="w-3 h-3 mr-1" />
+                    {partnerData.totalDeals} total deals
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                  <Briefcase className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-purple-700">Success Rate</p>
+                  <p className="text-2xl font-bold text-purple-900">{partnerData.successRate}%</p>
+                  <p className="text-xs text-purple-600 flex items-center mt-1">
+                    <Award className="w-3 h-3 mr-1" />
+                    {partnerData.completedDeals} completed
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-orange-700">Total Investors</p>
+                  <p className="text-2xl font-bold text-orange-900">{partnerData.totalInvestors}</p>
+                  <p className="text-xs text-orange-600 flex items-center mt-1">
+                    <Users className="w-3 h-3 mr-1" />
+                    Rating: {partnerData.rating} ⭐
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-orange-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts and Deal Overview */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Performance Chart */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Revenue Performance</h3>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-green-600">+{partnerData.monthlyGrowth}%</span>
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={performanceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip formatter={(value) => [formatCurrency(Number(value)), 'Revenue']} />
+                  <Area type="monotone" dataKey="revenue" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Current Deals */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Current Deals</h3>
+                <Link href="/partner/deals">
+                  <Button variant="outline" size="sm">
+                    View All
+                  </Button>
+                </Link>
+              </div>
+              <div className="space-y-4">
+                {currentDeals.map((deal) => (
+                  <div key={deal.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-semibold text-gray-900 text-sm">{deal.title}</h4>
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(deal.status)}`}>
+                        {getStatusIcon(deal.status)}
+                        {deal.status}
                       </span>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                      <div>
-                        <p className="text-sm text-gray-600">التمويل المطلوب</p>
-                        <p className="text-lg font-semibold">
-                          {formatNumber(deal.fundingGoal)} ريال
-                        </p>
+                    
+                    <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                      <span>Progress</span>
+                      <span>{Math.round((deal.currentFunding / deal.fundingGoal) * 100)}%</span>
+                    </div>
+                    
+                    <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full" 
+                        style={{ width: `${Math.min((deal.currentFunding / deal.fundingGoal) * 100, 100)}%` }}
+                      ></div>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="text-center">
+                        <div className="font-semibold text-gray-900">{formatCurrency(deal.currentFunding)}</div>
+                        <div className="text-gray-500">Raised</div>
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-600">التمويل المحقق</p>
-                        <p className="text-lg font-semibold text-green-600">
-                          {formatNumber(deal.currentFunding)} ريال
-                        </p>
+                      <div className="text-center">
+                        <div className="font-semibold text-gray-900">{deal.expectedReturn}%</div>
+                        <div className="text-gray-500">Return</div>
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-600">العائد المتوقع</p>
-                        <p className="text-lg font-semibold text-blue-600">
-                          {deal.expectedReturn}%
-                        </p>
+                      <div className="text-center">
+                        <div className="font-semibold text-gray-900">{deal.investorsCount}</div>
+                        <div className="text-gray-500">Investors</div>
                       </div>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-                    {/* Funding Progress */}
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>نسبة التمويل</span>
-                        <span>{((deal.currentFunding / deal.fundingGoal) * 100).toFixed(1)}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${Math.min((deal.currentFunding / deal.fundingGoal) * 100, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Deal Stage Progress */}
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>مرحلة الصفقة</span>
-                        <span>{dealStages[deal.stage - 1]}</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-green-600 h-2 rounded-full"
-                          style={{ width: `${getStageProgress(deal.stage)}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3">
-                      <Button variant="outline" size="sm">
-                        عرض التفاصيل
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        تحديث المرحلة
-                      </Button>
-                      {deal.status === 'FUNDED' && (
-                        <Button variant="outline" size="sm">
-                          توزيع الأرباح
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+        {/* Recent Activities */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Recent Activities</h3>
+              <Link href="/partner/notifications">
+                <Button variant="outline" size="sm">
+                  View All
+                </Button>
+              </Link>
             </div>
-          </div>
-        )}
-
-        {/* Performance Tab */}
-        {activeTab === 'performance' && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">تقرير الأداء</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">ملخص الأداء</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">الصفقات المكتملة:</span>
-                      <span className="font-medium">{formatNumber(partnerData.completedDeals)}</span>
+            <div className="space-y-4">
+              {recentActivities.map((activity) => {
+                const Icon = activity.icon
+                return (
+                  <div key={activity.id} className="flex items-start gap-4">
+                    <div className={`w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0`}>
+                      <Icon className={`w-5 h-5 ${activity.color}`} />
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">معدل النجاح:</span>
-                      <span className="font-medium text-green-600">{partnerData.successRate}%</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">{activity.message}</p>
+                      <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">متوسط العائد:</span>
-                      <span className="font-medium text-blue-600">{partnerData.averageReturn}%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">إجمالي التمويل:</span>
-                      <span className="font-medium">{formatNumber(partnerData.totalFunding)} ريال</span>
-                    </div>
+                    <ArrowUpRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">تقييمات المستثمرين</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center">
-                      <span className="text-gray-600 w-16">5 نجوم</span>
-                      <div className="flex-1 bg-gray-200 rounded-full h-2 mx-3">
-                        <div className="bg-yellow-400 h-2 rounded-full" style={{ width: '80%' }}></div>
-                      </div>
-                      <span className="text-sm text-gray-500">80%</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="text-gray-600 w-16">4 نجوم</span>
-                      <div className="flex-1 bg-gray-200 rounded-full h-2 mx-3">
-                        <div className="bg-yellow-400 h-2 rounded-full" style={{ width: '15%' }}></div>
-                      </div>
-                      <span className="text-sm text-gray-500">15%</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="text-gray-600 w-16">3 نجوم</span>
-                      <div className="flex-1 bg-gray-200 rounded-full h-2 mx-3">
-                        <div className="bg-yellow-400 h-2 rounded-full" style={{ width: '5%' }}></div>
-                      </div>
-                      <span className="text-sm text-gray-500">5%</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                )
+              })}
             </div>
-
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">نصائح لتحسين الأداء</h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-start">
-                    <span className="text-blue-600 ml-2">💡</span>
-                    <p>حافظ على التواصل المنتظم مع المستثمرين لتحديث حالة الصفقة</p>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-green-600 ml-2">📈</span>
-                    <p>اهتم بتحقيق العوائد المتوقعة أو أفضل لزيادة ثقة المستثمرين</p>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-purple-600 ml-2">🎯</span>
-                    <p>قدم تقارير مفصلة ودقيقة عن مراحل تنفيذ الصفقة</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </PartnerLayout>
   )
-} 
+}
+
+export default PartnerDashboard

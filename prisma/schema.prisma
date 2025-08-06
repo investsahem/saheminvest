@@ -39,7 +39,9 @@ enum PermissionType {
 enum ProjectStatus {
   DRAFT
   PENDING
+  PUBLISHED
   ACTIVE
+  PAUSED
   FUNDED
   COMPLETED
   CANCELLED
@@ -58,6 +60,7 @@ enum TransactionType {
   INVESTMENT
   RETURN
   FEE
+  COMMISSION
 }
 
 enum ApplicationStatus {
@@ -83,6 +86,10 @@ model User {
   dateOfBirth       DateTime?
   kycVerified       Boolean       @default(false)
   
+  // Password reset
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  
   // Financial
   walletBalance     Decimal       @default(0) @db.Decimal(15, 2)
   totalInvested     Decimal       @default(0) @db.Decimal(15, 2)
@@ -100,6 +107,13 @@ model User {
   assignedInvestors UserInvestorAssignment[] @relation("PortfolioAdvisor")
   advisorFor        UserInvestorAssignment[] @relation("AssignedInvestor")
   reviewedApplications UserApplication[] @relation("ApplicationReviewer")
+  
+  // Financial relationships
+  budgets           Budget[]
+  requestedBudgets  BudgetRequest[] @relation("BudgetRequestedBy")
+  processedBudgets  BudgetRequest[] @relation("BudgetProcessedBy")
+  revenueStreams    RevenueStream[]
+  financialReports  FinancialReport[]
   
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
@@ -194,6 +208,7 @@ model Project {
   title            String
   description      String        @db.Text
   category         String
+  location         String?
   
   // Financial details
   fundingGoal      Decimal       @db.Decimal(15, 2)
@@ -201,15 +216,28 @@ model Project {
   minInvestment    Decimal       @db.Decimal(15, 2)
   expectedReturn   Decimal       @db.Decimal(5, 2) // Percentage
   duration         Int           // In days
+  riskLevel        String?       // LOW, MEDIUM, HIGH
   
   // Status and dates
   status           ProjectStatus @default(DRAFT)
   startDate        DateTime?
   endDate          DateTime?
+  publishedAt      DateTime?
+  pausedAt         DateTime?
   
   // Media and documents
   images           String[]
   documents        String[]
+  thumbnailImage   String?       // Main display image
+  
+  // Additional details
+  highlights       String[]      // Key selling points
+  tags             String[]      // For filtering/searching
+  
+  // SEO and visibility
+  slug             String?       @unique
+  featured         Boolean       @default(false)
+  priority         Int           @default(0)
   
   // Owner information
   ownerId          String
@@ -219,9 +247,13 @@ model Project {
   partnerId        String?
   partner          Partner?      @relation(fields: [partnerId], references: [id])
   
+  // Admin/Moderation
+  approvedBy       String?
+  approvedAt       DateTime?
+  rejectedReason   String?
+  
   // Relationships
   investments      Investment[]
-  transactions     Transaction[]
   reviews          PartnerReview[]
   
   createdAt        DateTime      @default(now())
@@ -242,6 +274,7 @@ model Investment {
   investor         User             @relation(fields: [investorId], references: [id])
   projectId        String
   project          Project          @relation(fields: [projectId], references: [id])
+  transactions     Transaction[]
   
   // Tracking
   investmentDate   DateTime         @default(now())
@@ -253,25 +286,34 @@ model Investment {
   @@map("investments")
 }
 
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
 model Transaction {
-  id               String          @id @default(cuid())
-  amount           Decimal         @db.Decimal(15, 2)
+  id               String            @id @default(cuid())
+  amount           Decimal           @db.Decimal(15, 2)
   type             TransactionType
+  status           TransactionStatus @default(PENDING)
   description      String?
-  status           String          @default("completed")
+  reference        String?           @unique
+  method           String?           // card, bank, cash
+  notes            String?           @db.Text
   
   // Relationships
   userId           String
-  user             User            @relation(fields: [userId], references: [id])
-  projectId        String?
-  project          Project?        @relation(fields: [projectId], references: [id])
+  user             User              @relation(fields: [userId], references: [id])
+  investmentId     String?
+  investment       Investment?       @relation(fields: [investmentId], references: [id])
   
-  // Transaction details
-  reference        String?         @unique
+  // Metadata
   metadata         Json?
   
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   
   @@map("transactions")
 }
@@ -280,8 +322,9 @@ model Notification {
   id               String          @id @default(cuid())
   title            String
   message          String          @db.Text
-  type             String          // info, success, warning, error
+  type             String          // info, success, warning, error, push
   read             Boolean         @default(false)
+  metadata         String?         @db.Text // JSON string for additional data
   
   // Relationships
   userId           String
@@ -302,24 +345,56 @@ model VerificationToken {
   @@map("verificationtokens")
 }
 
+enum PartnerStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+  INACTIVE
+}
+
+enum PartnerTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
 model Partner {
   id               String          @id @default(cuid())
   
   // Partner information
   companyName      String
+  contactName      String?
   description      String?         @db.Text
   logo             String?
   website          String?
   phone            String?
   address          String?
+  industry         String?
+  
+  // Status and tier
+  status           PartnerStatus   @default(PENDING)
+  tier             PartnerTier     @default(BRONZE)
   
   // Performance metrics
   totalDeals       Int             @default(0)
   completedDeals   Int             @default(0)
   totalFunding     Decimal         @default(0) @db.Decimal(15, 2)
+  totalCommission  Decimal         @default(0) @db.Decimal(15, 2)
   averageReturn    Decimal?        @db.Decimal(5, 2)
+  successRate      Decimal         @default(0) @db.Decimal(5, 2)
   rating           Decimal         @default(0) @db.Decimal(3, 2)
   totalRatings     Int             @default(0)
+  
+  // Documents
+  businessLicense  Boolean         @default(false)
+  taxCertificate   Boolean         @default(false)
+  bankDetails      Boolean         @default(false)
+  partnershipAgreement Boolean     @default(false)
+  
+  // Activity tracking
+  lastActive       DateTime?
+  joinedAt         DateTime        @default(now())
   
   // Relationships
   userId           String          @unique
@@ -381,4 +456,130 @@ model UserInvestorAssignment {
   
   @@unique([advisorId, investorId])
   @@map("user_investor_assignments")
+}
+
+
+
+enum BudgetStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+
+
+model Budget {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  category     String        // operational, marketing, technology, etc.
+  
+  // Budget amounts
+  allocated    Float
+  spent        Float         @default(0)
+  remaining    Float         @default(0)
+  
+  // Period
+  startDate    DateTime
+  endDate      DateTime
+  
+  status       BudgetStatus  @default(DRAFT)
+  
+  // Relationships
+  createdBy    String
+  createdByUser User         @relation(fields: [createdBy], references: [id])
+  
+  // Budget requests
+  requests     BudgetRequest[]
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  
+  @@map("budgets")
+}
+
+model BudgetRequest {
+  id           String        @id @default(cuid())
+  department   String
+  purpose      String
+  amount       Float
+  priority     String        @default("medium") // low, medium, high
+  
+  status       RequestStatus @default(PENDING)
+  notes        String?
+  
+  // Relationships
+  budgetId     String?
+  budget       Budget?       @relation(fields: [budgetId], references: [id])
+  
+  requestedBy  String
+  requestedByUser User       @relation("BudgetRequestedBy", fields: [requestedBy], references: [id])
+  
+  processedBy  String?
+  processedByUser User?      @relation("BudgetProcessedBy", fields: [processedBy], references: [id])
+  processedAt  DateTime?
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  
+  @@map("budget_requests")
+}
+
+model RevenueStream {
+  id           String   @id @default(cuid())
+  name         String
+  category     String   // Transaction Fees, Asset Management, etc.
+  description  String?
+  
+  // Targets and actuals
+  targetAmount Float
+  actualAmount Float    @default(0)
+  
+  // Configuration
+  isActive     Boolean  @default(true)
+  
+  // Relationships
+  createdBy    String
+  createdByUser User    @relation(fields: [createdBy], references: [id])
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("revenue_streams")
+}
+
+model FinancialReport {
+  id           String   @id @default(cuid())
+  title        String
+  type         String   // monthly, quarterly, annual, custom
+  description  String?
+  
+  // Report data (JSON)
+  data         Json
+  
+  // Period
+  startDate    DateTime
+  endDate      DateTime
+  
+  // File information
+  fileName     String?
+  fileUrl      String?
+  fileSize     Int?
+  
+  // Relationships
+  generatedBy  String
+  generatedByUser User  @relation(fields: [generatedBy], references: [id])
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("financial_reports")
 }

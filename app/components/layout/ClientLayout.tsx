@@ -10,7 +10,7 @@ interface ClientLayoutProps {
 export function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <SessionProvider>
-      <I18nProvider>
+      <I18nProvider initialLocale="ar">
         {children}
       </I18nProvider>
     </SessionProvider>

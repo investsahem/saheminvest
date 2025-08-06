@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import PortfolioAdvisorLayout from '../components/layout/PortfolioAdvisorLayout'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
@@ -21,14 +21,56 @@ const PortfolioAdvisorDashboard = () => {
   const { t } = useTranslation()
   const { locale } = useI18n()
   const { data: session } = useSession()
+  
+  interface Client {
+    id: string
+    name: string
+    email: string
+    walletBalance: string
+    totalInvested: string
+    totalReturns: string
+    assignedAt: string
+    activeInvestments: number
+    lastInvestment: string | null
+  }
 
-  // Advisor metrics
-  const activeClients = 45
-  const avgReturn = 16.8
+  const [clients, setClients] = useState<Client[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchClients()
+  }, [])
+
+  const fetchClients = async () => {
+    try {
+      const response = await fetch('/api/portfolio-advisor/clients')
+      const data = await response.json()
+      
+      if (response.ok) {
+        setClients(data.clients)
+      } else {
+        console.error('Error fetching clients:', data.error)
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Advisor metrics (calculated from real data)
+  const activeClients = clients.length
+  const totalAUM = clients.reduce((sum, client) => sum + (parseFloat(client.totalInvested) || 0), 0)
+  const totalReturns = clients.reduce((sum, client) => sum + (parseFloat(client.totalReturns) || 0), 0)
+  const avgReturn = totalAUM > 0 ? (totalReturns / totalAUM) * 100 : 0
   const satisfaction = 94.2
   const monthlyGrowth = 8.7
-  const totalAUM = 2850000 // Assets Under Management
-  const newClients = 5
+  const newClients = clients.filter(client => {
+    const assignedDate = new Date(client.assignedAt)
+    const oneMonthAgo = new Date()
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+    return assignedDate > oneMonthAgo
+  }).length
 
   // Portfolio performance data
   const performanceData = [

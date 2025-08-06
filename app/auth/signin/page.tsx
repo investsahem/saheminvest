@@ -208,6 +208,13 @@ export default function SignInPage() {
                 {loading ? t('auth.signin.logging_in') : t('auth.signin.title')}
               </Button>
             </form>
+
+            {/* Forgot Password Link */}
+            <div className="mt-4 text-center">
+              <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+                Forgot your password?
+              </Link>
+            </div>
             
             {/* Google Sign In - Only for investors */}
             {userType === 'investor' && (

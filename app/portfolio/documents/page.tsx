@@ -1,0 +1,510 @@
+'use client'
+
+import { useState } from 'react'
+import { useSession } from 'next-auth/react'
+import InvestorLayout from '../../components/layout/InvestorLayout'
+import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
+import { Card, CardContent } from '../../components/ui/Card'
+import { Button } from '../../components/ui/Button'
+import { 
+  FileText, Download, Eye, Search, Filter, Calendar,
+  Shield, CheckCircle, Clock, AlertCircle, Folder,
+  FileType, Image, File, Archive, Star,
+  Share2, Trash2, Upload, RefreshCw
+} from 'lucide-react'
+
+const DocumentsPage = () => {
+  const { t } = useTranslation()
+  const { locale } = useI18n()
+  const { data: session } = useSession()
+  
+  const [filter, setFilter] = useState<'all' | 'statements' | 'contracts' | 'tax' | 'certificates'>('all')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'type'>('date')
+
+  // Sample documents data
+  const documents = [
+    {
+      id: 'DOC-2024-001',
+      name: 'Investment Statement - January 2024',
+      type: 'statement',
+      category: 'Monthly Statement',
+      size: '1.2 MB',
+      format: 'PDF',
+      date: '2024-01-31T23:59:59Z',
+      status: 'available',
+      description: 'Monthly investment statement showing all transactions and returns',
+      dealId: null,
+      dealName: null,
+      downloadCount: 3,
+      isImportant: true,
+      tags: ['monthly', 'statement', '2024']
+    },
+    {
+      id: 'DOC-2024-002',
+      name: 'Investment Agreement - Tech Innovation Fund',
+      type: 'contract',
+      category: 'Investment Contract',
+      size: '2.8 MB',
+      format: 'PDF',
+      date: '2023-08-20T10:30:00Z',
+      status: 'available',
+      description: 'Legal agreement for investment in Tech Innovation Fund',
+      dealId: 'DEAL-2696',
+      dealName: 'Tech Innovation Fund',
+      downloadCount: 1,
+      isImportant: true,
+      tags: ['contract', 'tech', 'agreement']
+    },
+    {
+      id: 'DOC-2024-003',
+      name: 'Tax Document 2023',
+      type: 'tax',
+      category: 'Tax Statement',
+      size: '890 KB',
+      format: 'PDF',
+      date: '2024-01-15T14:20:00Z',
+      status: 'available',
+      description: 'Annual tax statement for investment returns in 2023',
+      dealId: null,
+      dealName: null,
+      downloadCount: 2,
+      isImportant: true,
+      tags: ['tax', '2023', 'annual']
+    },
+    {
+      id: 'DOC-2024-004',
+      name: 'Investment Certificate - Real Estate Project',
+      type: 'certificate',
+      category: 'Investment Certificate',
+      size: '1.5 MB',
+      format: 'PDF',
+      date: '2023-06-15T09:15:00Z',
+      status: 'available',
+      description: 'Official certificate for real estate investment',
+      dealId: 'DEAL-2695',
+      dealName: 'Downtown Commercial Complex',
+      downloadCount: 1,
+      isImportant: false,
+      tags: ['certificate', 'real-estate']
+    },
+    {
+      id: 'DOC-2024-005',
+      name: 'Monthly Return Report - December 2023',
+      type: 'statement',
+      category: 'Return Report',
+      size: '750 KB',
+      format: 'PDF',
+      date: '2023-12-31T23:59:59Z',
+      status: 'available',
+      description: 'Detailed return analysis for December 2023',
+      dealId: null,
+      dealName: null,
+      downloadCount: 4,
+      isImportant: false,
+      tags: ['returns', 'december', '2023']
+    },
+    {
+      id: 'DOC-2024-006',
+      name: 'Due Diligence Report - Healthcare Project',
+      type: 'contract',
+      category: 'Due Diligence',
+      size: '3.2 MB',
+      format: 'PDF',
+      date: '2023-09-08T16:45:00Z',
+      status: 'processing',
+      description: 'Comprehensive due diligence report for healthcare investment',
+      dealId: 'DEAL-2697',
+      dealName: 'Healthcare Development Project',
+      downloadCount: 0,
+      isImportant: false,
+      tags: ['due-diligence', 'healthcare']
+    },
+    {
+      id: 'DOC-2024-007',
+      name: 'KYC Verification Documents',
+      type: 'certificate',
+      category: 'Verification',
+      size: '2.1 MB',
+      format: 'ZIP',
+      date: '2023-05-10T11:30:00Z',
+      status: 'available',
+      description: 'Know Your Customer verification documents',
+      dealId: null,
+      dealName: null,
+      downloadCount: 1,
+      isImportant: true,
+      tags: ['kyc', 'verification', 'compliance']
+    },
+    {
+      id: 'DOC-2024-008',
+      name: 'Portfolio Performance Report Q4 2023',
+      type: 'statement',
+      category: 'Performance Report',
+      size: '1.8 MB',
+      format: 'PDF',
+      date: '2023-12-31T23:59:59Z',
+      status: 'available',
+      description: 'Quarterly portfolio performance analysis',
+      dealId: null,
+      dealName: null,
+      downloadCount: 5,
+      isImportant: false,
+      tags: ['performance', 'q4', '2023', 'quarterly']
+    }
+  ]
+
+  // Filter documents
+  const filteredDocuments = documents.filter(doc => {
+    // Type filter
+    if (filter !== 'all' && doc.type !== filter) return false
+
+    // Search filter
+    if (searchTerm && 
+        !doc.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !doc.description.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !doc.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) {
+      return false
+    }
+
+    return true
+  })
+
+  // Sort documents
+  const sortedDocuments = [...filteredDocuments].sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name)
+      case 'type':
+        return a.type.localeCompare(b.type)
+      case 'date':
+      default:
+        return new Date(b.date).getTime() - new Date(a.date).getTime()
+    }
+  })
+
+  // Group documents by category
+  const groupedDocuments = sortedDocuments.reduce((groups, doc) => {
+    const category = doc.category
+    if (!groups[category]) {
+      groups[category] = []
+    }
+    groups[category].push(doc)
+    return groups
+  }, {} as Record<string, typeof documents>)
+
+  const formatFileSize = (bytes: string) => {
+    return bytes // Already formatted in sample data
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
+  const getFileIcon = (format: string) => {
+    switch (format.toLowerCase()) {
+      case 'pdf': return <FileType className="w-5 h-5 text-red-600" />
+      case 'zip': return <Archive className="w-5 h-5 text-orange-600" />
+      case 'jpg':
+      case 'jpeg':
+      case 'png': return <Image className="w-5 h-5 text-blue-600" />
+      default: return <File className="w-5 h-5 text-gray-600" />
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'available': return <CheckCircle className="w-4 h-4 text-green-600" />
+      case 'processing': return <Clock className="w-4 h-4 text-orange-600" />
+      case 'expired': return <AlertCircle className="w-4 h-4 text-red-600" />
+      default: return <Clock className="w-4 h-4 text-gray-600" />
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'available': return 'bg-green-100 text-green-800'
+      case 'processing': return 'bg-orange-100 text-orange-800'
+      case 'expired': return 'bg-red-100 text-red-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const handleDownload = (doc: typeof documents[0]) => {
+    console.log('Downloading:', doc.name)
+    // Implement download logic
+  }
+
+  const handlePreview = (doc: typeof documents[0]) => {
+    console.log('Previewing:', doc.name)
+    // Implement preview logic
+  }
+
+  return (
+    <InvestorLayout title={t('investor.documents')}>
+      {/* Summary Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Documents</p>
+                <p className="text-2xl font-bold text-gray-900">{documents.length}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <FileText className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Statements</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {documents.filter(d => d.type === 'statement').length}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <Folder className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Contracts</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {documents.filter(d => d.type === 'contract').length}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                <Shield className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Important</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {documents.filter(d => d.isImportant).length}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                <Star className="w-6 h-6 text-orange-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters and Search */}
+      <Card className="mb-6">
+        <CardContent className="p-6">
+          <div className="flex flex-col lg:flex-row gap-4 justify-between">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search documents..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap gap-4">
+              {/* Type Filter */}
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-500" />
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value as any)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Types</option>
+                  <option value="statements">Statements</option>
+                  <option value="contracts">Contracts</option>
+                  <option value="tax">Tax Documents</option>
+                  <option value="certificates">Certificates</option>
+                </select>
+              </div>
+
+              {/* Sort */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="date">Sort by Date</option>
+                <option value="name">Sort by Name</option>
+                <option value="type">Sort by Type</option>
+              </select>
+
+              {/* Actions */}
+              <Button variant="outline" size="sm">
+                <Upload className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                Upload
+              </Button>
+              <Button variant="outline" size="sm">
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Documents List */}
+      <div className="space-y-6">
+        {Object.entries(groupedDocuments).map(([category, docs]) => (
+          <Card key={category}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">{category}</h3>
+                <span className="text-sm text-gray-500">{docs.length} documents</span>
+              </div>
+
+              <div className="space-y-3">
+                {docs.map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                        {getFileIcon(doc.format)}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium text-gray-900 truncate">{doc.name}</h4>
+                          {doc.isImportant && (
+                            <Star className="w-4 h-4 text-orange-500 fill-current" />
+                          )}
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(doc.status)}`}>
+                            {getStatusIcon(doc.status)}
+                            <span className={locale === 'ar' ? 'mr-1' : 'ml-1'}>
+                              {doc.status}
+                            </span>
+                          </span>
+                        </div>
+                        
+                        <p className="text-sm text-gray-600 mb-2 line-clamp-1">{doc.description}</p>
+                        
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(doc.date)}
+                          </span>
+                          <span>{formatFileSize(doc.size)}</span>
+                          <span>{doc.format}</span>
+                          {doc.downloadCount > 0 && (
+                            <span>{doc.downloadCount} downloads</span>
+                          )}
+                        </div>
+
+                        {doc.dealName && (
+                          <div className="mt-2">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                              Related to: {doc.dealName}
+                            </span>
+                          </div>
+                        )}
+
+                        {doc.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {doc.tags.map((tag) => (
+                              <span key={tag} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-200 text-gray-700">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                      {doc.status === 'available' && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePreview(doc)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDownload(doc)}
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
+                      <Button variant="outline" size="sm">
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Empty State */}
+      {sortedDocuments.length === 0 && (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <div className="text-6xl mb-4">📄</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No documents found</h3>
+            <p className="text-gray-600 mb-6">
+              {searchTerm || filter !== 'all'
+                ? 'Try adjusting your search or filters to find documents.'
+                : "You don't have any documents yet."}
+            </p>
+            {!searchTerm && filter === 'all' && (
+              <Button>
+                <Upload className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                Upload Document
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Security Notice */}
+      <Card className="mt-8">
+        <CardContent className="p-6">
+          <div className="flex items-start gap-3">
+            <Shield className="w-5 h-5 text-blue-600 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-gray-900 mb-1">Document Security</h4>
+              <p className="text-sm text-gray-600">
+                All documents are encrypted and stored securely. Access is logged and monitored for your security. 
+                Documents are automatically backed up and available for download at any time.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </InvestorLayout>
+  )
+}
+
+export default DocumentsPage

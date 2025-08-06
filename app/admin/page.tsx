@@ -568,6 +568,239 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
+        {/* Portfolio Management Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+          {/* Deal Management Quick Actions */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Deal Management</h3>
+                <Link href="/deals">
+                  <Button variant="outline" size="sm">
+                    <Eye className="w-4 h-4 mr-2" />
+                    View All
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {dealDistributionData.reduce((sum, item) => sum + item.value, 0)}
+                    </div>
+                    <div className="text-sm text-blue-800">Active Deals</div>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">12</div>
+                    <div className="text-sm text-green-800">Draft Deals</div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Pending Approval</span>
+                    <span className="text-sm font-medium text-yellow-600">3 deals</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Funded This Month</span>
+                    <span className="text-sm font-medium text-green-600">8 deals</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Total Funding</span>
+                    <span className="text-sm font-medium text-blue-600">$2.4M</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <Link href="/deals" className="flex-1">
+                    <Button variant="outline" className="w-full">
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Manage Deals
+                    </Button>
+                  </Link>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    <Target className="w-4 h-4 mr-2" />
+                    Add Deal
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Investor Portfolio Overview */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Portfolio Overview</h3>
+                <Link href="/portfolio">
+                  <Button variant="outline" size="sm">
+                    <Eye className="w-4 h-4 mr-2" />
+                    View Portfolio
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">1,247</div>
+                    <div className="text-sm text-purple-800">Total Investors</div>
+                  </div>
+                  <div className="bg-indigo-50 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-indigo-600">$12.5M</div>
+                    <div className="text-sm text-indigo-800">AUM</div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Active Investments</span>
+                    <span className="text-sm font-medium text-green-600">2,456</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Avg. Portfolio Size</span>
+                    <span className="text-sm font-medium text-blue-600">$10,042</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Portfolio Growth</span>
+                    <span className="text-sm font-medium text-green-600">+15.2%</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <Link href="/admin/users" className="flex-1">
+                    <Button variant="outline" className="w-full">
+                      <Users className="w-4 h-4 mr-2" />
+                      Manage Users
+                    </Button>
+                  </Link>
+                  <Link href="/portfolio">
+                    <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                      <PieIcon className="w-4 h-4 mr-2" />
+                      Analytics
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Investment Performance Tracking */}
+        <div className="mt-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Investment Performance</h3>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    This Month
+                  </Button>
+                  <Link href="/portfolio/analytics">
+                    <Button variant="outline" size="sm">
+                      <GrowthIcon className="w-4 h-4 mr-2" />
+                      Detailed Analytics
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900 mb-1">$2.4M</div>
+                  <div className="text-sm text-gray-600 mb-2">Total Invested</div>
+                  <div className="flex items-center justify-center text-green-600">
+                    <TrendingUp className="w-4 h-4 mr-1" />
+                    <span className="text-sm font-medium">+12.5%</span>
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900 mb-1">$380K</div>
+                  <div className="text-sm text-gray-600 mb-2">Total Returns</div>
+                  <div className="flex items-center justify-center text-green-600">
+                    <TrendingUp className="w-4 h-4 mr-1" />
+                    <span className="text-sm font-medium">+8.2%</span>
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900 mb-1">15.8%</div>
+                  <div className="text-sm text-gray-600 mb-2">Avg ROI</div>
+                  <div className="flex items-center justify-center text-green-600">
+                    <TrendingUp className="w-4 h-4 mr-1" />
+                    <span className="text-sm font-medium">+2.1%</span>
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900 mb-1">94.2%</div>
+                  <div className="text-sm text-gray-600 mb-2">Success Rate</div>
+                  <div className="flex items-center justify-center text-green-600">
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    <span className="text-sm font-medium">Excellent</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions for Portfolio Management */}
+        <div className="mt-8">
+          <Card>
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <Link href="/deals">
+                  <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
+                    <Target className="w-6 h-6" />
+                    <span className="text-sm">Manage Deals</span>
+                  </Button>
+                </Link>
+                
+                <Link href="/portfolio/investments">
+                  <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
+                    <PieIcon className="w-6 h-6" />
+                    <span className="text-sm">Investments</span>
+                  </Button>
+                </Link>
+                
+                <Link href="/portfolio/wallet">
+                  <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
+                    <DollarSign className="w-6 h-6" />
+                    <span className="text-sm">Wallet</span>
+                  </Button>
+                </Link>
+                
+                <Link href="/portfolio/transactions">
+                  <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
+                    <Activity className="w-6 h-6" />
+                    <span className="text-sm">Transactions</span>
+                  </Button>
+                </Link>
+                
+                <Link href="/portfolio/analytics">
+                  <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
+                    <BarChart3 className="w-6 h-6" />
+                    <span className="text-sm">Analytics</span>
+                  </Button>
+                </Link>
+                
+                <Link href="/admin/users">
+                  <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
+                    <Users className="w-6 h-6" />
+                    <span className="text-sm">Users</span>
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* System Status Footer */}
         {(dashboardStats.pendingApprovals > 0 || dashboardStats.systemAlerts > 0) && (
           <div className="mt-8">

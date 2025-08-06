@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 import DealManagerLayout from '../components/layout/DealManagerLayout'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
 import { Card, CardContent } from '../components/ui/Card'
@@ -387,24 +388,53 @@ const DealManagerDashboard = () => {
       {/* Quick Actions */}
       <Card>
         <CardContent className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('dealManager.quick_actions')}</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button className="flex flex-col items-center space-y-2 h-20 bg-orange-600 hover:bg-orange-700">
-              <Briefcase className="w-6 h-6" />
-              <span className="text-sm text-center">{t('dealManager.create_new_deal')}</span>
-            </Button>
-            <Button variant="outline" className="flex flex-col items-center space-y-2 h-20">
-              <FileText className="w-6 h-6" />
-              <span className="text-sm text-center">{t('dealManager.review_proposals')}</span>
-            </Button>
-            <Button variant="outline" className="flex flex-col items-center space-y-2 h-20">
-              <Building2 className="w-6 h-6" />
-              <span className="text-sm text-center">{t('dealManager.contact_partners')}</span>
-            </Button>
-            <Button variant="outline" className="flex flex-col items-center space-y-2 h-20">
-              <BarChart3 className="w-6 h-6" />
-              <span className="text-sm text-center">{t('dealManager.generate_reports')}</span>
-            </Button>
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">Deal Manager Dashboard</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <Link href="/deal-manager/deals">
+              <Button className="flex flex-col items-center space-y-2 h-20 w-full bg-blue-600 hover:bg-blue-700">
+                <Briefcase className="w-6 h-6" />
+                <span className="text-sm text-center">Manage Deals</span>
+              </Button>
+            </Link>
+            <Link href="/deal-manager/analytics">
+              <Button variant="outline" className="flex flex-col items-center space-y-2 h-20 w-full">
+                <BarChart3 className="w-6 h-6" />
+                <span className="text-sm text-center">Deal Analytics</span>
+              </Button>
+            </Link>
+            <Link href="/deal-manager/partners">
+              <Button variant="outline" className="flex flex-col items-center space-y-2 h-20 w-full">
+                <Building2 className="w-6 h-6" />
+                <span className="text-sm text-center">Partner Management</span>
+              </Button>
+            </Link>
+            <Link href="/deal-manager/investors">
+              <Button variant="outline" className="flex flex-col items-center space-y-2 h-20 w-full">
+                <Users className="w-6 h-6" />
+                <span className="text-sm text-center">Investor Relations</span>
+              </Button>
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <Link href="/deal-manager/performance">
+              <Button variant="outline" className="flex flex-col items-center space-y-2 h-20 w-full">
+                <Target className="w-6 h-6" />
+                <span className="text-sm text-center">Performance Tracking</span>
+              </Button>
+            </Link>
+            <Link href="/deal-manager/documents">
+              <Button variant="outline" className="flex flex-col items-center space-y-2 h-20 w-full">
+                <FileText className="w-6 h-6" />
+                <span className="text-sm text-center">Documents</span>
+              </Button>
+            </Link>
+            <Link href="/deal-manager/settings">
+              <Button variant="outline" className="flex flex-col items-center space-y-2 h-20 w-full">
+                <Activity className="w-6 h-6" />
+                <span className="text-sm text-center">Settings</span>
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
