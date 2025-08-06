@@ -316,6 +316,7 @@ async function main() {
             where: { slug: dealData.slug },
             data: {
               ...dealData,
+              status: dealData.status as any,
               ownerId: partnerUser.id,
               partnerId: partner.id
             }
@@ -325,6 +326,7 @@ async function main() {
           await prisma.project.create({
             data: {
               ...dealData,
+              status: dealData.status as any,
               ownerId: partnerUser.id,
               partnerId: partner.id
             }
