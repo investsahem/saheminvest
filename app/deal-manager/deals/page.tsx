@@ -271,7 +271,7 @@ const ManageDealsPage = () => {
                 <div>
                   <p className="text-sm font-medium text-purple-700">Total Value</p>
                   <p className="text-2xl font-bold text-purple-900">
-                    ${deals.reduce((sum, deal) => sum + deal.fundingGoal, 0).toLocaleString()}
+                    ${deals.reduce((sum, deal) => sum + parseFloat(deal.fundingGoal.toString()), 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">

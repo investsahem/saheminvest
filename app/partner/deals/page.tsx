@@ -280,7 +280,7 @@ const PartnerDealsPage = () => {
                 <div>
                   <p className="text-sm font-medium text-purple-700">Total Value</p>
                   <p className="text-2xl font-bold text-purple-900">
-                    {formatCurrency(deals.reduce((sum, deal) => sum + deal.fundingGoal, 0))}
+                    {formatCurrency(deals.reduce((sum, deal) => sum + parseFloat(deal.fundingGoal.toString()), 0))}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">

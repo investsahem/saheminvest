@@ -498,7 +498,7 @@ const DealsContent = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Funding</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(deals.reduce((sum, deal) => sum + deal.currentFunding, 0))}
+                  {formatCurrency(deals.reduce((sum, deal) => sum + parseFloat(deal.currentFunding.toString()), 0))}
                 </p>
                   </div>
                 </div>
