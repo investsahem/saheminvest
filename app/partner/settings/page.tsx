@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import PartnerLayout from '../../components/layout/PartnerLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -55,6 +56,7 @@ interface SecuritySettings {
 }
 
 const PartnerSettingsPage = () => {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -179,8 +181,8 @@ const PartnerSettingsPage = () => {
   if (loading) {
     return (
       <PartnerLayout
-        title="Settings"
-        subtitle="Manage your account and preferences"
+        title={t('partner.settings')}
+        subtitle={t('partner.settings_subtitle')}
       >
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -191,17 +193,17 @@ const PartnerSettingsPage = () => {
 
   return (
     <PartnerLayout
-      title="Settings"
-      subtitle="Manage your account and preferences"
+      title={t('partner.settings')}
+      subtitle={t('partner.settings_subtitle')}
     >
       <div className="space-y-6">
         {/* Tab Navigation */}
         <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
           {[
-            { key: 'profile', label: 'Profile', icon: User },
-            { key: 'notifications', label: 'Notifications', icon: Bell },
-            { key: 'security', label: 'Security', icon: Shield },
-            { key: 'billing', label: 'Billing', icon: CreditCard }
+            { key: 'profile', label: t('partner.profile_settings_title'), icon: User },
+            { key: 'notifications', label: t('partner.notification_settings'), icon: Bell },
+            { key: 'security', label: t('partner.security_settings'), icon: Shield },
+            { key: 'billing', label: t('partner.billing_settings'), icon: CreditCard }
           ].map((tab) => {
             const Icon = tab.icon
             return (
@@ -228,10 +230,10 @@ const PartnerSettingsPage = () => {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Company Information</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('partner.company_name')}</h3>
                   <Button onClick={handleProfileSave} disabled={saving}>
                     <Save className="w-4 h-4 mr-2" />
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? t('partner.loading') : t('partner.save')}
                   </Button>
                 </div>
 

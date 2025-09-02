@@ -9,9 +9,10 @@ import { Button } from '../ui/Button'
 interface PartnerHeaderProps {
   title?: string
   subtitle?: string
+  onMobileMenuClick?: () => void
 }
 
-const PartnerHeader = ({ title, subtitle }: PartnerHeaderProps) => {
+const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProps) => {
   const { t } = useTranslation()
   const { locale } = useI18n()
   const { data: session } = useSession()
@@ -41,11 +42,16 @@ const PartnerHeader = ({ title, subtitle }: PartnerHeaderProps) => {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm">
+    <header className="bg-white border-b border-gray-200 shadow-sm z-30">
       <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
         {/* Mobile menu button */}
         <div className="flex items-center lg:hidden">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={onMobileMenuClick}
+            className={`${locale === 'ar' ? 'ml-2 sm:ml-3' : 'mr-2 sm:mr-3'}`}
+          >
             <Menu className="w-4 h-4" />
           </Button>
         </div>

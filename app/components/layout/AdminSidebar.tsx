@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
+import { useAdminStats } from '../../hooks/useAdminStats'
+import { useAdminNotifications } from '../../hooks/useAdminNotifications'
 import { 
   LayoutDashboard, Users, DollarSign, Target, BarChart3, 
   Settings, FileText, Clock, UserCheck, Building2,
-  LogOut, User, ChevronDown, Bell
+  LogOut, User, ChevronDown, Bell, Wallet
 } from 'lucide-react'
 import { Button } from '../ui/Button'
 
@@ -16,6 +18,8 @@ const AdminSidebar = () => {
   const { locale } = useI18n()
   const { data: session } = useSession()
   const pathname = usePathname()
+  const { pendingApplications, isLoading } = useAdminStats()
+  const { notifications } = useAdminNotifications()
 
   const handleLogout = async () => {
     try {
@@ -40,7 +44,7 @@ const AdminSidebar = () => {
       href: '/admin/applications', 
       icon: Clock,
       current: pathname === '/admin/applications',
-      badge: 12
+      badge: isLoading ? '...' : pendingApplications
     },
     {
       name: 'Advisor Applications',
@@ -56,15 +60,22 @@ const AdminSidebar = () => {
     },
     {
       name: t('admin.manage_deals'),
-      href: '/deals',
+      href: '/admin/deals',
       icon: Target,
-      current: pathname === '/deals'
+      current: pathname === '/admin/deals',
+      badge: notifications.pendingDealsCount
     },
     {
       name: t('admin.financial_transactions'),
       href: '/admin/finances',
       icon: DollarSign,
       current: pathname === '/admin/finances'
+    },
+    {
+      name: 'Manage Deposits',
+      href: '/admin/deposits',
+      icon: Wallet,
+      current: pathname === '/admin/deposits'
     },
     {
       name: t('admin.partner_management'),

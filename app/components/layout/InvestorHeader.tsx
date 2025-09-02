@@ -2,6 +2,7 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
+import { useUserData } from '../../hooks/useUserData'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
 import { Bell, Search, User, ChevronDown, Menu, TrendingUp, DollarSign, LogOut } from 'lucide-react'
 import { Button } from '../ui/Button'
@@ -9,12 +10,14 @@ import { Button } from '../ui/Button'
 interface InvestorHeaderProps {
   title?: string
   subtitle?: string
+  onMobileMenuClick?: () => void
 }
 
-const InvestorHeader = ({ title, subtitle }: InvestorHeaderProps) => {
+const InvestorHeader = ({ title, subtitle, onMobileMenuClick }: InvestorHeaderProps) => {
   const { t } = useTranslation()
   const { locale } = useI18n()
   const { data: session } = useSession()
+  const { portfolioValue, dailyChange, isLoading } = useUserData()
 
   const formatGreeting = () => {
     const hour = new Date().getHours()
@@ -23,10 +26,14 @@ const InvestorHeader = ({ title, subtitle }: InvestorHeaderProps) => {
     return locale === 'ar' ? 'مساء الخير' : 'Good evening'
   }
 
-  const portfolioValue = (session?.user as any)?.walletBalance || 25000
-  const todayChange = 1850
-  const changePercent = ((todayChange / portfolioValue) * 100).toFixed(2)
-  const isPositive = todayChange >= 0
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
 
   const handleLogout = async () => {
     try {
@@ -40,14 +47,19 @@ const InvestorHeader = ({ title, subtitle }: InvestorHeaderProps) => {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm">
+    <header className="bg-white border-b border-gray-200 shadow-sm z-30">
       <div className="h-16 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-full">
           {/* Left Section - Mobile menu + Title */}
           <div className="flex items-center min-w-0 flex-1">
             {/* Mobile menu button */}
             <div className="flex items-center lg:hidden mr-3">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={onMobileMenuClick}
+                className={`${locale === 'ar' ? 'ml-2 sm:ml-3' : 'mr-2 sm:mr-3'}`}
+              >
                 <Menu className="w-4 h-4" />
               </Button>
             </div>
@@ -68,15 +80,22 @@ const InvestorHeader = ({ title, subtitle }: InvestorHeaderProps) => {
             <div className="text-center min-w-0">
               <div className="text-xs text-gray-500 whitespace-nowrap">{t('investor.portfolio_value')}</div>
               <div className="text-lg font-bold text-gray-900">
-                ${portfolioValue.toLocaleString()}
+                {isLoading ? '...' : formatCurrency(portfolioValue)}
               </div>
             </div>
             <div className="text-center min-w-0">
               <div className="text-xs text-gray-500 whitespace-nowrap">{t('investor.todays_change')}</div>
-              <div className={`text-sm font-bold flex items-center justify-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                <TrendingUp className={`w-3 h-3 ${locale === 'ar' ? 'ml-1' : 'mr-1'} ${!isPositive ? 'rotate-180' : ''}`} />
+              <div className={`text-sm font-bold flex items-center justify-center ${
+                dailyChange.amount === 0 ? 'text-gray-600' : dailyChange.isPositive ? 'text-green-600' : 'text-red-600'
+              }`}>
+                <TrendingUp className={`w-3 h-3 ${locale === 'ar' ? 'ml-1' : 'mr-1'} ${
+                  dailyChange.amount === 0 ? '' : !dailyChange.isPositive ? 'rotate-180' : ''
+                }`} />
                 <span className="whitespace-nowrap">
-                  {isPositive ? '+' : ''}${Math.abs(todayChange).toLocaleString()} ({isPositive ? '+' : ''}{changePercent}%)
+                  {isLoading ? '...' : dailyChange.amount === 0 ? 
+                    `$0 (0.00%)` : 
+                    `${dailyChange.isPositive ? '+' : ''}${formatCurrency(Math.abs(dailyChange.amount))} (${dailyChange.isPositive ? '+' : ''}${dailyChange.percentage.toFixed(2)}%)`
+                  }
                 </span>
               </div>
             </div>
@@ -138,15 +157,22 @@ const InvestorHeader = ({ title, subtitle }: InvestorHeaderProps) => {
           <div className="text-center">
             <div className="text-xs text-gray-500">{t('investor.portfolio_value')}</div>
             <div className="text-base font-bold text-gray-900">
-              ${portfolioValue.toLocaleString()}
+              {isLoading ? '...' : formatCurrency(portfolioValue)}
             </div>
           </div>
           <div className="text-center">
             <div className="text-xs text-gray-500">{t('investor.todays_change')}</div>
-            <div className={`text-sm font-bold flex items-center justify-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              <TrendingUp className={`w-3 h-3 ${locale === 'ar' ? 'ml-1' : 'mr-1'} ${!isPositive ? 'rotate-180' : ''}`} />
+            <div className={`text-sm font-bold flex items-center justify-center ${
+              dailyChange.amount === 0 ? 'text-gray-600' : dailyChange.isPositive ? 'text-green-600' : 'text-red-600'
+            }`}>
+              <TrendingUp className={`w-3 h-3 ${locale === 'ar' ? 'ml-1' : 'mr-1'} ${
+                dailyChange.amount === 0 ? '' : !dailyChange.isPositive ? 'rotate-180' : ''
+              }`} />
               <span>
-                {isPositive ? '+' : ''}${Math.abs(todayChange).toLocaleString()} ({isPositive ? '+' : ''}{changePercent}%)
+                {isLoading ? '...' : dailyChange.amount === 0 ? 
+                  `$0 (0.00%)` : 
+                  `${dailyChange.isPositive ? '+' : ''}${formatCurrency(Math.abs(dailyChange.amount))} (${dailyChange.isPositive ? '+' : ''}${dailyChange.percentage.toFixed(2)}%)`
+                }
               </span>
             </div>
           </div>

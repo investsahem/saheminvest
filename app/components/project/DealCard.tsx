@@ -25,6 +25,7 @@ interface DealCardProps {
   partnerName: string
   partnerDealsCount: number
   minInvestment: number
+  isPartnerView?: boolean
 }
 
 export function DealCard({ 
@@ -41,7 +42,8 @@ export function DealCard({
   contributorsCount,
   partnerName,
   partnerDealsCount,
-  minInvestment
+  minInvestment,
+  isPartnerView = false
 }: DealCardProps) {
   const { t } = useTranslation()
   const [timeLeft, setTimeLeft] = useState({
@@ -84,7 +86,7 @@ export function DealCard({
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <div className="relative h-48">
+      <div className="relative h-32">
         <Image
           src={image}
           alt={title}
@@ -93,27 +95,27 @@ export function DealCard({
         />
         {isFundingCompleted && (
           <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-            {t('deals.funding_completed')}
+            {t('deal_card.funding_completed')}
           </div>
         )}
       </div>
       
-      <CardContent className="p-6">
+      <CardContent className="p-4">
         {/* Deal Header */}
-        <div className="mb-4">
+        <div className="mb-3">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xl font-bold text-gray-900 line-clamp-1">{title}</h3>
+            <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{title}</h3>
             <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
               N°{dealNumber}
             </span>
           </div>
-          <p className="text-gray-600 text-sm line-clamp-2 mb-3">{description}</p>
+          <p className="text-gray-600 text-sm line-clamp-2 mb-2">{description}</p>
           
           {/* Partner Info */}
-          <div className="flex items-center text-sm text-gray-600 mb-4">
+          <div className="flex items-center text-sm text-gray-600 mb-3">
             <span className="font-medium">{partnerName}</span>
             <span className="mx-2">•</span>
-            <span>{formatNumber(partnerDealsCount)} {t('deals.completed_deals')}</span>
+            <span>{formatNumber(partnerDealsCount)} {t('deal_card.deals_count')}</span>
           </div>
         </div>
 
@@ -121,25 +123,25 @@ export function DealCard({
         <div className="space-y-4">
           {/* Contributors */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{t('deals.contributors_count')}</span>
+            <span className="text-sm text-gray-600">{t('deal_card.contributors')}</span>
             <span className="font-bold text-gray-900">{formatNumber(contributorsCount)}</span>
           </div>
 
           {/* Deal Number */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{t('deals.deal_number')}</span>
+            <span className="text-sm text-gray-600">{t('deal_card.deal_number')}</span>
             <span className="font-bold text-gray-900">{dealNumber}</span>
           </div>
 
           {/* Duration */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{t('deals.duration')}</span>
-            <span className="font-bold text-gray-900">{duration} {t('deals.months')}</span>
+            <span className="text-sm text-gray-600">{t('deal_card.duration')}</span>
+            <span className="font-bold text-gray-900">{duration} {t('deal_card.months')}</span>
           </div>
 
           {/* Funding Required */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{t('deals.funding_required')}</span>
+            <span className="text-sm text-gray-600">{t('deal_card.funding_goal')}</span>
             <span className="font-bold text-gray-900">
               {formatNumber(fundingGoal)} {t('common.currency')}
             </span>
@@ -147,7 +149,7 @@ export function DealCard({
 
           {/* Expected Profits */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{t('deals.expected_profits')}</span>
+            <span className="text-sm text-gray-600">{t('deal_card.expected_return')}</span>
             <div className="text-right">
               <div className="font-bold text-green-600">
                 {expectedReturn.min}% {t('common.to')} {expectedReturn.max}%
@@ -158,7 +160,7 @@ export function DealCard({
           {/* Funding Progress */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">{t('deals.funding_progress')}</span>
+                             <span className="text-gray-600">{t('deal_card.funding_progress')}</span>
               <span className="font-medium">{fundingProgress.toFixed(1)}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -174,34 +176,34 @@ export function DealCard({
 
           {/* Countdown Timer */}
           {!isFundingCompleted && (
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="bg-gray-50 p-3 rounded-lg">
               <div className="text-center text-sm text-gray-600 mb-2">
-                {t('deals.closes_in')}
+                                 {t('deal_card.ends_in')}
               </div>
               <div className="grid grid-cols-4 gap-2 text-center">
-                <div className="bg-white p-2 rounded">
+                <div className="bg-white p-1 rounded">
                   <div className="text-lg font-bold text-gray-900">
                     {timeLeft.days.toString().padStart(2, '0')}
                   </div>
-                  <div className="text-xs text-gray-500">{t('deals.days')}</div>
+                  <div className="text-xs text-gray-500">{t('deal_card.days')}</div>
                 </div>
-                <div className="bg-white p-2 rounded">
+                <div className="bg-white p-1 rounded">
                   <div className="text-lg font-bold text-gray-900">
                     {timeLeft.hours.toString().padStart(2, '0')}
                   </div>
-                  <div className="text-xs text-gray-500">{t('deals.hours')}</div>
+                  <div className="text-xs text-gray-500">{t('deal_card.hours')}</div>
                 </div>
-                <div className="bg-white p-2 rounded">
+                <div className="bg-white p-1 rounded">
                   <div className="text-lg font-bold text-gray-900">
                     {timeLeft.minutes.toString().padStart(2, '0')}
                   </div>
-                  <div className="text-xs text-gray-500">{t('deals.minutes')}</div>
+                  <div className="text-xs text-gray-500">{t('deal_card.minutes')}</div>
                 </div>
-                <div className="bg-white p-2 rounded">
+                <div className="bg-white p-1 rounded">
                   <div className="text-lg font-bold text-gray-900">
                     {timeLeft.seconds.toString().padStart(2, '0')}
                   </div>
-                  <div className="text-xs text-gray-500">{t('deals.seconds')}</div>
+                  <div className="text-xs text-gray-500">{t('deal_card.seconds')}</div>
                 </div>
               </div>
             </div>
@@ -209,30 +211,42 @@ export function DealCard({
 
           {/* CTA Buttons */}
           <div className="space-y-3 pt-4">
-            {!isFundingCompleted ? (
-              <>
-                <div className="text-center text-sm text-gray-600 mb-2">
-                  {t('deals.interested')}
-                </div>
-                <div className="grid grid-cols-1 gap-2">
-                  <Link href={`/deals/${id}/invest`}>
-                    <Button className="w-full" size="lg">
-                      {t('deals.invest_now')}
-                    </Button>
-                  </Link>
-                  <Link href={`/deals/${id}`}>
-                    <Button variant="outline" className="w-full">
-                      {t('deals.more_info')}
-                    </Button>
-                  </Link>
-                </div>
-              </>
-            ) : (
+            {isPartnerView ? (
+              // Partner view - Management buttons
               <Link href={`/deals/${id}`}>
                 <Button variant="outline" className="w-full">
-                  {t('deals.more_info')}
+                  {t('deal_card.manage_deal')}
                 </Button>
               </Link>
+            ) : (
+              // Investor view - Investment buttons
+              <>
+                {!isFundingCompleted ? (
+                  <>
+                    <div className="text-center text-sm text-gray-600 mb-2">
+                      {t('deal_card.interested')}
+                    </div>
+                    <div className="grid grid-cols-1 gap-2">
+                      <Link href={`/deals/${id}/invest`}>
+                        <Button className="w-full" size="lg">
+                          {t('deal_card.invest_now')}
+                        </Button>
+                      </Link>
+                      <Link href={`/deals/${id}`}>
+                        <Button variant="outline" className="w-full">
+                          {t('deal_card.more_details')}
+                        </Button>
+                      </Link>
+                    </div>
+                  </>
+                ) : (
+                  <Link href={`/deals/${id}`}>
+                    <Button variant="outline" className="w-full">
+                      {t('deal_card.view_results')}
+                    </Button>
+                  </Link>
+                )}
+              </>
             )}
           </div>
         </div>

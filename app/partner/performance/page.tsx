@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import PartnerLayout from '../../components/layout/PartnerLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react'
 
 const PartnerPerformancePage = () => {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const [timeRange, setTimeRange] = useState('6months')
   const [loading, setLoading] = useState(true)
@@ -54,8 +56,8 @@ const PartnerPerformancePage = () => {
   if (loading) {
     return (
       <PartnerLayout
-        title="Performance Tracking"
-        subtitle="Monitor and analyze your performance metrics"
+        title={t('partner.performance_tracking')}
+        subtitle={t('partner.performance_tracking_subtitle')}
       >
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -66,8 +68,8 @@ const PartnerPerformancePage = () => {
 
   return (
     <PartnerLayout
-      title="Performance Tracking"
-      subtitle="Monitor and analyze your performance metrics"
+      title={t('partner.performance_tracking')}
+      subtitle={t('partner.performance_tracking_subtitle')}
     >
       <div className="space-y-6">
         {/* Time Range Selector */}

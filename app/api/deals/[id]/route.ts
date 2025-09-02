@@ -183,11 +183,22 @@ export async function PUT(
       }) as any
 
       // Delete old image from Cloudinary if exists
-      if (existingDeal.thumbnailImage) {
+      if (existingDeal.thumbnailImage && existingDeal.thumbnailImage.includes('cloudinary.com')) {
         try {
-          const publicId = existingDeal.thumbnailImage.split('/').pop()?.split('.')[0]
-          if (publicId) {
-            await cloudinary.uploader.destroy(`sahaminvest/deals/${publicId}`)
+          // Extract public_id from Cloudinary URL
+          // URL format: https://res.cloudinary.com/cloud-name/image/upload/v123456/folder/filename.ext
+          const urlParts = existingDeal.thumbnailImage.split('/')
+          const uploadIndex = urlParts.findIndex(part => part === 'upload')
+          if (uploadIndex !== -1 && uploadIndex < urlParts.length - 1) {
+            // Skip version if present (starts with 'v' followed by numbers)
+            let startIndex = uploadIndex + 1
+            if (urlParts[startIndex] && urlParts[startIndex].match(/^v\d+$/)) {
+              startIndex += 1
+            }
+            // Join the remaining parts and remove file extension
+            const publicId = urlParts.slice(startIndex).join('/').replace(/\.[^/.]+$/, '')
+            console.log('Attempting to delete old image with public_id:', publicId)
+            await cloudinary.uploader.destroy(publicId)
           }
         } catch (error) {
           console.error('Error deleting old image:', error)
@@ -331,9 +342,19 @@ export async function DELETE(
     if (existingDeal.images.length > 0) {
       for (const imageUrl of existingDeal.images) {
         try {
-          const publicId = imageUrl.split('/').pop()?.split('.')[0]
-          if (publicId) {
-            await cloudinary.uploader.destroy(`sahaminvest/deals/${publicId}`)
+          if (imageUrl.includes('cloudinary.com')) {
+            // Extract public_id from Cloudinary URL
+            const urlParts = imageUrl.split('/')
+            const uploadIndex = urlParts.findIndex(part => part === 'upload')
+            if (uploadIndex !== -1 && uploadIndex < urlParts.length - 1) {
+              // Skip version if present
+              let startIndex = uploadIndex + 1
+              if (urlParts[startIndex] && urlParts[startIndex].match(/^v\d+$/)) {
+                startIndex += 1
+              }
+              const publicId = urlParts.slice(startIndex).join('/').replace(/\.[^/.]+$/, '')
+              await cloudinary.uploader.destroy(publicId)
+            }
           }
         } catch (error) {
           console.error('Error deleting image:', error)

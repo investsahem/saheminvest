@@ -4,18 +4,34 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
+import { useUserData } from '../../hooks/useUserData'
 import { 
   PieChart, Wallet, TrendingUp, Target, FileText, 
   Settings, Bell, User, LogOut, DollarSign, 
-  BarChart3, Calendar, Award, History, CreditCard
+  BarChart3, Calendar, Award, History, CreditCard, X
 } from 'lucide-react'
 import { Button } from '../ui/Button'
 
-const InvestorSidebar = () => {
+interface InvestorSidebarProps {
+  isMobileMenuOpen?: boolean
+  setIsMobileMenuOpen?: (open: boolean) => void
+}
+
+const InvestorSidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: InvestorSidebarProps) => {
   const { t } = useTranslation()
   const { locale } = useI18n()
   const { data: session } = useSession()
   const pathname = usePathname()
+  const { walletBalance, portfolioValue, totalReturns, dailyChange, isLoading } = useUserData()
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
 
   const navigationItems = [
     {
@@ -41,7 +57,7 @@ const InvestorSidebar = () => {
       href: '/portfolio/wallet',
       icon: Wallet,
       current: pathname === '/portfolio/wallet',
-      badge: '12,500'
+      badge: isLoading ? '...' : formatCurrency(walletBalance).replace('$', '')
     },
     {
       name: t('investor.transaction_history'),
@@ -69,9 +85,7 @@ const InvestorSidebar = () => {
     }
   ]
 
-  const portfolioValue = (session?.user as any)?.walletBalance || 25000
-  const totalReturn = ((portfolioValue - 10000) / 10000 * 100).toFixed(1)
-  const isPositive = parseFloat(totalReturn) >= 0
+  // Portfolio data is now fetched via useUserData hook
 
   const handleLogout = async () => {
     try {
@@ -84,22 +98,43 @@ const InvestorSidebar = () => {
     }
   }
 
+  const handleLinkClick = () => {
+    if (setIsMobileMenuOpen) {
+      setIsMobileMenuOpen(false)
+    }
+  }
+
   return (
-    <div className={`hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:bg-white lg:shadow-sm ${
+    <div className={`fixed inset-y-0 flex flex-col w-64 bg-white shadow-sm transform transition-transform duration-300 ease-in-out z-50 ${
       locale === 'ar' 
-        ? 'lg:right-0 lg:border-l lg:border-gray-200' 
-        : 'lg:left-0 lg:border-r lg:border-gray-200'
+        ? 'right-0 border-l border-gray-200' 
+        : 'left-0 border-r border-gray-200'
+    } ${
+      // Mobile: slide in/out based on menu state
+      isMobileMenuOpen 
+        ? 'translate-x-0' 
+        : locale === 'ar' 
+          ? 'translate-x-full lg:translate-x-0' 
+          : '-translate-x-full lg:translate-x-0'
     }`}>
       {/* Logo Section */}
-      <div className="flex items-center justify-center h-16 px-6 border-b border-gray-200">
+      <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
         <Link href="/" className="flex items-center">
           <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
             <span className="text-white font-bold text-lg">S</span>
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-            Sahem Invest
+            {t('common.brand_name')}
           </span>
         </Link>
+        
+        {/* Mobile close button */}
+        <button
+          onClick={() => setIsMobileMenuOpen && setIsMobileMenuOpen(false)}
+          className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+        >
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Portfolio Summary */}
@@ -110,12 +145,19 @@ const InvestorSidebar = () => {
               {t('investor.portfolio_value')}
             </p>
             <p className="text-2xl font-bold text-gray-900">
-              ${portfolioValue.toLocaleString()}
+              {isLoading ? '...' : formatCurrency(portfolioValue)}
             </p>
-            <div className={`flex items-center justify-center mt-2 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              <TrendingUp className={`w-4 h-4 mr-1 ${!isPositive ? 'rotate-180' : ''}`} />
+            <div className={`flex items-center justify-center mt-2 ${
+              dailyChange.amount === 0 ? 'text-gray-600' : dailyChange.isPositive ? 'text-green-600' : 'text-red-600'
+            }`}>
+              <TrendingUp className={`w-4 h-4 mr-1 ${
+                dailyChange.amount === 0 ? '' : !dailyChange.isPositive ? 'rotate-180' : ''
+              }`} />
               <span className="text-sm font-medium">
-                {isPositive ? '+' : ''}{totalReturn}%
+                {isLoading ? '...' : dailyChange.amount === 0 ? 
+                  '0.0%' : 
+                  `${dailyChange.isPositive ? '+' : ''}${dailyChange.percentage.toFixed(1)}%`
+                }
               </span>
             </div>
           </div>
@@ -131,6 +173,7 @@ const InvestorSidebar = () => {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={handleLinkClick}
                 className={`group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   item.current
                     ? `bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 ${

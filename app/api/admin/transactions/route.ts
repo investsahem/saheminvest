@@ -113,8 +113,46 @@ export async function GET(request: NextRequest) {
       method: transaction.method || undefined
     }))
 
+    // Calculate statistics from all transactions (not just current page)
+    const allTransactions = await prisma.transaction.findMany({
+      where,
+      select: {
+        type: true,
+        amount: true,
+        status: true
+      }
+    })
+
+    const statistics = {
+      totalDeposits: allTransactions
+        .filter(t => t.type === 'DEPOSIT' && t.status === 'COMPLETED')
+        .reduce((sum, t) => sum + Number(t.amount), 0),
+      totalWithdrawals: allTransactions
+        .filter(t => t.type === 'WITHDRAWAL' && t.status === 'COMPLETED')
+        .reduce((sum, t) => sum + Number(t.amount), 0),
+      totalInvestments: allTransactions
+        .filter(t => t.type === 'INVESTMENT' && t.status === 'COMPLETED')
+        .reduce((sum, t) => sum + Number(t.amount), 0),
+      totalReturns: allTransactions
+        .filter(t => t.type === 'RETURN' && t.status === 'COMPLETED')
+        .reduce((sum, t) => sum + Number(t.amount), 0),
+      totalFees: allTransactions
+        .filter(t => t.type === 'FEE' && t.status === 'COMPLETED')
+        .reduce((sum, t) => sum + Number(t.amount), 0),
+      totalCommissions: allTransactions
+        .filter(t => t.type === 'COMMISSION' && t.status === 'COMPLETED')
+        .reduce((sum, t) => sum + Number(t.amount), 0),
+      pendingCount: allTransactions.filter(t => t.status === 'PENDING').length,
+      completedCount: allTransactions.filter(t => t.status === 'COMPLETED').length,
+      failedCount: allTransactions.filter(t => t.status === 'FAILED').length,
+      totalVolume: allTransactions
+        .filter(t => t.status === 'COMPLETED')
+        .reduce((sum, t) => sum + Number(t.amount), 0)
+    }
+
     return NextResponse.json({
       transactions: transformedTransactions,
+      statistics,
       pagination: {
         page,
         limit,

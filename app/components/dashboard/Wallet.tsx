@@ -27,8 +27,13 @@ interface WalletProps {
   totalInvested: number
   totalReturns: number
   transactions: Transaction[]
-  onDeposit?: (amount: number) => void
-  onWithdraw?: (amount: number) => void
+  activeInvestmentValue?: number
+  profitsSummary?: {
+    distributedProfits: number
+    unrealizedGains: number
+  }
+  onDeposit?: (amount: number, method: string, cardDetails?: any) => Promise<{ success: boolean; message: string }>
+  onWithdraw?: (amount: number, method: string) => Promise<{ success: boolean; message: string }>
 }
 
 export function Wallet({
@@ -36,6 +41,8 @@ export function Wallet({
   totalInvested,
   totalReturns,
   transactions,
+  activeInvestmentValue = 0,
+  profitsSummary = { distributedProfits: 0, unrealizedGains: 0 },
   onDeposit,
   onWithdraw
 }: WalletProps) {
@@ -105,7 +112,7 @@ export function Wallet({
     }
   }
 
-  const handlePaymentMethodSelect = (method: 'cash' | 'card' | 'bank') => {
+  const handlePaymentMethodSelect = async (method: 'cash' | 'card' | 'bank') => {
     setPaymentMethod(method)
     
     if (method === 'card') {
@@ -116,11 +123,18 @@ export function Wallet({
       if (confirm(`Are you sure you want to deposit $${formatNumber(parseFloat(depositAmount))} via ${method === 'cash' ? 'cash' : 'bank transfer'}?`)) {
         const amount = parseFloat(depositAmount)
         if (amount > 0 && onDeposit) {
-          onDeposit(amount)
-          setDepositAmount('')
-          setPaymentMethod('')
-          setActiveTab('overview')
-          alert(`Deposit request successful! Amount: $${formatNumber(amount)} via ${method === 'cash' ? 'cash' : 'bank transfer'}`)
+          setIsProcessing(true)
+          const result = await onDeposit(amount, method)
+          setIsProcessing(false)
+          
+          if (result.success) {
+            setDepositAmount('')
+            setPaymentMethod('')
+            setActiveTab('overview')
+            alert(result.message)
+          } else {
+            alert(`Error: ${result.message}`)
+          }
         }
       } else {
         // Reset payment method if user cancels
@@ -137,38 +151,43 @@ export function Wallet({
 
     setIsProcessing(true)
     
-    // Mock payment processing
-    setTimeout(() => {
+    try {
       const amount = parseFloat(depositAmount)
       if (amount > 0 && onDeposit) {
-        onDeposit(amount)
-        setDepositAmount('')
-        setPaymentMethod('')
-        setShowPaymentForm(false)
-        setCardDetails({ number: '', expiry: '', cvv: '', name: '' })
-        setActiveTab('overview')
-        alert('Payment successful!')
+        const result = await onDeposit(amount, 'card', cardDetails)
+        
+        if (result.success) {
+          setDepositAmount('')
+          setPaymentMethod('')
+          setShowPaymentForm(false)
+          setCardDetails({ number: '', expiry: '', cvv: '', name: '' })
+          setActiveTab('overview')
+          alert(result.message)
+        } else {
+          alert(`Error: ${result.message}`)
+        }
       }
+    } catch (error) {
+      alert('Payment processing failed. Please try again.')
+    } finally {
       setIsProcessing(false)
-    }, 2000)
-  }
-
-  const handleDeposit = () => {
-    const amount = parseFloat(depositAmount)
-    if (amount > 0 && onDeposit) {
-      onDeposit(amount)
-      setDepositAmount('')
-      setPaymentMethod('')
-      setActiveTab('overview')
     }
   }
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount)
     if (amount > 0 && amount <= balance && onWithdraw) {
-      onWithdraw(amount)
-      setWithdrawAmount('')
-      setActiveTab('overview')
+      setIsProcessing(true)
+      const result = await onWithdraw(amount, withdrawMethod)
+      setIsProcessing(false)
+      
+      if (result.success) {
+        setWithdrawAmount('')
+        setActiveTab('overview')
+        alert(result.message)
+      } else {
+        alert(`Error: ${result.message}`)
+      }
     }
   }
 
@@ -198,7 +217,7 @@ export function Wallet({
   return (
     <div className="space-y-6">
       {/* Balance Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -252,6 +271,38 @@ export function Wallet({
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                 <DollarSign className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-orange-700">Distributed Profits</p>
+                <p className="text-2xl font-bold text-orange-900">
+                  {showBalance ? `$${formatNumber(profitsSummary.distributedProfits)}` : '••••••'}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-orange-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-emerald-700">Unrealized Gains</p>
+                <p className="text-2xl font-bold text-emerald-900">
+                  {showBalance ? `$${formatNumber(profitsSummary.unrealizedGains)}` : '••••••'}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-emerald-600" />
               </div>
             </div>
           </CardContent>
@@ -644,11 +695,20 @@ export function Wallet({
               <div className="flex gap-3">
                 <Button 
                   onClick={handleWithdraw} 
-                  disabled={!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > balance || !withdrawMethod}
+                  disabled={!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > balance || !withdrawMethod || isProcessing}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
                 >
-                  <Minus className="w-4 h-4 mr-2" />
-                  Request Withdrawal ${withdrawAmount && formatNumber(parseFloat(withdrawAmount))}
+                  {isProcessing ? (
+                    <>
+                      <Clock className="w-4 h-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Minus className="w-4 h-4 mr-2" />
+                      Request Withdrawal ${withdrawAmount && formatNumber(parseFloat(withdrawAmount))}
+                    </>
+                  )}
                 </Button>
                 <Button 
                   variant="outline" 

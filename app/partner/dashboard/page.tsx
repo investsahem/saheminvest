@@ -18,112 +18,77 @@ import {
   Tooltip, Legend, ResponsiveContainer, Area, Line
 } from 'recharts'
 
+interface PartnerDashboardData {
+  partnerData: {
+    companyName: string
+    rating: number
+    totalDeals: number
+    completedDeals: number
+    activeDeals: number
+    totalFunding: number
+    averageReturn: number
+    successRate: number
+    totalInvestors: number
+    monthlyGrowth: number
+    totalRevenue: number
+    pendingApprovals: number
+  }
+  performanceData: Array<{
+    month: string
+    revenue: number
+    deals: number
+    investors: number
+  }>
+  currentDeals: Array<{
+    id: string
+    title: string
+    fundingGoal: number
+    currentFunding: number
+    expectedReturn: number
+    duration: number
+    status: string
+    investorsCount: number
+    stage: string
+  }>
+  recentActivities: Array<{
+    id: string
+    type: string
+    message: string
+    time: string
+    icon: string
+    color: string
+  }>
+}
+
 const PartnerDashboard = () => {
   const { t } = useTranslation()
   const { data: session } = useSession()
   const [loading, setLoading] = useState(true)
-
-  // Sample data - would come from API/database in real app
-  const partnerData = {
-    companyName: session?.user?.name || 'Advanced Technology Company',
-    rating: 4.8,
-    totalDeals: 15,
-    completedDeals: 12,
-    activeDeals: 3,
-    totalFunding: 850000,
-    averageReturn: 6.2,
-    successRate: 87,
-    totalInvestors: 125,
-    monthlyGrowth: 15.8,
-    totalRevenue: 189000,
-    pendingApprovals: 2
-  }
-
-  // Performance data for charts
-  const performanceData = [
-    { month: 'Jan', revenue: 45000, deals: 2, investors: 15 },
-    { month: 'Feb', revenue: 67000, deals: 3, investors: 23 },
-    { month: 'Mar', revenue: 89000, deals: 4, investors: 35 },
-    { month: 'Apr', revenue: 125000, deals: 5, investors: 48 },
-    { month: 'May', revenue: 156000, deals: 6, investors: 62 },
-    { month: 'Jun', revenue: 189000, deals: 7, investors: 78 }
-  ]
-
-  const currentDeals = [
-    {
-      id: '1',
-      title: 'Used Phones Trading',
-      fundingGoal: 20000,
-      currentFunding: 20000,
-      expectedReturn: 5,
-      duration: 2,
-      status: 'FUNDED',
-      investorsCount: 15,
-      stage: 'Execution'
-    },
-    {
-      id: '2',
-      title: 'Electronics Commerce',
-      fundingGoal: 35000,
-      currentFunding: 28000,
-      expectedReturn: 6,
-      duration: 3,
-      status: 'ACTIVE',
-      investorsCount: 23,
-      stage: 'Funding'
-    },
-    {
-      id: '3',
-      title: 'Home Goods Import',
-      fundingGoal: 50000,
-      currentFunding: 15000,
-      expectedReturn: 7,
-      duration: 4,
-      status: 'ACTIVE',
-      investorsCount: 12,
-      stage: 'Planning'
-    }
-  ]
-
-  const recentActivities = [
-    {
-      id: '1',
-      type: 'investment',
-      message: 'New investment of $5,000 in Electronics Commerce',
-      time: '2 hours ago',
-      icon: DollarSign,
-      color: 'text-green-600'
-    },
-    {
-      id: '2',
-      type: 'approval',
-      message: 'Deal "Home Goods Import" approved by admin',
-      time: '5 hours ago',
-      icon: CheckCircle,
-      color: 'text-blue-600'
-    },
-    {
-      id: '3',
-      type: 'completion',
-      message: 'Used Phones Trading deal fully funded',
-      time: '1 day ago',
-      icon: Target,
-      color: 'text-purple-600'
-    },
-    {
-      id: '4',
-      type: 'message',
-      message: 'New message from investor Ahmed Al-Rashid',
-      time: '2 days ago',
-      icon: MessageSquare,
-      color: 'text-orange-600'
-    }
-  ]
+  const [dashboardData, setDashboardData] = useState<PartnerDashboardData | null>(null)
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 1000)
-  }, [])
+    const fetchDashboardData = async () => {
+      if (!session?.user) return
+
+      try {
+        const response = await fetch('/api/partner/dashboard')
+        if (response.ok) {
+          const data = await response.json()
+          setDashboardData(data)
+        } else {
+          console.error('Failed to fetch partner dashboard data')
+        }
+      } catch (error) {
+        console.error('Error fetching partner dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardData()
+  }, [session])
+
+
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -154,7 +119,7 @@ const PartnerDashboard = () => {
 
   if (loading) {
     return (
-      <PartnerLayout title={t('partner.dashboard')}>
+      <PartnerLayout title={t('partner.dashboard')} subtitle={t('partner.welcome_message')}>
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -162,8 +127,24 @@ const PartnerDashboard = () => {
     )
   }
 
+  if (!dashboardData) {
+    return (
+      <PartnerLayout title={t('partner.dashboard')} subtitle={t('partner.welcome_message')}>
+        <Card>
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to Load Dashboard</h2>
+            <p className="text-gray-600">Please try refreshing the page.</p>
+          </CardContent>
+        </Card>
+      </PartnerLayout>
+    )
+  }
+
+  const { partnerData, performanceData, currentDeals, recentActivities } = dashboardData
+
   return (
-    <PartnerLayout title={t('partner.dashboard')}>
+    <PartnerLayout title={t('partner.dashboard')} subtitle={t('partner.welcome_message')}>
       <div className="space-y-6">
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -399,11 +380,19 @@ const PartnerDashboard = () => {
             </div>
             <div className="space-y-4">
               {recentActivities.map((activity) => {
-                const Icon = activity.icon
+                const getIcon = (iconName: string) => {
+                  switch (iconName) {
+                    case 'DollarSign': return <DollarSign className={`w-5 h-5 ${activity.color}`} />
+                    case 'CheckCircle': return <CheckCircle className={`w-5 h-5 ${activity.color}`} />
+                    case 'Target': return <Target className={`w-5 h-5 ${activity.color}`} />
+                    case 'MessageSquare': return <MessageSquare className={`w-5 h-5 ${activity.color}`} />
+                    default: return <Activity className={`w-5 h-5 ${activity.color}`} />
+                  }
+                }
                 return (
                   <div key={activity.id} className="flex items-start gap-4">
                     <div className={`w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0`}>
-                      <Icon className={`w-5 h-5 ${activity.color}`} />
+                      {getIcon(activity.icon)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900">{activity.message}</p>

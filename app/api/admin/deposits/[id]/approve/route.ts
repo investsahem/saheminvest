@@ -1,0 +1,127 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../../../../../lib/auth'
+import { prisma } from '../../../../../lib/db'
+import emailService from '../../../../../lib/email'
+import notificationService from '../../../../../lib/notifications'
+
+// POST /api/admin/deposits/[id]/approve - Approve a pending deposit
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user || session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const { id: depositId } = await params
+
+    // Find the pending deposit transaction
+    const transaction = await prisma.transaction.findUnique({
+      where: { id: depositId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            walletBalance: true
+          }
+        }
+      }
+    })
+
+    if (!transaction) {
+      return NextResponse.json(
+        { error: 'Transaction not found' },
+        { status: 404 }
+      )
+    }
+
+    if (transaction.type !== 'DEPOSIT') {
+      return NextResponse.json(
+        { error: 'Transaction is not a deposit' },
+        { status: 400 }
+      )
+    }
+
+    if (transaction.status !== 'PENDING') {
+      return NextResponse.json(
+        { error: 'Transaction is not pending' },
+        { status: 400 }
+      )
+    }
+
+    // Update transaction status to completed
+    const updatedTransaction = await prisma.transaction.update({
+      where: { id: depositId },
+      data: {
+        status: 'COMPLETED',
+        updatedAt: new Date()
+      }
+    })
+
+    // Update user's wallet balance
+    await prisma.user.update({
+      where: { id: transaction.userId },
+      data: {
+        walletBalance: {
+          increment: Number(transaction.amount)
+        }
+      }
+    })
+
+    // Send notification to the user
+    try {
+      await notificationService.createNotification(
+        transaction.userId,
+        'Deposit Approved',
+        `Your ${transaction.method?.toLowerCase() || 'deposit'} of $${Number(transaction.amount)} has been approved and added to your wallet.`,
+        'DEPOSIT_COMPLETED',
+        {
+          amount: Number(transaction.amount),
+          method: transaction.method,
+          transactionId: transaction.id,
+          reference: transaction.reference
+        }
+      )
+
+      // Send email notification
+      await emailService.sendDepositConfirmation({
+        to: transaction.user.email,
+        userName: transaction.user.name || 'User',
+        amount: Number(transaction.amount),
+        method: transaction.method?.toLowerCase() || 'unknown',
+        reference: transaction.reference || '',
+        newBalance: Number(transaction.user.walletBalance) + Number(transaction.amount)
+      })
+    } catch (notificationError) {
+      console.error('Error sending notifications:', notificationError)
+      // Don't fail the transaction if notification fails
+    }
+
+    return NextResponse.json({
+      message: 'Deposit approved successfully',
+      transaction: {
+        id: updatedTransaction.id,
+        amount: Number(updatedTransaction.amount),
+        method: updatedTransaction.method,
+        status: updatedTransaction.status,
+        reference: updatedTransaction.reference
+      }
+    })
+
+  } catch (error) {
+    console.error('Error approving deposit:', error)
+    return NextResponse.json(
+      { error: 'Failed to approve deposit' },
+      { status: 500 }
+    )
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import PartnerLayout from '../../components/layout/PartnerLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -16,6 +17,15 @@ import {
   LineChart, AreaChart, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, Line, BarChart, Bar
 } from 'recharts'
+
+interface Investment {
+  id: string
+  amount: number
+  projectId: string
+  projectTitle: string
+  projectStatus: string
+  investmentDate: string
+}
 
 interface Investor {
   id: string
@@ -32,12 +42,37 @@ interface Investor {
   lastActive: string
   kycVerified: boolean
   walletBalance: number
-  investments: any[]
+  investments: Investment[]
+}
+
+interface MonthlyGrowthData {
+  month: string
+  newInvestors: number
+  totalInvestors: number
+  totalInvested: number
+}
+
+interface RiskProfileData {
+  name: string
+  value: number
+  count: number
+  color: string
+}
+
+interface Analytics {
+  totalInvestors: number
+  totalInvested: number
+  totalReturns: number
+  averageInvestment: number
+  monthlyGrowth: MonthlyGrowthData[]
+  riskProfileData: RiskProfileData[]
 }
 
 const PartnerInvestorsPage = () => {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const [investors, setInvestors] = useState<Investor[]>([])
+  const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRisk, setFilterRisk] = useState('all')
@@ -45,99 +80,40 @@ const PartnerInvestorsPage = () => {
   const [showViewModal, setShowViewModal] = useState(false)
   const [timeRange, setTimeRange] = useState('6months')
 
-  // Sample data - in real app, fetch from API filtered by partner's deals
+  // Fetch real investors data from API
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const sampleInvestors: Investor[] = [
-        {
-          id: '1',
-          name: 'Ahmed Al-Rashid',
-          email: 'ahmed@example.com',
-          phone: '+966501234567',
-          totalInvested: 45000,
-          totalReturns: 6750,
-          activeInvestments: 2,
-          completedInvestments: 3,
-          averageReturn: 15.2,
-          riskProfile: 'Moderate',
-          joinedAt: '2023-01-15',
-          lastActive: '2024-01-20',
-          kycVerified: true,
-          walletBalance: 12500,
-          investments: []
-        },
-        {
-          id: '2',
-          name: 'Sarah Johnson',
-          email: 'sarah@example.com',
-          phone: '+1234567890',
-          totalInvested: 32000,
-          totalReturns: 4800,
-          activeInvestments: 1,
-          completedInvestments: 2,
-          averageReturn: 14.8,
-          riskProfile: 'Conservative',
-          joinedAt: '2023-03-20',
-          lastActive: '2024-01-19',
-          kycVerified: true,
-          walletBalance: 8200,
-          investments: []
-        },
-        {
-          id: '3',
-          name: 'Mohammed Al-Saadoun',
-          email: 'mohammed@example.com',
-          totalInvested: 78000,
-          totalReturns: 14040,
-          activeInvestments: 3,
-          completedInvestments: 5,
-          averageReturn: 18.3,
-          riskProfile: 'Aggressive',
-          joinedAt: '2022-11-10',
-          lastActive: '2024-01-21',
-          kycVerified: true,
-          walletBalance: 25000,
-          investments: []
-        },
-        {
-          id: '4',
-          name: 'Lisa Chen',
-          email: 'lisa@example.com',
-          phone: '+85291234567',
-          totalInvested: 23000,
-          totalReturns: 3220,
-          activeInvestments: 1,
-          completedInvestments: 1,
-          averageReturn: 13.5,
-          riskProfile: 'Conservative',
-          joinedAt: '2023-06-12',
-          lastActive: '2024-01-18',
-          kycVerified: true,
-          walletBalance: 5800,
-          investments: []
+    const fetchInvestorsData = async () => {
+      if (!session?.user || session.user.role !== 'PARTNER') {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch('/api/partner/investors')
+        if (response.ok) {
+          const data = await response.json()
+          setInvestors(data.investors || [])
+          setAnalytics(data.analytics || null)
+        } else {
+          console.error('Failed to fetch investors data')
+          setInvestors([])
+          setAnalytics(null)
         }
-      ]
-      setInvestors(sampleInvestors)
-      setLoading(false)
-    }, 1000)
-  }, [])
+      } catch (error) {
+        console.error('Error fetching investors data:', error)
+        setInvestors([])
+        setAnalytics(null)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  // Analytics data
-  const investorGrowthData = [
-    { month: 'Jan', newInvestors: 2, totalInvestors: 8, totalInvested: 120000 },
-    { month: 'Feb', newInvestors: 3, totalInvestors: 11, totalInvested: 145000 },
-    { month: 'Mar', newInvestors: 1, totalInvestors: 12, totalInvested: 167000 },
-    { month: 'Apr', newInvestors: 2, totalInvestors: 14, totalInvested: 189000 },
-    { month: 'May', newInvestors: 1, totalInvestors: 15, totalInvested: 201000 },
-    { month: 'Jun', newInvestors: 2, totalInvestors: 17, totalInvested: 223000 }
-  ]
+    fetchInvestorsData()
+  }, [session])
 
-  const riskProfileData = [
-    { name: 'Conservative', value: 35, count: 6, color: '#10B981' },
-    { name: 'Moderate', value: 45, count: 8, color: '#F59E0B' },
-    { name: 'Aggressive', value: 20, count: 3, color: '#EF4444' }
-  ]
+  // Use real analytics data from API
+  const investorGrowthData = analytics?.monthlyGrowth || []
+  const riskProfileData = analytics?.riskProfileData || []
 
   const handleViewInvestor = (investor: Investor) => {
     setSelectedInvestor(investor)
@@ -186,15 +162,16 @@ const PartnerInvestorsPage = () => {
     }
   }
 
-  const totalInvestors = investors.length
-  const totalInvested = investors.reduce((sum, inv) => sum + inv.totalInvested, 0)
-  const totalReturns = investors.reduce((sum, inv) => sum + inv.totalReturns, 0)
-  const averageInvestment = totalInvested / totalInvestors || 0
+  // Use analytics data if available, fallback to calculated values
+  const totalInvestors = analytics?.totalInvestors || investors.length
+  const totalInvested = analytics?.totalInvested || investors.reduce((sum, inv) => sum + inv.totalInvested, 0)
+  const totalReturns = analytics?.totalReturns || investors.reduce((sum, inv) => sum + inv.totalReturns, 0)
+  const averageInvestment = analytics?.averageInvestment || (totalInvested / totalInvestors) || 0
 
   return (
     <PartnerLayout
-      title="My Investors"
-      subtitle="Manage relationships with your investors"
+      title={t('partner.my_investors')}
+      subtitle={t('partner.my_investors_subtitle')}
     >
       <div className="space-y-6">
         {/* Summary Cards */}
@@ -207,7 +184,10 @@ const PartnerInvestorsPage = () => {
                   <p className="text-2xl font-bold text-blue-900">{totalInvestors}</p>
                   <p className="text-xs text-blue-600 flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +2 this month
+                    {investorGrowthData.length > 0 ? 
+                      `+${investorGrowthData[investorGrowthData.length - 1]?.newInvestors || 0} this month` :
+                      'No new investors'
+                    }
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -225,7 +205,7 @@ const PartnerInvestorsPage = () => {
                   <p className="text-2xl font-bold text-green-900">{formatCurrency(totalInvested)}</p>
                   <p className="text-xs text-green-600 flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +8.7% this month
+                    {totalInvested > 0 ? `Total from ${totalInvestors} investors` : 'No investments yet'}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -243,7 +223,7 @@ const PartnerInvestorsPage = () => {
                   <p className="text-2xl font-bold text-purple-900">{formatCurrency(totalReturns)}</p>
                   <p className="text-xs text-purple-600 flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +15.2% this month
+                    {totalReturns > 0 ? `${Math.round((totalReturns / totalInvested) * 100)}% return rate` : 'No returns yet'}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -261,7 +241,7 @@ const PartnerInvestorsPage = () => {
                   <p className="text-2xl font-bold text-orange-900">{formatCurrency(averageInvestment)}</p>
                   <p className="text-xs text-orange-600 flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +5.8% this month
+                    {totalInvestors > 0 ? `${totalInvestors} active investors` : 'No investors yet'}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">

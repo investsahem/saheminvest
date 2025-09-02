@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import PartnerLayout from '../../components/layout/PartnerLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -18,6 +19,7 @@ import {
 } from 'recharts'
 
 const PartnerAnalyticsPage = () => {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const [timeRange, setTimeRange] = useState('6months')
   const [loading, setLoading] = useState(true)
@@ -149,8 +151,8 @@ const PartnerAnalyticsPage = () => {
   if (loading) {
     return (
       <PartnerLayout
-        title="Analytics"
-        subtitle="Comprehensive analytics and performance insights"
+        title={t('partner.analytics')}
+        subtitle={t('partner.analytics_subtitle')}
       >
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -161,8 +163,8 @@ const PartnerAnalyticsPage = () => {
 
   return (
     <PartnerLayout
-      title="Analytics"
-      subtitle="Comprehensive analytics and performance insights"
+      title={t('partner.analytics')}
+      subtitle={t('partner.analytics_subtitle')}
     >
       <div className="space-y-6">
         {/* Time Range Selector */}

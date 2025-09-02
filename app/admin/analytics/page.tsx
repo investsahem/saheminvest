@@ -42,7 +42,7 @@ const AnalyticsPage = () => {
     { month: 'Jan', investors: 1420, partners: 78, advisors: 32, total: 1530 },
   ]
 
-  const dealPerformanceData = [
+  const transactionData = [
     { category: 'Electronics', deals: 35, funded: 32, success: 91.4, avgAmount: 85000 },
     { category: 'Real Estate', deals: 28, funded: 27, success: 96.4, avgAmount: 150000 },
     { category: 'Agriculture', deals: 22, funded: 19, success: 86.4, avgAmount: 65000 },
@@ -386,7 +386,7 @@ const AnalyticsPage = () => {
                 </Button>
               </div>
               <div className="space-y-4">
-                {dealPerformanceData.map((category, index) => (
+                {transactionData.map((category, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">

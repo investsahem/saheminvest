@@ -1,61 +1,252 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import InvestorLayout from '../../components/layout/InvestorLayout'
+import { Button } from '../../components/ui/Button'
+import { Card, CardContent } from '../../components/ui/Card'
+import { 
+  Eye, 
+  Plus, 
+  Target, 
+  AlertCircle,
+  Activity,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  TrendingUp,
+  Calendar,
+  X,
+  History,
+  Coins
+} from 'lucide-react'
 
 interface Investment {
   id: string
+  projectId: string
   projectTitle: string
-  amount: number
-  investmentDate: string
-  status: 'active' | 'completed' | 'pending'
-  expectedReturn: number
-  currentValue: number
+  category: string
+  thumbnailImage?: string
+  investedAmount: number
+  currentFunding: number
+  totalReturn: number
+  returnPercentage: number
+  distributedProfits: number
+  unrealizedGains: number
   progress: number
+  status: string
+  investmentDate: string
+  duration: number
+  expectedReturn: number
+  endDate?: string
+}
+
+interface ProfitTransaction {
+  id: string
+  amount: number
+  description: string
+  status: string
+  method: string
+  reference: string
+  createdAt: string
+  updatedAt: string
+}
+
+interface InvestmentDetails {
+  id: string
+  investedAmount: number
+  currentValue: number
+  totalReturn: number
+  returnPercentage: number
+  distributedProfits: number
+  pendingProfits: number
+  unrealizedGains: number
+  progress: number
+  status: string
+  lifecycleStage: string
+  investmentDate: string
+  project: {
+    id: string
+    title: string
+    description: string
+    category: string
+    status: string
+    thumbnailImage?: string
+    images: string[]
+    fundingGoal: number
+    currentFunding: number
+    expectedReturn: number
+    duration: number
+    endDate?: string
+    createdAt: string
+    updatedAt: string
+    partner: {
+      id: string
+      companyName?: string
+      name: string
+    }
+  }
+  investor: {
+    id: string
+    name: string
+    email: string
+  }
+  profitHistory: ProfitTransaction[]
+  pendingProfitDistributions: ProfitTransaction[]
+}
+
+interface PortfolioData {
+  portfolio: {
+    totalValue: number
+    totalInvested: number
+    totalReturns: number
+    portfolioReturn: number
+    distributedProfits: number
+    unrealizedGains: number
+    activeInvestments: number
+    totalInvestments: number
+  }
+  investments: Investment[]
 }
 
 export default function InvestmentsPage() {
-  const [investments, setInvestments] = useState<Investment[]>([])
+  const { data: session } = useSession()
+  const router = useRouter()
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedInvestment, setSelectedInvestment] = useState<InvestmentDetails | null>(null)
+  const [detailsLoading, setDetailsLoading] = useState(false)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
 
   useEffect(() => {
-    // Simulate loading investments data
-    setTimeout(() => {
-      setInvestments([
-        {
-          id: '1',
-          projectTitle: 'Tech Startup Series A',
-          amount: 10000,
-          investmentDate: '2024-01-15',
-          status: 'active',
-          expectedReturn: 12000,
-          currentValue: 11000,
-          progress: 65
-        },
-        {
-          id: '2',
-          projectTitle: 'Real Estate Development',
-          amount: 25000,
-          investmentDate: '2024-02-20',
-          status: 'active',
-          expectedReturn: 30000,
-          currentValue: 27000,
-          progress: 80
-        },
-        {
-          id: '3',
-          projectTitle: 'Green Energy Project',
-          amount: 15000,
-          investmentDate: '2023-12-10',
-          status: 'completed',
-          expectedReturn: 18000,
-          currentValue: 18500,
-          progress: 100
+    const fetchPortfolioData = async () => {
+      if (!session?.user) return
+
+      try {
+        const response = await fetch('/api/portfolio/overview')
+        if (response.ok) {
+          const data = await response.json()
+          setPortfolioData(data)
+        } else {
+          console.error('Failed to fetch portfolio data')
         }
-      ])
-      setLoading(false)
-    }, 1000)
-  }, [])
+      } catch (error) {
+        console.error('Error fetching portfolio data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPortfolioData()
+  }, [session])
+
+  const fetchInvestmentDetails = async (investmentId: string) => {
+    setDetailsLoading(true)
+    try {
+      const response = await fetch(`/api/investments/${investmentId}/details`)
+      if (response.ok) {
+        const details = await response.json()
+        setSelectedInvestment(details)
+        setShowDetailsModal(true)
+      } else {
+        console.error('Failed to fetch investment details')
+      }
+    } catch (error) {
+      console.error('Error fetching investment details:', error)
+    } finally {
+      setDetailsLoading(false)
+    }
+  }
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount)
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).format(new Date(dateString))
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Activity className="w-4 h-4 text-blue-600" />
+      case 'completed':
+        return <CheckCircle className="w-4 h-4 text-green-600" />
+      case 'funded':
+        return <Target className="w-4 h-4 text-purple-600" />
+      default:
+        return <Clock className="w-4 h-4 text-gray-600" />
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-blue-100 text-blue-800'
+      case 'completed':
+        return 'bg-green-100 text-green-800'
+      case 'funded':
+        return 'bg-purple-100 text-purple-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getLifecycleStageInfo = (stage: string) => {
+    switch (stage) {
+      case 'ACTIVE':
+        return {
+          label: 'Investment Active',
+          color: 'bg-blue-100 text-blue-800',
+          icon: <Activity className="w-4 h-4" />,
+          description: 'Investment is active, awaiting partner profits'
+        }
+      case 'PROFITS_PENDING':
+        return {
+          label: 'Profits Pending',
+          color: 'bg-yellow-100 text-yellow-800',
+          icon: <Clock className="w-4 h-4" />,
+          description: 'Partner has added profits, awaiting admin distribution'
+        }
+      case 'PROFITS_DISTRIBUTED':
+        return {
+          label: 'Profits Distributed',
+          color: 'bg-green-100 text-green-800',
+          icon: <Coins className="w-4 h-4" />,
+          description: 'Profits have been distributed to your wallet'
+        }
+      case 'COMPLETED_WITH_PROFITS':
+        return {
+          label: 'Investment Completed',
+          color: 'bg-emerald-100 text-emerald-800',
+          icon: <CheckCircle className="w-4 h-4" />,
+          description: 'Investment completed with profits distributed'
+        }
+      case 'COMPLETED':
+        return {
+          label: 'Investment Completed',
+          color: 'bg-gray-100 text-gray-800',
+          icon: <CheckCircle className="w-4 h-4" />,
+          description: 'Investment completed'
+        }
+      default:
+        return {
+          label: 'Unknown Status',
+          color: 'bg-gray-100 text-gray-800',
+          icon: <AlertCircle className="w-4 h-4" />,
+          description: 'Status unknown'
+        }
+    }
+  }
 
   if (loading) {
     return (
@@ -67,9 +258,22 @@ export default function InvestmentsPage() {
     )
   }
 
-  const totalInvested = investments.reduce((sum, inv) => sum + inv.amount, 0)
-  const totalCurrentValue = investments.reduce((sum, inv) => sum + inv.currentValue, 0)
-  const totalReturn = totalCurrentValue - totalInvested
+  if (!portfolioData || portfolioData.investments.length === 0) {
+    return (
+      <InvestorLayout>
+        <div className="text-center py-12">
+          <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">No Investments Yet</h2>
+          <p className="text-gray-600 mb-6">Start building your portfolio by investing in exciting projects.</p>
+          <Button onClick={() => router.push('/deals')}>
+            Browse Investment Opportunities
+          </Button>
+        </div>
+      </InvestorLayout>
+    )
+  }
+
+  const { portfolio, investments } = portfolioData
 
   return (
     <InvestorLayout>
@@ -82,22 +286,22 @@ export default function InvestmentsPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="text-sm font-medium text-gray-500">Total Invested</div>
-            <div className="text-2xl font-bold text-gray-900">${totalInvested.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-gray-900">{formatCurrency(portfolio.totalInvested)}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="text-sm font-medium text-gray-500">Current Value</div>
-            <div className="text-2xl font-bold text-gray-900">${totalCurrentValue.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-gray-900">{formatCurrency(portfolio.totalValue)}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="text-sm font-medium text-gray-500">Total Return</div>
-            <div className={`text-2xl font-bold ${totalReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ${totalReturn.toLocaleString()}
+            <div className={`text-2xl font-bold ${portfolio.totalReturns >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {formatCurrency(portfolio.totalReturns)}
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="text-sm font-medium text-gray-500">Active Investments</div>
             <div className="text-2xl font-bold text-gray-900">
-              {investments.filter(inv => inv.status === 'active').length}
+              {portfolio.activeInvestments}
             </div>
           </div>
         </div>
@@ -132,72 +336,325 @@ export default function InvestmentsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {investments.map((investment) => {
-                  const returnAmount = investment.currentValue - investment.amount
-                  const returnPercentage = ((returnAmount / investment.amount) * 100).toFixed(1)
-                  
-                  return (
-                    <tr key={investment.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                {investments.map((investment) => (
+                  <tr key={investment.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-3">
+                        {investment.thumbnailImage ? (
+                          <div className="relative w-12 h-12 rounded-lg overflow-hidden">
+                            <Image
+                              src={investment.thumbnailImage}
+                              alt={investment.projectTitle}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <Target className="w-6 h-6 text-gray-400" />
+                          </div>
+                        )}
                         <div>
                           <div className="text-sm font-medium text-gray-900">
                             {investment.projectTitle}
                           </div>
                           <div className="text-sm text-gray-500">
-                            Invested on {new Date(investment.investmentDate).toLocaleDateString()}
+                            Invested on {formatDate(investment.investmentDate)}
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${investment.amount.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${investment.currentValue.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <div className={returnAmount >= 0 ? 'text-green-600' : 'text-red-600'}>
-                          ${returnAmount.toLocaleString()} ({returnPercentage}%)
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                      {formatCurrency(investment.investedAmount)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                      {formatCurrency(investment.currentFunding)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <div className={investment.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'}>
+                        <div className="font-medium">{formatCurrency(investment.totalReturn)}</div>
+                        <div className="text-xs">
+                          ({investment.returnPercentage >= 0 ? '+' : ''}{investment.returnPercentage.toFixed(1)}%)
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${investment.progress}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm text-gray-600">{investment.progress}%</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full" 
+                            style={{ width: `${Math.min(investment.progress, 100)}%` }}
+                          ></div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          investment.status === 'active' 
-                            ? 'bg-green-100 text-green-800'
-                            : investment.status === 'pending'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {investment.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-blue-600 hover:text-blue-900 mr-3">
-                          View Details
-                        </button>
+                        <span className="text-sm text-gray-600">{investment.progress}%</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(investment.status)}`}>
+                        {getStatusIcon(investment.status)}
+                        <span className="ml-1 capitalize">{investment.status}</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => fetchInvestmentDetails(investment.id)}
+                          disabled={detailsLoading}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          {detailsLoading ? 'Loading...' : 'View Details'}
+                        </Button>
                         {investment.status === 'active' && (
-                          <button className="text-green-600 hover:text-green-900">
+                          <Button
+                            size="sm"
+                            onClick={() => router.push(`/deals/${investment.projectId}/invest`)}
+                          >
+                            <Plus className="w-4 h-4 mr-1" />
                             Add More
-                          </button>
+                          </Button>
                         )}
-                      </td>
-                    </tr>
-                  )
-                })}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
+
+        {/* Investment Details Modal */}
+        {showDetailsModal && selectedInvestment && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Investment Details</h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowDetailsModal(false)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* Project Information */}
+                <Card className="mb-6">
+                  <CardContent className="p-6">
+                    <div className="flex items-start space-x-4 mb-4">
+                      {selectedInvestment.project.thumbnailImage ? (
+                        <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                          <Image
+                            src={selectedInvestment.project.thumbnailImage}
+                            alt={selectedInvestment.project.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                          <Target className="w-8 h-8 text-gray-400" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-gray-900">{selectedInvestment.project.title}</h3>
+                        <p className="text-gray-600">{selectedInvestment.project.category}</p>
+                        <p className="text-sm text-gray-500">
+                          Partner: {selectedInvestment.project.partner.companyName || selectedInvestment.project.partner.name}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        {(() => {
+                          const stageInfo = getLifecycleStageInfo(selectedInvestment.lifecycleStage)
+                          return (
+                            <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${stageInfo.color}`}>
+                              {stageInfo.icon}
+                              <span className="ml-1">{stageInfo.label}</span>
+                            </span>
+                          )
+                        })()}
+                      </div>
+                    </div>
+                    <p className="text-gray-700">{selectedInvestment.project.description}</p>
+                  </CardContent>
+                </Card>
+
+                {/* Investment Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Invested Amount</p>
+                          <p className="text-lg font-bold text-gray-900">
+                            {formatCurrency(selectedInvestment.investedAmount)}
+                          </p>
+                        </div>
+                        <DollarSign className="w-6 h-6 text-blue-600" />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Current Value</p>
+                          <p className="text-lg font-bold text-gray-900">
+                            {formatCurrency(selectedInvestment.currentValue)}
+                          </p>
+                        </div>
+                        <TrendingUp className="w-6 h-6 text-green-600" />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Distributed Profits</p>
+                          <p className="text-lg font-bold text-green-600">
+                            {formatCurrency(selectedInvestment.distributedProfits)}
+                          </p>
+                        </div>
+                        <Coins className="w-6 h-6 text-green-600" />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">Pending Profits</p>
+                          <p className="text-lg font-bold text-yellow-600">
+                            {formatCurrency(selectedInvestment.pendingProfits)}
+                          </p>
+                        </div>
+                        <Clock className="w-6 h-6 text-yellow-600" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Investment Progress */}
+                <Card className="mb-6">
+                  <CardContent className="p-6">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Investment Progress</h4>
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-600">Project Progress</span>
+                        <span className="text-sm text-gray-600">{selectedInvestment.progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div
+                          className="bg-blue-600 h-3 rounded-full"
+                          style={{ width: `${Math.min(selectedInvestment.progress, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-600">Investment Date</p>
+                        <p className="font-medium">{formatDate(selectedInvestment.investmentDate)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Expected Return</p>
+                        <p className="font-medium">{selectedInvestment.project.expectedReturn}%</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Duration</p>
+                        <p className="font-medium">{selectedInvestment.project.duration} months</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Profit Distribution History */}
+                {selectedInvestment.profitHistory.length > 0 && (
+                  <Card className="mb-6">
+                    <CardContent className="p-6">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <History className="w-5 h-5 mr-2" />
+                        Profit Distribution History
+                      </h4>
+                      <div className="space-y-3">
+                        {selectedInvestment.profitHistory.map((profit) => (
+                          <div key={profit.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div>
+                              <p className="font-medium text-green-800">{formatCurrency(profit.amount)}</p>
+                              <p className="text-sm text-green-600">{profit.description}</p>
+                              <p className="text-xs text-gray-500">{formatDate(profit.createdAt)}</p>
+                            </div>
+                            <div className="text-right">
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Distributed
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Pending Profit Distributions */}
+                {selectedInvestment.pendingProfitDistributions.length > 0 && (
+                  <Card className="mb-6">
+                    <CardContent className="p-6">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <Clock className="w-5 h-5 mr-2" />
+                        Pending Profit Distributions
+                      </h4>
+                      <div className="space-y-3">
+                        {selectedInvestment.pendingProfitDistributions.map((profit) => (
+                          <div key={profit.id} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                            <div>
+                              <p className="font-medium text-yellow-800">{formatCurrency(profit.amount)}</p>
+                              <p className="text-sm text-yellow-600">{profit.description}</p>
+                              <p className="text-xs text-gray-500">{formatDate(profit.createdAt)}</p>
+                            </div>
+                            <div className="text-right">
+                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                                <Clock className="w-3 h-3 mr-1" />
+                                Awaiting Admin
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Lifecycle Stage Information */}
+                <Card>
+                  <CardContent className="p-6">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Investment Lifecycle</h4>
+                    {(() => {
+                      const stageInfo = getLifecycleStageInfo(selectedInvestment.lifecycleStage)
+                      return (
+                        <div className="flex items-center space-x-3">
+                          <div className={`p-3 rounded-full ${stageInfo.color}`}>
+                            {stageInfo.icon}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{stageInfo.label}</p>
+                            <p className="text-sm text-gray-600">{stageInfo.description}</p>
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </InvestorLayout>
   )

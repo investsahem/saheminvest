@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import AdminLayout from '../components/layout/AdminLayout'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
@@ -15,98 +16,81 @@ import {
   BarChart3, PieChart as PieIcon, TrendingUp as GrowthIcon, Eye
 } from 'lucide-react'
 
-// Professional sample data for charts
-const revenueData = [
-  { month: 'Jan', revenue: 45000, profit: 12000, deals: 8 },
-  { month: 'Feb', revenue: 52000, profit: 15600, deals: 12 },
-  { month: 'Mar', revenue: 48000, profit: 14400, deals: 10 },
-  { month: 'Apr', revenue: 61000, profit: 18300, deals: 15 },
-  { month: 'May', revenue: 55000, profit: 16500, deals: 13 },
-  { month: 'Jun', revenue: 67000, profit: 20100, deals: 18 },
-  { month: 'Jul', revenue: 71000, profit: 21300, deals: 20 },
-]
-
-const userGrowthData = [
-  { month: 'Jan', total: 1100, new: 45, active: 890 },
-  { month: 'Feb', total: 1180, new: 80, active: 945 },
-  { month: 'Mar', total: 1220, new: 40, active: 980 },
-  { month: 'Apr', total: 1350, new: 130, active: 1100 },
-  { month: 'May', total: 1420, new: 70, active: 1180 },
-  { month: 'Jun', total: 1580, new: 160, active: 1320 },
-  { month: 'Jul', total: 1647, new: 67, active: 1420 },
-]
-
-const dealDistributionData = [
-  { name: 'Electronics', value: 35, amount: 850000, color: '#3B82F6' },
-  { name: 'Real Estate', value: 25, amount: 1200000, color: '#10B981' },
-  { name: 'Agriculture', value: 20, amount: 450000, color: '#F59E0B' },
-  { name: 'Technology', value: 15, amount: 680000, color: '#8B5CF6' },
-  { name: 'Healthcare', value: 5, amount: 200000, color: '#EF4444' },
-]
-
-const performanceMetrics = [
-  { metric: 'Avg Deal Size', value: 85000, change: 12.5, trend: 'up' },
-  { metric: 'Success Rate', value: 94.2, change: 3.1, trend: 'up' },
-  { metric: 'Time to Fund', value: 4.2, change: -8.3, trend: 'down' },
-  { metric: 'ROI Average', value: 15.8, change: 2.4, trend: 'up' },
-]
-
-const recentActivities = [
-  {
-    id: '1',
-    type: 'deal_completed',
-    message: 'Electronics Trading Deal #2695 completed successfully',
-    timestamp: '2024-07-20T14:30:00Z',
-    status: 'success',
-    amount: 85000
-  },
-  {
-    id: '2',
-    type: 'large_investment',
-    message: 'Large investment of $25,000 received from Ahmed Mohammed',
-    timestamp: '2024-07-20T13:15:00Z',
-    status: 'info',
-    amount: 25000
-  },
-  {
-    id: '3',
-    type: 'new_partner',
-    message: 'New partner "Green Energy Corp" registered',
-    timestamp: '2024-07-20T11:45:00Z',
-    status: 'success',
-    amount: null
-  },
-  {
-    id: '4',
-    type: 'milestone',
-    message: 'Platform reached $5M total investments milestone',
-    timestamp: '2024-07-20T09:20:00Z',
-    status: 'celebrate',
-    amount: 5000000
-  },
-]
-
-// Enhanced dashboard stats
-const dashboardStats = {
-  totalUsers: 1647,
-  activeInvestors: 1420,
-  totalDeals: 89,
-  activeDeals: 23,
-  totalRevenue: 5480000,
-  monthlyRevenue: 671000,
-  totalProfit: 1644000,
-  monthlyProfit: 201300,
-  avgReturn: 15.8,
-  successRate: 94.2,
-  pendingApprovals: 12,
-  systemAlerts: 2,
-  newUsersToday: 8,
-  completedDealsThisMonth: 20
+interface DashboardData {
+  totalUsers: number
+  activeInvestors: number
+  totalDeals: number
+  activeDeals: number
+  totalRevenue: number
+  monthlyRevenue: number
+  totalProfit: number
+  monthlyProfit: number
+  avgReturn: number
+  successRate: number
+  pendingApprovals: number
+  systemAlerts: number
+  newUsersToday: number
+  completedDealsThisMonth: number
+  userGrowth: number
+  revenueGrowth: number
+  revenueData: Array<{
+    month: string
+    revenue: number
+    deals: number
+  }>
+  userGrowthData: Array<{
+    month: string
+    total: number
+    new: number
+    active: number
+  }>
+  dealDistributionData: Array<{
+    name: string
+    value: number
+    amount: number
+    color: string
+  }>
+  performanceMetrics: Array<{
+    metric: string
+    value: number
+    change: number
+    trend: 'up' | 'down'
+  }>
+  recentActivities: Array<{
+    id: string
+    type: string
+    message: string
+    timestamp: string
+    status: string
+    amount: number
+  }>
 }
 
 export default function AdminDashboard() {
   const { t } = useTranslation()
   const { locale } = useI18n()
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('/api/admin/dashboard')
+        if (response.ok) {
+          const data = await response.json()
+          setDashboardData(data)
+        } else {
+          console.error('Failed to fetch dashboard data')
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardData()
+  }, [])
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat(locale === 'ar' ? 'ar-SA' : 'en-US').format(num)
@@ -208,6 +192,44 @@ export default function AdminDashboard() {
     </Card>
   )
 
+  if (loading) {
+    return (
+      <AdminLayout 
+        title={t('admin.title')} 
+        subtitle={t('admin.welcome_message')}
+      >
+        <div className="flex items-center justify-center min-h-96">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  if (!dashboardData) {
+    return (
+      <AdminLayout 
+        title={t('admin.title')} 
+        subtitle={t('admin.welcome_message')}
+      >
+        <Card>
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to Load Dashboard</h2>
+            <p className="text-gray-600">Please try refreshing the page.</p>
+          </CardContent>
+        </Card>
+      </AdminLayout>
+    )
+  }
+
+  const {
+    revenueData,
+    userGrowthData,
+    dealDistributionData,
+    performanceMetrics,
+    recentActivities
+  } = dashboardData
+
   return (
     <AdminLayout 
       title={t('admin.title')} 
@@ -219,7 +241,7 @@ export default function AdminDashboard() {
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <p className="text-sm text-gray-500">{t('admin.todays_activity')}</p>
-                <p className="text-2xl font-bold text-blue-600">+{dashboardStats.newUsersToday}</p>
+                <p className="text-2xl font-bold text-blue-600">+{dashboardData.newUsersToday}</p>
                 <p className="text-xs text-gray-400">{t('admin.new_users')}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -233,22 +255,22 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
             title={t('admin.monthly_revenue')}
-            value={dashboardStats.monthlyRevenue}
-            change={18.2}
-            trend="up"
+            value={dashboardData.monthlyRevenue}
+            change={dashboardData.revenueGrowth}
+            trend={dashboardData.revenueGrowth >= 0 ? "up" : "down"}
             icon={DollarSign}
             format="currency"
           />
           <MetricCard
             title={t('admin.active_users')}
-            value={dashboardStats.activeInvestors}
-            change={12.5}
-            trend="up"
+            value={dashboardData.activeInvestors}
+            change={dashboardData.userGrowth}
+            trend={dashboardData.userGrowth >= 0 ? "up" : "down"}
             icon={Users}
           />
           <MetricCard
             title={t('admin.success_rate')}
-            value={dashboardStats.successRate}
+            value={dashboardData.successRate}
             change={3.1}
             trend="up"
             icon={Target}
@@ -256,7 +278,7 @@ export default function AdminDashboard() {
           />
           <MetricCard
             title={t('admin.avg_roi')}
-            value={dashboardStats.avgReturn}
+            value={dashboardData.avgReturn}
             change={2.4}
             trend="up"
             icon={TrendingUp}
@@ -469,7 +491,7 @@ export default function AdminDashboard() {
                           <h4 className="font-medium text-gray-900 text-sm mb-1">
                             {t('admin.manage_applications')}
                           </h4>
-                          <p className="text-xs text-gray-600">{dashboardStats.pendingApprovals} pending</p>
+                          <p className="text-xs text-gray-600">{dashboardData.pendingApprovals} pending</p>
                         </div>
                         <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
                           <Clock className="w-4 h-4 text-yellow-600" />
@@ -487,7 +509,7 @@ export default function AdminDashboard() {
                           <h4 className="font-medium text-gray-900 text-sm mb-1">
                             {t('admin.manage_users')}
                           </h4>
-                          <p className="text-xs text-gray-600">{formatNumber(dashboardStats.totalUsers)} users</p>
+                          <p className="text-xs text-gray-600">{formatNumber(dashboardData.totalUsers)} users</p>
                         </div>
                         <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                           <Users className="w-4 h-4 text-blue-600" />
@@ -505,7 +527,7 @@ export default function AdminDashboard() {
                           <h4 className="font-medium text-gray-900 text-sm mb-1">
                             {t('admin.manage_deals')}
                           </h4>
-                          <p className="text-xs text-gray-600">{dashboardStats.activeDeals} active deals</p>
+                          <p className="text-xs text-gray-600">{dashboardData.activeDeals} active deals</p>
                 </div>
                         <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                           <BarChart3 className="w-4 h-4 text-green-600" />
@@ -802,7 +824,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* System Status Footer */}
-        {(dashboardStats.pendingApprovals > 0 || dashboardStats.systemAlerts > 0) && (
+        {(dashboardData.pendingApprovals > 0 || dashboardData.systemAlerts > 0) && (
           <div className="mt-8">
             <Card className="border-yellow-200 bg-gradient-to-r from-yellow-50 to-amber-50 shadow-sm">
               <CardContent className="p-6">
@@ -812,7 +834,7 @@ export default function AdminDashboard() {
                     <div>
                       <h4 className="font-medium text-yellow-800 mb-1">{t('admin.alerts_attention')}</h4>
                       <p className="text-sm text-yellow-700">
-                        {dashboardStats.pendingApprovals} {t('admin.pending_approvals')} • {dashboardStats.systemAlerts} {t('admin.system_alerts')}
+                        {dashboardData.pendingApprovals} {t('admin.pending_approvals')} • {dashboardData.systemAlerts} {t('admin.system_alerts')}
                       </p>
                     </div>
                   </div>

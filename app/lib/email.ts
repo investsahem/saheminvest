@@ -427,6 +427,254 @@ class EmailService {
       htmlContent
     })
   }
+
+  async sendDepositConfirmation(data: {
+    to: string
+    userName: string
+    amount: number
+    method: string
+    reference: string
+    newBalance: number
+  }) {
+    const { to, userName, amount, method, reference, newBalance } = data
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+          .header { background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 24px; font-weight: bold; color: #10B981; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>✅ Deposit Confirmed</h1>
+          </div>
+          <div class="content">
+            <h2>Hi ${userName},</h2>
+            <p>Great news! Your deposit has been successfully processed and added to your wallet.</p>
+            
+            <div class="amount">$${amount.toLocaleString()}</div>
+            
+            <div class="details">
+              <h3>Transaction Details:</h3>
+              <p><strong>Amount:</strong> $${amount.toLocaleString()}</p>
+              <p><strong>Method:</strong> ${method.charAt(0).toUpperCase() + method.slice(1)}</p>
+              <p><strong>Reference:</strong> ${reference}</p>
+              <p><strong>New Wallet Balance:</strong> $${newBalance.toLocaleString()}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+            </div>
+            
+            <p>Your funds are now available for investment. You can start exploring investment opportunities right away!</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email: to, name: userName }],
+      subject: 'Deposit Confirmed - Funds Added to Your Wallet',
+      htmlContent
+    })
+  }
+
+  async sendDepositRejection(data: {
+    to: string
+    userName: string
+    amount: number
+    method: string
+    reference: string
+    reason: string
+  }) {
+    const { to, userName, amount, method, reference, reason } = data
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+          .header { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 24px; font-weight: bold; color: #EF4444; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>❌ Deposit Rejected</h1>
+          </div>
+          <div class="content">
+            <h2>Hi ${userName},</h2>
+            <p>We regret to inform you that your recent deposit request has been rejected.</p>
+            
+            <div class="amount">$${amount.toLocaleString()}</div>
+            
+            <div class="details">
+              <h3>Transaction Details:</h3>
+              <p><strong>Amount:</strong> $${amount.toLocaleString()}</p>
+              <p><strong>Method:</strong> ${method.charAt(0).toUpperCase() + method.slice(1)}</p>
+              <p><strong>Reference:</strong> ${reference}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+              <p><strong>Reason:</strong> ${reason}</p>
+            </div>
+            
+            <p>If you have any questions about this rejection or need assistance with making a deposit, please don't hesitate to contact our support team.</p>
+            
+            <a href="mailto:support@sahaminvest.com" class="button">Contact Support</a>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email: to, name: userName }],
+      subject: 'Deposit Request Rejected - Action Required',
+      htmlContent
+    })
+  }
+
+  // Deal Approval Notifications
+  async sendDealPendingNotification(adminEmails: string[], dealTitle: string, partnerName: string, dealId: string) {
+    const adminUrl = `${process.env.NEXTAUTH_URL}/admin/deals`
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Deal Pending Approval - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .deal-info { background: #FEF3C7; border: 1px solid #F59E0B; padding: 15px; border-radius: 6px; margin: 20px 0; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🔔 Deal Pending Approval</h1>
+          </div>
+          <div class="content">
+            <p>Dear Admin,</p>
+            
+            <p>A partner has submitted a deal that requires your approval.</p>
+            
+            <div class="deal-info">
+              <strong>Deal Title:</strong> ${dealTitle}<br>
+              <strong>Partner:</strong> ${partnerName}<br>
+              <strong>Status:</strong> Pending Review<br>
+              <strong>Deal ID:</strong> ${dealId}
+            </div>
+            
+            <p>Please review the deal and approve or reject it as appropriate.</p>
+            
+            <a href="${adminUrl}" class="button">Review Deal</a>
+            
+            <p>Best regards,<br>The Sahem Invest System</p>
+          </div>
+          <div class="footer">
+            <p>&copy; 2024 Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    const recipients = adminEmails.map(email => ({ email, name: 'Admin' }))
+
+    return await this.sendEmail({
+      to: recipients,
+      subject: `🔔 Deal Pending Approval: ${dealTitle}`,
+      htmlContent
+    })
+  }
+
+  async sendDealUpdateNotification(adminEmails: string[], dealTitle: string, partnerName: string, dealId: string, changes: string[]) {
+    const adminUrl = `${process.env.NEXTAUTH_URL}/admin/deals`
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Deal Updated - Requires Re-approval - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .deal-info { background: #F3E8FF; border: 1px solid #8B5CF6; padding: 15px; border-radius: 6px; margin: 20px 0; }
+          .changes { background: #FEF3C7; border: 1px solid #F59E0B; padding: 15px; border-radius: 6px; margin: 20px 0; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>✏️ Deal Updated - Re-approval Required</h1>
+          </div>
+          <div class="content">
+            <p>Dear Admin,</p>
+            
+            <p>A partner has updated an existing deal that requires your re-approval.</p>
+            
+            <div class="deal-info">
+              <strong>Deal Title:</strong> ${dealTitle}<br>
+              <strong>Partner:</strong> ${partnerName}<br>
+              <strong>Status:</strong> Pending Re-approval<br>
+              <strong>Deal ID:</strong> ${dealId}
+            </div>
+            
+            <div class="changes">
+              <strong>Changes Made:</strong><br>
+              ${changes.map(change => `• ${change}`).join('<br>')}
+            </div>
+            
+            <p>Please review the updated deal and approve or reject the changes.</p>
+            
+            <a href="${adminUrl}" class="button">Review Updated Deal</a>
+            
+            <p>Best regards,<br>The Sahem Invest System</p>
+          </div>
+          <div class="footer">
+            <p>&copy; 2024 Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    const recipients = adminEmails.map(email => ({ email, name: 'Admin' }))
+
+    return await this.sendEmail({
+      to: recipients,
+      subject: `✏️ Deal Updated - Re-approval Required: ${dealTitle}`,
+      htmlContent
+    })
+  }
 }
 
 export const emailService = new EmailService()

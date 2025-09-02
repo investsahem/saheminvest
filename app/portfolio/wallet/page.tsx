@@ -6,26 +6,54 @@ import InvestorLayout from '../../components/layout/InvestorLayout'
 import { Wallet } from '../../components/dashboard/Wallet'
 import { useTranslation } from '../../components/providers/I18nProvider'
 
+interface Transaction {
+  id: string
+  type: 'deposit' | 'withdrawal' | 'investment' | 'return' | 'fee'
+  amount: number
+  description: string
+  status: 'pending' | 'completed' | 'failed'
+  createdAt: string
+  reference?: string
+  method?: string
+  projectTitle?: string
+  projectCategory?: string
+}
+
 const WalletPage = () => {
   const { t } = useTranslation()
   const { data: session } = useSession()
   const [walletData, setWalletData] = useState({
     balance: 0,
     totalInvested: 0,
-    totalReturns: 0
+    totalReturns: 0,
+    activeInvestmentValue: 0,
+    profitsSummary: {
+      distributedProfits: 0,
+      unrealizedGains: 0
+    }
   })
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  // Fetch wallet data
+  // Fetch wallet data and transactions
   useEffect(() => {
     const fetchWalletData = async () => {
       if (!session?.user) return
       
       try {
-        const response = await fetch('/api/wallet/balance')
-        if (response.ok) {
-          const data = await response.json()
-          setWalletData(data)
+        // Fetch wallet balance
+        const balanceResponse = await fetch('/api/wallet/balance')
+        if (balanceResponse.ok) {
+          const balanceData = await balanceResponse.json()
+          setWalletData(balanceData)
+        }
+
+        // Fetch transactions
+        const transactionsResponse = await fetch('/api/wallet/transactions?limit=20')
+        if (transactionsResponse.ok) {
+          const transactionsData = await transactionsResponse.json()
+          setTransactions(transactionsData.transactions)
         }
       } catch (error) {
         console.error('Error fetching wallet data:', error)
@@ -35,76 +63,71 @@ const WalletPage = () => {
     }
 
     fetchWalletData()
-  }, [session])
+  }, [session, refreshTrigger])
 
-  // Sample transactions - in real app, fetch from API
-  // These transactions should total: +20500 deposits, -8000 investments, +1200 returns = 13700
-  // But current balance is 12500, so there might be some fees or other transactions
-  const transactions = [
-    {
-      id: '1',
-      type: 'deposit' as const,
-      amount: 15000.00,
-      createdAt: '2024-01-15T10:30:00Z',
-      status: 'completed' as const,
-      reference: 'DEP-2024-001',
-      description: 'Initial account funding - Bank Transfer'
-    },
-    {
-      id: '2',
-      type: 'deposit' as const,
-      amount: 5500.00,
-      createdAt: '2024-01-20T14:20:00Z',
-      status: 'completed' as const,
-      reference: 'DEP-2024-002',
-      description: 'Additional funding - Credit Card'
-    },
-    {
-      id: '3',
-      type: 'investment' as const,
-      amount: 5000.00,
-      createdAt: '2024-01-19T14:15:00Z',
-      status: 'completed' as const,
-      reference: 'INV-2024-001',
-      description: 'Investment in Electronics Manufacturing Project'
-    },
-    {
-      id: '4',
-      type: 'investment' as const,
-      amount: 3000.00,
-      createdAt: '2024-01-17T16:20:00Z',
-      status: 'completed' as const,
-      reference: 'INV-2024-002',
-      description: 'Investment in Luxury Real Estate Development'
-    },
-    {
-      id: '5',
-      type: 'return' as const,
-      amount: 750.00,
-      createdAt: '2024-01-18T09:45:00Z',
-      status: 'completed' as const,
-      reference: 'RET-2024-001',
-      description: 'Q4 2023 Return - Real Estate Project'
-    },
-    {
-      id: '6',
-      type: 'return' as const,
-      amount: 450.00,
-      createdAt: '2024-01-16T11:10:00Z',
-      status: 'completed' as const,
-      reference: 'RET-2024-002',
-      description: 'Monthly Return - Tech Portfolio'
-    },
-    {
-      id: '7',
-      type: 'fee' as const,
-      amount: 200.00,
-      createdAt: '2024-01-21T08:00:00Z',
-      status: 'completed' as const,
-      reference: 'FEE-2024-001',
-      description: 'Platform management fee'
+  // Function to refresh data after transactions
+  const refreshWalletData = () => {
+    setRefreshTrigger(prev => prev + 1)
+  }
+
+  // Handle deposit
+  const handleDeposit = async (amount: number, method: string, cardDetails?: any) => {
+    try {
+      const response = await fetch('/api/wallet/deposit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount,
+          method,
+          cardDetails
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        // Refresh wallet data
+        refreshWalletData()
+        return { success: true, message: result.transaction.message }
+      } else {
+        return { success: false, message: result.error }
+      }
+    } catch (error) {
+      console.error('Error processing deposit:', error)
+      return { success: false, message: 'Network error. Please try again.' }
     }
-  ]
+  }
+
+  // Handle withdrawal
+  const handleWithdraw = async (amount: number, method: string) => {
+    try {
+      const response = await fetch('/api/wallet/withdraw', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount,
+          method
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        // Refresh wallet data
+        refreshWalletData()
+        return { success: true, message: result.transaction.message }
+      } else {
+        return { success: false, message: result.error }
+      }
+    } catch (error) {
+      console.error('Error processing withdrawal:', error)
+      return { success: false, message: 'Network error. Please try again.' }
+    }
+  }
 
   if (loading) {
     return (
@@ -125,21 +148,11 @@ const WalletPage = () => {
         balance={walletData.balance}
         totalInvested={walletData.totalInvested}
         totalReturns={walletData.totalReturns}
+        activeInvestmentValue={walletData.activeInvestmentValue}
+        profitsSummary={walletData.profitsSummary}
         transactions={transactions}
-        onDeposit={(amount) => {
-          // Handle deposit - refresh wallet data
-          setWalletData(prev => ({
-            ...prev,
-            balance: prev.balance + amount
-          }))
-        }}
-        onWithdraw={(amount) => {
-          // Handle withdraw - refresh wallet data
-          setWalletData(prev => ({
-            ...prev,
-            balance: prev.balance - amount
-          }))
-        }}
+        onDeposit={handleDeposit}
+        onWithdraw={handleWithdraw}
       />
     </InvestorLayout>
   )

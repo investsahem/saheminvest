@@ -37,9 +37,34 @@ interface Transaction {
   method?: 'card' | 'bank' | 'cash'
 }
 
+interface Statistics {
+  totalDeposits: number
+  totalWithdrawals: number
+  totalInvestments: number
+  totalReturns: number
+  totalFees: number
+  totalCommissions: number
+  pendingCount: number
+  completedCount: number
+  failedCount: number
+  totalVolume: number
+}
+
 const FinancesPage = () => {
   const { data: session } = useSession()
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [statistics, setStatistics] = useState<Statistics>({
+    totalDeposits: 0,
+    totalWithdrawals: 0,
+    totalInvestments: 0,
+    totalReturns: 0,
+    totalFees: 0,
+    totalCommissions: 0,
+    pendingCount: 0,
+    completedCount: 0,
+    failedCount: 0,
+    totalVolume: 0
+  })
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -77,8 +102,9 @@ const FinancesPage = () => {
       
       if (response.ok) {
         const data = await response.json()
-        setTransactions(data.transactions)
-        setTotalPages(data.pagination.pages)
+        setTransactions(data.transactions || [])
+        setStatistics(data.statistics || statistics)
+        setTotalPages(data.pagination?.pages || 1)
       } else {
         console.error('Error fetching transactions:', response.statusText)
         setTransactions([])
@@ -209,24 +235,7 @@ const FinancesPage = () => {
     }
   }
 
-  // Calculate summary statistics
-  const totalDeposits = transactions
-    .filter(t => t.type === 'deposit' && t.status === 'completed')
-    .reduce((sum, t) => sum + t.amount, 0)
-
-  const totalWithdrawals = transactions
-    .filter(t => t.type === 'withdrawal' && t.status === 'completed')
-    .reduce((sum, t) => sum + t.amount, 0)
-
-  const totalInvestments = transactions
-    .filter(t => t.type === 'investment' && t.status === 'completed')
-    .reduce((sum, t) => sum + t.amount, 0)
-
-  const totalReturns = transactions
-    .filter(t => t.type === 'return' && t.status === 'completed')
-    .reduce((sum, t) => sum + t.amount, 0)
-
-  const pendingTransactions = transactions.filter(t => t.status === 'pending').length
+  // Use statistics from API instead of calculating on frontend
 
   // Filter transactions
   const filteredTransactions = transactions.filter(transaction => {
@@ -268,7 +277,7 @@ const FinancesPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-green-700">Total Deposits</p>
-                  <p className="text-2xl font-bold text-green-900">{formatCurrency(totalDeposits)}</p>
+                  <p className="text-2xl font-bold text-green-900">{formatCurrency(statistics.totalDeposits)}</p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                   <ArrowDownLeft className="w-6 h-6 text-green-600" />
@@ -282,7 +291,7 @@ const FinancesPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-red-700">Total Withdrawals</p>
-                  <p className="text-2xl font-bold text-red-900">{formatCurrency(totalWithdrawals)}</p>
+                  <p className="text-2xl font-bold text-red-900">{formatCurrency(statistics.totalWithdrawals)}</p>
                 </div>
                 <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
                   <ArrowUpRight className="w-6 h-6 text-red-600" />
@@ -296,7 +305,7 @@ const FinancesPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-blue-700">Total Investments</p>
-                  <p className="text-2xl font-bold text-blue-900">{formatCurrency(totalInvestments)}</p>
+                  <p className="text-2xl font-bold text-blue-900">{formatCurrency(statistics.totalInvestments)}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                   <TrendingUp className="w-6 h-6 text-blue-600" />
@@ -310,7 +319,7 @@ const FinancesPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-purple-700">Total Returns</p>
-                  <p className="text-2xl font-bold text-purple-900">{formatCurrency(totalReturns)}</p>
+                  <p className="text-2xl font-bold text-purple-900">{formatCurrency(statistics.totalReturns)}</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                   <DollarSign className="w-6 h-6 text-purple-600" />
@@ -324,7 +333,7 @@ const FinancesPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-orange-700">Pending</p>
-                  <p className="text-2xl font-bold text-orange-900">{pendingTransactions}</p>
+                  <p className="text-2xl font-bold text-orange-900">{statistics.pendingCount}</p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
                   <Clock className="w-6 h-6 text-orange-600" />

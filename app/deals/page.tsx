@@ -10,59 +10,14 @@ import InvestorLayout from '../components/layout/InvestorLayout'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
 import { Card, CardContent } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
+import { Deal } from '../types/deals'
+import { dealsService } from '../lib/deals-service'
 import { 
-  Plus, Filter, Search, Grid, List, MoreVertical,
-  Edit, Trash2, Eye, Pause, Play, Star, TrendingUp,
-  Clock, CheckCircle, AlertCircle, X, RefreshCw
+  Plus, Filter, Search, Grid, List, TrendingUp,
+  Clock, CheckCircle, AlertCircle, X, RefreshCw, Eye, Star, Pause
 } from 'lucide-react'
 
-interface Deal {
-  id: string
-  title: string
-  description: string
-  category: string
-  location?: string
-  fundingGoal: number
-  currentFunding: number
-  minInvestment: number
-  expectedReturn: number
-  duration: number
-  riskLevel?: string
-  status: 'DRAFT' | 'PENDING' | 'PUBLISHED' | 'ACTIVE' | 'PAUSED' | 'FUNDED' | 'COMPLETED' | 'CANCELLED'
-  startDate?: string
-  endDate?: string
-  publishedAt?: string
-  thumbnailImage?: string
-  images: string[]
-  highlights: string[]
-  tags: string[]
-  featured: boolean
-  slug?: string
-  owner: {
-    id: string
-    name: string
-    email: string
-    image?: string
-  }
-  partner?: {
-    id: string
-    companyName: string
-    logo?: string
-  }
-  investments: Array<{
-    id: string
-    amount: number
-    investor: {
-      id: string
-      name: string
-    }
-  }>
-  _count: {
-    investments: number
-  }
-  createdAt: string
-  updatedAt: string
-}
+
 
 const DealsContent = () => {
   const { t } = useTranslation()
@@ -83,7 +38,6 @@ const DealsContent = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null)
 
   // Check user permissions
   const isAdmin = session?.user?.role === 'ADMIN'
@@ -91,35 +45,34 @@ const DealsContent = () => {
   const canCreateDeals = isAdmin || isDealManager
   const canManageAllDeals = isAdmin || isDealManager
 
-  // Fetch deals
+  // Fetch deals using unified service
   const fetchDeals = async () => {
     try {
       setLoading(true)
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: '12'
-      })
       
-      if (statusFilter !== 'all') {
-        params.append('status', statusFilter)
-      }
-      
-      if (categoryFilter !== 'all') {
-        params.append('category', categoryFilter)
+      const params = {
+        page: currentPage,
+        limit: 12,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        category: categoryFilter !== 'all' ? categoryFilter : undefined,
+        search: searchTerm || undefined,
+        includeAll: canManageAllDeals
       }
 
-      const response = await fetch(`/api/deals?${params}`, {
-        cache: 'no-store'
-      })
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Fetched deals:', data.deals.length, 'deals')
-        console.log('Deal images:', data.deals.map((d: any) => ({ title: d.title, image: d.thumbnailImage })))
-        setDeals(data.deals)
-        setTotalPages(data.pagination.pages)
+      // For investors, only show active/published deals
+      if (!canManageAllDeals) {
+        params.status = 'ACTIVE'
       }
+
+      const response = await dealsService.fetchDeals(params)
+      console.log('Fetched deals:', response.deals.length, 'deals')
+      console.log('Deal images:', response.deals.map((d: Deal) => ({ title: d.title, image: d.thumbnailImage })))
+      setDeals(response.deals)
+      setTotalPages(response.totalPages)
     } catch (error) {
       console.error('Error fetching deals:', error)
+      setDeals([])
+      setTotalPages(1)
     } finally {
       setLoading(false)
     }
@@ -140,14 +93,10 @@ const DealsContent = () => {
 
   useEffect(() => {
     fetchDeals()
-  }, [currentPage, statusFilter, categoryFilter])
+  }, [currentPage, statusFilter, categoryFilter, searchTerm])
 
-  // Filter deals by search term
-  const filteredDeals = deals.filter(deal =>
-    deal.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    deal.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    deal.category.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Server-side filtering is now handled by the API
+  const filteredDeals = deals
 
   // Handle deal actions
   const handleStatusChange = async (dealId: string, newStatus: string) => {
@@ -162,7 +111,7 @@ const DealsContent = () => {
 
       if (response.ok) {
         fetchDeals()
-        setActionMenuOpen(null)
+
       }
     } catch (error) {
       console.error('Error updating deal status:', error)
@@ -179,7 +128,7 @@ const DealsContent = () => {
 
       if (response.ok) {
         fetchDeals()
-        setActionMenuOpen(null)
+
       }
     } catch (error) {
       console.error('Error deleting deal:', error)
@@ -555,160 +504,29 @@ const DealsContent = () => {
             ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
             : 'space-y-4'
           }>
-            {filteredDeals.map((deal) => {
-              const statusInfo = getStatusInfo(deal.status)
-              const StatusIcon = statusInfo.icon
-              const fundingPercentage = (deal.currentFunding / deal.fundingGoal) * 100
-
-              return (
-                <Card key={deal.id} className="relative group hover:shadow-lg transition-shadow">
-                  {/* Admin Actions Menu */}
-                  {canManageAllDeals && (
-                    <div className="absolute top-4 right-4 z-10">
-                      <button
-                        onClick={() => setActionMenuOpen(actionMenuOpen === deal.id ? null : deal.id)}
-                        className="p-2 bg-white rounded-full shadow-md hover:bg-gray-50"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                      
-                      {actionMenuOpen === deal.id && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-20">
-                          <div className="py-1">
-                            <button
-                              onClick={() => setEditingDeal(deal)}
-                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            >
-                              <Edit className="w-4 h-4 mr-2" />
-                              Edit Deal
-                            </button>
-                            
-                            {deal.status === 'ACTIVE' && (
-                              <button
-                                onClick={() => handleStatusChange(deal.id, 'PAUSED')}
-                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              >
-                                <Pause className="w-4 h-4 mr-2" />
-                                Pause Deal
-                              </button>
-                            )}
-                            
-                            {deal.status === 'PAUSED' && (
-                              <button
-                                onClick={() => handleStatusChange(deal.id, 'ACTIVE')}
-                                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                              >
-                                <Play className="w-4 h-4 mr-2" />
-                                Resume Deal
-                              </button>
-                            )}
-                            
-                            <button
-                              onClick={() => handleToggleFeatured(deal.id, deal.featured)}
-                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            >
-                              <Star className={`w-4 h-4 mr-2 ${deal.featured ? 'text-yellow-500' : ''}`} />
-                              {deal.featured ? 'Unfeature' : 'Feature'}
-                            </button>
-                            
-                            <div className="border-t border-gray-100"></div>
-                            
-                            <button
-                              onClick={() => handleDeleteDeal(deal.id)}
-                              className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete Deal
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <CardContent className="p-6">
-                    {/* Featured Badge */}
-                    {deal.featured && (
-                      <div className="absolute top-4 left-4 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                        <Star className="w-3 h-3 inline mr-1" />
-                        Featured
-                      </div>
-                    )}
-
-                    {/* Deal Image */}
-                    {deal.thumbnailImage && (
-                      <div className="mb-4">
-                        <img
-                          key={`${deal.id}-${imageRefreshTimestamp}`}
-                          src={`${deal.thumbnailImage}?t=${imageRefreshTimestamp}`}
-                          alt={deal.title}
-                          className="w-full h-48 object-cover rounded-lg"
-                          onLoad={() => console.log(`Image loaded: ${deal.title}`)}
-                          onError={() => console.error(`Image failed: ${deal.title}`)}
-                        />
-                      </div>
-                    )}
-
-                    {/* Status Badge */}
-                    <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mb-3 ${statusInfo.color}`}>
-                      <StatusIcon className="w-3 h-3 mr-1" />
-                      {statusInfo.label}
-                    </div>
-
-                    {/* Deal Info */}
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{deal.title}</h3>
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{deal.description}</p>
-
-                    {/* Financial Info */}
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Funding Goal</span>
-                        <span className="font-semibold">{formatCurrency(deal.fundingGoal)}</span>
-                      </div>
-                      
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Current Funding</span>
-                        <span className="font-semibold text-green-600">{formatCurrency(deal.currentFunding)}</span>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
-                        ></div>
-        </div>
-
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">{Math.round(fundingPercentage)}% funded</span>
-                        <span className="text-gray-600">{deal._count.investments} investors</span>
-                      </div>
-
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Expected Return</span>
-                        <span className="font-semibold text-green-600">{deal.expectedReturn}%</span>
-                      </div>
-
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Min Investment</span>
-                        <span className="font-semibold">{formatCurrency(deal.minInvestment)}</span>
-                      </div>
-                    </div>
-
-                    {/* Action Button */}
-                    <div className="mt-6">
-                      <Button
-                        onClick={() => router.push(`/deals/${deal.id}`)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-          </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
+            {filteredDeals.map((deal) => (
+              <DealCard
+                key={deal.id}
+                id={deal.id}
+                title={deal.title}
+                description={deal.description || ''}
+                image={deal.thumbnailImage || '/images/default-deal.jpg'}
+                dealNumber={deal.id}
+                fundingGoal={deal.fundingGoal}
+                currentFunding={deal.currentFunding}
+                expectedReturn={{
+                  min: Number(deal.expectedReturn),
+                  max: Number(deal.expectedReturn)
+                }}
+                duration={deal.duration || 12}
+                endDate={deal.endDate || ''}
+                contributorsCount={deal._count?.investments || deal.investorCount || 0}
+                partnerName={deal.partner?.companyName || deal.owner.name || 'Unknown Partner'}
+                partnerDealsCount={5} // You might want to fetch this from the API
+                minInvestment={deal.minInvestment || 1000}
+                isPartnerView={false} // This is for investors, so no partner view
+              />
+            ))}
       </div>
 
           {/* Pagination */}

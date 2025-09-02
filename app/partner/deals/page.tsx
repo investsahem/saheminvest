@@ -2,42 +2,28 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import PartnerLayout from '../../components/layout/PartnerLayout'
+import { DealCard } from '../../components/project/DealCard'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import DealForm from '../../components/forms/DealForm'
+import { Deal } from '../../types/deals'
+import { dealsService } from '../../lib/deals-service'
 import { 
   Plus, Search, Filter, Eye, Edit, Trash2, Play, Pause, 
   TrendingUp, Users, Calendar, DollarSign, AlertCircle, CheckCircle,
-  BarChart3, Target, Building2, Briefcase
+  BarChart3, Target, Building2, Briefcase, Clock, X
 } from 'lucide-react'
+import { useAdminNotifications } from '../../hooks/useAdminNotifications'
 
-interface Deal {
-  id: string
-  title: string
-  category: string
-  fundingGoal: number
-  currentFunding: number
-  expectedReturn: number
-  duration: number
-  riskLevel: string
-  status: string
-  thumbnailImage: string
-  investorCount: number
-  partner?: {
-    companyName: string
-  }
-  owner: {
-    name: string
-    email: string
-  }
-  createdAt: string
-  updatedAt: string
-}
+
 
 const PartnerDealsPage = () => {
+  const { t } = useTranslation()
   const { data: session } = useSession()
+  const { sendDealNotification } = useAdminNotifications()
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -50,28 +36,24 @@ const PartnerDealsPage = () => {
   // Fetch deals for current partner
   useEffect(() => {
     fetchDeals()
-  }, [])
+  }, [searchTerm, filterStatus])
 
   const fetchDeals = async () => {
     try {
       setLoading(true)
-      const params = new URLSearchParams()
-      if (searchTerm) params.append('search', searchTerm)
-      if (filterStatus !== 'all') params.append('status', filterStatus)
-      params.append('limit', '50')
-      params.append('partner', 'true') // Filter for partner's own deals
-
-      const response = await fetch(`/api/deals?${params}`, {
-        credentials: 'include',
-        cache: 'no-store'
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setDeals(data.deals || [])
+      
+      const params = {
+        search: searchTerm || undefined,
+        status: filterStatus !== 'all' ? filterStatus : undefined,
+        limit: 50,
+        partner: true // Filter for partner's own deals
       }
+
+      const response = await dealsService.fetchDeals(params)
+      setDeals(response.deals)
     } catch (error) {
       console.error('Error fetching deals:', error)
+      setDeals([])
     } finally {
       setLoading(false)
     }
@@ -97,7 +79,10 @@ const PartnerDealsPage = () => {
   }
 
   const handleDeleteDeal = async (dealId: string) => {
-    if (!confirm('Are you sure you want to delete this deal?')) return
+    const deal = deals.find(d => d.id === dealId)
+    const confirmMessage = `Are you sure you want to delete "${deal?.title}"? This action cannot be undone.`
+    
+    if (!confirm(confirmMessage)) return
 
     try {
       const response = await fetch(`/api/deals/${dealId}`, {
@@ -107,81 +92,90 @@ const PartnerDealsPage = () => {
 
       if (response.ok) {
         await fetchDeals()
+        alert('Deal deleted successfully!')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to delete deal')
       }
     } catch (error) {
       console.error('Error deleting deal:', error)
+      alert('Error deleting deal')
     }
   }
 
-  // Filter and paginate deals
-  const filteredDeals = deals.filter(deal => {
-    const matchesSearch = searchTerm === '' || 
-      deal.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      deal.category.toLowerCase().includes(searchTerm.toLowerCase())
-
-    const matchesStatus = filterStatus === 'all' || deal.status === filterStatus
-
-    return matchesSearch && matchesStatus
-  })
-
-  const totalPages = Math.ceil(filteredDeals.length / dealsPerPage)
-  const paginatedDeals = filteredDeals.slice(
+  // Paginate deals (filtering is now done server-side)
+  const totalPages = Math.ceil(deals.length / dealsPerPage)
+  const paginatedDeals = deals.slice(
     (currentPage - 1) * dealsPerPage,
     currentPage * dealsPerPage
   )
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'PUBLISHED': return 'bg-green-100 text-green-800'
+      case 'PUBLISHED': 
+      case 'ACTIVE': return 'bg-green-100 text-green-800'
+      case 'PENDING': return 'bg-yellow-100 text-yellow-800'
       case 'DRAFT': return 'bg-gray-100 text-gray-800'
-      case 'PAUSED': return 'bg-yellow-100 text-yellow-800'
+      case 'PAUSED': return 'bg-orange-100 text-orange-800'
       case 'FUNDED': return 'bg-blue-100 text-blue-800'
       case 'COMPLETED': return 'bg-purple-100 text-purple-800'
+      case 'REJECTED': 
+      case 'CANCELLED': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'PUBLISHED': return <CheckCircle className="w-4 h-4" />
+      case 'PUBLISHED': 
+      case 'ACTIVE': return <CheckCircle className="w-4 h-4" />
+      case 'PENDING': return <Clock className="w-4 h-4" />
       case 'DRAFT': return <Edit className="w-4 h-4" />
       case 'PAUSED': return <Pause className="w-4 h-4" />
       case 'FUNDED': return <Target className="w-4 h-4" />
       case 'COMPLETED': return <CheckCircle className="w-4 h-4" />
+      case 'REJECTED': return <X className="w-4 h-4" />
+      case 'CANCELLED': return <X className="w-4 h-4" />
       default: return <AlertCircle className="w-4 h-4" />
     }
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
+  const formatCurrency = (amount: number) => dealsService.formatCurrency(amount, 'en')
 
   if (showAddDeal) {
     return (
       <PartnerLayout
-        title="Create New Deal"
-        subtitle="Create a new investment opportunity"
+        title={t('partner.create_new_deal')}
+        subtitle={t('partner.create_new_deal_subtitle')}
       >
         <DealForm
           mode="create"
           onSubmit={async (formData: FormData) => {
             try {
+              // Set status to PENDING for admin approval
+              formData.append('status', 'PENDING')
+              
               const response = await fetch('/api/deals', {
                 method: 'POST',
                 body: formData,
                 credentials: 'include'
               })
               if (response.ok) {
+                const newDeal = await response.json()
+                
+                // Send notification to admins
+                await sendDealNotification(newDeal.id, 'created')
+                
                 setShowAddDeal(false)
                 fetchDeals()
+                alert('Deal created successfully! It will be reviewed by admin before being published.')
+              } else {
+                const errorData = await response.json()
+                alert(errorData.error || 'Failed to create deal')
               }
             } catch (error) {
               console.error('Error creating deal:', error)
+              alert('Error creating deal')
             }
           }}
           onCancel={() => setShowAddDeal(false)}
@@ -193,7 +187,7 @@ const PartnerDealsPage = () => {
   if (editingDeal) {
     return (
       <PartnerLayout
-        title="Edit Deal"
+        title={t('partner.edit_deal')}
         subtitle={`Editing: ${editingDeal.title}`}
       >
         <DealForm
@@ -201,17 +195,36 @@ const PartnerDealsPage = () => {
           mode="edit"
           onSubmit={async (formData: FormData) => {
             try {
+              // If deal is already active/published, set it back to PENDING for re-approval
+              if (editingDeal.status === 'ACTIVE' || editingDeal.status === 'PUBLISHED') {
+                formData.append('status', 'PENDING')
+              }
+              
               const response = await fetch(`/api/deals/${editingDeal.id}`, {
                 method: 'PUT',
                 body: formData,
                 credentials: 'include'
               })
               if (response.ok) {
+                // Send notification to admins if deal was active/published (requires re-approval)
+                if (editingDeal.status === 'ACTIVE' || editingDeal.status === 'PUBLISHED') {
+                  await sendDealNotification(editingDeal.id, 'updated', ['Deal details updated'])
+                }
+                
                 setEditingDeal(null)
                 fetchDeals()
+                if (editingDeal.status === 'ACTIVE' || editingDeal.status === 'PUBLISHED') {
+                  alert('Deal updated successfully! It will be reviewed by admin before being published again.')
+                } else {
+                  alert('Deal updated successfully!')
+                }
+              } else {
+                const errorData = await response.json()
+                alert(errorData.error || 'Failed to update deal')
               }
             } catch (error) {
               console.error('Error updating deal:', error)
+              alert('Error updating deal')
             }
           }}
           onCancel={() => setEditingDeal(null)}
@@ -222,8 +235,8 @@ const PartnerDealsPage = () => {
 
   return (
     <PartnerLayout
-      title="My Deals"
-      subtitle="Manage your investment opportunities"
+      title={t('partner.my_deals')}
+      subtitle={t('partner.my_deals_subtitle')}
     >
       <div className="space-y-6">
         {/* Summary Cards */}
@@ -246,9 +259,9 @@ const PartnerDealsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700">Published</p>
+                  <p className="text-sm font-medium text-green-700">Active</p>
                   <p className="text-2xl font-bold text-green-900">
-                    {deals.filter(d => d.status === 'PUBLISHED').length}
+                    {deals.filter(d => d.status === 'ACTIVE' || d.status === 'PUBLISHED').length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -262,13 +275,13 @@ const PartnerDealsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-yellow-700">Draft</p>
+                  <p className="text-sm font-medium text-yellow-700">Pending Review</p>
                   <p className="text-2xl font-bold text-yellow-900">
-                    {deals.filter(d => d.status === 'DRAFT').length}
+                    {deals.filter(d => d.status === 'PENDING').length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-                  <Edit className="w-6 h-6 text-yellow-600" />
+                  <Clock className="w-6 h-6 text-yellow-600" />
                 </div>
               </div>
             </CardContent>
@@ -300,7 +313,7 @@ const PartnerDealsPage = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     type="text"
-                    placeholder="Search deals..."
+                    placeholder={t('deal_card.search_deals')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -314,10 +327,14 @@ const PartnerDealsPage = () => {
                 >
                   <option value="all">All Status</option>
                   <option value="DRAFT">Draft</option>
+                  <option value="PENDING">Pending Review</option>
+                  <option value="ACTIVE">Active</option>
                   <option value="PUBLISHED">Published</option>
                   <option value="PAUSED">Paused</option>
                   <option value="FUNDED">Funded</option>
                   <option value="COMPLETED">Completed</option>
+                  <option value="REJECTED">Rejected</option>
+                  <option value="CANCELLED">Cancelled</option>
                 </select>
               </div>
 
@@ -347,136 +364,86 @@ const PartnerDealsPage = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedDeals.map((deal) => (
-                <Card key={deal.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-0">
-                    {/* Deal Image */}
-                    <div className="relative h-48 bg-gray-200 rounded-t-lg overflow-hidden">
-                      {deal.thumbnailImage ? (
-                        <img
-                          src={deal.thumbnailImage}
-                          alt={deal.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
-                          <Building2 className="w-12 h-12 text-gray-400" />
-                        </div>
-                      )}
-                      
-                      {/* Status Badge */}
-                      <div className="absolute top-3 left-3">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(deal.status)}`}>
-                          {getStatusIcon(deal.status)}
-                          {deal.status}
-                        </span>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="absolute top-3 right-3 flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="w-8 h-8 p-0 bg-white/90 hover:bg-white"
-                          onClick={() => window.open(`/deals/${deal.id}`, '_blank')}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="w-8 h-8 p-0 bg-white/90 hover:bg-white"
-                          onClick={() => setEditingDeal(deal)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                      </div>
+                <div key={deal.id} className="relative">
+                  <DealCard
+                    id={deal.id}
+                    title={deal.title}
+                    description={deal.description || ''}
+                    image={deal.thumbnailImage || '/images/default-deal.jpg'}
+                    dealNumber={deal.id}
+                    fundingGoal={deal.fundingGoal}
+                    currentFunding={deal.currentFunding}
+                    expectedReturn={{
+                      min: typeof deal.expectedReturn === 'number' ? deal.expectedReturn : (Number(deal.expectedReturn)),
+                      max: typeof deal.expectedReturn === 'number' ? deal.expectedReturn : (Number(deal.expectedReturn))
+                    }}
+                    duration={deal.duration || 12}
+                    endDate={deal.endDate || ''}
+                    contributorsCount={deal._count?.investments || deal.investorCount || 0}
+                    partnerName={deal.partner?.companyName || deal.owner.name || 'Unknown Partner'}
+                    partnerDealsCount={5} // You might want to fetch this from the API
+                    minInvestment={deal.minInvestment || 1000}
+                    isPartnerView={true}
+                  />
+                  
+                  {/* Deal Actions Overlay */}
+                  <div className="absolute top-4 right-4 flex flex-col gap-2">
+                    {/* Status Badge */}
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(deal.status)}`}>
+                      {getStatusIcon(deal.status)}
+                      <span className="ml-1">
+                        {deal.status === 'PENDING' ? 'Pending Review' : 
+                         deal.status === 'ACTIVE' ? 'Active' :
+                         deal.status === 'PUBLISHED' ? 'Published' :
+                         deal.status}
+                      </span>
                     </div>
-
-                    {/* Deal Info */}
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">
-                          {deal.title}
-                        </h3>
+                    
+                    {/* Pending notification */}
+                    {deal.status === 'PENDING' && (
+                      <div className="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+                        Awaiting admin approval
                       </div>
+                    )}
+                    
+                    {/* Action Buttons */}
+                    <div className="flex gap-1">
+                      {/* Edit Button */}
+                      <Button
+                        size="sm"
+                        onClick={() => setEditingDeal(deal)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        title="Edit Deal"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
                       
-                      <p className="text-xs text-gray-500 mb-3">{deal.category}</p>
+                      {/* View Button */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(`/deals/${deal.id}`, '_blank')}
+                        className="bg-white hover:bg-gray-50"
+                        title="View Deal"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
                       
-                      {/* Progress */}
-                      <div className="mb-3">
-                        <div className="flex justify-between text-xs text-gray-600 mb-1">
-                          <span>Progress</span>
-                          <span>{Math.round((deal.currentFunding / deal.fundingGoal) * 100)}%</span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full" 
-                            style={{ width: `${Math.min((deal.currentFunding / deal.fundingGoal) * 100, 100)}%` }}
-                          ></div>
-                        </div>
-                      </div>
-
-                      {/* Stats */}
-                      <div className="grid grid-cols-3 gap-2 text-xs">
-                        <div className="text-center">
-                          <div className="font-semibold text-gray-900">{formatCurrency(deal.fundingGoal)}</div>
-                          <div className="text-gray-500">Goal</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="font-semibold text-gray-900">{deal.expectedReturn}%</div>
-                          <div className="text-gray-500">Return</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="font-semibold text-gray-900">{deal.investorCount}</div>
-                          <div className="text-gray-500">Investors</div>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex gap-2 mt-4">
-                        {deal.status === 'DRAFT' && (
-                          <Button
-                            size="sm"
-                            className="flex-1 text-xs"
-                            onClick={() => handleStatusChange(deal.id, 'PUBLISHED')}
-                          >
-                            <Play className="w-3 h-3 mr-1" />
-                            Publish
-                          </Button>
-                        )}
-                        {deal.status === 'PUBLISHED' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 text-xs"
-                            onClick={() => handleStatusChange(deal.id, 'PAUSED')}
-                          >
-                            <Pause className="w-3 h-3 mr-1" />
-                            Pause
-                          </Button>
-                        )}
-                        {deal.status === 'PAUSED' && (
-                          <Button
-                            size="sm"
-                            className="flex-1 text-xs"
-                            onClick={() => handleStatusChange(deal.id, 'PUBLISHED')}
-                          >
-                            <Play className="w-3 h-3 mr-1" />
-                            Resume
-                          </Button>
-                        )}
+                      {/* Delete Button - Only for draft deals */}
+                      {deal.status === 'DRAFT' && (
                         <Button
                           size="sm"
                           variant="outline"
-                          className="text-red-600 border-red-300 hover:bg-red-50 text-xs"
                           onClick={() => handleDeleteDeal(deal.id)}
+                          className="bg-white hover:bg-red-50 text-red-600 border-red-300"
+                          title="Delete Deal"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
-                      </div>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
 
@@ -516,7 +483,7 @@ const PartnerDealsPage = () => {
           </>
         )}
 
-        {paginatedDeals.length === 0 && !loading && (
+        {deals.length === 0 && !loading && (
           <Card>
             <CardContent className="p-12 text-center">
               <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-4" />

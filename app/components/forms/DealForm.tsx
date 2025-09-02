@@ -119,8 +119,29 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
       // Add image if present
       const imageInput = imageInputRef.current
       if (imageInput?.files?.[0]) {
-        console.log('✅ Adding image to form data:', imageInput.files[0].name, imageInput.files[0].size)
-        submitFormData.append('image', imageInput.files[0])
+        const file = imageInput.files[0]
+        console.log('✅ Adding image to form data:', {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          lastModified: file.lastModified
+        })
+        
+        // Validate file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+          alert('Image file is too large. Please select a file under 10MB.')
+          setLoading(false)
+          return
+        }
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          alert('Please select a valid image file.')
+          setLoading(false)
+          return
+        }
+        
+        submitFormData.append('image', file)
       } else {
         console.log('⚠️ No image file selected - imageInput:', imageInput)
         if (imageInput) {
@@ -145,10 +166,13 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
         })
 
         if (!response.ok) {
-          throw new Error('Failed to save deal')
+          const errorData = await response.json()
+          console.error('API Error:', errorData)
+          throw new Error(errorData.error || 'Failed to save deal')
         }
 
         const result = await response.json()
+        console.log('API Response:', result)
         
         // Redirect based on status
         if (status === 'PUBLISHED' || formData.status === 'PUBLISHED') {
@@ -422,7 +446,12 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                       />
                       <button
                         type="button"
-                        onClick={() => setImagePreview('')}
+                        onClick={() => {
+                          setImagePreview('')
+                          if (imageInputRef.current) {
+                            imageInputRef.current.value = ''
+                          }
+                        }}
                         className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                       >
                         <X className="w-4 h-4" />

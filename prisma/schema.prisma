@@ -107,6 +107,7 @@ model User {
   assignedInvestors UserInvestorAssignment[] @relation("PortfolioAdvisor")
   advisorFor        UserInvestorAssignment[] @relation("AssignedInvestor")
   reviewedApplications UserApplication[] @relation("ApplicationReviewer")
+  profitDistributions ProfitDistribution[] @relation("ProfitDistributions")
   
   // Financial relationships
   budgets           Budget[]
@@ -233,6 +234,7 @@ model Project {
   // Additional details
   highlights       String[]      // Key selling points
   tags             String[]      // For filtering/searching
+  timeline         Json?         // Project timeline and milestones
   
   // SEO and visibility
   slug             String?       @unique
@@ -255,6 +257,8 @@ model Project {
   // Relationships
   investments      Investment[]
   reviews          PartnerReview[]
+  dealPerformances DealPerformance[]
+  profitDistributions ProfitDistribution[]
   
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
@@ -275,6 +279,7 @@ model Investment {
   projectId        String
   project          Project          @relation(fields: [projectId], references: [id])
   transactions     Transaction[]
+  profitDistributions ProfitDistribution[]
   
   // Tracking
   investmentDate   DateTime         @default(now())
@@ -308,6 +313,7 @@ model Transaction {
   user             User              @relation(fields: [userId], references: [id])
   investmentId     String?
   investment       Investment?       @relation(fields: [investmentId], references: [id])
+  profitDistributions ProfitDistribution[]
   
   // Metadata
   metadata         Json?
@@ -582,4 +588,58 @@ model FinancialReport {
   updatedAt    DateTime @updatedAt
   
   @@map("financial_reports")
+}
+
+// Deal Performance Tracking
+model DealPerformance {
+  id               String          @id @default(cuid())
+  
+  // Performance metrics
+  date             DateTime        @default(now())
+  dailyProfit      Decimal         @db.Decimal(15, 2)
+  cumulativeProfit Decimal         @db.Decimal(15, 2)
+  profitMargin     Decimal         @db.Decimal(5, 2) // Percentage
+  dailyReturn      Decimal         @db.Decimal(5, 2) // Percentage
+  fundingProgress  Decimal         @db.Decimal(5, 2) // Percentage
+  
+  // Relationships
+  projectId        String
+  project          Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  @@map("deal_performances")
+}
+
+// Profit Distribution System
+model ProfitDistribution {
+  id               String          @id @default(cuid())
+  
+  // Distribution details
+  amount           Decimal         @db.Decimal(15, 2)
+  distributionDate DateTime        @default(now())
+  profitPeriod     String          // "daily", "monthly", "quarterly"
+  status           String          @default("PENDING") // PENDING, COMPLETED, FAILED
+  
+  // Calculation details
+  profitRate       Decimal         @db.Decimal(5, 2) // Percentage
+  investmentShare  Decimal         @db.Decimal(5, 2) // Percentage of total investment
+  
+  // Relationships
+  investmentId     String
+  investment       Investment      @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+  projectId        String
+  project          Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  investorId       String
+  investor         User            @relation("ProfitDistributions", fields: [investorId], references: [id])
+  
+  // Transaction reference
+  transactionId    String?
+  transaction      Transaction?    @relation(fields: [transactionId], references: [id])
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  @@map("profit_distributions")
 }

@@ -16,10 +16,15 @@ cloudinary.config({
 // GET /api/deals - Get all deals with filtering
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
     const { searchParams } = new URL(request.url)
+    
     const status = searchParams.get('status')
     const category = searchParams.get('category')
     const featured = searchParams.get('featured')
+    const search = searchParams.get('search')
+    const includeAll = searchParams.get('includeAll') === 'true'
+    const partner = searchParams.get('partner') === 'true'
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
     const skip = (page - 1) * limit
@@ -27,8 +32,14 @@ export async function GET(request: NextRequest) {
     // Build where clause
     const where: any = {}
     
+    // Status filtering
     if (status) {
-      where.status = status
+      // Handle comma-separated status values
+      const statusArray = status.split(',').map(s => s.trim())
+      where.status = statusArray.length === 1 ? statusArray[0] : { in: statusArray }
+    } else if (!includeAll) {
+      // For non-admin users, only show active/published deals by default
+      where.status = { in: ['ACTIVE', 'PUBLISHED'] }
     }
     
     if (category) {
@@ -37,6 +48,21 @@ export async function GET(request: NextRequest) {
     
     if (featured === 'true') {
       where.featured = true
+    }
+
+    // Search functionality
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { category: { contains: search, mode: 'insensitive' } },
+        { owner: { name: { contains: search, mode: 'insensitive' } } }
+      ]
+    }
+
+    // Partner filtering - only show deals owned by current user if partner=true
+    if (partner && session?.user?.id) {
+      where.ownerId = session.user.id
     }
 
     const [deals, total] = await Promise.all([
@@ -87,14 +113,21 @@ export async function GET(request: NextRequest) {
       prisma.project.count({ where })
     ])
 
+    // Transform deals to match unified interface
+    const transformedDeals = deals.map(deal => ({
+      ...deal,
+      investorCount: deal._count.investments, // Add backward compatibility
+      fundingGoal: Number(deal.fundingGoal),
+      currentFunding: Number(deal.currentFunding),
+      minInvestment: Number(deal.minInvestment),
+      expectedReturn: Number(deal.expectedReturn)
+    }))
+
     return NextResponse.json({
-      deals,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
+      deals: transformedDeals,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page
     })
   } catch (error) {
     console.error('Error fetching deals:', error)

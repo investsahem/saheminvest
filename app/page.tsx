@@ -26,8 +26,11 @@ export default function HomePage() {
   const { t } = useTranslation()
   const { locale } = useI18n()
   const [liveStats, setLiveStats] = useState({
-    totalToday: 140800,
-    activeInvestors: 1247
+    totalToday: 0,
+    activeInvestors: 0,
+    successfulDeals: 0,
+    totalInvested: 0,
+    averageReturn: 12.5
   })
   const [deals, setDeals] = useState<Deal[]>([])
   const [currentDealIndex, setCurrentDealIndex] = useState(0)
@@ -36,9 +39,9 @@ export default function HomePage() {
 
   const stats = [
     { number: `${liveStats.activeInvestors.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}+`, label: t('hero.stats.active_investors') },
-    { number: '156', label: t('hero.stats.successful_deals') },
-    { number: '$2.8M+', label: t('hero.stats.total_invested') },
-    { number: '12.5%', label: t('hero.stats.average_return') }
+    { number: liveStats.successfulDeals.toString(), label: t('hero.stats.successful_deals') },
+    { number: `$${(liveStats.totalInvested / 1000000).toFixed(1)}M+`, label: t('hero.stats.total_invested') },
+    { number: `${liveStats.averageReturn.toFixed(1)}%`, label: t('hero.stats.average_return') }
   ]
 
   const testimonials = [
@@ -116,64 +119,108 @@ export default function HomePage() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   }
 
-  // Fetch deals for carousel
+  // Fetch real deals for carousel
   useEffect(() => {
     const fetchDeals = async () => {
       try {
-        const response = await fetch('/api/deals?limit=6&status=PUBLISHED')
+        const response = await fetch('/api/deals?limit=6&status=ACTIVE,FUNDED')
         if (response.ok) {
           const data = await response.json()
-          setDeals(data.deals || [])
+          if (data.deals && data.deals.length > 0) {
+            // Transform the real deals to match our interface
+            const transformedDeals = data.deals.map((deal: any) => ({
+              id: deal.id,
+              title: deal.title,
+              category: getCategoryFromTitle(deal.title),
+              fundingGoal: deal.fundingGoal,
+              currentFunding: deal.currentFunding,
+              expectedReturn: deal.expectedReturn,
+              duration: calculateDuration(deal.startDate, deal.endDate),
+              riskLevel: getRiskLevel(deal.expectedReturn),
+              thumbnailImage: deal.thumbnailImage || getDefaultImage(deal.title),
+              status: deal.status,
+              investorCount: deal._count?.investments || 0
+            }))
+            setDeals(transformedDeals)
+          } else {
+            // If no deals found, show empty state
+            setDeals([])
+          }
         }
       } catch (error) {
         console.error('Error fetching deals:', error)
-        // Fallback demo data
-        setDeals([
-          {
-            id: '1',
-            title: 'Smart Tech Manufacturing',
-            category: 'Technology',
-            fundingGoal: 500000,
-            currentFunding: 425000,
-            expectedReturn: 15,
-            duration: 12,
-            riskLevel: 'Medium',
-            thumbnailImage: '/images/tech-deal.jpg',
-            status: 'PUBLISHED',
-            investorCount: 89
-          },
-          {
-            id: '2',
-            title: 'Green Energy Solutions',
-            category: 'Energy',
-            fundingGoal: 750000,
-            currentFunding: 680000,
-            expectedReturn: 12,
-            duration: 18,
-            riskLevel: 'Low',
-            thumbnailImage: '/images/energy-deal.jpg',
-            status: 'PUBLISHED',
-            investorCount: 156
-          },
-          {
-            id: '3',
-            title: 'Healthcare Innovation Hub',
-            category: 'Healthcare',
-            fundingGoal: 300000,
-            currentFunding: 275000,
-            expectedReturn: 18,
-            duration: 24,
-            riskLevel: 'Medium',
-            thumbnailImage: '/images/healthcare-deal.jpg',
-            status: 'PUBLISHED',
-            investorCount: 67
-          }
-        ])
+        setDeals([])
       }
     }
 
     fetchDeals()
   }, [])
+
+  // Fetch real homepage statistics
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/homepage/stats')
+        if (response.ok) {
+          const data = await response.json()
+          setLiveStats({
+            totalToday: data.todayInvestments,
+            activeInvestors: data.activeInvestors,
+            successfulDeals: data.successfulDeals,
+            totalInvested: data.totalInvested,
+            averageReturn: data.averageReturn
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching homepage stats:', error)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  // Helper functions for deal transformation
+  const getCategoryFromTitle = (title: string) => {
+    if (title.includes('تقنية') || title.includes('ذكية') || title.includes('إلكترونية')) return 'Technology'
+    if (title.includes('هواتف') || title.includes('خلوية')) return 'Mobile'
+    if (title.includes('مالية') || title.includes('معاملات')) return 'Finance'
+    if (title.includes('كهربائية')) return 'Electronics'
+    return 'Business'
+  }
+
+  const calculateDuration = (startDate: string, endDate: string) => {
+    if (!startDate || !endDate) return 12
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    const diffTime = Math.abs(end.getTime() - start.getTime())
+    const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30))
+    return diffMonths
+  }
+
+  const getRiskLevel = (expectedReturn: number) => {
+    if (expectedReturn < 5) return 'Low'
+    if (expectedReturn < 15) return 'Medium'
+    return 'High'
+  }
+
+  const getDefaultImage = (title: string) => {
+    if (title.includes('هواتف') || title.includes('خلوية')) return '/images/phone-deal.jpg'
+    if (title.includes('إلكترونية') || title.includes('كهربائية')) return '/images/electronics-deal.jpg'
+    return '/images/construction-deal.jpg'
+  }
+
+  const getIconForCategory = (category: string) => {
+    switch (category) {
+      case 'Technology': return '💻'
+      case 'Mobile': return '📱'
+      case 'Finance': return '💰'
+      case 'Electronics': return '🔌'
+      case 'Business': return '🏢'
+      case 'Energy': return '⚡'
+      case 'Healthcare': return '🏥'
+      default: return '💼'
+    }
+  }
 
   // Auto-rotate deals carousel
   useEffect(() => {
@@ -204,14 +251,25 @@ export default function HomePage() {
     setTimeout(() => setIsAutoPlaying(true), 10000) // Resume auto-play after 10 seconds
   }
 
-  // Simulate live updates
+  // Refresh stats periodically
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveStats(prev => ({
-        totalToday: prev.totalToday + Math.floor(Math.random() * 5000) + 1000,
-        activeInvestors: prev.activeInvestors + Math.floor(Math.random() * 3)
-      }))
-    }, 30000)
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch('/api/homepage/stats')
+        if (response.ok) {
+          const data = await response.json()
+          setLiveStats({
+            totalToday: data.todayInvestments,
+            activeInvestors: data.activeInvestors,
+            successfulDeals: data.successfulDeals,
+            totalInvested: data.totalInvested,
+            averageReturn: data.averageReturn
+          })
+        }
+      } catch (error) {
+        console.error('Error refreshing stats:', error)
+      }
+    }, 60000) // Refresh every minute
 
     return () => clearInterval(interval)
   }, [])
@@ -391,9 +449,9 @@ export default function HomePage() {
               >
                 {[
                   { value: `${liveStats.activeInvestors.toLocaleString()}+`, label: 'Active Investors' },
-                  { value: '156', label: 'Successful Deals' },
-                  { value: '$2.8M+', label: 'Total Invested' },
-                  { value: '12.5%', label: 'Average Return' }
+                  { value: liveStats.successfulDeals.toString(), label: 'Successful Deals' },
+                  { value: `$${(liveStats.totalInvested / 1000000).toFixed(1)}M+`, label: 'Total Invested' },
+                  { value: `${liveStats.averageReturn.toFixed(1)}%`, label: 'Average Return' }
                 ].map((stat, index) => (
                    <motion.div 
                      key={index} 
@@ -820,7 +878,7 @@ export default function HomePage() {
                           whileHover={{ rotate: 360 }}
                           transition={{ duration: 0.6 }}
                         >
-                          {deal.category === 'Technology' ? '💻' : deal.category === 'Energy' ? '⚡' : '🏥'}
+                          {getIconForCategory(deal.category)}
                         </motion.div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between mb-1">
@@ -997,6 +1055,9 @@ export default function HomePage() {
             </div>
             <p className="text-[#b8c2d8]">
               Total investments today: <span className="text-[#6be2c9] font-bold">${liveStats.totalToday.toLocaleString()}</span>
+              {liveStats.totalToday === 0 && (
+                <span className="block text-sm text-[#95a5c9] mt-1">No new investments today</span>
+              )}
             </p>
           </div>
         </motion.div>
