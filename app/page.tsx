@@ -35,6 +35,7 @@ export default function HomePage() {
   const [deals, setDeals] = useState<Deal[]>([])
   const [currentDealIndex, setCurrentDealIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const stats = [
@@ -118,6 +119,17 @@ export default function HomePage() {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   }
+
+  // Check for mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Fetch real deals for carousel
   useEffect(() => {
@@ -819,7 +831,7 @@ export default function HomePage() {
             <>
               <motion.button
                 onClick={prevDeal}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-[#0f1640] to-[#1a2555] border border-[#2d3a6b] rounded-full flex items-center justify-center text-[#e9edf7] hover:scale-110 transition-all duration-300 shadow-xl backdrop-blur-sm"
+                className={`absolute ${isMobile ? 'left-2' : 'left-0'} top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-[#0f1640] to-[#1a2555] border border-[#2d3a6b] rounded-full flex items-center justify-center text-[#e9edf7] hover:scale-110 transition-all duration-300 shadow-xl backdrop-blur-sm`}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, x: -20 }}
@@ -831,7 +843,7 @@ export default function HomePage() {
               
               <motion.button
                 onClick={nextDeal}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-[#0f1640] to-[#1a2555] border border-[#2d3a6b] rounded-full flex items-center justify-center text-[#e9edf7] hover:scale-110 transition-all duration-300 shadow-xl backdrop-blur-sm"
+                className={`absolute ${isMobile ? 'right-2' : 'right-0'} top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-[#0f1640] to-[#1a2555] border border-[#2d3a6b] rounded-full flex items-center justify-center text-[#e9edf7] hover:scale-110 transition-all duration-300 shadow-xl backdrop-blur-sm`}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, x: 20 }}
@@ -843,29 +855,52 @@ export default function HomePage() {
             </>
           )}
 
-          {/* Cards Container */}
-          <div className="overflow-hidden mx-12">
+          {/* Cards Container - Mobile: peek layout with centered main card */}
+          <div className={`relative ${isMobile ? 'overflow-hidden' : 'overflow-hidden mx-12'}`}>
             <motion.div 
               className="flex transition-transform duration-700 ease-out"
-              style={{ 
+              style={isMobile ? {
+                transform: `translateX(calc(-${currentDealIndex * 280}px + 50vw - 140px))`,
+                gap: '20px',
+                paddingLeft: '20px',
+                paddingRight: '20px'
+              } : { 
                 transform: `translateX(-${currentDealIndex * (100 / Math.min(deals.length, 3))}%)`,
                 width: `${Math.max(deals.length, 3) * (100 / Math.min(deals.length, 3))}%`
               }}
             >
-              {deals.map((deal, index) => (
-                <motion.div 
-                  key={deal.id}
-                  className="flex-shrink-0 px-3"
-                  style={{ width: `${100 / Math.max(deals.length, 3)}%` }}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                >
+              {deals.map((deal, index) => {
+                const isActive = index === currentDealIndex
+                const isPrev = index === currentDealIndex - 1 || (currentDealIndex === 0 && index === deals.length - 1)
+                const isNext = index === currentDealIndex + 1 || (currentDealIndex === deals.length - 1 && index === 0)
+                
+                return (
                   <motion.div 
-                    className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0a0f2e] via-[#0f1640] to-[#1a2555] border border-[#2d3a6b]/50 shadow-2xl h-full"
-                    whileHover={{ scale: 1.02, y: -10 }}
-                    transition={{ duration: 0.3 }}
+                    key={deal.id}
+                    className={`flex-shrink-0 ${isMobile ? '' : 'px-3'}`}
+                    style={isMobile ? { 
+                      width: '280px',
+                      minWidth: '280px'
+                    } : { 
+                      width: `${100 / Math.max(deals.length, 3)}%`
+                    }}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.6 }}
                   >
+                    <motion.div 
+                      className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0a0f2e] via-[#0f1640] to-[#1a2555] border border-[#2d3a6b]/50 shadow-2xl h-full transition-all duration-300 ${
+                        isMobile && !isActive 
+                          ? 'scale-90 opacity-60' 
+                          : ''
+                      }`}
+                      whileHover={{ scale: isMobile ? (isActive ? 1.02 : 0.92) : 1.02, y: isMobile && !isActive ? 0 : -10 }}
+                      transition={{ duration: 0.3 }}
+                      onClick={() => isMobile && !isActive && goToDeal(index)}
+                      style={{ 
+                        cursor: isMobile && !isActive ? 'pointer' : 'default'
+                      }}
+                    >
                     {/* Glow Effect on Hover */}
                     <div className="absolute inset-0 bg-gradient-to-br from-[#6be2c9]/5 to-[#23a1ff]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     
@@ -968,9 +1003,10 @@ export default function HomePage() {
                         View Details
                       </motion.button>
                     </div>
+                    </motion.div>
                   </motion.div>
-                </motion.div>
-              ))}
+                )
+              })}
             </motion.div>
           </div>
 
