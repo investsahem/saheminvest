@@ -357,6 +357,7 @@ export default function HomePage() {
               <span className="text-[#e9edf7] font-black text-xl tracking-wide">Sahem Invest</span>
             </div>
             
+            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-2">
               <Link href="/" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
                 Home
@@ -374,6 +375,16 @@ export default function HomePage() {
                 Go to Panel
               </Link>
             </nav>
+
+            {/* Mobile Navigation */}
+            <div className="flex md:hidden items-center gap-3">
+              <div className="px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7]">
+                عربي
+              </div>
+              <Link href="/auth/signin" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all text-sm">
+                Panel
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -855,15 +866,13 @@ export default function HomePage() {
             </>
           )}
 
-          {/* Cards Container - Mobile: peek layout with centered main card */}
-          <div className={`relative ${isMobile ? 'overflow-hidden' : 'overflow-hidden mx-12'}`}>
+          {/* Cards Container - Mobile: simple one-card layout */}
+          <div className={`relative overflow-hidden ${isMobile ? 'px-4' : 'mx-12'}`}>
             <motion.div 
               className="flex transition-transform duration-700 ease-out"
               style={isMobile ? {
-                transform: `translateX(calc(-${currentDealIndex * 280}px + 50vw - 140px))`,
-                gap: '20px',
-                paddingLeft: '20px',
-                paddingRight: '20px'
+                transform: `translateX(-${currentDealIndex * 100}%)`,
+                width: `${deals.length * 100}%`
               } : { 
                 transform: `translateX(-${currentDealIndex * (100 / Math.min(deals.length, 3))}%)`,
                 width: `${Math.max(deals.length, 3) * (100 / Math.min(deals.length, 3))}%`
@@ -871,16 +880,13 @@ export default function HomePage() {
             >
               {deals.map((deal, index) => {
                 const isActive = index === currentDealIndex
-                const isPrev = index === currentDealIndex - 1 || (currentDealIndex === 0 && index === deals.length - 1)
-                const isNext = index === currentDealIndex + 1 || (currentDealIndex === deals.length - 1 && index === 0)
                 
                 return (
                   <motion.div 
                     key={deal.id}
-                    className={`flex-shrink-0 ${isMobile ? '' : 'px-3'}`}
+                    className={`flex-shrink-0 ${isMobile ? 'px-4' : 'px-3'}`}
                     style={isMobile ? { 
-                      width: '280px',
-                      minWidth: '280px'
+                      width: `${100 / deals.length}%`
                     } : { 
                       width: `${100 / Math.max(deals.length, 3)}%`
                     }}
@@ -889,17 +895,9 @@ export default function HomePage() {
                     transition={{ delay: index * 0.1, duration: 0.6 }}
                   >
                     <motion.div 
-                      className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0a0f2e] via-[#0f1640] to-[#1a2555] border border-[#2d3a6b]/50 shadow-2xl h-full transition-all duration-300 ${
-                        isMobile && !isActive 
-                          ? 'scale-90 opacity-60' 
-                          : ''
-                      }`}
-                      whileHover={{ scale: isMobile ? (isActive ? 1.02 : 0.92) : 1.02, y: isMobile && !isActive ? 0 : -10 }}
+                      className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0a0f2e] via-[#0f1640] to-[#1a2555] border border-[#2d3a6b]/50 shadow-2xl h-full"
+                      whileHover={{ scale: 1.02, y: -10 }}
                       transition={{ duration: 0.3 }}
-                      onClick={() => isMobile && !isActive && goToDeal(index)}
-                      style={{ 
-                        cursor: isMobile && !isActive ? 'pointer' : 'default'
-                      }}
                     >
                     {/* Glow Effect on Hover */}
                     <div className="absolute inset-0 bg-gradient-to-br from-[#6be2c9]/5 to-[#23a1ff]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -992,16 +990,18 @@ export default function HomePage() {
                       </div>
 
                       {/* Action Button */}
-                      <motion.button 
-                        className="w-full py-3 bg-gradient-to-r from-[#6be2c9]/10 to-[#23a1ff]/10 border border-[#6be2c9]/30 rounded-xl text-[#6be2c9] font-medium hover:from-[#6be2c9]/20 hover:to-[#23a1ff]/20 transition-all duration-300 backdrop-blur-sm"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 1.1 + index * 0.1 }}
-                      >
-                        View Details
-                      </motion.button>
+                      <Link href="/auth/signin">
+                        <motion.button 
+                          className="w-full py-3 bg-gradient-to-r from-[#6be2c9]/10 to-[#23a1ff]/10 border border-[#6be2c9]/30 rounded-xl text-[#6be2c9] font-medium hover:from-[#6be2c9]/20 hover:to-[#23a1ff]/20 transition-all duration-300 backdrop-blur-sm"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 1.1 + index * 0.1 }}
+                        >
+                          View Details
+                        </motion.button>
+                      </Link>
                     </div>
                     </motion.div>
                   </motion.div>
