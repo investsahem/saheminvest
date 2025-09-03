@@ -34,8 +34,25 @@ export default function AdminSignInPage() {
     setLoading(true)
     setError('')
 
+    // Check if we have CSRF token
+    if (!csrfToken) {
+      console.log('⏳ Waiting for CSRF token...')
+      const token = await getCsrfToken()
+      if (token) {
+        setCsrfToken(token)
+      } else {
+        setError('Unable to get security token. Please refresh and try again.')
+        setLoading(false)
+        return
+      }
+    }
+
     try {
-      console.log('🔐 Admin sign-in attempt:', { email })
+      console.log('🔐 Admin sign-in attempt:', { 
+        email, 
+        hasCsrfToken: !!csrfToken,
+        csrfTokenLength: csrfToken?.length 
+      })
       
       // Use direct form submission for admin
       const form = document.createElement('form')
@@ -65,6 +82,14 @@ export default function AdminSignInPage() {
       callbackInput.name = 'callbackUrl'
       callbackInput.value = '/admin' // Direct to admin
       form.appendChild(callbackInput)
+      
+      console.log('📤 Submitting admin form with:', {
+        action: form.action,
+        method: form.method,
+        csrfToken: csrfToken.substring(0, 10) + '...',
+        email: email,
+        callbackUrl: '/admin'
+      })
       
       document.body.appendChild(form)
       form.submit()
