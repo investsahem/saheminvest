@@ -866,8 +866,8 @@ export default function HomePage() {
             </>
           )}
 
-          {/* Cards Container - Mobile: simple one-card layout */}
-          <div className={`relative overflow-hidden ${isMobile ? 'px-4' : 'mx-12'}`}>
+          {/* Cards Container - Mobile: one card at a time */}
+          <div className="relative overflow-hidden mx-4 sm:mx-12">
             <motion.div 
               className="flex transition-transform duration-700 ease-out"
               style={isMobile ? {
@@ -879,17 +879,13 @@ export default function HomePage() {
               }}
             >
               {deals.map((deal, index) => {
-                const isActive = index === currentDealIndex
-                
                 return (
                   <motion.div 
                     key={deal.id}
-                    className={`flex-shrink-0 ${isMobile ? 'px-4' : 'px-3'}`}
-                    style={isMobile ? { 
-                      width: `${100 / deals.length}%`
-                    } : { 
+                    className={`flex-shrink-0 ${isMobile ? 'w-full px-2' : 'px-3'}`}
+                    style={!isMobile ? { 
                       width: `${100 / Math.max(deals.length, 3)}%`
-                    }}
+                    } : undefined}
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1, duration: 0.6 }}

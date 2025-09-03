@@ -1,6 +1,6 @@
 'use client'
 
-import { SessionProvider } from 'next-auth/react'
+import { AuthProvider } from '../providers/AuthProvider'
 import { I18nProvider } from '../providers/I18nProvider'
 
 interface ClientLayoutProps {
@@ -9,10 +9,10 @@ interface ClientLayoutProps {
 
 export function ClientLayout({ children }: ClientLayoutProps) {
   return (
-    <SessionProvider>
+    <AuthProvider>
       <I18nProvider initialLocale="ar">
         {children}
       </I18nProvider>
-    </SessionProvider>
+    </AuthProvider>
   )
 } 

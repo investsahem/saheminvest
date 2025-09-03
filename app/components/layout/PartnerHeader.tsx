@@ -1,9 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
-import { Bell, Search, User, ChevronDown, Menu, TrendingUp, DollarSign, LogOut, Building2, Target } from 'lucide-react'
+import { Bell, Search, User, ChevronDown, Menu, TrendingUp, DollarSign, LogOut, Building2, Target, Settings } from 'lucide-react'
 import { Button } from '../ui/Button'
 
 interface PartnerHeaderProps {
@@ -16,6 +17,7 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
   const { t } = useTranslation()
   const { locale } = useI18n()
   const { data: session } = useSession()
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
 
   const formatGreeting = () => {
     const hour = new Date().getHours()
@@ -156,32 +158,84 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
           {/* Language Switcher */}
           <LanguageSwitcher />
 
-          {/* User Menu */}
+          {/* User Avatar Dropdown */}
           <div className="relative">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center space-x-2"
+            <button
+              onClick={() => setShowUserDropdown(!showUserDropdown)}
+              className={`flex items-center hover:bg-gray-50 rounded-lg p-2 transition-colors ${locale === 'ar' ? 'space-x-reverse space-x-2' : 'space-x-2'}`}
             >
-              <div className="w-6 h-6 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-                <Building2 className="w-3 h-3 text-blue-600" />
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                <Building2 className="w-4 h-4 text-white" />
               </div>
-              <span className="hidden sm:block text-sm font-medium text-gray-700 truncate max-w-20">
-                {session?.user?.name}
-              </span>
-              <ChevronDown className="w-3 h-3 text-gray-500" />
-            </Button>
-          </div>
+              <div className={`hidden sm:flex sm:flex-col ${locale === 'ar' ? 'sm:items-end' : 'sm:items-start'} min-w-0`}>
+                <p className="text-sm font-medium text-gray-900 truncate max-w-24">
+                  {session?.user?.name || t('partner.partner')}
+                </p>
+                <p className="text-xs text-gray-500 uppercase tracking-wide truncate">
+                  {t('partner.verified_partner')}
+                </p>
+              </div>
+              <ChevronDown className="w-4 h-4 text-gray-400 hidden sm:block" />
+            </button>
 
-          {/* Logout */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleLogout}
-            className="text-red-600 border-red-300 hover:bg-red-50"
-          >
-            <LogOut className="w-4 h-4" />
-          </Button>
+            {/* User Dropdown Menu */}
+            {showUserDropdown && (
+              <div className={`absolute ${locale === 'ar' ? 'left-0' : 'right-0'} mt-2 w-48 bg-white rounded-lg shadow-lg border z-50`}>
+                <div className="p-4 border-b border-gray-100">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                      <Building2 className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {session?.user?.name || t('partner.partner')}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {session?.user?.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="py-2">
+                  <button
+                    onClick={() => {
+                      setShowUserDropdown(false)
+                      // Navigate to profile
+                    }}
+                    className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 ${locale === 'ar' ? 'text-right' : 'text-left'}`}
+                  >
+                    <User className={`w-4 h-4 ${locale === 'ar' ? 'ml-3' : 'mr-3'}`} />
+                    {locale === 'ar' ? 'الملف الشخصي' : 'Profile'}
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      setShowUserDropdown(false)
+                      // Navigate to settings
+                    }}
+                    className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 ${locale === 'ar' ? 'text-right' : 'text-left'}`}
+                  >
+                    <Settings className={`w-4 h-4 ${locale === 'ar' ? 'ml-3' : 'mr-3'}`} />
+                    {locale === 'ar' ? 'الإعدادات' : 'Settings'}
+                  </button>
+                  
+                  <div className="border-t border-gray-100 my-2"></div>
+                  
+                  <button
+                    onClick={() => {
+                      setShowUserDropdown(false)
+                      handleLogout()
+                    }}
+                    className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 ${locale === 'ar' ? 'text-right' : 'text-left'}`}
+                  >
+                    <LogOut className={`w-4 h-4 ${locale === 'ar' ? 'ml-3' : 'mr-3'}`} />
+                    {locale === 'ar' ? 'تسجيل الخروج' : 'Sign out'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

@@ -10,6 +10,18 @@ export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      }
+    },
   },
   providers: [
     GoogleProvider({
@@ -55,16 +67,20 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, profile }) {
+      // Persist the role in the token right after signin
       if (user) {
         token.role = (user as any).role
+        token.userId = user.id
       }
       return token
     },
     async session({ session, token }) {
+      // Send properties to the client
       if (token && session.user) {
         session.user.id = token.sub!
-        session.user.role = token.role
+        session.user.role = token.role as string
+        session.user.userId = token.userId as string
       }
       return session
     },
@@ -78,8 +94,18 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
+    error: "/auth/signin",
+  },
+  events: {
+    async signIn(message) {
+      console.log('SignIn event:', message.user?.email, message.user?.role)
+    },
+    async session(message) {
+      console.log('Session event:', message.session?.user?.email, message.session?.user?.role)
+    }
   },
   debug: process.env.NODE_ENV === "development",
+  trustHost: true,
 }
 
 export default authOptions 

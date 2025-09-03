@@ -44,6 +44,35 @@ body {
   direction: ltr;
 }
 
+/* Mobile Dropdown Improvements */
+@media (max-width: 640px) {
+  /* Ensure dropdowns don't go off screen on mobile */
+  .dropdown-menu {
+    left: auto !important;
+    right: 0 !important;
+    width: 80vw !important;
+    max-width: 280px !important;
+  }
+  
+  [dir="rtl"] .dropdown-menu {
+    left: 0 !important;
+    right: auto !important;
+  }
+  
+  /* Improve mobile header text sizing */
+  .mobile-header-title {
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.25rem !important;
+  }
+  
+  @media (min-width: 640px) {
+    .mobile-header-title {
+      font-size: 1rem !important; /* 16px */
+      line-height: 1.5rem !important;
+    }
+  }
+}
+
 /* Arabic RTL Support */
 [dir="rtl"] {
   direction: rtl;

@@ -9,11 +9,16 @@ import { useAdminNotifications } from '../../hooks/useAdminNotifications'
 import { 
   LayoutDashboard, Users, DollarSign, Target, BarChart3, 
   Settings, FileText, Clock, UserCheck, Building2,
-  LogOut, User, ChevronDown, Bell, Wallet
+  LogOut, User, ChevronDown, Bell, Wallet, X
 } from 'lucide-react'
 import { Button } from '../ui/Button'
 
-const AdminSidebar = () => {
+interface AdminSidebarProps {
+  isMobileOpen?: boolean
+  onMobileClose?: () => void
+}
+
+const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps) => {
   const { t } = useTranslation()
   const { locale } = useI18n()
   const { data: session } = useSession()
@@ -98,22 +103,42 @@ const AdminSidebar = () => {
   ]
 
   return (
-    <div className={`hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:bg-white lg:shadow-sm ${
-      locale === 'ar' 
-        ? 'lg:right-0 lg:border-l lg:border-gray-200' 
-        : 'lg:left-0 lg:border-r lg:border-gray-200'
-    }`}>
-      {/* Logo Section */}
-      <div className="flex items-center justify-center h-16 px-6 border-b border-gray-200">
-        <Link href="/" className="flex items-center">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-            <span className="text-white font-bold text-lg">S</span>
-          </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Sahem Invest
-          </span>
-        </Link>
-      </div>
+    <>
+      {/* Mobile sidebar backdrop */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity lg:hidden z-40"
+          onClick={onMobileClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} 
+        lg:translate-x-0 lg:static lg:inset-0
+        fixed inset-y-0 ${locale === 'ar' ? 'right-0 lg:right-0' : 'left-0 lg:left-0'} 
+        flex flex-col w-64 bg-white shadow-sm 
+        ${locale === 'ar' ? 'lg:border-l lg:border-gray-200' : 'lg:border-r lg:border-gray-200'}
+        transition-transform duration-300 ease-in-out lg:transition-none z-50
+      `}>
+        {/* Mobile close button */}
+        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 lg:justify-center">
+          <Link href="/" className="flex items-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+              <span className="text-white font-bold text-lg">S</span>
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Sahem Invest
+            </span>
+          </Link>
+          
+          <button
+            onClick={onMobileClose}
+            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
       {/* Navigation */}
       <div className="flex-1 flex flex-col pt-6 pb-4 overflow-y-auto">
@@ -124,6 +149,7 @@ const AdminSidebar = () => {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={onMobileClose} // Close mobile sidebar when item is clicked
                 className={`group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   item.current
                     ? `bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 ${
@@ -188,7 +214,8 @@ const AdminSidebar = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 
