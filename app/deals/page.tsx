@@ -179,7 +179,7 @@ const DealsContent = () => {
 
   // Format currency
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
@@ -511,7 +511,6 @@ const DealsContent = () => {
                 title={deal.title}
                 description={deal.description || ''}
                 image={deal.thumbnailImage || '/images/default-deal.jpg'}
-                dealNumber={deal.id}
                 fundingGoal={deal.fundingGoal}
                 currentFunding={deal.currentFunding}
                 expectedReturn={{

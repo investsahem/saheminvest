@@ -370,7 +370,6 @@ const PartnerDealsPage = () => {
                     title={deal.title}
                     description={deal.description || ''}
                     image={deal.thumbnailImage || '/images/default-deal.jpg'}
-                    dealNumber={deal.id}
                     fundingGoal={deal.fundingGoal}
                     currentFunding={deal.currentFunding}
                     expectedReturn={{

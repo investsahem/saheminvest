@@ -13,7 +13,6 @@ interface DealCardProps {
   title: string
   description: string
   image: string
-  dealNumber: string
   fundingGoal: number
   currentFunding: number
   expectedReturn: {
@@ -34,7 +33,6 @@ export function DealCard({
   title, 
   description, 
   image, 
-  dealNumber,
   fundingGoal,
   currentFunding,
   expectedReturn,
@@ -65,7 +63,6 @@ export function DealCard({
   const isInvestor = !isAdmin && !isDealManager && !isPartner
 
   // Determine what information to show based on user role
-  const showDealNumber = isAdmin || isDealManager
   const showPartnerName = !isInvestor  // Hide partner name from investors
 
   useEffect(() => {
@@ -93,7 +90,7 @@ export function DealCard({
   }, [endDate])
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('ar-SA').format(num)
+    return new Intl.NumberFormat('en-US').format(num)
   }
 
   return (
@@ -115,13 +112,8 @@ export function DealCard({
       <CardContent className="p-4">
         {/* Deal Header */}
         <div className="mb-3">
-          <div className="flex justify-between items-start mb-2">
+          <div className="mb-2">
             <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{title}</h3>
-            {showDealNumber && (
-              <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                N°{dealNumber}
-              </span>
-            )}
           </div>
           <p className="text-gray-600 text-sm line-clamp-2 mb-2">{description}</p>
           
@@ -136,28 +128,20 @@ export function DealCard({
         </div>
 
         {/* Deal Stats */}
-        <div className="space-y-4">
-          {/* Contributors */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{t('deal_card.contributors')}</span>
-            <span className="font-bold text-gray-900">{formatNumber(contributorsCount)}</span>
-          </div>
-
-          {/* Deal Number - Only show to admins and deal managers */}
-          {showDealNumber && (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">{t('deal_card.deal_number')}</span>
-              <span className="font-bold text-gray-900">{dealNumber}</span>
+        <div className="space-y-3">
+          {/* Key Metrics Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="text-center p-2 bg-gray-50 rounded-lg">
+              <div className="text-xs text-gray-500 mb-1">{t('deal_card.contributors')}</div>
+              <div className="font-bold text-gray-900">{formatNumber(contributorsCount)}</div>
             </div>
-          )}
-
-          {/* Duration */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{t('deal_card.duration')}</span>
-            <span className="font-bold text-gray-900">{duration} {t('deal_card.months')}</span>
+            <div className="text-center p-2 bg-gray-50 rounded-lg">
+              <div className="text-xs text-gray-500 mb-1">{t('deal_card.duration')}</div>
+              <div className="font-bold text-gray-900">{duration} {t('deal_card.months')}</div>
+            </div>
           </div>
 
-          {/* Funding Required */}
+          {/* Funding Goal */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">{t('deal_card.funding_goal')}</span>
             <span className="font-bold text-gray-900">
@@ -165,13 +149,11 @@ export function DealCard({
             </span>
           </div>
 
-          {/* Expected Profits */}
+          {/* Expected Return */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">{t('deal_card.expected_return')}</span>
-            <div className="text-right">
-              <div className="font-bold text-green-600">
-                {expectedReturn.min}% {t('common.to')} {expectedReturn.max}%
-              </div>
+            <div className="font-bold text-green-600">
+              {expectedReturn.min}% {expectedReturn.max === expectedReturn.min ? '' : `- ${expectedReturn.max}%`}
             </div>
           </div>
 

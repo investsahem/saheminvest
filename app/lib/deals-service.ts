@@ -235,7 +235,7 @@ export class DealsService {
    * Format currency consistently across all portals
    */
   formatCurrency(amount: number, locale: string = 'en'): string {
-    return new Intl.NumberFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
@@ -247,7 +247,7 @@ export class DealsService {
    * Format date consistently across all portals
    */
   formatDate(dateString: string, locale: string = 'en'): string {
-    return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Intl.DateTimeFormat('en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
