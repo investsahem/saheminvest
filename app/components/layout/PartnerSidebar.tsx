@@ -43,12 +43,6 @@ const PartnerSidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: PartnerSideba
       current: pathname === '/partner/deals/create'
     },
     {
-      name: t('partner.investors'),
-      href: '/partner/investors',
-      icon: Users,
-      current: pathname === '/partner/investors'
-    },
-    {
       name: t('partner.analytics'),
       href: '/partner/analytics',
       icon: BarChart3,

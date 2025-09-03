@@ -196,16 +196,16 @@ const PartnerDashboard = () => {
             </Card>
           </Link>
 
-          <Link href="/partner/investors">
+          <Link href="/partner/communications">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-orange-600" />
+                    <MessageSquare className="w-6 h-6 text-orange-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-orange-900">Investors</h3>
-                    <p className="text-sm text-orange-700">{partnerData.totalInvestors} total</p>
+                    <h3 className="font-semibold text-orange-900">Communications</h3>
+                    <p className="text-sm text-orange-700">Messages & updates</p>
                   </div>
                 </div>
               </CardContent>

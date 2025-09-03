@@ -46,6 +46,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     CredentialsProvider({
+      id: "credentials",
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -211,7 +212,6 @@ export const authOptions: NextAuthOptions = {
     }
   },
   debug: process.env.NODE_ENV === "development",
-  trustHost: true,
 }
 
 export default authOptions 
