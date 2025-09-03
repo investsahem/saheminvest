@@ -36,6 +36,19 @@ export async function POST(request: NextRequest) {
       }, { status: 401 })
     }
     
+    // Check if user has a password
+    if (!user.password) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'User has no password set',
+        debug: { 
+          email, 
+          userExists: true, 
+          hasPassword: false 
+        }
+      }, { status: 401 })
+    }
+    
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password)
     
