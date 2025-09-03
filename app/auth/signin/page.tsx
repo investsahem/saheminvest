@@ -37,45 +37,37 @@ export default function SignInPage() {
     setError('')
 
     try {
-      console.log('🔐 Sign-in attempt:', { email, hasCsrfToken: !!csrfToken })
+      console.log('🔐 Sign-in attempt:', { email })
       
       // Get callback URL from the current URL
       const urlParams = new URLSearchParams(window.location.search)
-      const callbackUrl = urlParams.get('callbackUrl')
+      const callbackUrl = urlParams.get('callbackUrl') || '/api/auth/redirect'
       
       console.log('📍 Callback URL:', callbackUrl)
       
-      // Force a page reload approach - more reliable for production
-      const form = document.createElement('form')
-      form.method = 'POST'
-      form.action = '/api/auth/signin/credentials'
+      // Use NextAuth signIn function
+      const result = await signIn('credentials', {
+        email,
+        password,
+        callbackUrl,
+        redirect: false
+      })
       
-      const csrfInput = document.createElement('input')
-      csrfInput.type = 'hidden'
-      csrfInput.name = 'csrfToken'
-      csrfInput.value = csrfToken
-      form.appendChild(csrfInput)
+      console.log('🔄 SignIn result:', result)
       
-      const emailInput = document.createElement('input')
-      emailInput.type = 'hidden'
-      emailInput.name = 'email'
-      emailInput.value = email
-      form.appendChild(emailInput)
-      
-      const passwordInput = document.createElement('input')
-      passwordInput.type = 'hidden'
-      passwordInput.name = 'password'
-      passwordInput.value = password
-      form.appendChild(passwordInput)
-      
-      const callbackInput = document.createElement('input')
-      callbackInput.type = 'hidden'
-      callbackInput.name = 'callbackUrl'
-      callbackInput.value = callbackUrl || '/api/auth/redirect'
-      form.appendChild(callbackInput)
-      
-      document.body.appendChild(form)
-      form.submit()
+      if (result?.error) {
+        console.error('❌ Sign-in error:', result.error)
+        setError('Invalid credentials. Please try again.')
+        setLoading(false)
+      } else if (result?.ok) {
+        console.log('✅ Sign-in successful, redirecting...')
+        // Redirect to the callback URL or role-based redirect
+        window.location.href = callbackUrl
+      } else {
+        console.error('❌ Unexpected sign-in result:', result)
+        setError('Sign-in failed. Please try again.')
+        setLoading(false)
+      }
       
     } catch (error) {
       console.error('❌ Sign-in error:', error)

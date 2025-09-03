@@ -34,65 +34,32 @@ export default function AdminSignInPage() {
     setLoading(true)
     setError('')
 
-    // Check if we have CSRF token
-    if (!csrfToken) {
-      console.log('⏳ Waiting for CSRF token...')
-      const token = await getCsrfToken()
-      if (token) {
-        setCsrfToken(token)
-      } else {
-        setError('Unable to get security token. Please refresh and try again.')
-        setLoading(false)
-        return
-      }
-    }
-
     try {
-      console.log('🔐 Admin sign-in attempt:', { 
-        email, 
-        hasCsrfToken: !!csrfToken,
-        csrfTokenLength: csrfToken?.length 
+      console.log('🔐 Admin sign-in attempt:', { email })
+      
+      // Use NextAuth signIn function
+      const result = await signIn('credentials', {
+        email,
+        password,
+        callbackUrl: '/admin',
+        redirect: false
       })
       
-      // Use direct form submission for admin
-      const form = document.createElement('form')
-      form.method = 'POST'
-      form.action = '/api/auth/signin/credentials'
+      console.log('🔄 Admin SignIn result:', result)
       
-      const csrfInput = document.createElement('input')
-      csrfInput.type = 'hidden'
-      csrfInput.name = 'csrfToken'
-      csrfInput.value = csrfToken
-      form.appendChild(csrfInput)
-      
-      const emailInput = document.createElement('input')
-      emailInput.type = 'hidden'
-      emailInput.name = 'email'
-      emailInput.value = email
-      form.appendChild(emailInput)
-      
-      const passwordInput = document.createElement('input')
-      passwordInput.type = 'hidden'
-      passwordInput.name = 'password'
-      passwordInput.value = password
-      form.appendChild(passwordInput)
-      
-      const callbackInput = document.createElement('input')
-      callbackInput.type = 'hidden'
-      callbackInput.name = 'callbackUrl'
-      callbackInput.value = '/admin' // Direct to admin
-      form.appendChild(callbackInput)
-      
-      console.log('📤 Submitting admin form with:', {
-        action: form.action,
-        method: form.method,
-        csrfToken: csrfToken.substring(0, 10) + '...',
-        email: email,
-        callbackUrl: '/admin'
-      })
-      
-      document.body.appendChild(form)
-      form.submit()
+      if (result?.error) {
+        console.error('❌ Admin sign-in error:', result.error)
+        setError('Invalid admin credentials. Please try again.')
+        setLoading(false)
+      } else if (result?.ok) {
+        console.log('✅ Admin sign-in successful, redirecting...')
+        // Redirect to admin dashboard
+        window.location.href = '/admin'
+      } else {
+        console.error('❌ Unexpected admin sign-in result:', result)
+        setError('Admin sign-in failed. Please try again.')
+        setLoading(false)
+      }
       
     } catch (error) {
       console.error('❌ Admin sign-in error:', error)
