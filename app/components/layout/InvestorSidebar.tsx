@@ -48,9 +48,9 @@ const InvestorSidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: InvestorSide
     },
     {
       name: t('investor.available_deals'),
-      href: '/deals',
+      href: '/portfolio/deals',
       icon: Target,
-      current: pathname === '/deals'
+      current: pathname === '/portfolio/deals'
     },
     {
       name: t('investor.wallet'),
