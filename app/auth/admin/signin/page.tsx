@@ -26,25 +26,17 @@ export default function AdminSignInPage() {
     try {
       console.log('🔐 Admin sign-in attempt:', { email })
       
+      // Use NextAuth's built-in redirect for admin
       const result = await signIn('credentials', {
         email,
         password,
-        redirect: false, // Handle redirect manually
+        callbackUrl: '/admin', // Always redirect to admin
       })
 
+      // This code should not execute if redirect works
       if (result?.error) {
+        console.log('❌ Admin sign-in failed:', result.error)
         setError('Invalid admin credentials')
-        setLoading(false)
-        return
-      }
-
-      // Get the session to verify admin role
-      const session = await getSession()
-      if (session?.user?.role === 'ADMIN') {
-        console.log('✅ Admin login successful, redirecting to admin panel')
-        router.push('/admin')
-      } else {
-        setError('Access denied. Admin credentials required.')
         setLoading(false)
       }
       

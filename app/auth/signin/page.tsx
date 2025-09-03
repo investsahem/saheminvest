@@ -26,51 +26,22 @@ export default function SignInPage() {
     try {
       console.log('🔐 Sign-in attempt:', { email })
       
+      // Get callback URL from the current URL
+      const urlParams = new URLSearchParams(window.location.search)
+      const callbackUrl = urlParams.get('callbackUrl')
+      
+      // Use NextAuth's built-in redirect - let it handle everything
       const result = await signIn('credentials', {
         email,
         password,
-        redirect: false, // Handle redirect manually
+        callbackUrl: callbackUrl || '/portfolio', // Use callback URL or default
       })
 
+      // This code should not execute if redirect works
       if (result?.error) {
+        console.log('❌ Sign-in failed:', result.error)
         setError('Invalid email or password')
         setLoading(false)
-        return
-      }
-
-      // Get the session to determine role-based redirect
-      const session = await getSession()
-      if (session?.user?.role) {
-        const userRole = session.user.role
-        let redirectUrl = '/portfolio' // default
-
-        switch (userRole) {
-          case 'ADMIN':
-            redirectUrl = '/admin'
-            break
-          case 'DEAL_MANAGER':
-            redirectUrl = '/deal-manager'
-            break
-          case 'FINANCIAL_OFFICER':
-            redirectUrl = '/financial-officer'
-            break
-          case 'PORTFOLIO_ADVISOR':
-            redirectUrl = '/portfolio-advisor'
-            break
-          case 'PARTNER':
-            redirectUrl = '/partner/dashboard'
-            break
-          case 'INVESTOR':
-          default:
-            redirectUrl = '/portfolio'
-            break
-        }
-
-        console.log('✅ Role-based redirect:', { role: userRole, redirectTo: redirectUrl })
-        router.push(redirectUrl)
-      } else {
-        // Fallback redirect
-        router.push('/portfolio')
       }
       
     } catch (error) {

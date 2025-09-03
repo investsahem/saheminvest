@@ -184,22 +184,31 @@ export const authOptions: NextAuthOptions = {
       const productionUrl = 'https://saheminvest.vercel.app'
       const currentBaseUrl = process.env.NODE_ENV === 'production' ? productionUrl : baseUrl
       
-      console.log('🔄 Redirect callback:', { url, baseUrl })
+      console.log('🔄 Redirect callback:', { url, baseUrl, currentBaseUrl })
       
       // Allows relative callback URLs
-      if (url.startsWith("/")) return `${currentBaseUrl}${url}`
+      if (url.startsWith("/")) {
+        const fullUrl = `${currentBaseUrl}${url}`
+        console.log('✅ Relative URL redirect:', fullUrl)
+        return fullUrl
+      }
       
       // Allows callback URLs on the same origin
       try {
         const urlObj = new URL(url)
         const baseUrlObj = new URL(currentBaseUrl)
-        if (urlObj.origin === baseUrlObj.origin) return url
+        if (urlObj.origin === baseUrlObj.origin) {
+          console.log('✅ Same origin redirect:', url)
+          return url
+        }
       } catch (error) {
-        console.error('Error parsing URLs in redirect:', error)
+        console.error('❌ Error parsing URLs in redirect:', error)
       }
       
-      // Default fallback - let the sign-in page handle role-based redirects
-      return `${currentBaseUrl}/portfolio`
+      // Default fallback
+      const fallbackUrl = `${currentBaseUrl}/portfolio`
+      console.log('🔄 Fallback redirect:', fallbackUrl)
+      return fallbackUrl
     }
   },
   pages: {
