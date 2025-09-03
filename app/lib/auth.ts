@@ -1,5 +1,4 @@
 import { NextAuthOptions } from "next-auth"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
@@ -9,26 +8,24 @@ import "../types/auth"
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
-    maxAge: 15 * 60, // 15 minutes auto-logout
-    updateAge: 5 * 60, // Update session every 5 minutes if active
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // Update session every 24 hours
   },
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: undefined,
-        maxAge: 15 * 60, // 15 minutes
       }
     },
     callbackUrl: {
       name: `next-auth.callback-url`,
       options: {
         httpOnly: false,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
       }
@@ -37,10 +34,9 @@ export const authOptions: NextAuthOptions = {
       name: `next-auth.csrf-token`,
       options: {
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 15 * 60, // 15 minutes
       }
     },
   },
@@ -180,41 +176,23 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
-      // Handle production vs development base URLs
-      const productionUrl = 'https://saheminvest.vercel.app'
-      const currentBaseUrl = process.env.NODE_ENV === 'production' ? productionUrl : baseUrl
-      
-      console.log('🔄 Redirect callback:', { url, baseUrl, currentBaseUrl })
-      
-      // If this is a sign-in redirect, we need to determine the role-based redirect
-      if (url === currentBaseUrl || url === baseUrl || url === '/') {
-        console.log('🔄 Default redirect - need to determine role-based redirect')
-        return `${currentBaseUrl}/portfolio` // Will be handled by middleware
-      }
+      console.log('🔄 Redirect callback:', { url, baseUrl })
       
       // Allows relative callback URLs
       if (url.startsWith("/")) {
-        const fullUrl = `${currentBaseUrl}${url}`
-        console.log('✅ Relative URL redirect:', fullUrl)
-        return fullUrl
+        console.log('✅ Relative URL redirect:', `${baseUrl}${url}`)
+        return `${baseUrl}${url}`
       }
       
       // Allows callback URLs on the same origin
-      try {
-        const urlObj = new URL(url)
-        const baseUrlObj = new URL(currentBaseUrl)
-        if (urlObj.origin === baseUrlObj.origin) {
-          console.log('✅ Same origin redirect:', url)
-          return url
-        }
-      } catch (error) {
-        console.error('❌ Error parsing URLs in redirect:', error)
+      if (url.startsWith(baseUrl)) {
+        console.log('✅ Same origin redirect:', url)
+        return url
       }
       
       // Default fallback
-      const fallbackUrl = `${currentBaseUrl}/portfolio`
-      console.log('🔄 Fallback redirect:', fallbackUrl)
-      return fallbackUrl
+      console.log('🔄 Fallback redirect to portfolio')
+      return `${baseUrl}/portfolio`
     }
   },
   pages: {

@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import authOptions from '@/app/lib/auth'
+import { getToken } from 'next-auth/jwt'
 
 export async function GET(request: NextRequest) {
   try {
     console.log('🔄 Role-based redirect API called')
     
-    const session = await getServerSession(authOptions)
+    const token = await getToken({ 
+      req: request, 
+      secret: process.env.NEXTAUTH_SECRET 
+    })
     
-    if (!session?.user?.role) {
-      console.log('❌ No session or role found, redirecting to sign-in')
+    if (!token?.role) {
+      console.log('❌ No token or role found, redirecting to sign-in')
       return NextResponse.redirect(new URL('/auth/signin', request.url))
     }
     
-    const userRole = session.user.role
+    const userRole = token.role as string
     let redirectUrl = '/portfolio' // default
     
     switch (userRole) {

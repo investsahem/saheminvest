@@ -27,83 +27,28 @@ function SessionManager() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // 15-minute auto-logout functionality
+  // Session management - no auto-logout (using server-side session expiry)
   useEffect(() => {
     if (!session) return
 
-    const INACTIVITY_TIMEOUT = 15 * 60 * 1000 // 15 minutes
-    const WARNING_TIME = 2 * 60 * 1000 // Show warning 2 minutes before logout
-    const CHECK_INTERVAL = 30 * 1000 // Check every 30 seconds
-
-    // Update last activity time
+    // Update activity timestamp for mobile session refresh
     const updateActivity = () => {
       lastActivityRef.current = Date.now()
     }
 
-    // Show warning before auto-logout
-    const showLogoutWarning = () => {
-      const confirmed = window.confirm(
-        'Your session will expire in 2 minutes due to inactivity. Click OK to stay logged in.'
-      )
-      if (confirmed) {
-        updateActivity()
-        update() // Refresh the session
-      }
-    }
+    // Activity events to track for mobile session management
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click']
 
-    // Check for inactivity and handle auto-logout
-    const checkInactivity = () => {
-      const now = Date.now()
-      const timeSinceLastActivity = now - lastActivityRef.current
-
-      if (timeSinceLastActivity >= INACTIVITY_TIMEOUT) {
-        console.log('🕐 Auto-logout: User inactive for 15 minutes')
-        signOut({ 
-          callbackUrl: '/auth/signin?reason=timeout',
-          redirect: true 
-        })
-        return
-      }
-
-      // Show warning 2 minutes before timeout
-      if (timeSinceLastActivity >= INACTIVITY_TIMEOUT - WARNING_TIME) {
-        showLogoutWarning()
-        return
-      }
-
-      // Continue checking
-      timeoutRef.current = setTimeout(checkInactivity, CHECK_INTERVAL)
-    }
-
-    // Activity events to track
-    const events = [
-      'mousedown', 'mousemove', 'keypress', 'scroll', 
-      'touchstart', 'click', 'keydown', 'touchmove'
-    ]
-
-    // Add event listeners
     events.forEach(event => {
       document.addEventListener(event, updateActivity, { passive: true })
     })
 
-    // Start inactivity check
-    timeoutRef.current = setTimeout(checkInactivity, CHECK_INTERVAL)
-
-    // Cleanup
     return () => {
       events.forEach(event => {
         document.removeEventListener(event, updateActivity)
       })
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-        timeoutRef.current = null
-      }
-      if (warningTimeoutRef.current) {
-        clearTimeout(warningTimeoutRef.current)
-        warningTimeoutRef.current = null
-      }
     }
-  }, [session, update])
+  }, [session])
 
   // Mobile session refresh logic
   useEffect(() => {
@@ -136,8 +81,8 @@ function SessionManager() {
 export function AuthProvider({ children }: AuthProviderProps) {
   return (
     <SessionProvider 
-      refetchInterval={5 * 60} // Refetch every 5 minutes to keep session alive
-      refetchOnWindowFocus={true}
+      refetchInterval={0} // Disable automatic refetch (rely on server session expiry)
+      refetchOnWindowFocus={false}
     >
       <SessionManager />
       {children}
