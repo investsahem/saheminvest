@@ -33,23 +33,30 @@ const PortfolioDealsPage = () => {
   const [savedDeals, setSavedDeals] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [allInvestableDeals, setAllInvestableDeals] = useState<Deal[]>([])
 
-  // Fetch deals for investors - only active/published deals
+  // Fetch deals for investors - only show deals they can invest in
   const fetchDeals = async () => {
     try {
       setLoading(true)
       
       const params = {
         page: currentPage,
-        limit: 12,
-        status: 'ACTIVE', // Only show active deals for investors
+        limit: 50, // Get more to filter client-side
         category: categoryFilter !== 'all' ? categoryFilter : undefined,
         search: searchTerm || undefined,
         includeAll: false // Investor view
       }
 
       const response = await dealsService.fetchDeals(params)
-      let filteredDeals = response.deals
+      
+      // Filter out deals that investors shouldn't see
+      let filteredDeals = response.deals.filter(deal => {
+        // Only show deals that investors can actually invest in
+        // Exclude: FUNDED, COMPLETED, CANCELLED, REJECTED, DRAFT, PENDING
+        const investableStatuses = ['ACTIVE', 'PUBLISHED']
+        return investableStatuses.includes(deal.status)
+      })
 
       // Apply client-side filters
       if (riskFilter !== 'all') {
@@ -64,8 +71,16 @@ const PortfolioDealsPage = () => {
       // Apply sorting
       filteredDeals = sortDeals(filteredDeals, sortBy)
 
-      setDeals(filteredDeals)
-      setTotalPages(response.totalPages)
+      // Store all investable deals for stats calculation
+      setAllInvestableDeals(filteredDeals)
+      
+      // Apply pagination client-side since we're filtering
+      const startIndex = (currentPage - 1) * 12
+      const endIndex = startIndex + 12
+      const paginatedDeals = filteredDeals.slice(startIndex, endIndex)
+      
+      setDeals(paginatedDeals)
+      setTotalPages(Math.ceil(filteredDeals.length / 12))
     } catch (error) {
       console.error('Error fetching deals:', error)
       setDeals([])
@@ -137,10 +152,10 @@ const PortfolioDealsPage = () => {
     }).format(amount)
   }
 
-  // Get deal stats
-  const totalFunding = deals.reduce((sum, deal) => sum + deal.currentFunding, 0)
-  const avgReturn = deals.length > 0 ? deals.reduce((sum, deal) => sum + deal.expectedReturn, 0) / deals.length : 0
-  const totalInvestors = deals.reduce((sum, deal) => sum + (deal._count?.investments || 0), 0)
+  // Get deal stats from all investable deals (not just paginated)
+  const totalFunding = allInvestableDeals.reduce((sum, deal) => sum + deal.currentFunding, 0)
+  const avgReturn = allInvestableDeals.length > 0 ? allInvestableDeals.reduce((sum, deal) => sum + deal.expectedReturn, 0) / allInvestableDeals.length : 0
+  const totalInvestors = allInvestableDeals.reduce((sum, deal) => sum + (deal._count?.investments || 0), 0)
 
   const categories = [
     'Technology', 'Real Estate', 'Healthcare', 'Energy', 
@@ -168,11 +183,11 @@ const PortfolioDealsPage = () => {
               <div className="flex items-center gap-4 mt-4 lg:mt-0">
                 <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                   <Sparkles className="w-5 h-5 text-yellow-300" />
-                  <span className="font-medium">{deals.filter(d => d.featured).length} Featured</span>
+                  <span className="font-medium">{allInvestableDeals.filter(d => d.featured).length} Featured</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                   <Activity className="w-5 h-5 text-green-300" />
-                  <span className="font-medium">{deals.length} Active</span>
+                  <span className="font-medium">{allInvestableDeals.length} Available</span>
                 </div>
               </div>
             </div>

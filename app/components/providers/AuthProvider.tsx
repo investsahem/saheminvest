@@ -138,6 +138,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     <SessionProvider 
       refetchInterval={5 * 60} // Refetch every 5 minutes to keep session alive
       refetchOnWindowFocus={true}
+      // Force session to be refetched when switching users
+      refetchWhenOffline={false}
     >
       <SessionManager />
       {children}

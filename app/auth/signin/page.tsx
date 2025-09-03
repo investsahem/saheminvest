@@ -1,6 +1,6 @@
 'use client'
 
-import { signIn, getSession } from 'next-auth/react'
+import { signIn, getSession, signOut } from 'next-auth/react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '../../components/ui/Button'
@@ -28,6 +28,14 @@ export default function SignInPage() {
 
     try {
       console.log('🔐 Starting sign-in process...', { email, userAgent: navigator.userAgent })
+      
+      // First, ensure we're completely logged out to clear any cached sessions
+      await signOut({ redirect: false })
+      
+      // Small delay to ensure logout is complete
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      console.log('🔄 Previous session cleared, attempting new sign-in...')
       
       const result = await signIn('credentials', {
         email,
@@ -146,9 +154,24 @@ export default function SignInPage() {
     }
   }
 
-  const fillDemoAccount = (email: string) => {
-    setEmail(email)
-    setPassword('Azerty@123123')
+  const fillDemoAccount = async (email: string) => {
+    try {
+      console.log('🔄 Switching to demo account:', email)
+      
+      // Clear any existing session first
+      await signOut({ redirect: false })
+      
+      // Small delay to ensure logout is complete
+      await new Promise(resolve => setTimeout(resolve, 200))
+      
+      setEmail(email)
+      setPassword('Azerty@123123')
+      setError('') // Clear any previous errors
+      
+      console.log('✅ Demo account credentials filled')
+    } catch (error) {
+      console.error('❌ Error switching demo account:', error)
+    }
   }
 
   return (

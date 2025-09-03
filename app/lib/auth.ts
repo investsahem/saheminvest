@@ -40,6 +40,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        maxAge: 15 * 60, // 15 minutes
       }
     },
   },
@@ -153,6 +154,9 @@ export const authOptions: NextAuthOptions = {
   events: {
     async signIn(message) {
       console.log('SignIn event:', message.user?.email, message.user?.role)
+    },
+    async signOut(message) {
+      console.log('SignOut event: Session cleared')
     },
     async session(message) {
       console.log('Session event:', message.session?.user?.email, message.session?.user?.role)
