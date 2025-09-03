@@ -20,6 +20,25 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
+        domain: process.env.NODE_ENV === 'production' ? '.saheminvest.vercel.app' : undefined,
+      }
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
+      options: {
+        httpOnly: false,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      }
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
       }
     },
   },
@@ -83,11 +102,24 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
+      // Handle production vs development base URLs
+      const productionUrl = 'https://saheminvest.vercel.app'
+      const currentBaseUrl = process.env.NODE_ENV === 'production' ? productionUrl : baseUrl
+      
       // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`
+      if (url.startsWith("/")) return `${currentBaseUrl}${url}`
+      
       // Allows callback URLs on the same origin
-      if (new URL(url).origin === baseUrl) return url
-      return baseUrl
+      try {
+        const urlObj = new URL(url)
+        const baseUrlObj = new URL(currentBaseUrl)
+        if (urlObj.origin === baseUrlObj.origin) return url
+      } catch (error) {
+        console.error('Error parsing URLs in redirect:', error)
+      }
+      
+      // Default fallback
+      return currentBaseUrl
     }
   },
   pages: {

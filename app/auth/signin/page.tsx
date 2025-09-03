@@ -43,10 +43,16 @@ export default function SignInPage() {
         // If there's a specific callback URL, decode it and use it
         if (callbackUrl) {
           const decodedUrl = decodeURIComponent(callbackUrl)
-          // Small delay to ensure session is updated
+          console.log('Redirecting to callback URL:', decodedUrl)
+          
+          // Use window.location for more reliable mobile redirect
           setTimeout(() => {
-            router.replace(decodedUrl)
-          }, 100)
+            if (typeof window !== 'undefined') {
+              window.location.href = decodedUrl
+            } else {
+              router.replace(decodedUrl)
+            }
+          }, 300) // Increased delay for mobile
           return
         }
         
@@ -63,31 +69,42 @@ export default function SignInPage() {
         
         const role = session?.user?.role
         
-        // Add a small delay before redirect to ensure session is fully updated
+        // Add a delay before redirect to ensure session is fully updated
         setTimeout(() => {
-          // Redirect based on user role
+          let redirectUrl = '/portfolio' // default
+          
+          // Determine redirect URL based on user role
           switch (role) {
             case 'ADMIN':
-              router.replace('/admin')
+              redirectUrl = '/admin'
               break
             case 'DEAL_MANAGER':
-              router.replace('/deal-manager')
+              redirectUrl = '/deal-manager'
               break
             case 'FINANCIAL_OFFICER':
-              router.replace('/financial-officer')
+              redirectUrl = '/financial-officer'
               break
             case 'PORTFOLIO_ADVISOR':
-              router.replace('/portfolio-advisor')
+              redirectUrl = '/portfolio-advisor'
               break
             case 'PARTNER':
-              router.replace('/partner/dashboard')
+              redirectUrl = '/partner/dashboard'
               break
             case 'INVESTOR':
             default:
-              router.replace('/portfolio')
+              redirectUrl = '/portfolio'
               break
           }
-        }, 100)
+          
+          console.log('Redirecting to role-based URL:', redirectUrl)
+          
+          // Use window.location for more reliable mobile redirect
+          if (typeof window !== 'undefined') {
+            window.location.href = redirectUrl
+          } else {
+            router.replace(redirectUrl)
+          }
+        }, 300) // Increased delay for mobile
       }
     } catch (error) {
       console.error('Error during sign in:', error)
