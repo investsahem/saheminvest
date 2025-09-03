@@ -1,7 +1,8 @@
 'use client'
 
-import { signIn } from 'next-auth/react'
+import { signIn, getSession } from 'next-auth/react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Card, CardHeader, CardContent } from '../../components/ui/Card'
@@ -11,6 +12,7 @@ import Link from 'next/link'
 export default function SignInPage() {
   const { t } = useTranslation()
   const { locale } = useI18n()
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -27,18 +29,53 @@ export default function SignInPage() {
       const result = await signIn('credentials', {
         email,
         password,
-        callbackUrl: '/portfolio', // Default redirect
+        redirect: false, // Handle redirect manually
       })
 
-      // If we reach here, there was an error
       if (result?.error) {
         setError('Invalid email or password')
+        setLoading(false)
+        return
+      }
+
+      // Get the session to determine role-based redirect
+      const session = await getSession()
+      if (session?.user?.role) {
+        const userRole = session.user.role
+        let redirectUrl = '/portfolio' // default
+
+        switch (userRole) {
+          case 'ADMIN':
+            redirectUrl = '/admin'
+            break
+          case 'DEAL_MANAGER':
+            redirectUrl = '/deal-manager'
+            break
+          case 'FINANCIAL_OFFICER':
+            redirectUrl = '/financial-officer'
+            break
+          case 'PORTFOLIO_ADVISOR':
+            redirectUrl = '/portfolio-advisor'
+            break
+          case 'PARTNER':
+            redirectUrl = '/partner/dashboard'
+            break
+          case 'INVESTOR':
+          default:
+            redirectUrl = '/portfolio'
+            break
+        }
+
+        console.log('✅ Role-based redirect:', { role: userRole, redirectTo: redirectUrl })
+        router.push(redirectUrl)
+      } else {
+        // Fallback redirect
+        router.push('/portfolio')
       }
       
     } catch (error) {
       console.error('❌ Sign-in error:', error)
       setError('Sign-in failed. Please try again.')
-    } finally {
       setLoading(false)
     }
   }

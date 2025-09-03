@@ -1,7 +1,8 @@
 'use client'
 
-import { signIn } from 'next-auth/react'
+import { signIn, getSession } from 'next-auth/react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '../../../components/ui/Button'
 import { Input } from '../../../components/ui/Input'
 import { Card, CardHeader, CardContent } from '../../../components/ui/Card'
@@ -11,6 +12,7 @@ import Link from 'next/link'
 export default function AdminSignInPage() {
   const { t } = useTranslation()
   const { locale } = useI18n()
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -27,18 +29,28 @@ export default function AdminSignInPage() {
       const result = await signIn('credentials', {
         email,
         password,
-        callbackUrl: '/admin', // Admin redirect
+        redirect: false, // Handle redirect manually
       })
 
-      // If we reach here, there was an error
       if (result?.error) {
         setError('Invalid admin credentials')
+        setLoading(false)
+        return
+      }
+
+      // Get the session to verify admin role
+      const session = await getSession()
+      if (session?.user?.role === 'ADMIN') {
+        console.log('✅ Admin login successful, redirecting to admin panel')
+        router.push('/admin')
+      } else {
+        setError('Access denied. Admin credentials required.')
+        setLoading(false)
       }
       
     } catch (error) {
       console.error('❌ Admin sign-in error:', error)
       setError('Admin sign-in failed. Please try again.')
-    } finally {
       setLoading(false)
     }
   }

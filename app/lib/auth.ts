@@ -126,43 +126,12 @@ export const authOptions: NextAuthOptions = {
       }
       return session
     },
-    async redirect({ url, baseUrl, token }) {
+    async redirect({ url, baseUrl }) {
       // Handle production vs development base URLs
       const productionUrl = 'https://saheminvest.vercel.app'
       const currentBaseUrl = process.env.NODE_ENV === 'production' ? productionUrl : baseUrl
       
-      console.log('🔄 Redirect callback:', { url, token: token ? { role: token.role, email: token.email } : null })
-      
-      // If user has a role, redirect based on role
-      if (token?.role) {
-        const userRole = token.role as string
-        let roleBasedUrl = '/portfolio' // default
-        
-        switch (userRole) {
-          case 'ADMIN':
-            roleBasedUrl = '/admin'
-            break
-          case 'DEAL_MANAGER':
-            roleBasedUrl = '/deal-manager'
-            break
-          case 'FINANCIAL_OFFICER':
-            roleBasedUrl = '/financial-officer'
-            break
-          case 'PORTFOLIO_ADVISOR':
-            roleBasedUrl = '/portfolio-advisor'
-            break
-          case 'PARTNER':
-            roleBasedUrl = '/partner/dashboard'
-            break
-          case 'INVESTOR':
-          default:
-            roleBasedUrl = '/portfolio'
-            break
-        }
-        
-        console.log('✅ Role-based redirect:', { role: userRole, redirectTo: roleBasedUrl })
-        return `${currentBaseUrl}${roleBasedUrl}`
-      }
+      console.log('🔄 Redirect callback:', { url, baseUrl })
       
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${currentBaseUrl}${url}`
@@ -176,7 +145,7 @@ export const authOptions: NextAuthOptions = {
         console.error('Error parsing URLs in redirect:', error)
       }
       
-      // Default fallback
+      // Default fallback - let the sign-in page handle role-based redirects
       return `${currentBaseUrl}/portfolio`
     }
   },
