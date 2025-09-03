@@ -14,6 +14,11 @@ export default withAuth(
           return true
         }
         
+        // Allow all auth pages without authentication
+        if (pathname.startsWith("/auth")) {
+          return true
+        }
+        
         // Log token for debugging (only in development)
         if (process.env.NODE_ENV === 'development') {
           console.log('Middleware - Path:', pathname, 'Token role:', token?.role, 'Token exists:', !!token)
@@ -82,6 +87,7 @@ export default withAuth(
 
 export const config = {
   matcher: [
+    // Protected routes that require authentication
     "/dashboard/:path*", 
     "/admin/:path*",
     "/deal-manager/:path*",
@@ -90,6 +96,7 @@ export const config = {
     "/portfolio/:path*", 
     "/deals/:path*",
     "/partner/:path*",
+    // API routes (excluding auth and public)
     "/api/((?!auth|public).)*"
   ]
 } 
