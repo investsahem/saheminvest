@@ -186,6 +186,12 @@ export const authOptions: NextAuthOptions = {
       
       console.log('🔄 Redirect callback:', { url, baseUrl, currentBaseUrl })
       
+      // If this is a sign-in redirect, we need to determine the role-based redirect
+      if (url === currentBaseUrl || url === baseUrl || url === '/') {
+        console.log('🔄 Default redirect - need to determine role-based redirect')
+        return `${currentBaseUrl}/portfolio` // Will be handled by middleware
+      }
+      
       // Allows relative callback URLs
       if (url.startsWith("/")) {
         const fullUrl = `${currentBaseUrl}${url}`

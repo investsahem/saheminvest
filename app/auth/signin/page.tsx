@@ -1,7 +1,7 @@
 'use client'
 
-import { signIn, getSession } from 'next-auth/react'
-import { useState } from 'react'
+import { signIn, getCsrfToken } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -17,6 +17,19 @@ export default function SignInPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [csrfToken, setCsrfToken] = useState('')
+
+  useEffect(() => {
+    // Get CSRF token on component mount
+    const fetchCsrfToken = async () => {
+      const token = await getCsrfToken()
+      if (token) {
+        setCsrfToken(token)
+        console.log('🔒 CSRF token obtained')
+      }
+    }
+    fetchCsrfToken()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,25 +37,45 @@ export default function SignInPage() {
     setError('')
 
     try {
-      console.log('🔐 Sign-in attempt:', { email })
+      console.log('🔐 Sign-in attempt:', { email, hasCsrfToken: !!csrfToken })
       
       // Get callback URL from the current URL
       const urlParams = new URLSearchParams(window.location.search)
       const callbackUrl = urlParams.get('callbackUrl')
       
-      // Use NextAuth's built-in redirect - let it handle everything
-      const result = await signIn('credentials', {
-        email,
-        password,
-        callbackUrl: callbackUrl || '/portfolio', // Use callback URL or default
-      })
-
-      // This code should not execute if redirect works
-      if (result?.error) {
-        console.log('❌ Sign-in failed:', result.error)
-        setError('Invalid email or password')
-        setLoading(false)
-      }
+      console.log('📍 Callback URL:', callbackUrl)
+      
+      // Force a page reload approach - more reliable for production
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = '/api/auth/signin/credentials'
+      
+      const csrfInput = document.createElement('input')
+      csrfInput.type = 'hidden'
+      csrfInput.name = 'csrfToken'
+      csrfInput.value = csrfToken
+      form.appendChild(csrfInput)
+      
+      const emailInput = document.createElement('input')
+      emailInput.type = 'hidden'
+      emailInput.name = 'email'
+      emailInput.value = email
+      form.appendChild(emailInput)
+      
+      const passwordInput = document.createElement('input')
+      passwordInput.type = 'hidden'
+      passwordInput.name = 'password'
+      passwordInput.value = password
+      form.appendChild(passwordInput)
+      
+      const callbackInput = document.createElement('input')
+      callbackInput.type = 'hidden'
+      callbackInput.name = 'callbackUrl'
+      callbackInput.value = callbackUrl || '/api/auth/redirect'
+      form.appendChild(callbackInput)
+      
+      document.body.appendChild(form)
+      form.submit()
       
     } catch (error) {
       console.error('❌ Sign-in error:', error)

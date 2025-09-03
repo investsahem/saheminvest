@@ -1,7 +1,7 @@
 'use client'
 
-import { signIn, getSession } from 'next-auth/react'
-import { useState } from 'react'
+import { signIn, getCsrfToken } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '../../../components/ui/Button'
 import { Input } from '../../../components/ui/Input'
@@ -17,6 +17,17 @@ export default function AdminSignInPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [csrfToken, setCsrfToken] = useState('')
+
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      const token = await getCsrfToken()
+      if (token) {
+        setCsrfToken(token)
+      }
+    }
+    fetchCsrfToken()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,19 +37,37 @@ export default function AdminSignInPage() {
     try {
       console.log('🔐 Admin sign-in attempt:', { email })
       
-      // Use NextAuth's built-in redirect for admin
-      const result = await signIn('credentials', {
-        email,
-        password,
-        callbackUrl: '/admin', // Always redirect to admin
-      })
-
-      // This code should not execute if redirect works
-      if (result?.error) {
-        console.log('❌ Admin sign-in failed:', result.error)
-        setError('Invalid admin credentials')
-        setLoading(false)
-      }
+      // Use direct form submission for admin
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = '/api/auth/signin/credentials'
+      
+      const csrfInput = document.createElement('input')
+      csrfInput.type = 'hidden'
+      csrfInput.name = 'csrfToken'
+      csrfInput.value = csrfToken
+      form.appendChild(csrfInput)
+      
+      const emailInput = document.createElement('input')
+      emailInput.type = 'hidden'
+      emailInput.name = 'email'
+      emailInput.value = email
+      form.appendChild(emailInput)
+      
+      const passwordInput = document.createElement('input')
+      passwordInput.type = 'hidden'
+      passwordInput.name = 'password'
+      passwordInput.value = password
+      form.appendChild(passwordInput)
+      
+      const callbackInput = document.createElement('input')
+      callbackInput.type = 'hidden'
+      callbackInput.name = 'callbackUrl'
+      callbackInput.value = '/admin' // Direct to admin
+      form.appendChild(callbackInput)
+      
+      document.body.appendChild(form)
+      form.submit()
       
     } catch (error) {
       console.error('❌ Admin sign-in error:', error)
