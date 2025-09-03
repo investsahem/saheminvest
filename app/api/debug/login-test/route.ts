@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
         name: true,
         role: true,
         password: true,
-        status: true
+        isActive: true
       }
     })
     
@@ -47,13 +47,13 @@ export async function POST(request: NextRequest) {
           email, 
           userExists: true, 
           passwordCheck: false,
-          userStatus: user.status 
+          userActive: user.isActive 
         }
       }, { status: 401 })
     }
     
     // Check if user is active
-    if (user.status !== 'ACTIVE') {
+    if (!user.isActive) {
       return NextResponse.json({ 
         success: false, 
         error: 'User account is not active',
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
           email, 
           userExists: true, 
           passwordCheck: true, 
-          userStatus: user.status 
+          userActive: user.isActive 
         }
       }, { status: 401 })
     }
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
         email,
         userExists: true,
         passwordCheck: true,
-        userStatus: user.status
+        userActive: user.isActive
       }
     })
     
