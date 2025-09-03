@@ -27,15 +27,21 @@ export default function SignInPage() {
     setError('')
 
     try {
+      console.log('🔐 Starting sign-in process...', { email, userAgent: navigator.userAgent })
+      
       const result = await signIn('credentials', {
         email,
         password,
         redirect: false,
       })
 
+      console.log('🔐 Sign-in result:', result)
+
       if (result?.error) {
+        console.log('❌ Sign-in error:', result.error)
         setError(t('auth.signin.invalid_credentials'))
       } else {
+        console.log('✅ Sign-in successful, checking session...')
         // Get callback URL from query params if it exists
         const urlParams = new URLSearchParams(window.location.search)
         const callbackUrl = urlParams.get('callbackUrl')
@@ -58,16 +64,22 @@ export default function SignInPage() {
         
         // Get the session to determine the user role and redirect accordingly
         // Retry getting session if not available immediately
+        console.log('🔍 Getting session...')
         let session = await getSession()
         let retries = 0
         
+        console.log('📋 Initial session:', session)
+        
         while (!session?.user?.role && retries < 3) {
+          console.log(`🔄 Retry ${retries + 1}: Waiting for session...`)
           await new Promise(resolve => setTimeout(resolve, 200))
           session = await getSession()
+          console.log(`📋 Session after retry ${retries + 1}:`, session)
           retries++
         }
         
         const role = session?.user?.role
+        console.log('👤 Final role:', role)
         
         // Add a delay before redirect to ensure session is fully updated
         setTimeout(() => {
