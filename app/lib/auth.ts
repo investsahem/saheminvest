@@ -103,7 +103,6 @@ export const authOptions: NextAuthOptions = {
     }
   },
   debug: process.env.NODE_ENV === "development",
-  trustHost: true,
 }
 
 export default authOptions 
