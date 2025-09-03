@@ -24,7 +24,7 @@ const AdminLayout = ({ children, title, subtitle }: AdminLayoutProps) => {
       />
       
       {/* Main content */}
-      <div className={`flex flex-col flex-1 overflow-hidden ${locale === 'ar' ? 'lg:pr-64' : 'lg:pl-64'}`}>
+      <div className={`flex flex-col flex-1 overflow-hidden lg:${locale === 'ar' ? 'pr-64' : 'pl-64'}`}>
         {/* Header */}
         <AdminHeader 
           title={title} 

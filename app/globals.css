@@ -73,6 +73,31 @@ body {
   }
 }
 
+/* Mobile Sidebar Improvements */
+@media (max-width: 1024px) {
+  /* Ensure mobile sidebar is properly positioned */
+  .mobile-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    z-index: 50 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease-in-out !important;
+  }
+  
+  .mobile-sidebar.open {
+    transform: translateX(0) !important;
+  }
+  
+  [dir="rtl"] .mobile-sidebar {
+    transform: translateX(100%) !important;
+  }
+  
+  [dir="rtl"] .mobile-sidebar.open {
+    transform: translateX(0) !important;
+  }
+}
+
 /* Arabic RTL Support */
 [dir="rtl"] {
   direction: rtl;

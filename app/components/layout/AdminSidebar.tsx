@@ -114,12 +114,13 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
 
       {/* Sidebar */}
       <div className={`
-        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} 
+        mobile-sidebar ${isMobileOpen ? 'open' : ''} 
+        ${isMobileOpen ? 'translate-x-0' : locale === 'ar' ? 'translate-x-full' : '-translate-x-full'} 
         lg:translate-x-0 lg:static lg:inset-0
         fixed inset-y-0 ${locale === 'ar' ? 'right-0 lg:right-0' : 'left-0 lg:left-0'} 
-        flex flex-col w-64 bg-white shadow-sm 
+        flex flex-col w-64 bg-white shadow-lg 
         ${locale === 'ar' ? 'lg:border-l lg:border-gray-200' : 'lg:border-r lg:border-gray-200'}
-        transition-transform duration-300 ease-in-out lg:transition-none z-50
+        transition-transform duration-300 ease-in-out lg:transition-none z-50 lg:z-auto
       `}>
         {/* Mobile close button */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 lg:justify-center">
