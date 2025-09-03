@@ -7,9 +7,8 @@ import { prisma } from "./db"
 import "../types/auth"
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "database",
+    strategy: "jwt",
     maxAge: 15 * 60, // 15 minutes auto-logout
     updateAge: 5 * 60, // Update session every 5 minutes if active
   },
@@ -103,14 +102,25 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async session({ session, user }) {
-      // Send properties to the client - for database sessions, user comes from database
-      if (user && session.user) {
-        session.user.id = user.id
-        session.user.role = (user as any).role
+    async jwt({ token, user, account, profile }) {
+      // Persist the role in the token right after signin
+      if (user) {
+        token.role = (user as any).role
         // Debug logging
         if (process.env.NODE_ENV === 'development') {
-          console.log('Session callback - User role:', (user as any).role, 'Session role:', session.user.role)
+          console.log('JWT callback - User role:', (user as any).role, 'Token role:', token.role)
+        }
+      }
+      return token
+    },
+    async session({ session, token }) {
+      // Send properties to the client
+      if (token && session.user) {
+        session.user.id = token.sub!
+        session.user.role = token.role as string
+        // Debug logging
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Session callback - Token role:', token.role, 'Session role:', session.user.role)
         }
       }
       return session
