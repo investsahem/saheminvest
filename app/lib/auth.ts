@@ -56,47 +56,79 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        console.log('🔐 Credentials provider - authorize called', { email: credentials?.email })
+        console.log('🔐 Credentials provider - authorize called', { 
+          email: credentials?.email,
+          hasPassword: !!credentials?.password,
+          timestamp: new Date().toISOString()
+        })
         
         if (!credentials?.email || !credentials?.password) {
-          console.log('❌ Missing credentials')
+          console.log('❌ Missing credentials', { 
+            email: !!credentials?.email, 
+            password: !!credentials?.password 
+          })
           return null
         }
 
         try {
+          console.log('🔍 Searching for user in database...')
           const user = await prisma.user.findUnique({
             where: { email: credentials.email }
           })
 
-          console.log('👤 User found:', user ? { id: user.id, email: user.email, role: user.role } : 'No user')
+          console.log('👤 Database query result:', user ? { 
+            id: user.id, 
+            email: user.email, 
+            role: user.role,
+            hasPassword: !!user.password,
+            isActive: user.isActive
+          } : 'No user found')
 
-          if (!user || !user.password) {
-            console.log('❌ No user or no password')
+          if (!user) {
+            console.log('❌ User not found in database')
             return null
           }
 
+          if (!user.password) {
+            console.log('❌ User has no password set')
+            return null
+          }
+
+          if (!user.isActive) {
+            console.log('❌ User account is not active')
+            return null
+          }
+
+          console.log('🔑 Comparing passwords...')
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
             user.password
           )
 
-          console.log('🔑 Password valid:', isPasswordValid)
+          console.log('🔑 Password comparison result:', isPasswordValid)
 
           if (!isPasswordValid) {
-            console.log('❌ Invalid password')
+            console.log('❌ Invalid password for user:', user.email)
             return null
           }
 
-          console.log('✅ Authorization successful')
-          return {
+          const returnUser = {
             id: user.id,
             email: user.email,
             name: user.name,
             role: user.role,
             image: user.image,
           }
+
+          console.log('✅ Authorization successful, returning user:', returnUser)
+          return returnUser
+          
         } catch (error) {
-          console.error('❌ Error in authorize:', error)
+          console.error('❌ Critical error in authorize function:', {
+            error: error instanceof Error ? error.message : error,
+            stack: error instanceof Error ? error.stack : undefined,
+            email: credentials.email
+          })
           return null
         }
       }
@@ -104,26 +136,47 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account, profile }) {
+      console.log('🔄 JWT callback called', {
+        hasUser: !!user,
+        hasToken: !!token,
+        userRole: user ? (user as any).role : null,
+        tokenSub: token?.sub,
+        account: account?.provider
+      })
+      
       // Persist the role in the token right after signin
       if (user) {
         token.role = (user as any).role
-        // Debug logging
-        if (process.env.NODE_ENV === 'development') {
-          console.log('JWT callback - User role:', (user as any).role, 'Token role:', token.role)
-        }
+        console.log('✅ JWT callback - Setting role in token:', {
+          userRole: (user as any).role,
+          tokenRole: token.role,
+          userId: user.id
+        })
       }
+      
       return token
     },
     async session({ session, token }) {
+      console.log('🔄 Session callback called', {
+        hasSession: !!session,
+        hasToken: !!token,
+        hasUser: !!session?.user,
+        tokenRole: token?.role,
+        tokenSub: token?.sub
+      })
+      
       // Send properties to the client
       if (token && session.user) {
         session.user.id = token.sub!
         session.user.role = token.role as string
-        // Debug logging
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Session callback - Token role:', token.role, 'Session role:', session.user.role)
-        }
+        
+        console.log('✅ Session callback - Setting session data:', {
+          userId: session.user.id,
+          userRole: session.user.role,
+          userEmail: session.user.email
+        })
       }
+      
       return session
     },
     async redirect({ url, baseUrl }) {
