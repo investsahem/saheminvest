@@ -9,6 +9,16 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl
         
+        // Allow debug pages without authentication
+        if (pathname.startsWith("/debug")) {
+          return true
+        }
+        
+        // Log token for debugging (only in development)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Middleware - Path:', pathname, 'Token role:', token?.role, 'Token exists:', !!token)
+        }
+        
         // Admin routes
         if (pathname.startsWith("/admin")) {
           return token?.role === "ADMIN"

@@ -90,6 +90,10 @@ export const authOptions: NextAuthOptions = {
       // Persist the role in the token right after signin
       if (user) {
         token.role = (user as any).role
+        // Debug logging
+        if (process.env.NODE_ENV === 'development') {
+          console.log('JWT callback - User role:', (user as any).role, 'Token role:', token.role)
+        }
       }
       return token
     },
@@ -98,6 +102,10 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.sub!
         session.user.role = token.role as string
+        // Debug logging
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Session callback - Token role:', token.role, 'Session role:', session.user.role)
+        }
       }
       return session
     },
