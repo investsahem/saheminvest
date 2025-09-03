@@ -129,9 +129,6 @@ export const authOptions: NextAuthOptions = {
       return currentBaseUrl
     }
   },
-  session: {
-    strategy: "jwt",
-  },
   pages: {
     signIn: "/auth/signin",
     error: "/auth/signin",
