@@ -71,7 +71,6 @@ export const authOptions: NextAuthOptions = {
       // Persist the role in the token right after signin
       if (user) {
         token.role = (user as any).role
-        token.userId = user.id
       }
       return token
     },
@@ -80,7 +79,6 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.sub!
         session.user.role = token.role as string
-        session.user.userId = token.userId as string
       }
       return session
     },
