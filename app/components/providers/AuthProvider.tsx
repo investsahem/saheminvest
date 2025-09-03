@@ -13,8 +13,8 @@ function SessionManager() {
   const { data: session, status, update } = useSession()
   const [isMobile, setIsMobile] = useState(false)
   const lastActivityRef = useRef<number>(Date.now())
-  const timeoutRef = useRef<NodeJS.Timeout>()
-  const warningTimeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const warningTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     // Detect mobile device
@@ -96,9 +96,11 @@ function SessionManager() {
       })
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
       if (warningTimeoutRef.current) {
         clearTimeout(warningTimeoutRef.current)
+        warningTimeoutRef.current = null
       }
     }
   }, [session, update])
