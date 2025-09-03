@@ -20,6 +20,8 @@ export async function GET(
 ) {
   try {
     const { id } = await params
+    const session = await getServerSession(authOptions)
+    
     const deal = await prisma.project.findUnique({
       where: { id },
       include: {
@@ -45,7 +47,8 @@ export async function GET(
               select: {
                 id: true,
                 name: true,
-                image: true
+                image: true,
+                email: true
               }
             }
           },
@@ -68,7 +71,40 @@ export async function GET(
       )
     }
 
-    return NextResponse.json(deal)
+    // Apply privacy controls based on user role
+    const userRole = session?.user?.role
+    const isAdmin = userRole === 'ADMIN'
+    const isDealManager = userRole === 'DEAL_MANAGER'
+    const isPartner = userRole === 'PARTNER'
+    const isInvestor = !isAdmin && !isDealManager && !isPartner
+
+    // Filter sensitive information based on role
+    let filteredDeal = { ...deal }
+
+    // Hide partner information from investors
+    if (isInvestor) {
+      filteredDeal.partner = null
+      filteredDeal.owner = {
+        ...deal.owner,
+        name: 'Partner',
+        email: ''
+      }
+    }
+
+    // Hide investor personal details from partners (except admins)
+    if (isPartner && !isAdmin && !isDealManager) {
+      filteredDeal.investments = deal.investments.map(investment => ({
+        ...investment,
+        investor: {
+          id: 'anonymous',
+          name: 'Anonymous Investor',
+          image: null,
+          email: ''
+        }
+      }))
+    }
+
+    return NextResponse.json(filteredDeal)
   } catch (error) {
     console.error('Error fetching deal:', error)
     return NextResponse.json(

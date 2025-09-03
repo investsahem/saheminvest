@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { useTranslation } from '../providers/I18nProvider'
 import { Button } from '../ui/Button'
 import { Card, CardContent } from '../ui/Card'
@@ -46,6 +47,7 @@ export function DealCard({
   isPartnerView = false
 }: DealCardProps) {
   const { t } = useTranslation()
+  const { data: session } = useSession()
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -55,6 +57,16 @@ export function DealCard({
 
   const fundingProgress = (currentFunding / fundingGoal) * 100
   const isFundingCompleted = fundingProgress >= 100
+
+  // Privacy controls based on user role
+  const isAdmin = session?.user?.role === 'ADMIN'
+  const isDealManager = session?.user?.role === 'DEAL_MANAGER'
+  const isPartner = session?.user?.role === 'PARTNER'
+  const isInvestor = !isAdmin && !isDealManager && !isPartner
+
+  // Determine what information to show based on user role
+  const showDealNumber = isAdmin || isDealManager
+  const showPartnerName = !isInvestor  // Hide partner name from investors
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -105,18 +117,22 @@ export function DealCard({
         <div className="mb-3">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{title}</h3>
-            <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-              N°{dealNumber}
-            </span>
+            {showDealNumber && (
+              <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                N°{dealNumber}
+              </span>
+            )}
           </div>
           <p className="text-gray-600 text-sm line-clamp-2 mb-2">{description}</p>
           
-          {/* Partner Info */}
-          <div className="flex items-center text-sm text-gray-600 mb-3">
-            <span className="font-medium">{partnerName}</span>
-            <span className="mx-2">•</span>
-            <span>{formatNumber(partnerDealsCount)} {t('deal_card.deals_count')}</span>
-          </div>
+          {/* Partner Info - Only show to admins and partners */}
+          {showPartnerName && (
+            <div className="flex items-center text-sm text-gray-600 mb-3">
+              <span className="font-medium">{partnerName}</span>
+              <span className="mx-2">•</span>
+              <span>{formatNumber(partnerDealsCount)} {t('deal_card.deals_count')}</span>
+            </div>
+          )}
         </div>
 
         {/* Deal Stats */}
@@ -127,11 +143,13 @@ export function DealCard({
             <span className="font-bold text-gray-900">{formatNumber(contributorsCount)}</span>
           </div>
 
-          {/* Deal Number */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{t('deal_card.deal_number')}</span>
-            <span className="font-bold text-gray-900">{dealNumber}</span>
-          </div>
+          {/* Deal Number - Only show to admins and deal managers */}
+          {showDealNumber && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">{t('deal_card.deal_number')}</span>
+              <span className="font-bold text-gray-900">{dealNumber}</span>
+            </div>
+          )}
 
           {/* Duration */}
           <div className="flex justify-between items-center">

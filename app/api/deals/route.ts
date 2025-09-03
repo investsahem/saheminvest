@@ -113,15 +113,47 @@ export async function GET(request: NextRequest) {
       prisma.project.count({ where })
     ])
 
-    // Transform deals to match unified interface
-    const transformedDeals = deals.map(deal => ({
-      ...deal,
-      investorCount: deal._count.investments, // Add backward compatibility
-      fundingGoal: Number(deal.fundingGoal),
-      currentFunding: Number(deal.currentFunding),
-      minInvestment: Number(deal.minInvestment),
-      expectedReturn: Number(deal.expectedReturn)
-    }))
+    // Apply privacy controls based on user role
+    const userRole = session?.user?.role
+    const isAdmin = userRole === 'ADMIN'
+    const isDealManager = userRole === 'DEAL_MANAGER'
+    const isPartner = userRole === 'PARTNER'
+    const isInvestor = !isAdmin && !isDealManager && !isPartner
+
+    // Transform deals to match unified interface and apply privacy filters
+    const transformedDeals = deals.map(deal => {
+      let filteredDeal = {
+        ...deal,
+        investorCount: deal._count.investments, // Add backward compatibility
+        fundingGoal: Number(deal.fundingGoal),
+        currentFunding: Number(deal.currentFunding),
+        minInvestment: Number(deal.minInvestment),
+        expectedReturn: Number(deal.expectedReturn)
+      }
+
+      // Hide partner information from investors
+      if (isInvestor) {
+        filteredDeal.partner = null
+        filteredDeal.owner = {
+          ...deal.owner,
+          name: 'Partner',
+          email: ''
+        }
+      }
+
+      // Hide investor details from partners (except admins)
+      if (isPartner && !isAdmin && !isDealManager) {
+        filteredDeal.investments = deal.investments.map(investment => ({
+          ...investment,
+          investor: {
+            id: 'anonymous',
+            name: 'Anonymous Investor'
+          }
+        }))
+      }
+
+      return filteredDeal
+    })
 
     return NextResponse.json({
       deals: transformedDeals,

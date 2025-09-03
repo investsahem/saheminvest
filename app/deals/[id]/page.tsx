@@ -77,7 +77,13 @@ const DealDetailsPage = () => {
 
   const isAdmin = session?.user?.role === 'ADMIN'
   const isDealManager = session?.user?.role === 'DEAL_MANAGER'
+  const isPartner = session?.user?.role === 'PARTNER'
+  const isInvestor = !isAdmin && !isDealManager && !isPartner
   const canManageDeal = isAdmin || isDealManager || (deal && deal.owner.id === session?.user?.id)
+
+  // Privacy controls based on user role
+  const showPartnerInfo = !isInvestor  // Hide partner info from investors
+  const showInvestorDetails = !isPartner || isAdmin || isDealManager  // Hide investor details from partners (except admins)
 
   // Fetch deal details
   useEffect(() => {
@@ -326,8 +332,8 @@ const DealDetailsPage = () => {
             </CardContent>
           </Card>
 
-          {/* Partner Info */}
-          {deal.partner && (
+          {/* Partner Info - Only show to admins, deal managers, and partners */}
+          {deal.partner && showPartnerInfo && (
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">About the Partner</h3>
@@ -350,8 +356,8 @@ const DealDetailsPage = () => {
             </Card>
           )}
 
-          {/* Recent Investors */}
-          {deal.investments.length > 0 && (
+          {/* Recent Investors - Hide investor details from partners */}
+          {deal.investments.length > 0 && showInvestorDetails && (
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Investors</h3>
@@ -382,6 +388,31 @@ const DealDetailsPage = () => {
                       +{deal.investments.length - 5} more investors
                     </p>
                   )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Investment Summary for Partners - Show only aggregated data */}
+          {deal.investments.length > 0 && !showInvestorDetails && (
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Investment Summary</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total Investors</span>
+                    <span className="font-semibold text-gray-900">{deal._count.investments}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total Investment</span>
+                    <span className="font-semibold text-green-600">{formatCurrency(deal.currentFunding)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Average Investment</span>
+                    <span className="font-semibold text-blue-600">
+                      {formatCurrency(deal.currentFunding / deal._count.investments)}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
