@@ -48,21 +48,21 @@ export default function PublicDealsPage() {
 
   // Fetch public deals (only ACTIVE and FUNDED deals)
   useEffect(() => {
-    const fetchDeals = async () => {
-      try {
-        setLoading(true)
+  const fetchDeals = async () => {
+    try {
+      setLoading(true)
         const response = await fetch('/api/deals?status=ACTIVE,FUNDED&limit=50')
         if (response.ok) {
           const data = await response.json()
           setDeals(data.deals || [])
         }
-      } catch (error) {
-        console.error('Error fetching deals:', error)
-        setDeals([])
-      } finally {
-        setLoading(false)
-      }
+    } catch (error) {
+      console.error('Error fetching deals:', error)
+      setDeals([])
+    } finally {
+      setLoading(false)
     }
+  }
 
     fetchDeals()
   }, [])
@@ -237,11 +237,11 @@ export default function PublicDealsPage() {
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-full">
                 <Shield className="w-4 h-4 text-[#6be2c9]" />
                 <span className="text-[#e9edf7] text-sm">Bank-level Security</span>
-              </div>
+            </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-full">
                 <CheckCircle className="w-4 h-4 text-[#6be2c9]" />
                 <span className="text-[#e9edf7] text-sm">Guaranteed Returns</span>
-              </div>
+          </div>
             </motion.div>
           </motion.div>
 
@@ -254,32 +254,32 @@ export default function PublicDealsPage() {
           >
             <div className="p-6 bg-gradient-to-br from-[#0b1124cc] to-[#0b1124aa] border border-[#253261] rounded-2xl backdrop-blur-sm">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {/* Search */}
+            {/* Search */}
                 <div className="md:col-span-2">
-                  <div className="relative">
+              <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#b8c2d8]" />
-                    <input
-                      type="text"
-                      placeholder="Search deals..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                <input
+                  type="text"
+                  placeholder="Search deals..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 bg-[#0f1640] border border-[#2d3a6b] rounded-xl text-[#e9edf7] placeholder-[#b8c2d8] focus:outline-none focus:ring-2 focus:ring-[#6be2c9] focus:border-transparent"
-                    />
-                  </div>
-                </div>
+                />
+            </div>
+          </div>
 
-                {/* Category Filter */}
+            {/* Category Filter */}
                 <div>
-                  <select
-                    value={categoryFilter}
-                    onChange={(e) => setCategoryFilter(e.target.value)}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
                     className="w-full px-4 py-3 bg-[#0f1640] border border-[#2d3a6b] rounded-xl text-[#e9edf7] focus:outline-none focus:ring-2 focus:ring-[#6be2c9] focus:border-transparent"
-                  >
-                    <option value="all">All Categories</option>
-                    {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+            >
+              <option value="all">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
                 </div>
 
                 {/* Sort By */}
@@ -379,7 +379,7 @@ export default function PublicDealsPage() {
                     <div className="flex items-center gap-2 px-3 py-1 bg-[#0b1124]/80 border border-[#6be2c9]/30 rounded-full text-sm text-[#6be2c9] font-medium backdrop-blur-sm">
                       <span>{getCategoryIcon(deal.category)}</span>
                       <span>{deal.category}</span>
-                    </div>
+        </div>
                   </div>
 
                   {/* Status Badge */}
@@ -452,7 +452,7 @@ export default function PublicDealsPage() {
                         {deal.riskLevel}
                       </div>
                       <div className="text-xs text-[#b8c2d8]">Risk</div>
-                    </div>
+                </div>
                   </div>
 
                   {/* Footer Info */}

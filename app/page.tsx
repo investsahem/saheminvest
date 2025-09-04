@@ -360,13 +360,13 @@ export default function HomePage() {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-2">
               <Link href="/" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                Home
+                {t('navigation.home')}
               </Link>
               <Link href="/deals" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                Deals
+                {t('navigation.deals')}
               </Link>
               <Link href="/about" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                About
+                {t('navigation.about')}
               </Link>
               <button 
                 onClick={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
@@ -422,7 +422,7 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                مرحباً، Welcome to the Future
+                {t('hero.welcome')}
               </motion.div>
               
                <motion.h1 
@@ -431,7 +431,7 @@ export default function HomePage() {
                  animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                Invest in the Future with Sahem Invest
+                {t('hero.title')}
                  </motion.h1>
               
                <motion.p 
@@ -440,7 +440,7 @@ export default function HomePage() {
                  animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
                                 >
-                The leading digital investment platform in Lebanon. Discover profitable and secure investment opportunities with guaranteed returns up to 15% annually.
+                {t('hero.description')}
                  </motion.p>
               
                <motion.div 
@@ -455,7 +455,7 @@ export default function HomePage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <span>Start Investing Now</span>
+                    <span>{t('hero.cta.start_investing')}</span>
                   </motion.button>
                  </Link>
                  <Link href="/deals">
@@ -464,7 +464,7 @@ export default function HomePage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <span>Explore Opportunities</span>
+                    <span>{t('hero.cta.explore_opportunities')}</span>
                   </motion.button>
                  </Link>
                </motion.div>

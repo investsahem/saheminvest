@@ -64,11 +64,16 @@
     }
   },
   "hero": {
-    "title": "Invest in the Future",
+    "welcome": "مرحباً، Welcome to the Future",
+    "title": "Invest in the Future with Sahem Invest",
     "subtitle": "with Sahem Invest",
     "description": "The leading digital investment platform in Lebanon. Discover profitable and secure investment opportunities with guaranteed returns up to 15% annually.",
     "cta_invest": "Start Investing Now",
     "cta_explore": "Explore Opportunities",
+    "cta": {
+      "start_investing": "Start Investing Now",
+      "explore_opportunities": "Explore Opportunities"
+    },
     "stats": {
       "active_investors": "Active Investors",
       "successful_deals": "Successful Deals",
