@@ -2,9 +2,13 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useTranslation, useI18n } from '../components/providers/I18nProvider'
 import { Shield, BarChart3, Users, Target, CheckCircle, Award } from 'lucide-react'
 
 export default function AboutPage() {
+  const { t } = useTranslation()
+  const { locale, setLocale } = useI18n()
+  
   const fadeInUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0 }
@@ -95,29 +99,35 @@ export default function AboutPage() {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-2">
               <Link href="/" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                Home
+                {t('navigation.home')}
               </Link>
               <Link href="/deals" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                Deals
+                {t('navigation.deals')}
               </Link>
               <Link href="/about" className="text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold">
-                About
+                {t('navigation.about')}
               </Link>
-              <div className="ml-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7]">
-                عربي
-              </div>
+              <button 
+                onClick={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
+                className="ml-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7] hover:bg-gradient-to-r hover:from-[#2d3757] hover:to-[#1a2143] transition-all cursor-pointer"
+              >
+                {locale === 'ar' ? 'English' : 'عربي'}
+              </button>
               <Link href="/auth/signin" className="ml-2 px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all">
-                Go to Panel
+                {t('navigation.go_to_panel')}
               </Link>
             </nav>
 
             {/* Mobile Navigation */}
             <div className="flex md:hidden items-center gap-3">
-              <div className="px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7]">
-                عربي
-              </div>
+              <button 
+                onClick={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
+                className="px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7] hover:bg-gradient-to-r hover:from-[#2d3757] hover:to-[#1a2143] transition-all cursor-pointer"
+              >
+                {locale === 'ar' ? 'English' : 'عربي'}
+              </button>
               <Link href="/auth/signin" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all text-sm">
-                Panel
+                {t('navigation.panel')}
               </Link>
             </div>
           </div>
@@ -141,21 +151,21 @@ export default function AboutPage() {
               className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7] mb-6"
               variants={staggerItem}
             >
-              About Sahem Invest
+              {t('about.badge')}
             </motion.div>
             
             <motion.h1 
               className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-6 bg-gradient-to-b from-[#eaf4ff] via-[#d4e7ff] to-[#a9c6ff] bg-clip-text text-transparent"
               variants={staggerItem}
             >
-              Empowering Financial Growth Through Smart Investments
+              {t('about.hero_title')}
             </motion.h1>
             
             <motion.p 
               className="text-lg lg:text-xl text-[#cdd6ec] leading-relaxed mb-8 max-w-3xl mx-auto"
               variants={staggerItem}
             >
-              We are the leading digital investment platform in Lebanon, connecting investors with profitable business opportunities and enabling everyone to participate in economic growth.
+              {t('about.hero_subtitle')}
             </motion.p>
 
             {/* Stats */}

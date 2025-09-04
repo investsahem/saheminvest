@@ -13,7 +13,8 @@
     "signin": "Sign In",
     "signup": "Sign Up",
     "signout": "Sign Out",
-    "go_to_panel": "Go to Panel"
+    "go_to_panel": "Go to Panel",
+    "panel": "Panel"
   },
   "auth": {
     "signin": {
@@ -82,6 +83,7 @@
     "full_protection": "Complete Protection"
   },
   "about": {
+    "badge": "About Sahem Invest",
     "title": "What is Sahem Invest?",
     "description": "A licensed digital investment platform that connects investors with profitable business opportunities, enabling everyone to participate in economic growth and achieve rewarding investment returns",
     "hero_title": "Empowering Financial Growth Through Smart Investments",
