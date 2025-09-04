@@ -49,11 +49,6 @@ export default withAuth(
           return token?.role === "INVESTOR" || token?.role === "ADMIN"
         }
         
-        // Deals page - accessible by authenticated users
-        if (pathname.startsWith("/deals")) {
-          return !!token
-        }
-        
         // Partner routes
         if (pathname.startsWith("/partner")) {
           return token?.role === "PARTNER" || token?.role === "ADMIN"
@@ -94,7 +89,6 @@ export const config = {
     "/financial-officer/:path*",
     "/portfolio-advisor/:path*",
     "/portfolio/:path*", 
-    "/deals/:path*",
     "/partner/:path*",
     // API routes (excluding auth and public)
     "/api/((?!auth|public).)*"
