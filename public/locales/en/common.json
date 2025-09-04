@@ -38,7 +38,7 @@
       "demo_roles": {
         "admin": "System Administrator",
         "deal_manager": "Deal Manager",
-        "financial_officer": "Financial Officer", 
+        "financial_officer": "Financial Officer",
         "portfolio_advisor": "Portfolio Advisor",
         "investor": "Individual Investor",
         "partner": "Project Partner"
@@ -74,6 +74,13 @@
       "start_investing": "Start Investing Now",
       "explore_opportunities": "Explore Opportunities"
     },
+    "demo": {
+      "badge": "See How the Platform Works",
+      "title": "Interactive Platform Demo",
+      "description": "3-minute walkthrough of investment process",
+      "watch_demo": "Watch Demo",
+      "start_journey": "Start your journey"
+    },
     "stats": {
       "active_investors": "Active Investors",
       "successful_deals": "Successful Deals",
@@ -93,6 +100,26 @@
     "description": "A licensed digital investment platform that connects investors with profitable business opportunities, enabling everyone to participate in economic growth and achieve rewarding investment returns",
     "hero_title": "Empowering Financial Growth Through Smart Investments",
     "hero_subtitle": "We are the leading digital investment platform in Lebanon, connecting investors with profitable business opportunities and enabling everyone to participate in economic growth.",
+    "section_title": "What is Sahem Invest?",
+    "section_description": "A licensed digital investment platform that connects investors with profitable business opportunities",
+    "cards": {
+      "what": {
+        "title": "What is Sahem Invest?",
+        "description": "A licensed digital investment platform that connects investors with profitable business opportunities, enabling everyone to participate in economic growth and achieve rewarding investment returns."
+      },
+      "vision": {
+        "title": "Our Vision",
+        "description": "To be the leading investment platform in the region, empowering individuals to achieve financial freedom through smart and secure investments."
+      },
+      "mission": {
+        "title": "Our Mission",
+        "description": "To provide a transparent and secure investment platform that enables investors to access diverse investment opportunities while ensuring the highest standards of safety and quality."
+      },
+      "values": {
+        "title": "Our Values",
+        "description": "Transparency, integrity, innovation, and excellence in service. We believe that shared success is the foundation of sustainable growth."
+      }
+    },
     "our_mission": "Our Mission",
     "our_vision": "Our Vision",
     "our_values": "Our Core Values",
@@ -106,14 +133,14 @@
       "description": "To be the leading investment platform in the region, empowering individuals to achieve financial freedom through smart and secure investments, while fostering economic growth and innovation across Lebanon."
     },
     "mission": {
-      "title": "Our Mission", 
-      "description": "To provide a transparent and secure investment platform that enables investors to access diverse investment opportunities while ensuring the highest standards of safety and quality",
-      "points": [
-        "Democratize access to investment opportunities",
-        "Ensure transparency in all transactions",
-        "Provide guaranteed returns up to 15% annually",
-        "Build a trusted community of investors"
-      ]
+      "title": "Our Mission",
+      "description": "To provide a transparent and secure investment platform that enables investors to access diverse investment opportunities while ensuring the highest standards of safety and quality.",
+      "points": {
+        "democratize": "Democratize access to investment opportunities",
+        "transparency": "Ensure transparency in all transactions",
+        "returns": "Provide guaranteed returns up to 15% annually",
+        "community": "Build a trusted community of investors"
+      }
     },
     "values": {
       "title": "Our Core Values",
@@ -133,7 +160,8 @@
       "innovation": {
         "title": "Innovation",
         "description": "Leveraging cutting-edge technology for better investment experiences"
-      }
+      },
+      "subtitle": "The principles that guide everything we do at Sahem Invest"
     },
     "team": [
       {
@@ -151,7 +179,19 @@
         "role": "Head of Investments",
         "description": "Investment expert with deep market knowledge"
       }
-    ]
+    ],
+    "stats": {
+      "active_investors": "Active Investors",
+      "successful_deals": "Successful Deals",
+      "total_invested": "Total Invested",
+      "average_return": "Average Return"
+    },
+    "cta": {
+      "title": "Ready to Start Investing?",
+      "description": "Join thousands of investors who trust Sahem Invest for their financial growth. Start your investment journey today.",
+      "start_investing": "Start Investing Now",
+      "explore_deals": "Explore Deals"
+    }
   },
   "how_it_works": {
     "title": "How Does the Platform Work?",
@@ -178,11 +218,21 @@
   "live_activity": {
     "title": "Live Investment Activity",
     "description": "Follow live investments happening now on the platform",
+    "live": "LIVE",
+    "active_deals": "Active Deals",
+    "funding_progress": "Funding Progress",
+    "raised": "Raised",
+    "duration": "Duration",
+    "risk": "Risk",
+    "view_details": "View Details",
+    "loading": "Loading investment opportunities...",
+    "recent_activity": "Recent Activity",
+    "total_today": "Total investments today",
+    "no_investments": "No new investments today",
     "stats": {
       "today_total": "Total investments today",
       "active_investors": "Active investors now"
     },
-    "recent_activity": "Recent Activity",
     "just_invested": "just invested",
     "in_project": "in project",
     "minutes_ago": "minutes ago"
@@ -196,20 +246,20 @@
       "text": "I achieved excellent returns through Sahem Invest platform. The platform is reliable and easy to use."
     },
     "fatima": {
-      "name": "Fatima Al-Ali", 
+      "name": "Fatima Al-Ali",
       "role": "Entrepreneur",
       "text": "Excellent platform for getting the necessary funding for my projects. Smooth and transparent process."
     },
     "mohammed": {
       "name": "Mohammed Al-Saadoun",
-      "role": "Experienced Investor", 
+      "role": "Experienced Investor",
       "text": "The best investment platform I've tried. Diverse opportunities and guaranteed returns."
     }
   },
   "cta": {
     "title": "Start Your Investment Journey Today",
-    "description": "Join thousands of investors who are achieving rewarding returns through our platform. Start with as little as $1,000 and get returns up to 15% annually",
-    "register_now": "Register Now for Free",
+    "description": "Join thousands of investors who are achieving rewarding returns through our platform. Start with as little as $1,000 and get returns up to 15% annually.",
+    "register_free": "Register Now for Free",
     "browse_opportunities": "Browse Opportunities"
   },
   "footer": {
@@ -218,7 +268,7 @@
     "support": "Support",
     "legal": "Legal",
     "about_us": "About Us",
-    "how_it_works": "How It Works", 
+    "how_it_works": "How It Works",
     "contact_us": "Contact Us",
     "help_center": "Help Center",
     "terms": "Terms of Service",
@@ -227,17 +277,29 @@
     "rights_reserved": "All rights reserved."
   },
   "features": {
-    "smart_investments": {
-      "title": "Smart Investments",
-      "description": "Discover vetted investment opportunities with detailed analytics and risk assessments."
+    "bank_security": {
+      "title": "Bank-level Security",
+      "description": "Best-in-class encryption, access controls, and continuous monitoring."
     },
-    "secure_platform": {
-      "title": "Secure Platform",
-      "description": "Your investments are protected with bank-level security and transparent processes."
+    "advanced_analytics": {
+      "title": "Advanced Analytics",
+      "description": "Portfolio insights, risk metrics, and performance trends."
     },
-    "automated_returns": {
-      "title": "Automated Returns",
-      "description": "Enjoy automated revenue distribution and real-time portfolio tracking."
+    "opportunity_diversity": {
+      "title": "Opportunity Diversity",
+      "description": "From SMEs to real assets, curated for risk-adjusted returns."
+    },
+    "ease_of_use": {
+      "title": "Ease of Use",
+      "description": "Fast onboarding and intuitive workflows across devices."
+    },
+    "guaranteed_returns": {
+      "title": "Guaranteed Returns",
+      "description": "Plans with fixed yields up to 15% annually."
+    },
+    "continuous_support": {
+      "title": "Continuous Support",
+      "description": "Dedicated team and help center for every step."
     }
   },
   "deals": {
@@ -348,7 +410,7 @@
   "dealManager": {
     "dashboard": "Deal Manager Dashboard",
     "manage_deals": "Manage Deals",
-    "deal_analytics": "Deal Analytics", 
+    "deal_analytics": "Deal Analytics",
     "partner_management": "Partner Management",
     "investor_relations": "Investor Relations",
     "performance_tracking": "Performance Tracking",
@@ -411,10 +473,10 @@
     "available_balance": "Available Balance",
     "investment_successful": "Investment Successful"
   },
-    "partner": {
+  "partner": {
     "dashboard": "Partner Dashboard",
     "profile": "Partner Profile",
-    "rating": "Rating", 
+    "rating": "Rating",
     "completed_deals": "Completed Deals",
     "success_rate": "Success Rate",
     "total_funding": "Total Funding",
@@ -722,7 +784,7 @@
   "financialOfficer": {
     "dashboard": "Financial Officer Dashboard",
     "monthly_revenue": "Monthly Revenue",
-    "profit_margin": "Profit Margin", 
+    "profit_margin": "Profit Margin",
     "cash_flow": "Cash Flow",
     "monthly_growth": "Monthly Growth",
     "total_transactions": "Total Transactions",
@@ -743,7 +805,7 @@
     "review_budgets": "Review Budgets",
     "export_data": "Export Data",
     "revenue": "Revenue",
-    "expenses": "Expenses", 
+    "expenses": "Expenses",
     "profit": "Profit",
     "investments": "Investments",
     "withdrawals": "Withdrawals",
@@ -753,16 +815,15 @@
     "inflow": "Inflow",
     "outflow": "Outflow",
     "investment": "Investment",
-    "withdrawal": "Withdrawal", 
+    "withdrawal": "Withdrawal",
     "commission": "Commission",
     "fee": "Fee",
     "completed": "Completed",
     "pending": "Pending",
     "role": "Financial Officer",
     "financial_analytics": "Financial Analytics",
-    "revenue_management": "Revenue Management", 
+    "revenue_management": "Revenue Management",
     "transaction_monitoring": "Transaction Monitoring",
-    "budget_planning": "Budget Planning",
     "settings": "Settings",
     "deposits": "Deposits",
     "withdrawals_management": "Withdrawals Management",
@@ -805,7 +866,7 @@
     "portfolio": "Portfolio Value",
     "benchmark": "Benchmark",
     "real_estate": "Real Estate",
-    "technology": "Technology", 
+    "technology": "Technology",
     "healthcare": "Healthcare",
     "energy": "Energy",
     "conservative": "Conservative",
@@ -893,5 +954,11 @@
     "type_message": "Type your message here...",
     "company_logo": "Company Logo",
     "company_description": "Brief description of your company..."
+  },
+  "guaranteed_return_card": {
+    "badge": "Guaranteed Return",
+    "title": "Up to 15% annually",
+    "security_badge": "Bank-level Security",
+    "security_description": "Complete protection across transactions and custody."
   }
-} 
+}

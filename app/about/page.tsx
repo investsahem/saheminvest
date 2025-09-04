@@ -1,18 +1,16 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
-import { Shield, BarChart3, Users, Target, CheckCircle, Award } from 'lucide-react'
+import { Shield, Users, Target, Award, Menu, X } from 'lucide-react'
 
 export default function AboutPage() {
   const { t } = useTranslation()
   const { locale, setLocale } = useI18n()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0 }
-  }
 
   const staggerContainer = {
     hidden: { opacity: 0 },
@@ -31,55 +29,35 @@ export default function AboutPage() {
   }
 
   const stats = [
-    { number: '5000+', label: 'Active Investors' },
-    { number: '150+', label: 'Successful Deals' },
-    { number: '$50M+', label: 'Total Invested' },
-    { number: '15%', label: 'Average Return' }
+    { number: '5000+', label: t('about.stats.active_investors') },
+    { number: '150+', label: t('about.stats.successful_deals') },
+    { number: '$50M+', label: t('about.stats.total_invested') },
+    { number: '15%', label: t('about.stats.average_return') }
   ]
 
   const values = [
     {
       icon: <Shield className="w-6 h-6" />,
-      title: 'Transparency',
-      description: 'Complete transparency in all our operations and investment processes'
+      title: t('about.values.transparency.title'),
+      description: t('about.values.transparency.description')
     },
     {
       icon: <Target className="w-6 h-6" />,
-      title: 'Excellence',
-      description: 'Commitment to excellence in service quality and investment opportunities'
+      title: t('about.values.excellence.title'),
+      description: t('about.values.excellence.description')
     },
     {
       icon: <Users className="w-6 h-6" />,
-      title: 'Community',
-      description: 'Building a strong community of investors and entrepreneurs'
+      title: t('about.values.community.title'),
+      description: t('about.values.community.description')
     },
     {
       icon: <Award className="w-6 h-6" />,
-      title: 'Innovation',
-      description: 'Leveraging cutting-edge technology for better investment experiences'
+      title: t('about.values.innovation.title'),
+      description: t('about.values.innovation.description')
     }
   ]
 
-  const team = [
-    {
-      name: 'Ahmed Al-Rashid',
-      role: 'CEO & Founder',
-      avatar: '👨‍💼',
-      description: '15+ years in investment banking and fintech'
-    },
-    {
-      name: 'Sarah Mohammed',
-      role: 'CTO',
-      avatar: '👩‍💻',
-      description: 'Technology leader with expertise in financial platforms'
-    },
-    {
-      name: 'Omar Al-Zahra',
-      role: 'Head of Investments',
-      avatar: '👨‍💼',
-      description: 'Investment expert with deep market knowledge'
-    }
-  ]
 
   return (
     <div className="min-h-screen bg-slate-900">
@@ -129,7 +107,42 @@ export default function AboutPage() {
               <Link href="/auth/signin" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all text-sm">
                 {t('navigation.panel')}
               </Link>
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-[#e9edf7] hover:bg-[#1a2246] rounded-lg transition-colors"
+              >
+                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
+
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+              <div className="md:hidden absolute top-full left-0 right-0 bg-[#0b1124] border-b border-[#233059] shadow-xl z-50">
+                <nav className="container mx-auto px-4 py-4 space-y-2">
+                  <Link 
+                    href="/" 
+                    className="block text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('navigation.home')}
+                  </Link>
+                  <Link 
+                    href="/deals" 
+                    className="block text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('navigation.deals')}
+                  </Link>
+                  <Link 
+                    href="/about" 
+                    className="block text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('navigation.about')}
+                  </Link>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -198,16 +211,16 @@ export default function AboutPage() {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-6">Our Mission</h2>
+            <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-6">{t('about.mission.title')}</h2>
             <p className="text-lg text-[#b8c2d8] leading-relaxed mb-6">
-              To provide a transparent and secure investment platform that enables investors to access diverse investment opportunities while ensuring the highest standards of safety and quality.
+              {t('about.mission.description')}
             </p>
             <div className="space-y-4">
               {[
-                'Democratize access to investment opportunities',
-                'Ensure transparency in all transactions',
-                'Provide guaranteed returns up to 15% annually',
-                'Build a trusted community of investors'
+                t('about.mission.points.democratize'),
+                t('about.mission.points.transparency'),
+                t('about.mission.points.returns'),
+                t('about.mission.points.community')
               ].map((item, index) => (
                 <motion.div 
                   key={index}
@@ -231,9 +244,9 @@ export default function AboutPage() {
             viewport={{ once: true }}
             className="p-8 bg-gradient-to-br from-[#0b1124cc] to-[#0b1124aa] border border-[#253261] rounded-3xl backdrop-blur-sm"
           >
-            <h3 className="text-2xl font-black text-[#e9edf7] mb-4">Our Vision</h3>
+            <h3 className="text-2xl font-black text-[#e9edf7] mb-4">{t('about.vision.title')}</h3>
             <p className="text-[#b8c2d8] leading-relaxed">
-              To be the leading investment platform in the region, empowering individuals to achieve financial freedom through smart and secure investments, while fostering economic growth and innovation across Lebanon.
+              {t('about.vision.description')}
             </p>
           </motion.div>
         </div>
@@ -248,9 +261,9 @@ export default function AboutPage() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-4">Our Core Values</h2>
+          <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-4">{t('about.values.title')}</h2>
           <p className="text-[#b8c2d8] text-lg max-w-2xl mx-auto">
-            The principles that guide everything we do at Sahem Invest
+            {t('about.values.subtitle')}
           </p>
         </motion.div>
 
@@ -275,42 +288,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
-      <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-4">Leadership Team</h2>
-          <p className="text-[#b8c2d8] text-lg max-w-2xl mx-auto">
-            Meet the experienced professionals driving our mission forward
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {team.map((member, index) => (
-            <motion.div
-              key={index}
-              className="p-6 bg-gradient-to-br from-[#0e1430cc] to-[#0e1430aa] border border-[#293668] rounded-2xl backdrop-blur-sm text-center"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.6 }}
-              whileHover={{ scale: 1.02, y: -5 }}
-              viewport={{ once: true }}
-            >
-              <div className="w-20 h-20 bg-gradient-to-br from-[#101b44] to-[#2a3b79] border border-[#2a3b79] rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4">
-                {member.avatar}
-              </div>
-              <h3 className="text-xl font-bold text-[#e9edf7] mb-2">{member.name}</h3>
-              <p className="text-[#6be2c9] font-medium mb-3">{member.role}</p>
-              <p className="text-[#b8c2d8] text-sm leading-relaxed">{member.description}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
 
       {/* CTA */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -322,10 +299,10 @@ export default function AboutPage() {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-6">
-            Ready to Start Investing?
+            {t('about.cta.title')}
           </h2>
           <p className="text-lg text-[#b8c2d8] mb-8 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of investors who trust Sahem Invest for their financial growth. Start your investment journey today.
+            {t('about.cta.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/signin">
@@ -334,7 +311,7 @@ export default function AboutPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Start Investing Now
+                {t('about.cta.start_investing')}
               </motion.button>
             </Link>
             <Link href="/deals">
@@ -343,7 +320,7 @@ export default function AboutPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Explore Deals
+                {t('about.cta.explore_deals')}
               </motion.button>
             </Link>
           </div>

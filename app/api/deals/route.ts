@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
 
     // Transform deals to match unified interface and apply privacy filters
     const transformedDeals = deals.map(deal => {
-      let filteredDeal = {
+              const filteredDeal = {
         ...deal,
         investorCount: deal._count.investments, // Add backward compatibility
         fundingGoal: Number(deal.fundingGoal),

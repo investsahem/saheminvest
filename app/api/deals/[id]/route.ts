@@ -79,7 +79,7 @@ export async function GET(
     const isInvestor = !isAdmin && !isDealManager && !isPartner
 
     // Filter sensitive information based on role
-    let filteredDeal = { ...deal }
+      const filteredDeal = { ...deal }
 
     // Hide partner information from investors
     if (isInvestor) {

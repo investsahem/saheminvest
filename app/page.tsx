@@ -6,7 +6,7 @@ import { motion, useAnimation, useInView } from 'framer-motion'
 import { Button } from './components/ui/Button'
 import { Card, CardContent } from './components/ui/Card'
 import { useTranslation, useI18n } from './components/providers/I18nProvider'
-import { Play, TrendingUp, Shield, BarChart3, Briefcase, Smartphone, Target, Users, CheckCircle, Star, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Play, TrendingUp, Shield, BarChart3, Briefcase, Smartphone, Target, Users, CheckCircle, Star, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react'
 
 interface Deal {
   id: string
@@ -33,9 +33,8 @@ export default function HomePage() {
     averageReturn: 12.5
   })
   const [deals, setDeals] = useState<Deal[]>([])
-  const [currentDealIndex, setCurrentDealIndex] = useState(0)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const stats = [
@@ -234,34 +233,6 @@ export default function HomePage() {
     }
   }
 
-  // Auto-rotate deals carousel
-  useEffect(() => {
-    if (deals.length > 0 && isAutoPlaying) {
-      const interval = setInterval(() => {
-        setCurrentDealIndex((prev) => (prev + 1) % deals.length)
-      }, 5000)
-      return () => clearInterval(interval)
-    }
-  }, [deals, isAutoPlaying])
-
-  // Navigation functions
-  const nextDeal = () => {
-    setCurrentDealIndex((prev) => (prev + 1) % deals.length)
-    setIsAutoPlaying(false)
-    setTimeout(() => setIsAutoPlaying(true), 10000) // Resume auto-play after 10 seconds
-  }
-
-  const prevDeal = () => {
-    setCurrentDealIndex((prev) => (prev - 1 + deals.length) % deals.length)
-    setIsAutoPlaying(false)
-    setTimeout(() => setIsAutoPlaying(true), 10000) // Resume auto-play after 10 seconds
-  }
-
-  const goToDeal = (index: number) => {
-    setCurrentDealIndex(index)
-    setIsAutoPlaying(false)
-    setTimeout(() => setIsAutoPlaying(true), 10000) // Resume auto-play after 10 seconds
-  }
 
   // Refresh stats periodically
   useEffect(() => {
@@ -388,9 +359,44 @@ export default function HomePage() {
                 {locale === 'ar' ? 'English' : 'عربي'}
               </button>
               <Link href="/auth/signin" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all text-sm">
-                Panel
+                {t('navigation.panel')}
               </Link>
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-[#e9edf7] hover:bg-[#1a2246] rounded-lg transition-colors"
+              >
+                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
+
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+              <div className="md:hidden absolute top-full left-0 right-0 bg-[#0b1124] border-b border-[#233059] shadow-xl">
+                <nav className="container mx-auto px-4 py-4 space-y-2">
+                  <Link 
+                    href="/" 
+                    className="block text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('navigation.home')}
+                  </Link>
+                  <Link 
+                    href="/deals" 
+                    className="block text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('navigation.deals')}
+                  </Link>
+                  <Link 
+                    href="/about" 
+                    className="block text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('navigation.about')}
+                  </Link>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -525,7 +531,7 @@ export default function HomePage() {
                     transition={{ delay: 0.2 }}
                   >
                     <div className="w-2 h-2 bg-[#6be2c9] rounded-full animate-pulse"></div>
-                    See How the Platform Works
+                    {t('hero.demo.badge')}
                   </motion.div>
                   
                   <motion.h3 
@@ -534,7 +540,7 @@ export default function HomePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    Interactive Platform Demo
+                    {t('hero.demo.title')}
                   </motion.h3>
                   
                   <motion.p 
@@ -543,7 +549,7 @@ export default function HomePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                   >
-                    3-minute walkthrough of investment process
+                    {t('hero.demo.description')}
                   </motion.p>
                   
                   <motion.button 
@@ -561,8 +567,8 @@ export default function HomePage() {
                       <Play className="w-6 h-6 text-[#0a0f2e] ml-1" />
                     </div>
                     <div className="relative">
-                      <span className="text-lg">Watch Demo</span>
-                      <div className="text-sm opacity-80">Start your journey</div>
+                      <span className="text-lg">{t('hero.demo.watch_demo')}</span>
+                      <div className="text-sm opacity-80">{t('hero.demo.start_journey')}</div>
                     </div>
                   </motion.button>
                   
@@ -628,13 +634,13 @@ export default function HomePage() {
                 transition={{ duration: 0.3 }}
               >
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#79ffd6] mb-3">
-                  ✓ Guaranteed Return
+                  ✓ {t('guaranteed_return_card.badge')}
                    </div>
-                <h3 className="text-xl font-bold text-[#e9edf7] mb-2">Up to 15% annually</h3>
+                <h3 className="text-xl font-bold text-[#e9edf7] mb-2">{t('guaranteed_return_card.title')}</h3>
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#79ffd6] mb-3">
-                  🛡️ Bank-level Security
+                  🛡️ {t('guaranteed_return_card.security_badge')}
                    </div>
-                <p className="text-[#b8c2d8] text-sm">Complete protection across transactions and custody.</p>
+                <p className="text-[#b8c2d8] text-sm">{t('guaranteed_return_card.security_description')}</p>
                </motion.div>
              </motion.div>
           </div>
@@ -650,32 +656,32 @@ export default function HomePage() {
              transition={{ duration: 0.6 }}
              viewport={{ once: true }}
            >
-          <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-4">What is Sahem Invest?</h2>
+          <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-4">{t('about.section_title')}</h2>
           <p className="text-[#b8c2d8] text-lg max-w-3xl mx-auto">
-            A licensed digital investment platform that connects investors with profitable business opportunities
+            {t('about.section_description')}
           </p>
            </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
-              title: 'What is Sahem Invest?',
-              description: 'A licensed digital investment platform that connects investors with profitable business opportunities, enabling everyone to participate in economic growth and achieve rewarding investment returns.',
+              title: t('about.cards.what.title'),
+              description: t('about.cards.what.description'),
               icon: '🎯'
             },
             {
-              title: 'Our Vision',
-              description: 'To be the leading investment platform in the region, empowering individuals to achieve financial freedom through smart and secure investments.',
+              title: t('about.cards.vision.title'),
+              description: t('about.cards.vision.description'),
               icon: '💡'
             },
             {
-              title: 'Our Mission',
-              description: 'To provide a transparent and secure investment platform that enables investors to access diverse investment opportunities while ensuring the highest standards of safety and quality.',
+              title: t('about.cards.mission.title'),
+              description: t('about.cards.mission.description'),
               icon: '🚀'
             },
             {
-              title: 'Our Values',
-              description: 'Transparency, integrity, innovation, and excellence in service. We believe that shared success is the foundation of sustainable growth.',
+              title: t('about.cards.values.title'),
+              description: t('about.cards.values.description'),
               icon: '⭐'
             }
           ].map((item, index) => (
@@ -705,39 +711,14 @@ export default function HomePage() {
              transition={{ duration: 0.6 }}
              viewport={{ once: true }}
            >
-          <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-4">How Does the Platform Work?</h2>
+          <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-4">{t('how_it_works.title')}</h2>
           <p className="text-[#b8c2d8] text-lg max-w-2xl mx-auto">
-            Thoughtful and simplified steps to achieve your investment goals with safety and complete confidence
+            {t('how_it_works.description')}
           </p>
            </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            {
-              step: '1',
-              title: 'Register easily and verify your identity in minutes',
-              description: 'Create Account',
-              icon: '📝'
-            },
-            {
-              step: '2', 
-              title: 'Explore diverse investment opportunities with detailed analysis',
-              description: 'Browse Opportunities',
-              icon: '🔍'
-            },
-            {
-              step: '3',
-              title: 'Choose your investment amount and confirm the transaction',
-              description: 'Invest Securely', 
-              icon: '💰'
-            },
-            {
-              step: '4',
-              title: 'Track your profits and receive automatic returns',
-              description: 'Earn Returns',
-              icon: '📊'
-            }
-          ].map((step, index) => (
+          {howItWorks.map((step, index) => (
                <motion.div 
                  key={index} 
               className="p-6 bg-gradient-to-br from-[#0f1636cc] to-[#0f1636aa] border border-[#2a3666] rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,.35)] backdrop-blur-sm relative"
@@ -765,12 +746,12 @@ export default function HomePage() {
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
-            { icon: <Shield className="w-6 h-6" />, title: 'Bank-level Security', description: 'Best-in-class encryption, access controls, and continuous monitoring.' },
-            { icon: <BarChart3 className="w-6 h-6" />, title: 'Advanced Analytics', description: 'Portfolio insights, risk metrics, and performance trends.' },
-            { icon: <Briefcase className="w-6 h-6" />, title: 'Opportunity Diversity', description: 'From SMEs to real assets, curated for risk-adjusted returns.' },
-            { icon: <Smartphone className="w-6 h-6" />, title: 'Ease of Use', description: 'Fast onboarding and intuitive workflows across devices.' },
-            { icon: <Target className="w-6 h-6" />, title: 'Guaranteed Returns', description: 'Plans with fixed yields up to 15% annually.' },
-            { icon: <Users className="w-6 h-6" />, title: 'Continuous Support', description: 'Dedicated team and help center for every step.' }
+            { icon: <Shield className="w-6 h-6" />, key: 'bank_security' },
+            { icon: <BarChart3 className="w-6 h-6" />, key: 'advanced_analytics' },
+            { icon: <Briefcase className="w-6 h-6" />, key: 'opportunity_diversity' },
+            { icon: <Smartphone className="w-6 h-6" />, key: 'ease_of_use' },
+            { icon: <Target className="w-6 h-6" />, key: 'guaranteed_returns' },
+            { icon: <Users className="w-6 h-6" />, key: 'continuous_support' }
             ].map((feature, index) => (
             <motion.div
               key={index}
@@ -785,8 +766,8 @@ export default function HomePage() {
                 {feature.icon}
               </div>
               <div>
-                <h3 className="text-lg font-bold text-[#e9edf7] mb-2">{feature.title}</h3>
-                <p className="text-[#b8c2d8] text-sm">{feature.description}</p>
+                <h3 className="text-lg font-bold text-[#e9edf7] mb-2">{t(`features.${feature.key}.title`)}</h3>
+                <p className="text-[#b8c2d8] text-sm">{t(`features.${feature.key}.description`)}</p>
                   </div>
             </motion.div>
             ))}
@@ -810,7 +791,7 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               viewport={{ once: true }}
             >
-              Live Investment Activity
+              {t('live_activity.title')}
             </motion.h2>
             <motion.p 
               className="text-[#b8c2d8] text-lg"
@@ -819,7 +800,7 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              Follow live investments happening now on the platform
+              {t('live_activity.description')}
             </motion.p>
           </div>
           <motion.div 
@@ -831,186 +812,140 @@ export default function HomePage() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#123b3a] to-[#1c7d74] border border-[#1c7d74] rounded-full text-sm text-[#79ffd6] font-medium">
               <div className="w-2 h-2 bg-[#79ffd6] rounded-full animate-pulse"></div>
-              LIVE
+              {t('live_activity.live')}
             </div>
-            {/* Auto-play indicator */}
+            {/* Deal count indicator */}
             <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-full text-xs text-[#b8c2d8]">
-              <div className={`w-1.5 h-1.5 rounded-full ${isAutoPlaying ? 'bg-[#6be2c9] animate-pulse' : 'bg-gray-400'}`}></div>
-              {isAutoPlaying ? 'Auto-playing' : 'Paused'}
+              <div className="w-1.5 h-1.5 rounded-full bg-[#6be2c9]"></div>
+              {deals.length} {t('live_activity.active_deals')}
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Enhanced Deals Carousel */}
-        <div className="relative">
-          {/* Navigation Arrows */}
-          {deals.length > 1 && (
-            <>
-              <motion.button
-                onClick={prevDeal}
-                className={`absolute ${isMobile ? 'left-2' : 'left-0'} top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-[#0f1640] to-[#1a2555] border border-[#2d3a6b] rounded-full flex items-center justify-center text-[#e9edf7] hover:scale-110 transition-all duration-300 shadow-xl backdrop-blur-sm`}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </motion.button>
-              
-              <motion.button
-                onClick={nextDeal}
-                className={`absolute ${isMobile ? 'right-2' : 'right-0'} top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-[#0f1640] to-[#1a2555] border border-[#2d3a6b] rounded-full flex items-center justify-center text-[#e9edf7] hover:scale-110 transition-all duration-300 shadow-xl backdrop-blur-sm`}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <ChevronRight className="w-5 h-5" />
-              </motion.button>
-            </>
-          )}
-
-          {/* Cards Container - Mobile: one card at a time */}
-          <div className="relative overflow-hidden mx-4 sm:mx-12">
+        {/* Deals Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {deals.slice(0, 6).map((deal, index) => (
             <motion.div 
-              className="flex transition-transform duration-700 ease-out"
-              style={isMobile ? {
-                transform: `translateX(-${currentDealIndex * 100}%)`,
-                width: `${deals.length * 100}%`
-              } : { 
-                transform: `translateX(-${currentDealIndex * (100 / Math.min(deals.length, 3))}%)`,
-                width: `${Math.max(deals.length, 3) * (100 / Math.min(deals.length, 3))}%`
-              }}
+              key={deal.id}
+              className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0a0f2e] via-[#0f1640] to-[#1a2555] border border-[#2d3a6b]/50 shadow-2xl"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.6 }}
+              whileHover={{ scale: 1.02, y: -10 }}
+              viewport={{ once: true }}
             >
-              {deals.map((deal, index) => {
-                return (
+              {/* Glow Effect on Hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#6be2c9]/5 to-[#23a1ff]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              {/* Content */}
+              <div className="relative p-6">
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-6">
                   <motion.div 
-                    key={deal.id}
-                    className={`flex-shrink-0 ${isMobile ? 'w-full px-2' : 'px-3'}`}
-                    style={!isMobile ? { 
-                      width: `${100 / Math.max(deals.length, 3)}%`
-                    } : undefined}
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.6 }}
+                    className="w-14 h-14 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-2xl flex items-center justify-center text-2xl backdrop-blur-sm"
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.6 }}
                   >
-                    <motion.div 
-                      className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0a0f2e] via-[#0f1640] to-[#1a2555] border border-[#2d3a6b]/50 shadow-2xl h-full"
-                      whileHover={{ scale: 1.02, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                    {/* Glow Effect on Hover */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#6be2c9]/5 to-[#23a1ff]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    
-                    {/* Content */}
-                    <div className="relative p-6">
-                      {/* Header */}
-                      <div className="flex items-center gap-3 mb-6">
-                        <motion.div 
-                          className="w-14 h-14 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-2xl flex items-center justify-center text-2xl backdrop-blur-sm"
-                          whileHover={{ rotate: 360 }}
-                          transition={{ duration: 0.6 }}
-                        >
-                          {getIconForCategory(deal.category)}
-                        </motion.div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-1">
-                            <h3 className="text-[#ffffff] font-bold text-lg leading-tight line-clamp-2">{deal.title}</h3>
-                            <motion.div 
-                              className="ml-2 px-3 py-1 bg-gradient-to-r from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-full text-xs text-[#6be2c9] font-bold whitespace-nowrap backdrop-blur-sm"
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ delay: 0.3 + index * 0.1 }}
-                            >
-                              {deal.expectedReturn}% ROI
-                            </motion.div>
-                          </div>
-                          <p className="text-[#b8c2d8] text-sm">{deal.category} • {deal.investorCount} investors</p>
-                        </div>
-                      </div>
-
-                      {/* Progress Section */}
-                      <div className="mb-6">
-                        <div className="flex justify-between text-sm text-[#b8c2d8] mb-3">
-                          <span className="font-medium">Funding Progress</span>
-                          <span className="font-bold text-[#6be2c9]">{Math.round((deal.currentFunding / deal.fundingGoal) * 100)}%</span>
-                        </div>
-                        <div className="relative w-full bg-[#1a2555] rounded-full h-3 overflow-hidden">
-                          <motion.div 
-                            className="absolute inset-0 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] rounded-full shadow-lg"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(deal.currentFunding / deal.fundingGoal) * 100}%` }}
-                            transition={{ duration: 1.5, delay: 0.5 + index * 0.1, ease: "easeOut" }}
-                          />
-                          {/* Glow effect */}
-                          <motion.div 
-                            className="absolute inset-0 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] rounded-full blur-sm opacity-50"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(deal.currentFunding / deal.fundingGoal) * 100}%` }}
-                            transition={{ duration: 1.5, delay: 0.5 + index * 0.1, ease: "easeOut" }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Stats Grid */}
-                      <div className="grid grid-cols-3 gap-4 mb-6">
-                        <div className="text-center">
-                          <motion.div 
-                            className="text-xl font-bold text-[#6be2c9] mb-1"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.8 + index * 0.1 }}
-                          >
-                            ${(deal.currentFunding / 1000).toFixed(0)}K
-                          </motion.div>
-                          <div className="text-xs text-[#b8c2d8]">Raised</div>
-                        </div>
-                        <div className="text-center">
-                          <motion.div 
-                            className="text-xl font-bold text-[#23a1ff] mb-1"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.9 + index * 0.1 }}
-                          >
-                            {deal.duration}M
-                          </motion.div>
-                          <div className="text-xs text-[#b8c2d8]">Duration</div>
-                        </div>
-                        <div className="text-center">
-                          <motion.div 
-                            className="text-xl font-bold text-[#f59e0b] mb-1"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 1.0 + index * 0.1 }}
-                          >
-                            {deal.riskLevel}
-                          </motion.div>
-                          <div className="text-xs text-[#b8c2d8]">Risk</div>
-                        </div>
-                      </div>
-
-                      {/* Action Button */}
-                      <Link href="/auth/signin">
-                        <motion.button 
-                          className="w-full py-3 bg-gradient-to-r from-[#6be2c9]/10 to-[#23a1ff]/10 border border-[#6be2c9]/30 rounded-xl text-[#6be2c9] font-medium hover:from-[#6be2c9]/20 hover:to-[#23a1ff]/20 transition-all duration-300 backdrop-blur-sm"
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 1.1 + index * 0.1 }}
-                        >
-                          View Details
-                        </motion.button>
-                      </Link>
-                    </div>
-                    </motion.div>
+                    {getIconForCategory(deal.category)}
                   </motion.div>
-                )
-              })}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <h3 className="text-[#ffffff] font-bold text-lg leading-tight line-clamp-2">{deal.title}</h3>
+                      <motion.div 
+                        className="ml-2 px-3 py-1 bg-gradient-to-r from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-full text-xs text-[#6be2c9] font-bold whitespace-nowrap backdrop-blur-sm"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.3 + index * 0.1 }}
+                      >
+                        {deal.expectedReturn}% ROI
+                      </motion.div>
+                    </div>
+                    <p className="text-[#b8c2d8] text-sm">{deal.category} • {deal.investorCount} investors</p>
+                  </div>
+                </div>
+
+                {/* Progress Section */}
+                <div className="mb-6">
+                  <div className="flex justify-between text-sm text-[#b8c2d8] mb-3">
+                    <span className="font-medium">{t('live_activity.funding_progress')}</span>
+                    <span className="font-bold text-[#6be2c9]">{Math.round((deal.currentFunding / deal.fundingGoal) * 100)}%</span>
+                  </div>
+                  <div className="relative w-full bg-[#1a2555] rounded-full h-3 overflow-hidden">
+                    <motion.div 
+                      className="absolute inset-0 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] rounded-full shadow-lg"
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${(deal.currentFunding / deal.fundingGoal) * 100}%` }}
+                      transition={{ duration: 1.5, delay: 0.5 + index * 0.1, ease: "easeOut" }}
+                      viewport={{ once: true }}
+                    />
+                    {/* Glow effect */}
+                    <motion.div 
+                      className="absolute inset-0 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] rounded-full blur-sm opacity-50"
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${(deal.currentFunding / deal.fundingGoal) * 100}%` }}
+                      transition={{ duration: 1.5, delay: 0.5 + index * 0.1, ease: "easeOut" }}
+                      viewport={{ once: true }}
+                    />
+                  </div>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  <div className="text-center">
+                    <motion.div 
+                      className="text-xl font-bold text-[#6be2c9] mb-1"
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      transition={{ delay: 0.8 + index * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      ${(deal.currentFunding / 1000).toFixed(0)}K
+                    </motion.div>
+                    <div className="text-xs text-[#b8c2d8]">{t('live_activity.raised')}</div>
+                  </div>
+                  <div className="text-center">
+                    <motion.div 
+                      className="text-xl font-bold text-[#23a1ff] mb-1"
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      transition={{ delay: 0.9 + index * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      {deal.duration}M
+                    </motion.div>
+                    <div className="text-xs text-[#b8c2d8]">{t('live_activity.duration')}</div>
+                  </div>
+                  <div className="text-center">
+                    <motion.div 
+                      className="text-xl font-bold text-[#f59e0b] mb-1"
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      transition={{ delay: 1.0 + index * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      {deal.riskLevel}
+                    </motion.div>
+                    <div className="text-xs text-[#b8c2d8]">{t('live_activity.risk')}</div>
+                  </div>
+                </div>
+
+                {/* Action Button */}
+                <Link href="/auth/signin">
+                  <motion.button 
+                    className="w-full py-3 bg-gradient-to-r from-[#6be2c9]/10 to-[#23a1ff]/10 border border-[#6be2c9]/30 rounded-xl text-[#6be2c9] font-medium hover:from-[#6be2c9]/20 hover:to-[#23a1ff]/20 transition-all duration-300 backdrop-blur-sm"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.1 + index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    {t('live_activity.view_details')}
+                  </motion.button>
+                </Link>
+              </div>
             </motion.div>
-          </div>
+          ))}
 
           {/* Loading State */}
           {deals.length === 0 && (
@@ -1034,48 +969,11 @@ export default function HomePage() {
                 >
                   <TrendingUp className="w-10 h-10 text-[#6be2c9]" />
                 </motion.div>
-                <p className="text-[#b8c2d8] text-lg">Loading investment opportunities...</p>
+                <p className="text-[#b8c2d8] text-lg">{t('live_activity.loading')}</p>
               </div>
             </motion.div>
           )}
 
-          {/* Enhanced Carousel Indicators */}
-          {deals.length > 0 && (
-            <motion.div 
-              className="flex justify-center items-center gap-3 mt-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-            >
-              {deals.map((_, index) => (
-                <motion.button
-                  key={index}
-                  className={`relative transition-all duration-300 ${
-                    index === currentDealIndex 
-                      ? 'w-8 h-3' 
-                      : 'w-3 h-3 hover:w-4'
-                  }`}
-                  onClick={() => goToDeal(index)}
-                  whileHover={{ scale: 1.2 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <div className={`w-full h-full rounded-full transition-all duration-300 ${
-                    index === currentDealIndex 
-                      ? 'bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] shadow-lg shadow-[#6be2c9]/25' 
-                      : 'bg-[#2a3566] hover:bg-[#3a4576]'
-                  }`} />
-                  {/* Active indicator glow */}
-                  {index === currentDealIndex && (
-                    <motion.div 
-                      className="absolute inset-0 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] rounded-full blur-sm opacity-50"
-                      animate={{ opacity: [0.3, 0.7, 0.3] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
-                  )}
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
         </div>
 
         {/* Activity Summary */}
@@ -1089,12 +987,12 @@ export default function HomePage() {
           <div className="text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#123b3a] to-[#1c7d74] border border-[#1c7d74] rounded-full text-sm text-[#79ffd6] mb-4">
               <div className="w-2 h-2 bg-[#79ffd6] rounded-full animate-pulse"></div>
-              Recent Activity
+              {t('live_activity.recent_activity')}
             </div>
             <p className="text-[#b8c2d8]">
-              Total investments today: <span className="text-[#6be2c9] font-bold">${liveStats.totalToday.toLocaleString()}</span>
+              {t('live_activity.total_today')}: <span className="text-[#6be2c9] font-bold">${liveStats.totalToday.toLocaleString()}</span>
               {liveStats.totalToday === 0 && (
-                <span className="block text-sm text-[#95a5c9] mt-1">No new investments today</span>
+                <span className="block text-sm text-[#95a5c9] mt-1">{t('live_activity.no_investments')}</span>
               )}
             </p>
           </div>
@@ -1110,8 +1008,8 @@ export default function HomePage() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-4">What Our Investors Say</h2>
-          <p className="text-[#b8c2d8] text-lg">Real experiences from our investor community</p>
+          <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-4">{t('testimonials.title')}</h2>
+          <p className="text-[#b8c2d8] text-lg">{t('testimonials.subtitle')}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1180,7 +1078,7 @@ export default function HomePage() {
              transition={{ duration: 0.6, delay: 0.2 }}
              viewport={{ once: true }}
                         >
-            Start Your Investment Journey Today
+            {t('cta.title')}
              </motion.h2>
            <motion.p 
             className="text-lg text-[#b8c2d8] mb-8 max-w-2xl mx-auto leading-relaxed"
@@ -1189,7 +1087,7 @@ export default function HomePage() {
              transition={{ duration: 0.6, delay: 0.4 }}
              viewport={{ once: true }}
                         >
-            Join thousands of investors who are achieving rewarding returns through our platform. Start with as little as $1,000 and get returns up to 15% annually.
+            {t('cta.description')}
              </motion.p>
            <motion.div 
              className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -1204,7 +1102,7 @@ export default function HomePage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Register Now for Free
+                {t('cta.register_free')}
               </motion.button>
              </Link>
              <Link href="/deals">
@@ -1213,7 +1111,7 @@ export default function HomePage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Browse Opportunities
+                {t('cta.browse_opportunities')}
               </motion.button>
              </Link>
            </motion.div>
@@ -1234,7 +1132,7 @@ export default function HomePage() {
                 <span className="text-[#e9edf7] font-black text-xl tracking-wide">Sahem Invest</span>
               </div>
               <p className="text-[#b8c2d8] mb-4 leading-relaxed">
-                The leading digital investment platform in Lebanon
+                {t('footer.description')}
               </p>
               <div className="flex gap-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7]" title="Email">

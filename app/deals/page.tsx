@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
 import { 
   Search, Filter, TrendingUp, Clock, MapPin, Users, 
-  ArrowRight, Star, Shield, Eye, CheckCircle 
+  ArrowRight, Star, Shield, Eye, CheckCircle, Menu, X 
 } from 'lucide-react'
 
 interface Deal {
@@ -39,6 +39,7 @@ export default function PublicDealsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [sortBy, setSortBy] = useState<string>('newest')
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const categories = [
     'Technology', 'Real Estate', 'Healthcare', 'Energy', 
@@ -175,9 +176,44 @@ export default function PublicDealsPage() {
                 {locale === 'ar' ? 'English' : 'عربي'}
               </button>
               <Link href="/auth/signin" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all text-sm">
-                {t('navigation.go_to_panel')}
+                {t('navigation.panel')}
               </Link>
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-[#e9edf7] hover:bg-[#1a2246] rounded-lg transition-colors"
+              >
+                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
+
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+              <div className="md:hidden absolute top-full left-0 right-0 bg-[#0b1124] border-b border-[#233059] shadow-xl z-50">
+                <nav className="container mx-auto px-4 py-4 space-y-2">
+                  <Link 
+                    href="/" 
+                    className="block text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('navigation.home')}
+                  </Link>
+                  <Link 
+                    href="/deals" 
+                    className="block text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('navigation.deals')}
+                  </Link>
+                  <Link 
+                    href="/about" 
+                    className="block text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('navigation.about')}
+                  </Link>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       </header>
