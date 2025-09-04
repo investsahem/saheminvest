@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation, useI18n } from '../components/providers/I18nProvider'
 import { 
   Search, Filter, TrendingUp, Clock, MapPin, Users, 
   ArrowRight, Star, Shield, Eye, CheckCircle 
@@ -31,6 +32,8 @@ interface Deal {
 }
 
 export default function PublicDealsPage() {
+  const { t } = useTranslation()
+  const { locale, setLocale } = useI18n()
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -144,29 +147,35 @@ export default function PublicDealsPage() {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-2">
               <Link href="/" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                Home
+                {t('navigation.home')}
               </Link>
               <Link href="/deals" className="text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold">
-                Deals
+                {t('navigation.deals')}
               </Link>
               <Link href="/about" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                About
+                {t('navigation.about')}
               </Link>
-              <div className="ml-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7]">
-                عربي
-              </div>
+              <button 
+                onClick={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
+                className="ml-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7] hover:bg-gradient-to-r hover:from-[#2d3757] hover:to-[#1a2143] transition-all cursor-pointer"
+              >
+                {locale === 'ar' ? 'English' : 'عربي'}
+              </button>
               <Link href="/auth/signin" className="ml-2 px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all">
-                Go to Panel
+                {t('navigation.go_to_panel')}
               </Link>
             </nav>
 
             {/* Mobile Navigation */}
             <div className="flex md:hidden items-center gap-3">
-              <div className="px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7]">
-                عربي
-              </div>
+              <button 
+                onClick={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
+                className="px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7] hover:bg-gradient-to-r hover:from-[#2d3757] hover:to-[#1a2143] transition-all cursor-pointer"
+              >
+                {locale === 'ar' ? 'English' : 'عربي'}
+              </button>
               <Link href="/auth/signin" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all text-sm">
-                Panel
+                {t('navigation.go_to_panel')}
               </Link>
             </div>
           </div>
@@ -202,7 +211,7 @@ export default function PublicDealsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              Discover Profitable Investment Deals
+              {t('deals.hero_title')}
             </motion.h1>
             
             <motion.p 
@@ -211,7 +220,7 @@ export default function PublicDealsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              Explore vetted investment opportunities with guaranteed returns up to 15% annually. Start investing with as little as $1,000.
+              {t('deals.hero_description')}
             </motion.p>
 
             {/* Quick Stats */}

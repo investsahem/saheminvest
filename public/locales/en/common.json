@@ -6,6 +6,7 @@
   "navigation": {
     "home": "Home",
     "deals": "Deals",
+    "about": "About",
     "portfolio": "Portfolio",
     "dashboard": "Dashboard",
     "profile": "Profile",
@@ -64,7 +65,7 @@
   "hero": {
     "title": "Invest in the Future",
     "subtitle": "with Sahem Invest",
-    "description": "The leading digital investment platform in Saudi Arabia. Discover profitable and secure investment opportunities with guaranteed returns up to 15% annually.",
+    "description": "The leading digital investment platform in Lebanon. Discover profitable and secure investment opportunities with guaranteed returns up to 15% annually.",
     "cta_invest": "Start Investing Now",
     "cta_explore": "Explore Opportunities",
     "stats": {
@@ -83,18 +84,67 @@
   "about": {
     "title": "What is Sahem Invest?",
     "description": "A licensed digital investment platform that connects investors with profitable business opportunities, enabling everyone to participate in economic growth and achieve rewarding investment returns",
+    "hero_title": "Empowering Financial Growth Through Smart Investments",
+    "hero_subtitle": "We are the leading digital investment platform in Lebanon, connecting investors with profitable business opportunities and enabling everyone to participate in economic growth.",
+    "our_mission": "Our Mission",
+    "our_vision": "Our Vision",
+    "our_values": "Our Core Values",
+    "leadership_team": "Leadership Team",
+    "ready_to_invest": "Ready to Start Investing?",
+    "join_thousands": "Join thousands of investors who trust Sahem Invest for their financial growth. Start your investment journey today.",
+    "start_investing_now": "Start Investing Now",
+    "explore_deals": "Explore Deals",
     "vision": {
       "title": "Our Vision",
-      "description": "To be the leading investment platform in the region, empowering individuals to achieve financial freedom through smart and secure investments"
+      "description": "To be the leading investment platform in the region, empowering individuals to achieve financial freedom through smart and secure investments, while fostering economic growth and innovation across Lebanon."
     },
     "mission": {
       "title": "Our Mission", 
-      "description": "To provide a transparent and secure investment platform that enables investors to access diverse investment opportunities while ensuring the highest standards of safety and quality"
+      "description": "To provide a transparent and secure investment platform that enables investors to access diverse investment opportunities while ensuring the highest standards of safety and quality",
+      "points": [
+        "Democratize access to investment opportunities",
+        "Ensure transparency in all transactions",
+        "Provide guaranteed returns up to 15% annually",
+        "Build a trusted community of investors"
+      ]
     },
     "values": {
-      "title": "Our Values",
-      "description": "Transparency, integrity, innovation, and excellence in service. We believe that shared success is the foundation of sustainable growth"
-    }
+      "title": "Our Core Values",
+      "description": "The principles that guide everything we do at Sahem Invest",
+      "transparency": {
+        "title": "Transparency",
+        "description": "Complete transparency in all our operations and investment processes"
+      },
+      "excellence": {
+        "title": "Excellence",
+        "description": "Commitment to excellence in service quality and investment opportunities"
+      },
+      "community": {
+        "title": "Community",
+        "description": "Building a strong community of investors and entrepreneurs"
+      },
+      "innovation": {
+        "title": "Innovation",
+        "description": "Leveraging cutting-edge technology for better investment experiences"
+      }
+    },
+    "team": [
+      {
+        "name": "Ahmed Al-Rashid",
+        "role": "CEO & Founder",
+        "description": "15+ years in investment banking and fintech"
+      },
+      {
+        "name": "Sarah Mohammed",
+        "role": "CTO",
+        "description": "Technology leader with expertise in financial platforms"
+      },
+      {
+        "name": "Omar Al-Zahra",
+        "role": "Head of Investments",
+        "description": "Investment expert with deep market knowledge"
+      }
+    ]
   },
   "how_it_works": {
     "title": "How Does the Platform Work?",
@@ -156,7 +206,7 @@
     "browse_opportunities": "Browse Opportunities"
   },
   "footer": {
-    "description": "The leading digital investment platform in Saudi Arabia",
+    "description": "The leading digital investment platform in Lebanon",
     "quick_links": "Quick Links",
     "support": "Support",
     "legal": "Legal",
@@ -184,15 +234,31 @@
     }
   },
   "deals": {
-    "title": "Available Deals",
-    "subtitle": "Explore investment opportunities",
+    "title": "Investment Deals",
+    "subtitle": "Discover the best investment opportunities available now",
+    "hero_title": "Discover Profitable Investment Deals",
+    "hero_description": "Explore vetted investment opportunities with guaranteed returns up to 15% annually. Start investing with as little as $1,000.",
+    "search_placeholder": "Search deals...",
+    "all_categories": "All Categories",
+    "newest": "Newest",
+    "most_funded": "Most Funded",
+    "highest_return": "Highest Return",
+    "most_progress": "Most Progress",
+    "active_deals_count": "Active Deals",
+    "bank_level_security": "Bank-level Security",
+    "guaranteed_returns": "Guaranteed Returns",
+    "no_deals_found": "No deals found",
+    "adjust_search": "Try adjusting your search or filters",
+    "no_active_deals": "No active deals available at the moment",
+    "get_started": "Get Started",
     "overview": "Deals Overview",
     "deal_number": "Deal Number",
-    "duration": "Deal Duration",
+    "duration": "Duration",
     "funding_required": "Required Funding",
     "expected_profits": "Expected Profits",
     "expected_return": "Expected Return",
     "funding_progress": "Funding Progress",
+    "progress": "Progress",
     "contributors": "Contributors",
     "contributors_count": "Number of Contributors",
     "closes_in": "Funding closes in",
@@ -201,18 +267,22 @@
     "minutes": "minutes",
     "seconds": "seconds",
     "months": "months",
+    "raised": "raised",
+    "duration_months": "months",
+    "risk": "Risk",
+    "investors": "investors",
+    "min_investment": "Min:",
     "interested": "Interested in the deal? Contact us now",
     "more_info": "Click for more information",
     "invest_now": "Invest Now",
+    "view_details": "View Details",
     "funding_completed": "Funding Completed",
     "completed_deals": "completed deals",
     "partner": "Partner",
     "deals_completed": "deals completed",
-    "view_details": "View Details",
     "manage_deal": "Manage Deal",
     "total_deals": "Total Deals",
     "active_deals": "Active Deals",
-    "completed_deals": "Completed Deals",
     "total_funding": "Total Funding",
     "filter_all": "All Deals",
     "filter_active": "Active",
@@ -222,6 +292,30 @@
     "add_new_deal": "Add New Deal",
     "no_deals_available": "No deals available",
     "check_back_soon": "Check back soon for new opportunities",
+    "create_account": "Create Account",
+    "learn_more": "Learn More",
+    "ready_to_invest": "Ready to Start Investing?",
+    "join_investors": "Join thousands of investors who are achieving rewarding returns through our platform. Create your account in minutes and start investing today.",
+    "create_account_invest": "Create Account & Invest",
+    "view_more_deals": "View More Deals",
+    "deal_details": {
+      "back_to_deals": "Back to Deals",
+      "deal_not_found": "Deal Not Found",
+      "deal_not_found_desc": "The deal you're looking for doesn't exist or has been removed.",
+      "error_loading": "Error Loading Deal",
+      "error_loading_desc": "We encountered an error while loading the deal details. Please try again.",
+      "about_investment": "About This Investment",
+      "investment_timeline": "Investment Timeline",
+      "start_date": "Start Date",
+      "end_date": "End Date",
+      "risk_assessment": "Risk Assessment",
+      "risk_level": "Risk Level:",
+      "low_risk_desc": "This investment carries minimal risk with stable, predictable returns. Suitable for conservative investors seeking steady income.",
+      "medium_risk_desc": "This investment carries moderate risk with potential for good returns. Suitable for investors comfortable with some volatility.",
+      "high_risk_desc": "This investment carries higher risk but offers potential for significant returns. Suitable for experienced investors seeking growth opportunities.",
+      "start_journey": "Start Your Investment Journey",
+      "create_account_desc": "Create your account now and join thousands of investors earning consistent returns through our platform."
+    },
     "deal_status": {
       "ACTIVE": "Active",
       "COMPLETED": "Completed",
