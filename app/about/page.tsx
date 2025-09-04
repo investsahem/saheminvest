@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
-import { Shield, Users, Target, Award, Menu, X } from 'lucide-react'
+import { Shield, Users, Target, Award, CheckCircle, Menu, X } from 'lucide-react'
 
 export default function AboutPage() {
   const { t } = useTranslation()
