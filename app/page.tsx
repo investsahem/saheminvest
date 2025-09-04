@@ -39,7 +39,7 @@ export default function HomePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const stats = [
-    { number: `${liveStats.activeInvestors.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-US')}+`, label: t('hero.stats.active_investors') },
+    { number: `${liveStats.activeInvestors.toLocaleString(locale === 'ar' ? 'ar-LB' : 'en-US')}+`, label: t('hero.stats.active_investors') },
     { number: liveStats.successfulDeals.toString(), label: t('hero.stats.successful_deals') },
     { number: `$${(liveStats.totalInvested / 1000000).toFixed(1)}M+`, label: t('hero.stats.total_invested') },
     { number: `${liveStats.averageReturn.toFixed(1)}%`, label: t('hero.stats.average_return') }
@@ -434,7 +434,7 @@ export default function HomePage() {
                  animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
                                 >
-                The leading digital investment platform in Saudi Arabia. Discover profitable and secure investment opportunities with guaranteed returns up to 15% annually.
+                The leading digital investment platform in Lebanon. Discover profitable and secure investment opportunities with guaranteed returns up to 15% annually.
                  </motion.p>
               
                <motion.div 
@@ -1228,7 +1228,7 @@ export default function HomePage() {
                 <span className="text-[#e9edf7] font-black text-xl tracking-wide">Sahem Invest</span>
               </div>
               <p className="text-[#b8c2d8] mb-4 leading-relaxed">
-                The leading digital investment platform in Saudi Arabia
+                The leading digital investment platform in Lebanon
               </p>
               <div className="flex gap-3">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7]" title="Email">

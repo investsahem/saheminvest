@@ -155,7 +155,7 @@ export default function AboutPage() {
               className="text-lg lg:text-xl text-[#cdd6ec] leading-relaxed mb-8 max-w-3xl mx-auto"
               variants={staggerItem}
             >
-              We are the leading digital investment platform in Saudi Arabia, connecting investors with profitable business opportunities and enabling everyone to participate in economic growth.
+              We are the leading digital investment platform in Lebanon, connecting investors with profitable business opportunities and enabling everyone to participate in economic growth.
             </motion.p>
 
             {/* Stats */}
@@ -223,7 +223,7 @@ export default function AboutPage() {
           >
             <h3 className="text-2xl font-black text-[#e9edf7] mb-4">Our Vision</h3>
             <p className="text-[#b8c2d8] leading-relaxed">
-              To be the leading investment platform in the region, empowering individuals to achieve financial freedom through smart and secure investments, while fostering economic growth and innovation across Saudi Arabia.
+              To be the leading investment platform in the region, empowering individuals to achieve financial freedom through smart and secure investments, while fostering economic growth and innovation across Lebanon.
             </p>
           </motion.div>
         </div>
