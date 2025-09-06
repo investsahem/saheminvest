@@ -163,8 +163,10 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching deals:', error)
+    console.error('Error details:', error.message)
+    console.error('Stack trace:', error.stack)
     return NextResponse.json(
-      { error: 'Failed to fetch deals' },
+      { error: 'Failed to fetch deals', details: error.message },
       { status: 500 }
     )
   }
@@ -200,7 +202,8 @@ export async function POST(request: NextRequest) {
     // Check permissions
     const hasWritePermission = user.role === 'ADMIN' || 
       user.role === 'DEAL_MANAGER' ||
-      user.permissions.some(up => up.permission === 'WRITE_DEALS')
+      user.role === 'PARTNER' ||
+      (user.permissions && user.permissions.some(up => up.permission === 'WRITE_DEALS'))
 
     if (!hasWritePermission) {
       return NextResponse.json(
@@ -300,8 +303,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(deal, { status: 201 })
   } catch (error) {
     console.error('Error creating deal:', error)
+    console.error('Error details:', error.message)
+    console.error('Stack trace:', error.stack)
     return NextResponse.json(
-      { error: 'Failed to create deal' },
+      { error: 'Failed to create deal', details: error.message },
       { status: 500 }
     )
   }
