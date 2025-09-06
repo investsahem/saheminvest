@@ -183,8 +183,11 @@ const DealManagePage = () => {
         },
         body: JSON.stringify({
           dealId: dealId,
+          distributionType: profitForm.distributionType,
+          description: profitForm.description,
           distributions: profitForm.distributionData.map(data => ({
             investorId: data.investorId,
+            investorName: data.investorName,
             investmentAmount: data.investmentAmount,
             profitAmount: data.profitAmount || 0
           }))

@@ -24,7 +24,26 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const { searchParams } = new URL(request.url)
+    const search = searchParams.get('search')
+    const status = searchParams.get('status')
+
+    const where: any = {}
+    
+    if (search) {
+      where.OR = [
+        { project: { title: { contains: search, mode: 'insensitive' } } },
+        { partner: { name: { contains: search, mode: 'insensitive' } } },
+        { description: { contains: search, mode: 'insensitive' } }
+      ]
+    }
+    
+    if (status && status !== 'all') {
+      where.status = status
+    }
+
     const requests = await prisma.profitDistributionRequest.findMany({
+      where,
       include: {
         project: {
           select: {
@@ -47,7 +66,13 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ requests })
+    // Parse distribution data for each request
+    const requestsWithParsedData = requests.map(request => ({
+      ...request,
+      distributionData: JSON.parse(request.distributionData as string)
+    }))
+
+    return NextResponse.json({ requests: requestsWithParsedData })
   } catch (error) {
     console.error('Error fetching profit distribution requests:', error)
     return NextResponse.json(

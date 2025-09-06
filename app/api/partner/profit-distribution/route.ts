@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { dealId, distributions } = await request.json()
+    const { dealId, distributions, distributionType = 'PARTIAL', description } = await request.json()
 
     if (!dealId || !distributions || !Array.isArray(distributions)) {
       return NextResponse.json(
@@ -58,15 +58,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Calculate profit rates for each distribution
+    const enhancedDistributions = distributions.map((dist: any) => ({
+      ...dist,
+      profitRate: dist.investmentAmount > 0 ? (dist.profitAmount / dist.investmentAmount) * 100 : 0
+    }))
+
     // Create a profit distribution request for admin approval
     const profitDistributionRequest = await prisma.profitDistributionRequest.create({
       data: {
         projectId: dealId,
         partnerId: session.user.id,
-        totalAmount: distributions.reduce((sum: number, dist: any) => sum + dist.profitAmount, 0),
+        totalAmount: distributions.reduce((sum: number, dist: any) => sum + (dist.profitAmount || 0), 0),
+        distributionType: distributionType,
         status: 'PENDING',
-        distributionData: JSON.stringify(distributions),
-        description: `Profit distribution request for ${deal.title}`,
+        distributionData: JSON.stringify(enhancedDistributions),
+        description: description || `${distributionType === 'PARTIAL' ? 'Partial' : 'Final'} profit distribution for ${deal.title}`,
         requestedAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date()
