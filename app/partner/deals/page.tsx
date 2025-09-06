@@ -484,10 +484,11 @@ const PartnerDealsPage = () => {
                       <Button
                         size="sm"
                         onClick={() => setEditingDeal(deal)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
                         title="Edit Deal"
                       >
                         <Edit className="w-4 h-4" />
+                        <span className="text-xs">تعديل</span>
                       </Button>
                       
                       {/* View Button */}
@@ -495,10 +496,11 @@ const PartnerDealsPage = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => window.open(`/deals/${deal.id}`, '_blank')}
-                        className="bg-white hover:bg-gray-50"
+                        className="bg-white hover:bg-gray-50 flex items-center gap-1"
                         title="View Deal"
                       >
                         <Eye className="w-4 h-4" />
+                        <span className="text-xs">عرض</span>
                       </Button>
                       
                       {/* Manage Deal Button - Only for deals with investments */}
@@ -506,10 +508,11 @@ const PartnerDealsPage = () => {
                         <Button
                           size="sm"
                           onClick={() => router.push(`/partner/deals/${deal.id}/manage`)}
-                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                          className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-1"
                           title="ادارة الصفقة"
                         >
                           <BarChart3 className="w-4 h-4" />
+                          <span className="text-xs">إدارة</span>
                         </Button>
                       )}
                       
@@ -519,10 +522,11 @@ const PartnerDealsPage = () => {
                         <Button
                           size="sm"
                           onClick={() => setDistributingProfits(deal)}
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1"
                           title="Distribute Profits"
                         >
                           <DollarSign className="w-4 h-4" />
+                          <span className="text-xs">أرباح</span>
                         </Button>
                       )}
                       
