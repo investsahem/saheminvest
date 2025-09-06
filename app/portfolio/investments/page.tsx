@@ -161,6 +161,10 @@ export default function InvestmentsPage() {
   }
 
   const formatCurrency = (amount: number) => {
+    // Handle NaN, null, undefined values
+    if (isNaN(amount) || amount === null || amount === undefined) {
+      return '$0.00'
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'

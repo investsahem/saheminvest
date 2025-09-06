@@ -33,7 +33,7 @@ interface Investment {
   category: string
   thumbnailImage?: string
   investedAmount: number
-  currentFunding: number
+  currentValue: number
   totalReturn: number
   returnPercentage: number
   distributedProfits: number
@@ -101,6 +101,10 @@ export default function InvestorDashboard() {
   }, [session])
 
   const formatCurrency = (amount: number) => {
+    // Handle NaN, null, undefined values
+    if (isNaN(amount) || amount === null || amount === undefined) {
+      return '$0.00'
+    }
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
@@ -357,7 +361,7 @@ export default function InvestorDashboard() {
                           {formatCurrency(investment.investedAmount)}
                         </td>
                         <td className="py-4 px-4 text-right font-medium">
-                          {formatCurrency(investment.currentFunding)}
+                          {formatCurrency(investment.currentValue)}
                         </td>
                         <td className="py-4 px-4 text-right">
                           <div className={`font-medium ${
