@@ -8,7 +8,7 @@ import { useUserData } from '../../hooks/useUserData'
 import { 
   PieChart, Wallet, TrendingUp, Target, FileText, 
   Settings, Bell, User, LogOut, DollarSign, 
-  BarChart3, Calendar, Award, History, CreditCard, X
+  BarChart3, Calendar, Award, History, CreditCard, X, Archive
 } from 'lucide-react'
 import { Button } from '../ui/Button'
 
@@ -199,6 +199,40 @@ const InvestorSidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: InvestorSide
             )
           })}
         </nav>
+
+        {/* Success Stories Section */}
+        <div className="px-3 mb-6">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center">
+                <Archive className="w-4 h-4 text-blue-600 mr-2" />
+                <h3 className="text-sm font-medium text-blue-900">
+                  {t('deals.closed_deals')}
+                </h3>
+              </div>
+              <Link 
+                href="/portfolio/deals"
+                onClick={handleLinkClick}
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+              >
+                {t('common.view_all')}
+              </Link>
+            </div>
+            <p className="text-xs text-blue-700 mb-3">
+              {t('deals.closed_deals_subtitle')}
+            </p>
+            <div className="bg-white rounded-lg p-3 shadow-sm">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-600">Track Record</span>
+                <span className="font-medium text-green-600">✓ Proven Success</span>
+              </div>
+              <div className="flex items-center justify-between text-xs mt-1">
+                <span className="text-gray-600">Transparency</span>
+                <span className="font-medium text-blue-600">100% Open</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* User Profile Section */}
         <div className="px-3 mt-6">

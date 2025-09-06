@@ -126,6 +126,18 @@ export async function GET(request: NextRequest) {
               image: true
             }
           },
+          profitDistributions: {
+            select: {
+              id: true,
+              amount: true,
+              profitRate: true,
+              distributionDate: true,
+              status: true
+            },
+            orderBy: {
+              distributionDate: 'desc'
+            }
+          },
           _count: {
             select: {
               investments: true

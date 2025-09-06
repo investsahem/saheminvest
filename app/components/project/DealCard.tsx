@@ -26,6 +26,10 @@ interface DealCardProps {
   partnerDealsCount: number
   minInvestment: number
   isPartnerView?: boolean
+  isClosedView?: boolean
+  actualReturn?: number
+  completionDate?: string
+  profitDistributed?: number
 }
 
 export function DealCard({ 
@@ -42,7 +46,11 @@ export function DealCard({
   partnerName,
   partnerDealsCount,
   minInvestment,
-  isPartnerView = false
+  isPartnerView = false,
+  isClosedView = false,
+  actualReturn,
+  completionDate,
+  profitDistributed
 }: DealCardProps) {
   const { t } = useTranslation()
   const { data: session } = useSession()
@@ -120,11 +128,15 @@ export function DealCard({
           className="object-cover"
           unoptimized={image.includes('cloudinary.com')}
         />
-        {isFundingCompleted && (
+        {isClosedView ? (
+          <div className="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+            {t('deals.completed_successfully')}
+          </div>
+        ) : isFundingCompleted ? (
           <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
             {t('deal_card.funding_completed')}
           </div>
-        )}
+        ) : null}
       </div>
       
       <CardContent className="p-4">
@@ -167,13 +179,42 @@ export function DealCard({
             </span>
           </div>
 
-          {/* Expected Return */}
+          {/* Expected/Actual Return */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">{t('deal_card.expected_return')}</span>
+            <span className="text-sm text-gray-600">
+              {isClosedView ? t('deals.final_return') : t('deal_card.expected_return')}
+            </span>
             <div className="font-bold text-green-600">
-              {expectedReturn.min}% {expectedReturn.max === expectedReturn.min ? '' : `- ${expectedReturn.max}%`}
+              {isClosedView && actualReturn ? 
+                `${actualReturn}%` : 
+                `${expectedReturn.min}% ${expectedReturn.max === expectedReturn.min ? '' : `- ${expectedReturn.max}%`}`
+              }
             </div>
           </div>
+
+          {/* Profit Distributed (for closed deals) */}
+          {isClosedView && profitDistributed && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">{t('deals.profit_distributed')}</span>
+              <span className="font-bold text-blue-600">
+                {formatNumber(profitDistributed)} {t('common.currency')}
+              </span>
+            </div>
+          )}
+
+          {/* Completion Date (for closed deals) */}
+          {isClosedView && completionDate && (
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">{t('deals.completion_date')}</span>
+              <span className="font-medium text-gray-900">
+                {new Date(completionDate).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </span>
+            </div>
+          )}
 
           {/* Funding Progress */}
           <div className="space-y-2">
@@ -192,11 +233,11 @@ export function DealCard({
             </div>
           </div>
 
-          {/* Countdown Timer */}
-          {!isFundingCompleted && (
+          {/* Countdown Timer (only for active deals) */}
+          {!isClosedView && !isFundingCompleted && (
             <div className="bg-gray-50 p-3 rounded-lg">
               <div className="text-center text-sm text-gray-600 mb-2">
-                                 {t('deal_card.ends_in')}
+                {t('deal_card.ends_in')}
               </div>
               <div className="grid grid-cols-4 gap-2 text-center">
                 <div className="bg-white p-1 rounded">
@@ -229,7 +270,14 @@ export function DealCard({
 
           {/* CTA Buttons */}
           <div className="space-y-3 pt-4">
-            {isPartnerView ? (
+            {isClosedView ? (
+              // Closed deals - View results only
+              <Link href={`/deals/${id}`}>
+                <Button variant="outline" className="w-full">
+                  {t('deals.view_results')}
+                </Button>
+              </Link>
+            ) : isPartnerView ? (
               // Partner view - Management buttons
               <Link href={`/partner/deals/${id}/manage`}>
                 <Button variant="outline" className="w-full">
