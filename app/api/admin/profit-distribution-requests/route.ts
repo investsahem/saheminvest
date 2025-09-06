@@ -146,9 +146,9 @@ export async function PUT(request: NextRequest) {
               data: {
                 amount: distribution.profitAmount,
                 profitRate: (distribution.profitAmount / distribution.investmentAmount) * 100,
-                investmentShare: distribution.profitAmount,
+                investmentShare: (Number(distribution.investmentAmount) / Number(distributionRequest.totalAmount)) * 100,
                 distributionDate: new Date(),
-                description: distributionRequest.description,
+                profitPeriod: 'quarterly', // Default period
                 status: 'COMPLETED',
                 investmentId: investment.id,
                 projectId: distributionRequest.projectId,

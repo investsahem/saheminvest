@@ -154,8 +154,8 @@ export async function GET(request: NextRequest) {
       total = totalCount
       
     } catch (queryError) {
-      console.error('Query failed at step:', queryError.message)
-      console.error('Query error stack:', queryError.stack)
+      console.error('Query failed at step:', (queryError as Error).message)
+      console.error('Query error stack:', (queryError as Error).stack)
       throw queryError
     }
 
@@ -189,7 +189,7 @@ export async function GET(request: NextRequest) {
 
       // Hide investor details from partners (except admins)
       if (isPartner && !isAdmin && !isDealManager) {
-        filteredDeal.investments = deal.investments.map(investment => ({
+        (filteredDeal as any).investments = deal.investments.map((investment: any) => ({
           ...investment,
           investor: {
             id: 'anonymous',
@@ -213,10 +213,10 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching deals:', error)
-    console.error('Error details:', error.message)
-    console.error('Stack trace:', error.stack)
+    console.error('Error details:', (error as Error).message)
+    console.error('Stack trace:', (error as Error).stack)
     return NextResponse.json(
-      { error: 'Failed to fetch deals', details: error.message },
+      { error: 'Failed to fetch deals', details: (error as Error).message },
       { status: 500 }
     )
   }
@@ -353,10 +353,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(deal, { status: 201 })
   } catch (error) {
     console.error('Error creating deal:', error)
-    console.error('Error details:', error.message)
-    console.error('Stack trace:', error.stack)
+    console.error('Error details:', (error as Error).message)
+    console.error('Stack trace:', (error as Error).stack)
     return NextResponse.json(
-      { error: 'Failed to create deal', details: error.message },
+      { error: 'Failed to create deal', details: (error as Error).message },
       { status: 500 }
     )
   }

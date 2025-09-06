@@ -80,12 +80,12 @@ export async function POST(request: NextRequest) {
         type: 'PROFIT_DISTRIBUTION_REQUEST',
         title: 'New Profit Distribution Request',
         message: `${session.user.name} has requested to distribute profits for deal "${deal.title}"`,
-        metadata: {
+        metadata: JSON.stringify({
           dealId,
           requestId: profitDistributionRequest.id,
           partnerName: session.user.name,
           totalAmount: profitDistributionRequest.totalAmount
-        },
+        }),
         createdAt: new Date(),
         updatedAt: new Date()
       }

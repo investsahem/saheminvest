@@ -288,11 +288,20 @@ const PartnerDealsPage = () => {
         title="Distribute Profits"
         subtitle={`Profit Distribution for: ${distributingProfits.title}`}
       >
-        <ProfitDistributionForm
-          deal={distributingProfits}
-          onSubmit={handleProfitDistribution}
-          onCancel={() => setDistributingProfits(null)}
-        />
+                        <ProfitDistributionForm
+                          deal={{
+                            ...distributingProfits,
+                            investments: distributingProfits.investments?.map(inv => ({
+                              ...inv,
+                              investor: {
+                                ...inv.investor,
+                                email: (inv.investor as any).email || `${inv.investor.name}@example.com`
+                              }
+                            })) || []
+                          }}
+                          onSubmit={handleProfitDistribution}
+                          onCancel={() => setDistributingProfits(null)}
+                        />
       </PartnerLayout>
     )
   }
@@ -493,7 +502,7 @@ const PartnerDealsPage = () => {
                       </Button>
                       
                       {/* Manage Deal Button - Only for deals with investments */}
-                      {deal.investorCount > 0 && (
+                      {(deal.investorCount || 0) > 0 && (
                         <Button
                           size="sm"
                           onClick={() => router.push(`/partner/deals/${deal.id}/manage`)}
@@ -506,7 +515,7 @@ const PartnerDealsPage = () => {
                       
                       {/* Distribute Profits Button - Only for active/funded/completed deals with investments */}
                       {(deal.status === 'ACTIVE' || deal.status === 'FUNDED' || deal.status === 'COMPLETED') && 
-                       deal.investorCount > 0 && (
+                       (deal.investorCount || 0) > 0 && (
                         <Button
                           size="sm"
                           onClick={() => setDistributingProfits(deal)}
