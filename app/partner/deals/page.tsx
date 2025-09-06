@@ -9,6 +9,7 @@ import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import DealForm from '../../components/forms/DealForm'
+import ProfitDistributionForm from '../../components/forms/ProfitDistributionForm'
 import { Deal } from '../../types/deals'
 import { dealsService } from '../../lib/deals-service'
 import { 
@@ -30,6 +31,7 @@ const PartnerDealsPage = () => {
   const [filterStatus, setFilterStatus] = useState('all')
   const [showAddDeal, setShowAddDeal] = useState(false)
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null)
+  const [distributingProfits, setDistributingProfits] = useState<Deal | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const dealsPerPage = 12
 
@@ -100,6 +102,32 @@ const PartnerDealsPage = () => {
     } catch (error) {
       console.error('Error deleting deal:', error)
       alert('Error deleting deal')
+    }
+  }
+
+  const handleProfitDistribution = async (distributions: any[]) => {
+    try {
+      const response = await fetch('/api/partner/profit-distribution', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dealId: distributingProfits?.id,
+          distributions
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to submit profit distribution')
+      }
+
+      alert('Profit distribution submitted for admin approval')
+      setDistributingProfits(null)
+      fetchDeals() // Refresh deals
+    } catch (error) {
+      console.error('Error submitting profit distribution:', error)
+      throw error
     }
   }
 
@@ -247,6 +275,21 @@ const PartnerDealsPage = () => {
             }
           }}
           onCancel={() => setEditingDeal(null)}
+        />
+      </PartnerLayout>
+    )
+  }
+
+  if (distributingProfits) {
+    return (
+      <PartnerLayout
+        title="Distribute Profits"
+        subtitle={`Profit Distribution for: ${distributingProfits.title}`}
+      >
+        <ProfitDistributionForm
+          deal={distributingProfits}
+          onSubmit={handleProfitDistribution}
+          onCancel={() => setDistributingProfits(null)}
         />
       </PartnerLayout>
     )
@@ -446,6 +489,19 @@ const PartnerDealsPage = () => {
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
+                      
+                      {/* Distribute Profits Button - Only for active/funded/completed deals with investments */}
+                      {(deal.status === 'ACTIVE' || deal.status === 'FUNDED' || deal.status === 'COMPLETED') && 
+                       deal.investorCount > 0 && (
+                        <Button
+                          size="sm"
+                          onClick={() => setDistributingProfits(deal)}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                          title="Distribute Profits"
+                        >
+                          <DollarSign className="w-4 h-4" />
+                        </Button>
+                      )}
                       
                       {/* Delete Button - Only for draft deals */}
                       {deal.status === 'DRAFT' && (

@@ -109,6 +109,10 @@ model User {
   reviewedApplications UserApplication[] @relation("ApplicationReviewer")
   profitDistributions ProfitDistribution[] @relation("ProfitDistributions")
   
+  // Profit distribution requests
+  profitDistributionRequests ProfitDistributionRequest[] @relation("ProfitDistributionRequests")
+  reviewedProfitDistributions ProfitDistributionRequest[] @relation("ProfitDistributionReviews")
+  
   // Financial relationships
   budgets           Budget[]
   requestedBudgets  BudgetRequest[] @relation("BudgetRequestedBy")
@@ -259,6 +263,7 @@ model Project {
   reviews          PartnerReview[]
   dealPerformances DealPerformance[]
   profitDistributions ProfitDistribution[]
+  profitDistributionRequests ProfitDistributionRequest[] @relation("ProfitDistributionRequests")
   
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
@@ -642,4 +647,33 @@ model ProfitDistribution {
   updatedAt        DateTime        @updatedAt
   
   @@map("profit_distributions")
+}
+
+model ProfitDistributionRequest {
+  id               String          @id @default(cuid())
+  
+  // Request details
+  projectId        String
+  project          Project         @relation("ProfitDistributionRequests", fields: [projectId], references: [id], onDelete: Cascade)
+  partnerId        String
+  partner          User            @relation("ProfitDistributionRequests", fields: [partnerId], references: [id])
+  
+  // Distribution details
+  totalAmount      Decimal         @db.Decimal(15, 2)
+  distributionData Json            // Stores the distribution breakdown
+  description      String?         @db.Text
+  
+  // Status and approval
+  status           String          @default("PENDING") // PENDING, APPROVED, REJECTED
+  reviewedBy       String?
+  reviewer         User?           @relation("ProfitDistributionReviews", fields: [reviewedBy], references: [id])
+  reviewedAt       DateTime?
+  rejectionReason  String?         @db.Text
+  
+  // Timestamps
+  requestedAt      DateTime        @default(now())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  @@map("profit_distribution_requests")
 }
