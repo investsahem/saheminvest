@@ -16,8 +16,13 @@ cloudinary.config({
 // GET /api/deals - Get all deals with filtering
 export async function GET(request: NextRequest) {
   try {
+    console.log('=== DEALS API START ===')
+    
     const session = await getServerSession(authOptions)
+    console.log('Session user:', session?.user?.id, session?.user?.role)
+    
     const { searchParams } = new URL(request.url)
+    console.log('Search params:', Object.fromEntries(searchParams.entries()))
     
     const status = searchParams.get('status')
     const category = searchParams.get('category')
@@ -28,6 +33,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
     const skip = (page - 1) * limit
+
+    console.log('Parsed params:', { status, category, featured, search, includeAll, partner, page, limit })
 
     // Build where clause
     const where: any = {}
@@ -63,10 +70,34 @@ export async function GET(request: NextRequest) {
     // Partner filtering - only show deals owned by current user if partner=true
     if (partner && session?.user?.id) {
       where.ownerId = session.user.id
+      console.log('Partner filtering enabled for user:', session.user.id)
     }
 
-    const [deals, total] = await Promise.all([
-      prisma.project.findMany({
+    // Try to fetch deals with error handling for each step
+    console.log('Fetching deals with where clause:', JSON.stringify(where))
+    
+    let deals = []
+    let total = 0
+    
+    // Start with the simplest possible query
+    console.log('Step 1: Testing basic project query...')
+    
+    try {
+      // Test basic query first
+      const basicDeals = await prisma.project.findMany({
+        where,
+        select: {
+          id: true,
+          title: true,
+          status: true
+        },
+        take: 5
+      })
+      console.log('Basic query successful, found', basicDeals.length, 'deals')
+      
+      // Now try with owner
+      console.log('Step 2: Testing with owner include...')
+      const dealsWithOwner = await prisma.project.findMany({
         where,
         include: {
           owner: {
@@ -76,24 +107,23 @@ export async function GET(request: NextRequest) {
               email: true,
               image: true
             }
-          },
-          partner: {
+          }
+        },
+        take: 5
+      })
+      console.log('Owner include successful, found', dealsWithOwner.length, 'deals')
+      
+      // Try with investments count
+      console.log('Step 3: Testing with investments count...')
+      const dealsWithCount = await prisma.project.findMany({
+        where,
+        include: {
+          owner: {
             select: {
               id: true,
-              companyName: true,
-              logo: true
-            }
-          },
-          investments: {
-            select: {
-              id: true,
-              amount: true,
-              investor: {
-                select: {
-                  id: true,
-                  name: true
-                }
-              }
+              name: true,
+              email: true,
+              image: true
             }
           },
           _count: {
@@ -109,9 +139,25 @@ export async function GET(request: NextRequest) {
         ],
         skip,
         take: limit
-      }),
-      prisma.project.count({ where })
-    ])
+      })
+      
+      const totalCount = await prisma.project.count({ where })
+      
+      console.log('Full query successful!')
+      
+      // Add partner as null since we're not including it for now
+      deals = dealsWithCount.map(deal => ({
+        ...deal,
+        partner: null,
+        investments: [] // Empty for now
+      }))
+      total = totalCount
+      
+    } catch (queryError) {
+      console.error('Query failed at step:', queryError.message)
+      console.error('Query error stack:', queryError.stack)
+      throw queryError
+    }
 
     // Apply privacy controls based on user role
     const userRole = session?.user?.role
@@ -155,6 +201,10 @@ export async function GET(request: NextRequest) {
       return filteredDeal
     })
 
+    console.log('=== DEALS API SUCCESS ===')
+    console.log('Returning deals count:', transformedDeals.length)
+    console.log('Total:', total)
+    
     return NextResponse.json({
       deals: transformedDeals,
       total,

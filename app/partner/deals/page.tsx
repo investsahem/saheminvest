@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { useTranslation } from '../../components/providers/I18nProvider'
 import PartnerLayout from '../../components/layout/PartnerLayout'
 import { DealCard } from '../../components/project/DealCard'
@@ -24,6 +25,7 @@ import { useAdminNotifications } from '../../hooks/useAdminNotifications'
 const PartnerDealsPage = () => {
   const { t } = useTranslation()
   const { data: session } = useSession()
+  const router = useRouter()
   const { sendDealNotification } = useAdminNotifications()
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
@@ -489,6 +491,18 @@ const PartnerDealsPage = () => {
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
+                      
+                      {/* Manage Deal Button - Only for deals with investments */}
+                      {deal.investorCount > 0 && (
+                        <Button
+                          size="sm"
+                          onClick={() => router.push(`/partner/deals/${deal.id}/manage`)}
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                          title="ادارة الصفقة"
+                        >
+                          <BarChart3 className="w-4 h-4" />
+                        </Button>
+                      )}
                       
                       {/* Distribute Profits Button - Only for active/funded/completed deals with investments */}
                       {(deal.status === 'ACTIVE' || deal.status === 'FUNDED' || deal.status === 'COMPLETED') && 

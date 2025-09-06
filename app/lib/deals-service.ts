@@ -32,7 +32,21 @@ export class DealsService {
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        // Try to get detailed error information from the response
+        let errorDetails = `HTTP error! status: ${response.status}`
+        try {
+          const errorData = await response.json()
+          if (errorData.details) {
+            errorDetails += ` - ${errorData.details}`
+          }
+          if (errorData.error) {
+            errorDetails += ` - ${errorData.error}`
+          }
+          console.error('Detailed API error:', errorData)
+        } catch (e) {
+          // If response is not JSON, just use the status
+        }
+        throw new Error(errorDetails)
       }
 
       const data = await response.json()
