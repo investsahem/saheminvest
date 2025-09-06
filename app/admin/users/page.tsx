@@ -105,7 +105,7 @@ export default function UsersManagementPage() {
   })
 
   const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'

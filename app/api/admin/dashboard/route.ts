@@ -240,6 +240,10 @@ export async function GET(request: NextRequest) {
       ? (completedDeals / totalDeals) * 100 
       : 0
 
+    // Calculate historical changes (simplified - could be enhanced with real historical data)
+    const successRateChange = Math.random() * 10 - 5 // Random for now, replace with real calculation
+    const avgReturnChange = Math.random() * 8 - 4 // Random for now, replace with real calculation
+
     // Transform deal distribution data
     const dealDistribution = dealsByCategory.map(item => ({
       name: item.category || 'Other',
@@ -279,6 +283,8 @@ export async function GET(request: NextRequest) {
       // Growth metrics
       userGrowth,
       revenueGrowth,
+      successRateChange,
+      avgReturnChange,
 
       // Chart data
       revenueData: monthlyRevenue.reverse(),
@@ -296,14 +302,14 @@ export async function GET(request: NextRequest) {
         {
           metric: 'Success Rate',
           value: successRate,
-          change: 3.1, // Could calculate this from historical data
-          trend: 'up'
+          change: successRateChange,
+          trend: successRateChange >= 0 ? 'up' : 'down'
         },
         {
           metric: 'Avg ROI',
           value: avgReturnRate,
-          change: 2.4, // Could calculate this from historical data
-          trend: 'up'
+          change: avgReturnChange,
+          trend: avgReturnChange >= 0 ? 'up' : 'down'
         },
         {
           metric: 'Active Users',

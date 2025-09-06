@@ -268,15 +268,15 @@ export default function PublicDealsPage() {
             >
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-full">
                 <TrendingUp className="w-4 h-4 text-[#6be2c9]" />
-                <span className="text-[#e9edf7] text-sm">{deals.length} Active Deals</span>
+                <span className="text-[#e9edf7] text-sm">{deals.length} {t('deals.stats.active_deals')}</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-full">
                 <Shield className="w-4 h-4 text-[#6be2c9]" />
-                <span className="text-[#e9edf7] text-sm">Bank-level Security</span>
+                <span className="text-[#e9edf7] text-sm">{t('deals.stats.bank_security')}</span>
             </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-full">
                 <CheckCircle className="w-4 h-4 text-[#6be2c9]" />
-                <span className="text-[#e9edf7] text-sm">Guaranteed Returns</span>
+                <span className="text-[#e9edf7] text-sm">{t('deals.stats.guaranteed_returns')}</span>
           </div>
             </motion.div>
           </motion.div>
@@ -311,7 +311,7 @@ export default function PublicDealsPage() {
               onChange={(e) => setCategoryFilter(e.target.value)}
                     className="w-full px-4 py-3 bg-[#0f1640] border border-[#2d3a6b] rounded-xl text-[#e9edf7] focus:outline-none focus:ring-2 focus:ring-[#6be2c9] focus:border-transparent"
             >
-              <option value="all">All Categories</option>
+              <option value="all">{t('deals.filters.all_categories')}</option>
               {categories.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
@@ -325,10 +325,10 @@ export default function PublicDealsPage() {
                     onChange={(e) => setSortBy(e.target.value)}
                     className="w-full px-4 py-3 bg-[#0f1640] border border-[#2d3a6b] rounded-xl text-[#e9edf7] focus:outline-none focus:ring-2 focus:ring-[#6be2c9] focus:border-transparent"
                   >
-                    <option value="newest">Newest</option>
-                    <option value="funding">Most Funded</option>
-                    <option value="return">Highest Return</option>
-                    <option value="progress">Most Progress</option>
+                    <option value="newest">{t('deals.sort.newest')}</option>
+                    <option value="funding">{t('deals.sort.most_funded')}</option>
+                    <option value="return">{t('deals.sort.highest_return')}</option>
+                    <option value="progress">{t('deals.sort.most_progress')}</option>
                   </select>
                 </div>
               </div>
@@ -450,7 +450,7 @@ export default function PublicDealsPage() {
                   {/* Progress Bar */}
                   <div className="mb-6">
                     <div className="flex justify-between text-sm text-[#b8c2d8] mb-2">
-                      <span>Progress</span>
+                      <span>{t('deals.card.progress')}</span>
                       <span className="text-[#6be2c9] font-bold">
                         {getProgressPercentage(deal.currentFunding, deal.fundingGoal).toFixed(0)}%
                       </span>
@@ -471,13 +471,13 @@ export default function PublicDealsPage() {
                       <div className="text-lg font-bold text-[#6be2c9] mb-1">
                         {formatCurrency(deal.currentFunding / 1000)}K
                       </div>
-                      <div className="text-xs text-[#b8c2d8]">Raised</div>
+                      <div className="text-xs text-[#b8c2d8]">{t('deals.card.raised')}</div>
                     </div>
                     <div>
                       <div className="text-lg font-bold text-[#23a1ff] mb-1">
                         {deal.duration}M
                       </div>
-                      <div className="text-xs text-[#b8c2d8]">Duration</div>
+                      <div className="text-xs text-[#b8c2d8]">{t('deals.card.duration')}</div>
                     </div>
                     <div>
                       <div className={`text-lg font-bold mb-1 ${
@@ -485,9 +485,9 @@ export default function PublicDealsPage() {
                         deal.riskLevel === 'Medium' ? 'text-yellow-400' :
                         'text-red-400'
                       }`}>
-                        {deal.riskLevel}
+                        {t(`deals.card.risk_levels.${deal.riskLevel.toLowerCase()}`)}
                       </div>
-                      <div className="text-xs text-[#b8c2d8]">Risk</div>
+                      <div className="text-xs text-[#b8c2d8]">{t('deals.card.risk')}</div>
                 </div>
                   </div>
 
@@ -498,7 +498,7 @@ export default function PublicDealsPage() {
                       <span>{deal.investorCount} investors</span>
                     </div>
                     <div>
-                      Min: {formatCurrency(deal.minInvestment)}
+                      {t('deals.card.min')}: {formatCurrency(deal.minInvestment)}
                     </div>
                   </div>
 
@@ -510,7 +510,7 @@ export default function PublicDealsPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        View Details
+                        {t('deals.card.view_details')}
                       </motion.button>
                     </Link>
                     <Link href="/auth/signin">
@@ -519,7 +519,7 @@ export default function PublicDealsPage() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        Invest Now
+                        {t('deals.card.invest_now')}
                       </motion.button>
                     </Link>
                   </div>
@@ -540,10 +540,10 @@ export default function PublicDealsPage() {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-6">
-            Ready to Start Investing?
+            {t('deals.cta.title')}
           </h2>
           <p className="text-lg text-[#b8c2d8] mb-8 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of investors who are achieving rewarding returns through our platform. Create your account in minutes and start investing today.
+            {t('deals.cta.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/signin">
@@ -552,7 +552,7 @@ export default function PublicDealsPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Create Account
+                {t('deals.cta.create_account')}
                 <ArrowRight className="w-5 h-5" />
               </motion.button>
             </Link>
@@ -562,7 +562,7 @@ export default function PublicDealsPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Learn More
+                {t('deals.cta.learn_more')}
               </motion.button>
             </Link>
           </div>

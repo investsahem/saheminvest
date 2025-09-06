@@ -405,6 +405,40 @@
       "advanced_tech": "Advanced Technology Co.",
       "smart_trading": "Smart Trading Ltd.",
       "modern_construction": "Modern Construction Group"
+    },
+    "stats": {
+      "active_deals": "Active Deals",
+      "bank_security": "Bank-level Security",
+      "guaranteed_returns": "Guaranteed Returns"
+    },
+    "filters": {
+      "all_categories": "All Categories"
+    },
+    "sort": {
+      "newest": "Newest",
+      "most_funded": "Most Funded",
+      "highest_return": "Highest Return",
+      "most_progress": "Most Progress"
+    },
+    "card": {
+      "progress": "Progress",
+      "raised": "Raised",
+      "duration": "Duration",
+      "risk": "Risk",
+      "min": "Min",
+      "view_details": "View Details",
+      "invest_now": "Invest Now",
+      "risk_levels": {
+        "low": "LOW",
+        "medium": "MEDIUM",
+        "high": "HIGH"
+      }
+    },
+    "cta": {
+      "title": "Ready to Start Investing?",
+      "description": "Join thousands of investors who are achieving rewarding returns through our platform. Create your account in minutes and start investing today.",
+      "create_account": "Create Account",
+      "learn_more": "Learn More"
     }
   },
   "dealManager": {
@@ -903,6 +937,7 @@
     "no": "No",
     "ok": "OK",
     "error": "Error",
+    "error_loading_data": "Error loading data",
     "success": "Success",
     "loading": "Loading...",
     "search": "Search",

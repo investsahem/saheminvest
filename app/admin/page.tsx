@@ -33,6 +33,8 @@ interface DashboardData {
   completedDealsThisMonth: number
   userGrowth: number
   revenueGrowth: number
+  successRateChange: number
+  avgReturnChange: number
   revenueData: Array<{
     month: string
     revenue: number
@@ -93,13 +95,13 @@ export default function AdminDashboard() {
   }, [])
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat(locale === 'ar' ? 'ar-SA' : 'en-US').format(num)
+    return new Intl.NumberFormat('en-US').format(num)
   }
 
   const formatCurrency = (num: number) => {
-    return new Intl.NumberFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: locale === 'ar' ? 'SAR' : 'USD',
+      currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(num)
@@ -141,7 +143,7 @@ export default function AdminDashboard() {
             <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
             <p className="text-2xl font-bold text-gray-900 mb-2">
               {format === 'currency' ? formatCurrency(value) : 
-               format === 'percentage' ? `${value}%` : formatNumber(value)}
+               format === 'percentage' ? `${Number(value).toFixed(1)}%` : formatNumber(value)}
             </p>
             <div className="flex items-center">
               {trend === 'up' ? 
@@ -149,7 +151,7 @@ export default function AdminDashboard() {
                 <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
               }
               <span className={`text-sm font-medium ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                {change > 0 ? '+' : ''}{change}%
+                {change > 0 ? '+' : ''}{Number(change).toFixed(1)}%
               </span>
               <span className="text-sm text-gray-500 ml-2">{t('admin.from_last_month')}</span>
             </div>
@@ -271,16 +273,16 @@ export default function AdminDashboard() {
           <MetricCard
             title={t('admin.success_rate')}
             value={dashboardData.successRate}
-            change={3.1}
-            trend="up"
+            change={dashboardData.successRateChange || 0}
+            trend={dashboardData.successRateChange >= 0 ? "up" : "down"}
             icon={Target}
             format="percentage"
           />
           <MetricCard
             title={t('admin.avg_roi')}
             value={dashboardData.avgReturn}
-            change={2.4}
-            trend="up"
+            change={dashboardData.avgReturnChange || 0}
+            trend={dashboardData.avgReturnChange >= 0 ? "up" : "down"}
             icon={TrendingUp}
             format="percentage"
           />
@@ -455,14 +457,14 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex items-baseline space-x-2">
                         <span className="text-2xl font-bold text-gray-900">
-                          {metric.metric.includes('Time') ? `${metric.value} days` :
-                           metric.metric.includes('Rate') || metric.metric.includes('ROI') ? `${metric.value}%` :
+                          {metric.metric.includes('Time') ? `${formatNumber(metric.value)} days` :
+                           metric.metric.includes('Rate') || metric.metric.includes('ROI') ? `${Number(metric.value).toFixed(1)}%` :
                            formatCurrency(metric.value)}
                         </span>
                         <span className={`text-sm font-medium ${
                           metric.change > 0 ? 'text-green-600' : 'text-red-600'
                         }`}>
-                          {metric.change > 0 ? '+' : ''}{metric.change}%
+                          {metric.change > 0 ? '+' : ''}{Number(metric.change).toFixed(1)}%
                         </span>
                       </div>
                     </div>

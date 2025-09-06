@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
+import { usePartnerStats } from '../../hooks/usePartnerStats'
 import { Bell, Search, User, ChevronDown, Menu, TrendingUp, DollarSign, LogOut, Building2, Target, Settings } from 'lucide-react'
 import { Button } from '../ui/Button'
 
@@ -18,6 +19,9 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
   const { locale } = useI18n()
   const { data: session } = useSession()
   const [showUserDropdown, setShowUserDropdown] = useState(false)
+  
+  // Fetch real partner statistics
+  const { stats, loading, error } = usePartnerStats()
 
   const formatGreeting = () => {
     const hour = new Date().getHours()
@@ -26,11 +30,11 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
     return locale === 'ar' ? 'مساء الخير' : 'Good evening'
   }
 
-  // Sample partner metrics - in real app, fetch from API
-  const totalRaised = 850000
-  const activeDeals = 3
-  const successRate = 87
-  const isGrowing = true
+  // Use real data from API or fallback to defaults
+  const totalRaised = stats?.totalRaised || 0
+  const activeDeals = stats?.activeDeals || 0
+  const successRate = stats?.successRate || 0
+  const isGrowing = stats?.isGrowing ?? false
 
   const handleLogout = async () => {
     try {
@@ -93,48 +97,74 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
 
         {/* Performance indicators */}
         <div className="hidden md:flex items-center space-x-6 mr-6">
-          {/* Total Raised */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-4 h-4 text-green-600" />
+          {loading ? (
+            /* Loading state */
+            <div className="flex items-center space-x-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg animate-pulse"></div>
+                  <div>
+                    <div className="w-16 h-3 bg-gray-100 rounded animate-pulse mb-1"></div>
+                    <div className="w-12 h-4 bg-gray-100 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div>
-              <p className="text-xs text-gray-500">{t('partner.total_raised')}</p>
-              <p className="text-sm font-semibold text-gray-900">
-                ${(totalRaised / 1000).toFixed(0)}K
-              </p>
+          ) : error ? (
+            /* Error state */
+            <div className="text-xs text-red-500">
+              {t('common.error_loading_data')}
             </div>
-          </div>
+          ) : (
+            /* Actual data */
+            <>
+              {/* Total Raised */}
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-4 h-4 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">{t('partner.total_raised')}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {totalRaised >= 1000000 
+                      ? `$${(totalRaised / 1000000).toFixed(1)}M`
+                      : `$${(totalRaised / 1000).toFixed(0)}K`
+                    }
+                  </p>
+                </div>
+              </div>
 
-          {/* Active Deals */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-              <Target className="w-4 h-4 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">{t('partner.active_deals')}</p>
-              <p className="text-sm font-semibold text-gray-900">{activeDeals}</p>
-            </div>
-          </div>
+              {/* Active Deals */}
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <Target className="w-4 h-4 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">{t('partner.active_deals')}</p>
+                  <p className="text-sm font-semibold text-gray-900">{activeDeals}</p>
+                </div>
+              </div>
 
-          {/* Success Rate */}
-          <div className="flex items-center space-x-2">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-              isGrowing ? 'bg-green-50' : 'bg-red-50'
-            }`}>
-              <TrendingUp className={`w-4 h-4 ${
-                isGrowing ? 'text-green-600' : 'text-red-600'
-              }`} />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500">{t('partner.success_rate')}</p>
-              <p className={`text-sm font-semibold ${
-                isGrowing ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {successRate}%
-              </p>
-            </div>
-          </div>
+              {/* Success Rate */}
+              <div className="flex items-center space-x-2">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                  isGrowing ? 'bg-green-50' : 'bg-red-50'
+                }`}>
+                  <TrendingUp className={`w-4 h-4 ${
+                    isGrowing ? 'text-green-600' : 'text-red-600'
+                  }`} />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500">{t('partner.success_rate')}</p>
+                  <p className={`text-sm font-semibold ${
+                    isGrowing ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {successRate.toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Right side actions */}

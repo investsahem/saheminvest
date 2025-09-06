@@ -200,19 +200,37 @@ const PartnerDealsPage = () => {
                 formData.append('status', 'PENDING')
               }
               
+              console.log('🚀 Sending PUT request to update deal:', editingDeal.id)
+              
               const response = await fetch(`/api/deals/${editingDeal.id}`, {
                 method: 'PUT',
                 body: formData,
                 credentials: 'include'
               })
+              
+              console.log('📡 API Response status:', response.status)
+              
               if (response.ok) {
+                const updatedDeal = await response.json()
+                console.log('✅ Deal updated successfully:', {
+                  id: updatedDeal.id,
+                  title: updatedDeal.title,
+                  thumbnailImage: updatedDeal.thumbnailImage
+                })
+                
                 // Send notification to admins if deal was active/published (requires re-approval)
                 if (editingDeal.status === 'ACTIVE' || editingDeal.status === 'PUBLISHED') {
                   await sendDealNotification(editingDeal.id, 'updated', ['Deal details updated'])
                 }
                 
                 setEditingDeal(null)
-                fetchDeals()
+                
+                // Force a hard refresh of the deals data
+                console.log('🔄 Force refreshing deals data...')
+                setDeals([]) // Clear current deals first
+                await fetchDeals() // Wait for deals to refresh
+                console.log('🔄 Deals refreshed after update')
+                
                 if (editingDeal.status === 'ACTIVE' || editingDeal.status === 'PUBLISHED') {
                   alert('Deal updated successfully! It will be reviewed by admin before being published again.')
                 } else {
@@ -220,6 +238,7 @@ const PartnerDealsPage = () => {
                 }
               } else {
                 const errorData = await response.json()
+                console.error('❌ API Error:', errorData)
                 alert(errorData.error || 'Failed to update deal')
               }
             } catch (error) {

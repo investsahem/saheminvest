@@ -116,11 +116,24 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
       submitFormData.append('highlights', JSON.stringify(highlights.filter(h => h.trim())))
       submitFormData.append('tags', JSON.stringify(tags.filter(t => t.trim())))
 
-      // Add image if present
+      // Handle image upload
       const imageInput = imageInputRef.current
-      if (imageInput?.files?.[0]) {
+      const hasNewImageFile = imageInput?.files?.[0]
+      
+      console.log('🔍 Image handling debug info:', {
+        hasNewImageFile: !!hasNewImageFile,
+        mode,
+        imagePreview: imagePreview ? imagePreview.substring(0, 50) + '...' : 'None',
+        imagePreviewIsDataUrl: imagePreview?.startsWith('data:'),
+        imageInputFiles: imageInput?.files?.length || 0,
+        imageInputRef: !!imageInputRef.current,
+        imageInputId: imageInputRef.current?.id || 'no-id',
+        imageInputName: imageInputRef.current?.name || 'no-name'
+      })
+      
+      if (hasNewImageFile) {
         const file = imageInput.files[0]
-        console.log('✅ Adding image to form data:', {
+        console.log('✅ Adding new image to form data:', {
           name: file.name,
           size: file.size,
           type: file.type,
@@ -142,13 +155,15 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
         }
         
         submitFormData.append('image', file)
+        console.log('📤 New image file added to form data')
+      } else if (mode === 'edit' && imagePreview && !imagePreview.startsWith('data:')) {
+        // Keep existing image URL for edit mode
+        submitFormData.append('existingImageUrl', imagePreview)
+        console.log('🔄 Keeping existing image:', imagePreview)
+      } else if (mode === 'create') {
+        console.log('⚠️ No image selected for new deal creation')
       } else {
-        console.log('⚠️ No image file selected - imageInput:', imageInput)
-        if (imageInput) {
-          console.log('⚠️ Image input exists but no files:', imageInput.files?.length)
-        } else {
-          console.log('❌ Image input ref is null!')
-        }
+        console.log('ℹ️ No image changes for edit mode - imagePreview:', imagePreview)
       }
 
       if (onSubmit) {
@@ -437,6 +452,17 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                   Deal Image
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                  {/* Single file input that works for both cases */}
+                  <input
+                    ref={imageInputRef}
+                    id="image-input"
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="sr-only"
+                  />
+                  
                   {imagePreview ? (
                     <div className="relative">
                       <img
@@ -444,24 +470,42 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                         alt="Preview"
                         className="w-full h-48 object-cover rounded-lg"
                       />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setImagePreview('')
-                          if (imageInputRef.current) {
-                            imageInputRef.current.value = ''
-                          }
-                        }}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        {/* Change Image Button */}
+                        <label
+                          htmlFor="image-input"
+                          className="bg-blue-500 text-white rounded-full p-1 hover:bg-blue-600 cursor-pointer"
+                          title="Change Image"
+                          onClick={() => {
+                            console.log('🔄 Change image button clicked, ref exists:', !!imageInputRef.current)
+                            if (imageInputRef.current) {
+                              imageInputRef.current.click()
+                            }
+                          }}
+                        >
+                          <Upload className="w-4 h-4" />
+                        </label>
+                        {/* Remove Image Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImagePreview('')
+                            if (imageInputRef.current) {
+                              imageInputRef.current.value = ''
+                            }
+                          }}
+                          className="bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          title="Remove Image"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="text-center">
                       <Upload className="mx-auto h-12 w-12 text-gray-400" />
                       <div className="mt-4">
-                        <label htmlFor="image" className="cursor-pointer">
+                        <label htmlFor="image-input" className="cursor-pointer">
                           <span className="mt-2 block text-sm font-medium text-gray-900">
                             Upload deal image
                           </span>
@@ -469,15 +513,6 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                             PNG, JPG, GIF up to 10MB
                           </span>
                         </label>
-                        <input
-                          ref={imageInputRef}
-                          id="image"
-                          name="image"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          className="sr-only"
-                        />
                       </div>
                     </div>
                   )}

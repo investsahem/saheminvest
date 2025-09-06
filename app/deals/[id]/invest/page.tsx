@@ -279,9 +279,6 @@ export default function InvestPage() {
                     <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
                       {deal.category}
                     </span>
-                    <span className="text-sm text-gray-500">
-                      N°{deal.id.slice(-8)}
-                    </span>
                   </div>
                   <h1 className="text-2xl font-bold text-gray-900 mb-3">{deal.title}</h1>
                   <p className="text-gray-600 mb-4">{deal.description}</p>

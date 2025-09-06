@@ -93,14 +93,32 @@ export function DealCard({
     return new Intl.NumberFormat('en-US').format(num)
   }
 
+  // Extract version from Cloudinary URL to use as key for cache busting
+  const getImageKey = (imageUrl: string) => {
+    if (!imageUrl) return 'no-image'
+    
+    // For Cloudinary images, extract the version number (v1234567890)
+    if (imageUrl.includes('cloudinary.com')) {
+      const versionMatch = imageUrl.match(/\/v(\d+)\//);
+      if (versionMatch) {
+        return `cloudinary-${versionMatch[1]}`
+      }
+    }
+    
+    // For other images, use the full URL as key
+    return imageUrl
+  }
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <div className="relative h-32">
         <Image
+          key={getImageKey(image)}
           src={image}
           alt={title}
           fill
           className="object-cover"
+          unoptimized={image.includes('cloudinary.com')}
         />
         {isFundingCompleted && (
           <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">

@@ -191,7 +191,9 @@ export async function PUT(
 
     // Handle image upload if new image provided
     const imageFile = formData.get('image') as File
+    const existingImageUrl = formData.get('existingImageUrl') as string
     console.log('API received image file:', imageFile ? `${imageFile.name} (${imageFile.size} bytes)` : 'No image')
+    console.log('API received existingImageUrl:', existingImageUrl)
     let thumbnailImage = existingDeal.thumbnailImage
     let images = [...existingDeal.images]
 
@@ -244,6 +246,13 @@ export async function PUT(
       thumbnailImage = uploadResult.secure_url
       images = [uploadResult.secure_url, ...images.filter(img => img !== existingDeal.thumbnailImage)]
       console.log('New image uploaded successfully:', thumbnailImage)
+    } else if (existingImageUrl) {
+      // Keep existing image URL (no changes needed)
+      console.log('Keeping existing image URL:', existingImageUrl)
+      thumbnailImage = existingImageUrl
+      if (!images.includes(existingImageUrl)) {
+        images = [existingImageUrl, ...images]
+      }
     }
 
     // Update slug if title changed
