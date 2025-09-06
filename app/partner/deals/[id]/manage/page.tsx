@@ -253,14 +253,23 @@ const DealManagePage = () => {
           </Button>
           
           <div className="flex gap-2">
-            <Button
-              onClick={() => setShowProfitForm(true)}
-              className="bg-green-600 hover:bg-green-700"
-              disabled={deal.status !== 'ACTIVE' && deal.status !== 'FUNDED' && deal.status !== 'COMPLETED'}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              توزيع أرباح
-            </Button>
+            {deal.status === 'COMPLETED' ? (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-600" />
+                  <span className="text-blue-800 font-medium">صفقة مكتملة - عرض سجل الأرباح</span>
+                </div>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setShowProfitForm(true)}
+                className="bg-green-600 hover:bg-green-700"
+                disabled={deal.status !== 'ACTIVE' && deal.status !== 'FUNDED'}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                توزيع أرباح
+              </Button>
+            )}
           </div>
         </div>
 
@@ -401,15 +410,50 @@ const DealManagePage = () => {
         {/* Profit Distribution History */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">سجل توزيع الأرباح</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">سجل توزيع الأرباح</h3>
+              {deal.status === 'COMPLETED' && (
+                <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                  صفقة مكتملة
+                </div>
+              )}
+            </div>
+            
             {deal.profitDistributions.length > 0 ? (
               <div className="space-y-4">
+                {/* Summary for completed deals */}
+                {deal.status === 'COMPLETED' && (
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <h4 className="font-medium text-green-900 mb-2">ملخص الأرباح النهائي</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <p className="text-green-600">إجمالي الأرباح الموزعة</p>
+                        <p className="font-bold text-green-900">{formatCurrency(totalDistributed)}</p>
+                      </div>
+                      <div>
+                        <p className="text-green-600">عدد التوزيعات</p>
+                        <p className="font-bold text-green-900">{deal.profitDistributions.length}</p>
+                      </div>
+                      <div>
+                        <p className="text-green-600">معدل العائد</p>
+                        <p className="font-bold text-green-900">
+                          {((totalDistributed / totalInvested) * 100).toFixed(1)}%
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-green-600">حالة الصفقة</p>
+                        <p className="font-bold text-green-900">مكتملة بنجاح</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 {deal.profitDistributions.map((distribution) => (
-                  <div key={distribution.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={distribution.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                     <div>
-                      <p className="font-medium text-gray-900">{distribution.description}</p>
+                      <p className="font-medium text-gray-900">{distribution.description || 'توزيع أرباح'}</p>
                       <p className="text-sm text-gray-600">
-                        {formatDate(distribution.distributionDate)} • معدل الربح: {distribution.profitRate}%
+                        {formatDate(distribution.distributionDate)} • معدل الربح: {Number(distribution.profitRate).toFixed(1)}%
                       </p>
                     </div>
                     <div className="text-left">
@@ -429,13 +473,25 @@ const DealManagePage = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-8">لم يتم توزيع أرباح بعد</p>
+              <div className="text-center py-8">
+                {deal.status === 'COMPLETED' ? (
+                  <div>
+                    <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">صفقة مكتملة بدون توزيع أرباح مسجل</p>
+                  </div>
+                ) : (
+                  <div>
+                    <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">لم يتم توزيع أرباح بعد</p>
+                  </div>
+                )}
+              </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Profit Distribution Form Modal */}
-        {showProfitForm && (
+        {/* Profit Distribution Form Modal - Only for non-completed deals */}
+        {showProfitForm && deal.status !== 'COMPLETED' && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">

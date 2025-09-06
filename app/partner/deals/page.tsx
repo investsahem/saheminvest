@@ -532,8 +532,8 @@ const PartnerDealsPage = () => {
                         </Button>
                       )}
                       
-                      {/* Distribute Profits Button - Only for active/funded/completed deals with investments */}
-                      {(deal.status === 'ACTIVE' || deal.status === 'FUNDED' || deal.status === 'COMPLETED') && 
+                      {/* Distribute Profits Button - Only for active/funded deals with investments (not completed) */}
+                      {(deal.status === 'ACTIVE' || deal.status === 'FUNDED') && 
                        (deal.investorCount || 0) > 0 && (
                         <Button
                           size="sm"
@@ -543,6 +543,19 @@ const PartnerDealsPage = () => {
                         >
                           <DollarSign className="w-4 h-4" />
                           <span className="text-xs">أرباح</span>
+                        </Button>
+                      )}
+                      
+                      {/* View Profit History Button - Only for completed deals with profit distributions */}
+                      {deal.status === 'COMPLETED' && (deal.investorCount || 0) > 0 && (
+                        <Button
+                          size="sm"
+                          onClick={() => router.push(`/partner/deals/${deal.id}/manage`)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
+                          title="View Profit History"
+                        >
+                          <DollarSign className="w-4 h-4" />
+                          <span className="text-xs">سجل</span>
                         </Button>
                       )}
                       
