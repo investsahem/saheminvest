@@ -47,7 +47,8 @@ export async function GET(request: NextRequest) {
     })
 
     // Calculate portfolio metrics
-    let totalInvested = 0
+    let totalInvested = 0 // Only count active investments
+    let totalHistoricalInvested = 0 // All investments ever made (for return calculations)
     let currentPortfolioValue = 0
     let totalReturns = 0
     let totalDistributedProfits = 0
@@ -59,19 +60,41 @@ export async function GET(request: NextRequest) {
 
     for (const investment of investments) {
       const investedAmount = Number(investment.amount)
-      totalInvested += investedAmount
+      totalHistoricalInvested += investedAmount
+      
+      // Only count as "currently invested" if not completed
+      if (investment.project.status !== 'COMPLETED') {
+        totalInvested += investedAmount
+      }
+
+      // Get distributed profits from transactions (excluding capital returns)
+      const profitTransactions = await prisma.transaction.findMany({
+        where: {
+          investmentId: investment.id,
+          type: 'RETURN',
+          status: 'COMPLETED',
+          description: { not: { contains: 'Capital Return' } } // Exclude capital returns
+        }
+      })
+      
+      const distributedProfits = profitTransactions.reduce(
+        (sum, transaction) => sum + Number(transaction.amount), 0
+      )
 
       // Calculate current value based on project performance
       let currentValue = investedAmount
       const project = investment.project
 
-      if (project.status === 'COMPLETED' || project.status === 'FUNDED') {
-        // Use actual current value if available, otherwise estimate based on funding progress
-        const projectCurrentValue = Number(project.currentFunding)
-        const fundingRatio = investedAmount / Number(project.fundingGoal)
-        currentValue = projectCurrentValue * fundingRatio
+      if (project.status === 'COMPLETED') {
+        // For completed projects, the investment is no longer "active" in the portfolio
+        // The capital has been returned to the wallet, so current portfolio value is 0
+        // But we still track it for historical purposes in the investments list
+        currentValue = 0
+      } else if (project.status === 'FUNDED') {
+        // For funded projects, current value = investment + any distributed profits
+        currentValue = investedAmount + distributedProfits
       } else if (project.status === 'ACTIVE') {
-        // For active projects, estimate based on expected return and progress
+        // For active projects, estimate based on expected return and progress + any distributed profits
         const fundingProgress = Number(project.currentFunding) / Number(project.fundingGoal)
         const timeProgress = project.endDate ? 
           Math.min(1, (Date.now() - new Date(project.createdAt).getTime()) / 
@@ -79,27 +102,25 @@ export async function GET(request: NextRequest) {
         
         // Conservative estimation: partial expected return based on time progress
         const estimatedReturn = investedAmount * (Number(project.expectedReturn) / 100) * timeProgress * 0.5
-        currentValue = investedAmount + estimatedReturn
+        currentValue = investedAmount + estimatedReturn + distributedProfits
+      } else {
+        // For other statuses, just add distributed profits
+        currentValue = investedAmount + distributedProfits
       }
 
       currentPortfolioValue += currentValue
-
-      // Get distributed profits from transactions
-      const profitTransactions = await prisma.transaction.findMany({
-        where: {
-          investmentId: investment.id,
-          type: 'RETURN',
-          status: 'COMPLETED'
-        }
-      })
-      
-      const distributedProfits = profitTransactions.reduce(
-        (sum, transaction) => sum + Number(transaction.amount), 0
-      )
       totalDistributedProfits += distributedProfits
 
-      // Calculate returns (current value - invested + distributed profits)
-      const totalReturn = (currentValue - investedAmount) + distributedProfits
+      // Calculate returns for completed deals differently
+      let totalReturn = 0
+      if (project.status === 'COMPLETED') {
+        // For completed deals, return is just the distributed profits
+        totalReturn = distributedProfits
+      } else {
+        // For active/funded deals, return is current value - invested amount
+        totalReturn = currentValue - investedAmount
+      }
+      
       totalReturns += totalReturn
 
       // Calculate project progress
@@ -114,6 +135,14 @@ export async function GET(request: NextRequest) {
         progress = Math.round((Number(project.currentFunding) / Number(project.fundingGoal)) * 100)
       }
 
+      // For the individual investment display, show what the investment is worth now
+      let displayCurrentValue = currentValue
+      if (project.status === 'COMPLETED') {
+        // For completed deals, show the distributed profits as the "current value"
+        // since the original investment has been returned to wallet
+        displayCurrentValue = distributedProfits
+      }
+
       portfolioInvestments.push({
         id: investment.id,
         projectId: project.id,
@@ -121,7 +150,7 @@ export async function GET(request: NextRequest) {
         category: project.category,
         thumbnailImage: project.thumbnailImage,
         investedAmount: investedAmount,
-        currentValue: Math.round(currentValue * 100) / 100,
+        currentValue: Math.round(displayCurrentValue * 100) / 100,
         totalReturn: Math.round(totalReturn * 100) / 100,
         returnPercentage: investedAmount > 0 ? Math.round((totalReturn / investedAmount) * 10000) / 100 : 0,
         distributedProfits: distributedProfits,
@@ -136,7 +165,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate portfolio performance metrics
-    const portfolioReturn = totalInvested > 0 ? (totalReturns / totalInvested) * 100 : 0
+    const portfolioReturn = totalHistoricalInvested > 0 ? (totalReturns / totalHistoricalInvested) * 100 : 0
     
     // Calculate real daily change based on profit distributions from today
     const today = new Date()
@@ -193,7 +222,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       portfolio: {
         totalValue: Math.round(currentPortfolioValue * 100) / 100,
-        totalInvested: Math.round(totalInvested * 100) / 100,
+        totalInvested: Math.round(totalInvested * 100) / 100, // Only active investments
+        totalHistoricalInvested: Math.round(totalHistoricalInvested * 100) / 100, // All investments ever
         totalReturns: Math.round(totalReturns * 100) / 100,
         portfolioReturn: Math.round(portfolioReturn * 100) / 100,
         distributedProfits: Math.round(totalDistributedProfits * 100) / 100,

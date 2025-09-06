@@ -82,11 +82,10 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Calculate accumulated profits from active investments
+    // Calculate accumulated profits from all investments (not just active)
     const investmentProfits = await prisma.investment.findMany({
       where: {
-        investorId: session.user.id,
-        status: 'ACTIVE'
+        investorId: session.user.id
       },
       include: {
         project: {
@@ -94,7 +93,6 @@ export async function GET(request: NextRequest) {
             id: true,
             title: true,
             status: true,
-
             fundingGoal: true
           }
         }
@@ -122,27 +120,64 @@ export async function GET(request: NextRequest) {
       accumulatedProfits += distributedProfits
 
       // Calculate current investment value based on project performance
-      if (investment.project.status === 'ACTIVE' || investment.project.status === 'FUNDED') {
-        const currentProjectValue = Number(investment.project.fundingGoal)
-        const investmentRatio = Number(investment.amount) / Number(investment.project.fundingGoal)
-        const currentInvestmentValue = currentProjectValue * investmentRatio
-        activeInvestmentValue += currentInvestmentValue
+      if (investment.project.status === 'COMPLETED') {
+        // For completed investments, the value is the original investment + profits
+        // But since we already account for profits separately, just track the original investment
+        activeInvestmentValue += Number(investment.amount)
+      } else if (investment.project.status === 'ACTIVE' || investment.project.status === 'FUNDED') {
+        // For active/funded investments, use the investment amount as current value
+        activeInvestmentValue += Number(investment.amount)
       }
     }
 
-    // Update user's totalReturns if there are new profits
-    if (accumulatedProfits > Number(user.totalReturns)) {
-      await prisma.user.update({
-        where: { id: session.user.id },
-        data: {
-          totalReturns: accumulatedProfits,
-          // Optionally add profits to wallet balance (uncomment if you want auto-accumulation)
-          // walletBalance: {
-          //   increment: accumulatedProfits - Number(user.totalReturns)
-          // }
+    // For completed investments, we need to add back the original investment to the wallet
+    // This simulates the capital being "returned" when the deal completes
+    let completedInvestmentReturns = 0
+    for (const investment of investmentProfits) {
+      if (investment.project.status === 'COMPLETED') {
+        // Check if we've already added this completed investment back to the wallet
+        const hasCapitalReturn = await prisma.transaction.findFirst({
+          where: {
+            userId: session.user.id,
+            investmentId: investment.id,
+            type: 'RETURN',
+            description: { contains: 'Capital Return' }
+          }
+        })
+        
+        if (!hasCapitalReturn) {
+          // Create a capital return transaction for the completed investment
+          await prisma.transaction.create({
+            data: {
+              userId: session.user.id,
+              investmentId: investment.id,
+              type: 'RETURN',
+              amount: Number(investment.amount),
+              description: `Capital Return - ${investment.project.title}`,
+              status: 'COMPLETED',
+              createdAt: new Date(),
+              updatedAt: new Date()
+            }
+          })
+          completedInvestmentReturns += Number(investment.amount)
         }
-      })
+      }
     }
+
+    // Recalculate balance if we added capital returns
+    if (completedInvestmentReturns > 0) {
+      calculatedBalance += completedInvestmentReturns
+      totalReturns += completedInvestmentReturns
+    }
+
+    // Update user's totalReturns and wallet balance
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        totalReturns: totalReturns,
+        walletBalance: calculatedBalance
+      }
+    })
 
     return NextResponse.json({
       user: {

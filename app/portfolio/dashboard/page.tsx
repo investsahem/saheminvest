@@ -50,6 +50,7 @@ interface PortfolioData {
   portfolio: {
     totalValue: number
     totalInvested: number
+    totalHistoricalInvested: number
     totalReturns: number
     portfolioReturn: number
     distributedProfits: number
@@ -246,7 +247,7 @@ export default function InvestorDashboard() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Invested</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {formatCurrency(portfolio.totalInvested)}
+                    {formatCurrency(portfolio.totalHistoricalInvested || portfolio.totalInvested)}
                   </p>
                 </div>
                 <DollarSign className="w-8 h-8 text-blue-600" />
