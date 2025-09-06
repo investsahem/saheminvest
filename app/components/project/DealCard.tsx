@@ -98,7 +98,18 @@ export function DealCard({
   }, [endDate])
 
   const formatNumber = (num: number) => {
+    if (isNaN(num) || num === null || num === undefined) return '0'
     return new Intl.NumberFormat('en-US').format(num)
+  }
+
+  const formatCurrencyAmount = (amount: number) => {
+    if (isNaN(amount) || amount === null || amount === undefined) return '$0'
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
   }
 
   // Extract version from Cloudinary URL to use as key for cache busting
@@ -193,11 +204,11 @@ export function DealCard({
           </div>
 
           {/* Profit Distributed (for closed deals) */}
-          {isClosedView && profitDistributed && (
+          {isClosedView && profitDistributed !== undefined && (
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">{t('deals.profit_distributed')}</span>
               <span className="font-bold text-blue-600">
-                {formatNumber(profitDistributed)} {t('common.currency')}
+                {formatCurrencyAmount(profitDistributed)}
               </span>
             </div>
           )}

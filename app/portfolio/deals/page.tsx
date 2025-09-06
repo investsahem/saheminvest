@@ -476,11 +476,19 @@ const PortfolioDealsPage = () => {
               {deals.map((deal) => {
                 // Calculate actual return and profit distributed for closed deals
                 const actualReturn = activeTab === 'closed' && deal.profitDistributions?.length > 0 
-                  ? deal.profitDistributions.reduce((sum: number, dist: any) => sum + (dist.profitRate || 0), 0)
-                  : undefined
+                  ? Math.round(
+                      (deal.profitDistributions.reduce((sum: number, dist: any) => {
+                        const rate = Number(dist.profitRate || 0);
+                        return sum + (isNaN(rate) ? 0 : rate);
+                      }, 0) / deal.profitDistributions.length) * 10
+                    ) / 10 // Average profit rate, rounded to 1 decimal place
+                  : activeTab === 'closed' ? Number(deal.expectedReturn) : undefined
                 
                 const profitDistributed = activeTab === 'closed' && deal.profitDistributions?.length > 0
-                  ? deal.profitDistributions.reduce((sum: number, dist: any) => sum + (dist.amount || 0), 0)
+                  ? deal.profitDistributions.reduce((sum: number, dist: any) => {
+                      const amount = parseFloat(dist.amount?.toString() || '0');
+                      return sum + (isNaN(amount) ? 0 : amount);
+                    }, 0)
                   : undefined
 
                 return (
