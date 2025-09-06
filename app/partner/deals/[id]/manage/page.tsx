@@ -97,16 +97,29 @@ const DealManagePage = () => {
           setDeal(dealData)
           
           // Initialize profit distribution form
-          if (dealData.investments) {
+          console.log('Deal data loaded:', {
+            dealId: dealData.id,
+            title: dealData.title,
+            investmentsCount: dealData.investments?.length || 0,
+            investments: dealData.investments
+          })
+          
+          if (dealData.investments && dealData.investments.length > 0) {
+            const distributionData = dealData.investments.map((inv: Investment, index: number) => ({
+              investorId: inv.investor.id,
+              investorName: `مستثمر #${index + 1}`,
+              investmentAmount: Number(inv.amount),
+              profitAmount: 0
+            }))
+            
+            console.log('Setting profit form distribution data:', distributionData)
+            
             setProfitForm(prev => ({
               ...prev,
-              distributionData: dealData.investments.map((inv: Investment, index: number) => ({
-                investorId: inv.investor.id,
-                investorName: `مستثمر #${index + 1}`,
-                investmentAmount: Number(inv.amount),
-                profitAmount: 0
-              }))
+              distributionData
             }))
+          } else {
+            console.log('No investments found in deal')
           }
         } else {
           console.error('Failed to fetch deal')
@@ -480,8 +493,13 @@ const DealManagePage = () => {
                   {/* Investor Profit Distribution */}
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 mb-4">توزيع الأرباح على المستثمرين</h3>
-                    <div className="space-y-4">
-                      {profitForm.distributionData.map((data, index) => (
+                    {profitForm.distributionData.length === 0 ? (
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-yellow-800">لا توجد استثمارات في هذه الصفقة لتوزيع الأرباح عليها.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {profitForm.distributionData.map((data, index) => (
                         <div key={data.investorId} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                           <div>
                             <p className="font-medium text-gray-900">{data.investorName}</p>
@@ -502,8 +520,9 @@ const DealManagePage = () => {
                             <label className="text-xs text-gray-500 mt-1 block">مبلغ الربح ($)</label>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Total Amount */}
