@@ -56,6 +56,11 @@ export async function GET(
             createdAt: 'desc'
           }
         },
+        profitDistributions: {
+          orderBy: {
+            distributionDate: 'desc'
+          }
+        },
         _count: {
           select: {
             investments: true

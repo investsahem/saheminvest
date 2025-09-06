@@ -93,14 +93,14 @@ const DealManagePage = () => {
         })
 
         if (response.ok) {
-          const data = await response.json()
-          setDeal(data.deal)
+          const dealData = await response.json()
+          setDeal(dealData)
           
           // Initialize profit distribution form
-          if (data.deal.investments) {
+          if (dealData.investments) {
             setProfitForm(prev => ({
               ...prev,
-              distributionData: data.deal.investments.map((inv: Investment) => ({
+              distributionData: dealData.investments.map((inv: Investment) => ({
                 investorId: inv.investor.id,
                 investorName: inv.investor.name,
                 investmentAmount: Number(inv.amount),
