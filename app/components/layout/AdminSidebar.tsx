@@ -6,10 +6,11 @@ import { useSession, signOut } from 'next-auth/react'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
 import { useAdminStats } from '../../hooks/useAdminStats'
 import { useAdminNotifications } from '../../hooks/useAdminNotifications'
+import { useProfitDistributions } from '../../hooks/useProfitDistributions'
 import { 
   LayoutDashboard, Users, DollarSign, Target, BarChart3, 
   Settings, FileText, Clock, UserCheck, Building2,
-  LogOut, User, ChevronDown, Bell, Wallet, X
+  LogOut, User, ChevronDown, Bell, Wallet, X, TrendingUp
 } from 'lucide-react'
 import { Button } from '../ui/Button'
 
@@ -25,6 +26,7 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
   const pathname = usePathname()
   const { pendingApplications, isLoading } = useAdminStats()
   const { notifications } = useAdminNotifications()
+  const { pendingCount: pendingProfitDistributions } = useProfitDistributions()
 
   const handleLogout = async () => {
     try {
@@ -81,6 +83,13 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
       href: '/admin/deposits',
       icon: Wallet,
       current: pathname === '/admin/deposits'
+    },
+    {
+      name: t('admin.profit_distributions'),
+      href: '/admin/profit-distributions',
+      icon: TrendingUp,
+      current: pathname === '/admin/profit-distributions',
+      badge: pendingProfitDistributions > 0 ? pendingProfitDistributions : undefined
     },
     {
       name: t('admin.partner_management'),
