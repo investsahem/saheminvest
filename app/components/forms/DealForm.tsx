@@ -118,7 +118,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
 
       // Handle image upload
       const imageInput = imageInputRef.current
-      const hasNewImageFile = imageInput?.files?.[0]
+      const hasNewImageFile = imageInput?.files && imageInput.files.length > 0 && imageInput.files[0]
       
       console.log('🔍 Image handling debug info:', {
         hasNewImageFile: !!hasNewImageFile,
@@ -131,7 +131,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
         imageInputName: imageInputRef.current?.name || 'no-name'
       })
       
-      if (hasNewImageFile) {
+      if (hasNewImageFile && imageInput.files && imageInput.files.length > 0) {
         const file = imageInput.files[0]
         console.log('✅ Adding new image to form data:', {
           name: file.name,
