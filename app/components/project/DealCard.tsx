@@ -231,7 +231,7 @@ export function DealCard({
           <div className="space-y-3 pt-4">
             {isPartnerView ? (
               // Partner view - Management buttons
-              <Link href={`/deals/${id}`}>
+              <Link href={`/partner/deals/${id}/manage`}>
                 <Button variant="outline" className="w-full">
                   {t('deal_card.manage_deal')}
                 </Button>
