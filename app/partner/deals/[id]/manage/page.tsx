@@ -100,9 +100,9 @@ const DealManagePage = () => {
           if (dealData.investments) {
             setProfitForm(prev => ({
               ...prev,
-              distributionData: dealData.investments.map((inv: Investment) => ({
+              distributionData: dealData.investments.map((inv: Investment, index: number) => ({
                 investorId: inv.investor.id,
-                investorName: inv.investor.name,
+                investorName: `مستثمر #${index + 1}`,
                 investmentAmount: Number(inv.amount),
                 profitAmount: 0
               }))
@@ -141,20 +141,22 @@ const DealManagePage = () => {
   }
 
   const handleProfitAmountChange = (investorId: string, amount: number) => {
-    setProfitForm(prev => ({
-      ...prev,
-      distributionData: prev.distributionData.map(data =>
+    setProfitForm(prev => {
+      const updatedData = prev.distributionData.map(data =>
         data.investorId === investorId
           ? { ...data, profitAmount: amount }
           : data
       )
-    }))
-
-    // Update total amount
-    const newTotal = profitForm.distributionData.reduce((sum, data) => 
-      data.investorId === investorId ? sum + amount : sum + data.profitAmount, 0
-    )
-    setProfitForm(prev => ({ ...prev, totalAmount: newTotal }))
+      
+      // Calculate new total
+      const newTotal = updatedData.reduce((sum, data) => sum + (data.profitAmount || 0), 0)
+      
+      return {
+        ...prev,
+        distributionData: updatedData,
+        totalAmount: newTotal
+      }
+    })
   }
 
   const handleSubmitProfitDistribution = async () => {
@@ -167,11 +169,12 @@ const DealManagePage = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          projectId: dealId,
-          totalAmount: profitForm.totalAmount,
-          distributionData: profitForm.distributionData,
-          description: profitForm.description,
-          distributionType: profitForm.distributionType
+          dealId: dealId,
+          distributions: profitForm.distributionData.map(data => ({
+            investorId: data.investorId,
+            investmentAmount: data.investmentAmount,
+            profitAmount: data.profitAmount || 0
+          }))
         })
       })
 
@@ -350,7 +353,7 @@ const DealManagePage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {deal.investments.map((investment) => {
+                  {deal.investments.map((investment, index) => {
                     const investorProfits = deal.profitDistributions
                       .filter(dist => dist.status === 'COMPLETED')
                       .reduce((sum, dist) => {
@@ -362,7 +365,7 @@ const DealManagePage = () => {
                     return (
                       <tr key={investment.id} className="border-b border-gray-100">
                         <td className="py-4 px-4 font-medium">
-                          {investment.investor.name}
+                          مستثمر #{index + 1}
                         </td>
                         <td className="py-4 px-4">
                           {formatCurrency(Number(investment.amount))}
@@ -478,7 +481,7 @@ const DealManagePage = () => {
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 mb-4">توزيع الأرباح على المستثمرين</h3>
                     <div className="space-y-4">
-                      {profitForm.distributionData.map((data) => (
+                      {profitForm.distributionData.map((data, index) => (
                         <div key={data.investorId} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                           <div>
                             <p className="font-medium text-gray-900">{data.investorName}</p>
@@ -491,10 +494,12 @@ const DealManagePage = () => {
                               type="number"
                               step="0.01"
                               min="0"
-                              value={data.profitAmount}
-                              onChange={(e) => handleProfitAmountChange(data.investorId, Number(e.target.value))}
+                              value={data.profitAmount || ''}
+                              onChange={(e) => handleProfitAmountChange(data.investorId, Number(e.target.value) || 0)}
                               placeholder="0.00"
+                              className="text-right"
                             />
+                            <label className="text-xs text-gray-500 mt-1 block">مبلغ الربح ($)</label>
                           </div>
                         </div>
                       ))}
