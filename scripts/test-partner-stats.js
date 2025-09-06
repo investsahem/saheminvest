@@ -1,31 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../../../lib/auth'
-import { PrismaClient } from '@prisma/client'
+#!/usr/bin/env node
+
+/**
+ * Test Partner Stats API Logic
+ */
+
+require('dotenv').config()
+const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
-export async function GET(request: NextRequest) {
+async function testPartnerStatsLogic() {
+  console.log('🧪 Testing Partner Stats API Logic...')
+  
   try {
-    const session = await getServerSession(authOptions)
+    // Find a partner user (should be Elhallak+1@gmail.com)
+    const partnerUser = await prisma.user.findFirst({
+      where: { role: 'PARTNER' }
+    })
     
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+    if (!partnerUser) {
+      console.log('❌ No partner user found')
+      return
     }
-
-    if (session.user.role !== 'PARTNER') {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      )
-    }
-
-    const userId = session.user.id
-
-    // Get partner's deals and investment statistics
+    
+    console.log(`👤 Testing for partner: ${partnerUser.name} (${partnerUser.email})`)
+    const userId = partnerUser.id
+    
+    // Simulate the API logic
+    console.log('\n🔄 Running partner stats calculations...')
+    
     const [
       partnerDeals,
       totalInvestments,
@@ -39,7 +42,8 @@ export async function GET(request: NextRequest) {
           investments: {
             select: {
               amount: true,
-              status: true
+              status: true,
+              investorId: true
             }
           }
         }
@@ -77,12 +81,23 @@ export async function GET(request: NextRequest) {
         }
       })
     ])
-
+    
+    console.log(`📊 Found ${partnerDeals.length} deals for partner`)
+    partnerDeals.forEach((deal, i) => {
+      console.log(`  ${i+1}. ${deal.title} (${deal.status}) - ${deal.investments.length} investments`)
+    })
+    
     // Calculate statistics
     const totalRaised = Number(totalInvestments._sum.amount) || 0
     const totalDeals = partnerDeals.length
     const successRate = totalDeals > 0 ? (completedDeals / totalDeals) * 100 : 0
-
+    
+    console.log(`\n💰 Total Raised: $${totalRaised.toFixed(2)}`)
+    console.log(`📈 Total Deals: ${totalDeals}`)
+    console.log(`✅ Completed Deals: ${completedDeals}`)
+    console.log(`🔄 Active Deals: ${activeDeals}`)
+    console.log(`📊 Success Rate: ${successRate.toFixed(1)}%`)
+    
     // Calculate additional metrics
     const avgDealSize = totalDeals > 0 ? totalRaised / totalDeals : 0
     
@@ -100,27 +115,37 @@ export async function GET(request: NextRequest) {
     })
     
     const totalInvestors = allInvestments.length
-
+    
+    console.log(`👥 Total Unique Investors: ${totalInvestors}`)
+    console.log(`💵 Average Deal Size: $${avgDealSize.toFixed(2)}`)
+    console.log(`📋 Total Investments Count: ${totalInvestments._count.id || 0}`)
+    
     const stats = {
       totalRaised,
       activeDeals,
-      successRate: Math.round(successRate * 10) / 10, // Round to 1 decimal
+      successRate: Math.round(successRate * 10) / 10,
       totalDeals,
       completedDeals,
       avgDealSize,
       totalInvestors,
       totalInvestments: totalInvestments._count.id || 0,
-      isGrowing: successRate >= 70 // Consider 70%+ as good performance
+      isGrowing: successRate >= 70
     }
-
-    return NextResponse.json(stats)
+    
+    console.log('\n✅ Final stats object:')
+    console.log(JSON.stringify(stats, null, 2))
+    
   } catch (error) {
-    console.error('Error fetching partner stats:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch partner statistics' },
-      { status: 500 }
-    )
+    console.error('❌ Error testing partner stats:', error)
+    process.exit(1)
   } finally {
     await prisma.$disconnect()
   }
 }
+
+// Run the test
+if (require.main === module) {
+  testPartnerStatsLogic().catch(console.error)
+}
+
+module.exports = { testPartnerStatsLogic }
