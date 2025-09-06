@@ -33,6 +33,23 @@ export async function GET(
             image: true
           }
         },
+        partnerProfile: {
+          select: {
+            id: true,
+            companyName: true,
+            displayName: true,
+            tagline: true,
+            description: true,
+            logo: true,
+            brandColor: true,
+            isVerified: true,
+            isPublic: true,
+            website: true,
+            industry: true,
+            foundedYear: true,
+            yearsExperience: true
+          }
+        },
         partner: {
           select: {
             id: true,

@@ -125,7 +125,8 @@ model User {
   
   // Partner relationship
   partner           Partner?
-  
+  partnerProfile    PartnerProfile?
+
   @@map("users")
 }
 
@@ -676,4 +677,73 @@ model ProfitDistributionRequest {
   updatedAt        DateTime        @updatedAt
   
   @@map("profit_distribution_requests")
+}
+
+model PartnerProfile {
+  id                String    @id @default(cuid())
+  
+  // Basic Information
+  companyName       String
+  displayName       String?
+  tagline           String?
+  description       String?   @db.Text
+  
+  // Visual Identity
+  logo              String?   // Cloudinary URL
+  coverImage        String?   // Cloudinary URL
+  brandColor        String?   // Hex color code
+  
+  // Contact Information
+  website           String?
+  email             String?
+  phone             String?
+  address           String?
+  city              String?
+  country           String?
+  
+  // Business Information
+  industry          String?
+  foundedYear       Int?
+  employeeCount     String?   // "1-10", "11-50", "51-200", etc.
+  businessType      String?   // "LLC", "Corporation", "Partnership", etc.
+  registrationNumber String?
+  
+  // Social Media
+  linkedin          String?
+  twitter           String?
+  facebook          String?
+  instagram         String?
+  
+  // Investment Focus
+  investmentAreas   String[]  // Array of investment focus areas
+  minimumDealSize   Decimal?  @db.Decimal(15, 2)
+  maximumDealSize   Decimal?  @db.Decimal(15, 2)
+  preferredDuration String?   // "Short-term", "Medium-term", "Long-term"
+  
+  // Experience & Credentials
+  yearsExperience   Int?
+  totalDealsCompleted Int?    @default(0)
+  totalFundsRaised  Decimal?  @db.Decimal(15, 2) @default(0)
+  successRate       Float?    @default(0)
+  
+  // Verification & Trust
+  isVerified        Boolean   @default(false)
+  verificationDate  DateTime?
+  kycCompleted      Boolean   @default(false)
+  documentsUploaded Json?     // Store document URLs and types
+  
+  // Settings
+  isPublic          Boolean   @default(true)
+  allowInvestorContact Boolean @default(true)
+  showSuccessMetrics Boolean  @default(true)
+  
+  // Relationships
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@map("partner_profiles")
 }

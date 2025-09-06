@@ -30,6 +30,17 @@ interface DealCardProps {
   actualReturn?: number
   completionDate?: string
   profitDistributed?: number
+  partnerProfile?: {
+    id: string
+    companyName: string
+    displayName?: string
+    tagline?: string
+    logo?: string
+    brandColor?: string
+    isVerified: boolean
+    isPublic: boolean
+  }
+  ownerId?: string
 }
 
 export function DealCard({ 
@@ -50,7 +61,9 @@ export function DealCard({
   isClosedView = false,
   actualReturn,
   completionDate,
-  profitDistributed
+  profitDistributed,
+  partnerProfile,
+  ownerId
 }: DealCardProps) {
   const { t } = useTranslation()
   const { data: session } = useSession()
@@ -161,7 +174,38 @@ export function DealCard({
           {/* Partner Info - Only show to admins and partners */}
           {showPartnerName && (
             <div className="flex items-center text-sm text-gray-600 mb-3">
-              <span className="font-medium">{partnerName}</span>
+              {partnerProfile && partnerProfile.isPublic ? (
+                <Link 
+                  href={`/partners/${ownerId}`}
+                  className="flex items-center gap-2 hover:text-blue-600 transition-colors"
+                >
+                  {partnerProfile.logo && (
+                    <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
+                      <Image
+                        src={partnerProfile.logo}
+                        alt={partnerProfile.companyName}
+                        width={20}
+                        height={20}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <span className="font-medium">
+                    {partnerProfile.displayName || partnerProfile.companyName}
+                  </span>
+                  {partnerProfile.isVerified && (
+                    <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center">
+                      <svg className="w-2.5 h-2.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
+                </Link>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{partnerName}</span>
+                </div>
+              )}
               <span className="mx-2">•</span>
               <span>{formatNumber(partnerDealsCount)} {t('deal_card.deals_count')}</span>
             </div>

@@ -126,6 +126,18 @@ export async function GET(request: NextRequest) {
               image: true
             }
           },
+          partnerProfile: {
+            select: {
+              id: true,
+              companyName: true,
+              displayName: true,
+              tagline: true,
+              logo: true,
+              brandColor: true,
+              isVerified: true,
+              isPublic: true
+            }
+          },
           profitDistributions: {
             select: {
               id: true,
@@ -357,6 +369,18 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true,
             email: true
+          }
+        },
+        partnerProfile: {
+          select: {
+            id: true,
+            companyName: true,
+            displayName: true,
+            tagline: true,
+            logo: true,
+            brandColor: true,
+            isVerified: true,
+            isPublic: true
           }
         }
       }
