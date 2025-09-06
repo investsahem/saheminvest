@@ -44,8 +44,8 @@ export async function GET(request: NextRequest) {
       // Handle comma-separated status values
       const statusArray = status.split(',').map(s => s.trim())
       where.status = statusArray.length === 1 ? statusArray[0] : { in: statusArray }
-    } else if (!includeAll) {
-      // For non-admin users, only show active/published deals by default
+    } else if (!includeAll && !partner) {
+      // For non-admin users (but not partners viewing their own deals), only show active/published deals by default
       where.status = { in: ['ACTIVE', 'PUBLISHED'] }
     }
     

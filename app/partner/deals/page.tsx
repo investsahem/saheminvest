@@ -364,13 +364,13 @@ const PartnerDealsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-700">Total Value</p>
+                  <p className="text-sm font-medium text-purple-700">Completed</p>
                   <p className="text-2xl font-bold text-purple-900">
-                    {formatCurrency(deals.reduce((sum, deal) => sum + parseFloat(deal.fundingGoal.toString()), 0))}
+                    {deals.filter(d => d.status === 'COMPLETED').length}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-purple-600" />
+                  <CheckCircle className="w-6 h-6 text-purple-600" />
                 </div>
               </div>
             </CardContent>
@@ -456,6 +456,14 @@ const PartnerDealsPage = () => {
                     partnerDealsCount={5} // You might want to fetch this from the API
                     minInvestment={deal.minInvestment || 1000}
                     isPartnerView={true}
+                    isClosedView={deal.status === 'COMPLETED'}
+                    actualReturn={deal.status === 'COMPLETED' && deal.profitDistributions?.length > 0 
+                      ? deal.profitDistributions.reduce((sum: number, dist: any) => sum + (dist.profitRate || 0), 0)
+                      : undefined}
+                    completionDate={deal.status === 'COMPLETED' ? deal.updatedAt : undefined}
+                    profitDistributed={deal.status === 'COMPLETED' && deal.profitDistributions?.length > 0
+                      ? deal.profitDistributions.reduce((sum: number, dist: any) => sum + (dist.amount || 0), 0)
+                      : undefined}
                   />
                   
                   {/* Deal Actions Overlay */}
