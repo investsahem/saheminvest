@@ -178,13 +178,13 @@ const PortfolioDealsPage = () => {
     >
       <div className="space-y-8">
         {/* Modern Header with Stats */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 p-8 text-white">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700 p-8 text-white">
           <div className="absolute inset-0 bg-black/20"></div>
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
               <div>
                 <h1 className="text-4xl font-bold mb-2">Investment Marketplace</h1>
-                <p className="text-blue-100 text-lg">
+                <p className="text-green-100 text-lg">
                   Explore vetted investment opportunities from trusted partners
                 </p>
               </div>
@@ -194,7 +194,7 @@ const PortfolioDealsPage = () => {
                   <span className="font-medium">{allInvestableDeals.filter(d => d.featured).length} Featured</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
-                  <Activity className="w-5 h-5 text-green-300" />
+                  <Activity className="w-5 h-5 text-emerald-300" />
                   <span className="font-medium">{allInvestableDeals.length} Available</span>
                 </div>
               </div>
@@ -204,11 +204,11 @@ const PortfolioDealsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-green-500/20 rounded-lg">
-                    <DollarSign className="w-6 h-6 text-green-300" />
+                  <div className="p-2 bg-emerald-500/20 rounded-lg">
+                    <DollarSign className="w-6 h-6 text-emerald-300" />
                   </div>
                   <div>
-                    <p className="text-green-100 text-sm">Total Available</p>
+                    <p className="text-emerald-100 text-sm">Total Available</p>
                     <p className="text-2xl font-bold">{formatCurrency(totalFunding)}</p>
                   </div>
                 </div>
@@ -216,11 +216,11 @@ const PortfolioDealsPage = () => {
               
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-blue-500/20 rounded-lg">
-                    <TrendingUp className="w-6 h-6 text-blue-300" />
+                  <div className="p-2 bg-teal-500/20 rounded-lg">
+                    <TrendingUp className="w-6 h-6 text-teal-300" />
                   </div>
                   <div>
-                    <p className="text-blue-100 text-sm">Avg. Expected Return</p>
+                    <p className="text-teal-100 text-sm">Avg. Expected Return</p>
                     <p className="text-2xl font-bold">{avgReturn.toFixed(1)}%</p>
                   </div>
                 </div>
@@ -228,11 +228,11 @@ const PortfolioDealsPage = () => {
               
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-purple-500/20 rounded-lg">
-                    <Users className="w-6 h-6 text-purple-300" />
+                  <div className="p-2 bg-green-500/20 rounded-lg">
+                    <Users className="w-6 h-6 text-green-300" />
                   </div>
                   <div>
-                    <p className="text-purple-100 text-sm">Active Investors</p>
+                    <p className="text-green-100 text-sm">Active Investors</p>
                     <p className="text-2xl font-bold">{totalInvestors.toLocaleString()}</p>
                   </div>
                 </div>
@@ -250,13 +250,13 @@ const PortfolioDealsPage = () => {
                   onClick={() => setActiveTab('active')}
                   className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
                     activeTab === 'active'
-                      ? 'bg-white text-blue-600 shadow-sm'
+                      ? 'bg-white text-green-600 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   <Activity className="w-4 h-4" />
                   {t('deals.active_deals')}
-                  <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs font-medium">
+                  <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs font-medium">
                     {activeDeals.length}
                   </span>
                 </button>
@@ -264,7 +264,7 @@ const PortfolioDealsPage = () => {
                   onClick={() => setActiveTab('closed')}
                   className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
                     activeTab === 'closed'
-                      ? 'bg-white text-blue-600 shadow-sm'
+                      ? 'bg-white text-green-600 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -345,13 +345,13 @@ const PortfolioDealsPage = () => {
                 <div className="flex border border-gray-200 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-3 ${viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-50'} transition-colors`}
+                    className={`p-3 ${viewMode === 'grid' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-50'} transition-colors`}
                   >
                     <Grid className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-3 ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:bg-gray-50'} transition-colors`}
+                    className={`p-3 ${viewMode === 'list' ? 'bg-green-500 text-white' : 'text-gray-600 hover:bg-gray-50'} transition-colors`}
                   >
                     <List className="w-4 h-4" />
                   </button>
@@ -459,7 +459,7 @@ const PortfolioDealsPage = () => {
                       setRiskFilter('all')
                       setReturnFilter('all')
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-green-600 hover:bg-green-700 text-white"
                   >
                     Clear All Filters
                   </Button>
