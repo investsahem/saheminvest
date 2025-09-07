@@ -173,11 +173,11 @@ export async function PUT(
       type: ['milestone', 'funding', 'business', 'completion'].includes(item.type) ? item.type : 'milestone'
     }))
 
-    // Update deal timeline
+    // Update deal timeline - Convert to JSON-compatible format
     const updatedDeal = await prisma.project.update({
       where: { id },
       data: {
-        timeline: validatedTimeline
+        timeline: JSON.parse(JSON.stringify(validatedTimeline))
       },
       select: {
         id: true,
