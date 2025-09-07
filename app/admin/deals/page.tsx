@@ -606,7 +606,7 @@ export default function AdminDealsPage() {
                         </button>
                         
                         {actionMenuOpen === deal.id && (
-                          <div className={`absolute ${locale === 'ar' ? 'left-0' : 'right-0'} mt-2 w-64 bg-white rounded-lg shadow-lg border z-20`}>
+                          <div className={`absolute ${locale === 'ar' ? 'left-0' : 'right-0'} mt-2 w-64 bg-white rounded-lg shadow-lg border z-50`}>
                             <div className="py-2">
                               {/* Quick Actions */}
                               <div className="px-4 py-2 border-b border-gray-100">
