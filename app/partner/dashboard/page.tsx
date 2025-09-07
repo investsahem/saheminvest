@@ -133,8 +133,8 @@ const PartnerDashboard = () => {
         <Card>
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Unable to Load Dashboard</h2>
-            <p className="text-gray-600">Please try refreshing the page.</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('common.error_loading_data')}</h2>
+            <p className="text-gray-600">{t('common.try_again')}</p>
           </CardContent>
         </Card>
       </PartnerLayout>
@@ -156,8 +156,8 @@ const PartnerDashboard = () => {
                     <Plus className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-blue-900">Create Deal</h3>
-                    <p className="text-sm text-blue-700">New opportunity</p>
+                    <h3 className="font-semibold text-blue-900">{t('partner.create_deal')}</h3>
+                    <p className="text-sm text-blue-700">{t('partner.create_new_deal_subtitle')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -172,8 +172,8 @@ const PartnerDashboard = () => {
                     <Briefcase className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-green-900">My Deals</h3>
-                    <p className="text-sm text-green-700">{partnerData.activeDeals} active</p>
+                    <h3 className="font-semibold text-green-900">{t('partner.my_deals')}</h3>
+                    <p className="text-sm text-green-700">{partnerData.activeDeals} {t('partner.filter_active')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -188,8 +188,8 @@ const PartnerDashboard = () => {
                     <BarChart3 className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-purple-900">Analytics</h3>
-                    <p className="text-sm text-purple-700">{partnerData.successRate}% success</p>
+                    <h3 className="font-semibold text-purple-900">{t('partner.analytics')}</h3>
+                    <p className="text-sm text-purple-700">{partnerData.successRate}% {t('partner.success_rate')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -204,8 +204,8 @@ const PartnerDashboard = () => {
                     <MessageSquare className="w-6 h-6 text-orange-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-orange-900">Communications</h3>
-                    <p className="text-sm text-orange-700">Messages & updates</p>
+                    <h3 className="font-semibold text-orange-900">{t('partner.communications')}</h3>
+                    <p className="text-sm text-orange-700">{t('partner.messages')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -219,11 +219,11 @@ const PartnerDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700">Total Revenue</p>
+                  <p className="text-sm font-medium text-blue-700">{t('partner.total_returns')}</p>
                   <p className="text-2xl font-bold text-blue-900">{formatCurrency(partnerData.totalRevenue)}</p>
                   <p className="text-xs text-blue-600 flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +{partnerData.monthlyGrowth}% this month
+                    +{partnerData.monthlyGrowth}% {t('partner.this_month')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -237,11 +237,11 @@ const PartnerDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700">Active Deals</p>
+                  <p className="text-sm font-medium text-green-700">{t('partner.active_deals')}</p>
                   <p className="text-2xl font-bold text-green-900">{partnerData.activeDeals}</p>
                   <p className="text-xs text-green-600 flex items-center mt-1">
                     <Target className="w-3 h-3 mr-1" />
-                    {partnerData.totalDeals} total deals
+                    {partnerData.totalDeals} {t('deals.total_deals')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -255,11 +255,11 @@ const PartnerDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-700">Success Rate</p>
+                  <p className="text-sm font-medium text-purple-700">{t('partner.success_rate')}</p>
                   <p className="text-2xl font-bold text-purple-900">{partnerData.successRate}%</p>
                   <p className="text-xs text-purple-600 flex items-center mt-1">
                     <Award className="w-3 h-3 mr-1" />
-                    {partnerData.completedDeals} completed
+                    {partnerData.completedDeals} {t('partner.completed')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -273,11 +273,11 @@ const PartnerDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-orange-700">Total Investors</p>
+                  <p className="text-sm font-medium text-orange-700">{t('partner.total_investors')}</p>
                   <p className="text-2xl font-bold text-orange-900">{partnerData.totalInvestors}</p>
                   <p className="text-xs text-orange-600 flex items-center mt-1">
                     <Users className="w-3 h-3 mr-1" />
-                    Rating: {partnerData.rating} ⭐
+                    {t('partner.rating')}: {partnerData.rating} ⭐
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
@@ -294,7 +294,7 @@ const PartnerDashboard = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Revenue Performance</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('partner.performance_metrics')}</h3>
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-green-500" />
                   <span className="text-sm text-green-600">+{partnerData.monthlyGrowth}%</span>
@@ -316,10 +316,10 @@ const PartnerDashboard = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Current Deals</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('partner.my_deals')}</h3>
                 <Link href="/partner/deals">
                   <Button variant="outline" size="sm">
-                    View All
+{t('partner.view_all')}
                   </Button>
                 </Link>
               </div>
@@ -335,7 +335,7 @@ const PartnerDashboard = () => {
                     </div>
                     
                     <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-                      <span>Progress</span>
+                      <span>{t('deals.card.progress')}</span>
                       <span>{Math.round((deal.currentFunding / deal.fundingGoal) * 100)}%</span>
                     </div>
                     
@@ -349,15 +349,15 @@ const PartnerDashboard = () => {
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <div className="text-center">
                         <div className="font-semibold text-gray-900">{formatCurrency(deal.currentFunding)}</div>
-                        <div className="text-gray-500">Raised</div>
+                        <div className="text-gray-500">{t('deals.card.raised')}</div>
                       </div>
                       <div className="text-center">
                         <div className="font-semibold text-gray-900">{deal.expectedReturn}%</div>
-                        <div className="text-gray-500">Return</div>
+                        <div className="text-gray-500">{t('partner.return')}</div>
                       </div>
                       <div className="text-center">
                         <div className="font-semibold text-gray-900">{deal.investorsCount}</div>
-                        <div className="text-gray-500">Investors</div>
+                        <div className="text-gray-500">{t('deals.investors')}</div>
                       </div>
                     </div>
                   </div>
@@ -371,10 +371,10 @@ const PartnerDashboard = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Activities</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('partner.recent_activity')}</h3>
               <Link href="/partner/notifications">
                 <Button variant="outline" size="sm">
-                  View All
+{t('partner.view_all')}
                 </Button>
               </Link>
             </div>
