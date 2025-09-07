@@ -111,35 +111,155 @@ const PartnerSettingsPage = () => {
   })
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 1000)
-  }, [])
+    const fetchPartnerData = async () => {
+      if (!session?.user) return
+      
+      try {
+        // Fetch partner profile
+        const profileResponse = await fetch('/api/partner/profile')
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json()
+          
+          setProfile(prev => ({
+            ...prev,
+            id: profileData.id || '',
+            companyName: profileData.companyName || '',
+            contactName: session.user.name || '',
+            email: profileData.email || session.user.email || '',
+            phone: profileData.phone || '',
+            address: profileData.address || '',
+            city: profileData.city || '',
+            country: profileData.country || 'Lebanon',
+            website: profileData.website || '',
+            industry: profileData.industry || '',
+            description: profileData.companyDescription || '',
+            logo: profileData.logo || '',
+            // These would come from a more comprehensive profile API
+            taxId: '',
+            businessLicense: '',
+            bankAccount: '',
+            iban: '',
+            swiftCode: ''
+          }))
+        }
+
+        // Fetch notification settings
+        const notificationResponse = await fetch('/api/partner/settings/notifications')
+        if (notificationResponse.ok) {
+          const notificationData = await notificationResponse.json()
+          setNotifications(notificationData)
+        }
+
+        // Fetch security settings
+        const securityResponse = await fetch('/api/partner/settings/security')
+        if (securityResponse.ok) {
+          const securityData = await securityResponse.json()
+          setSecurity(securityData)
+        }
+
+      } catch (error) {
+        console.error('Error fetching partner data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPartnerData()
+  }, [session])
 
   const handleProfileSave = async () => {
     setSaving(true)
-    // Simulate API call
-    setTimeout(() => {
+    
+    try {
+      const response = await fetch('/api/partner/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          companyName: profile.companyName,
+          companyDescription: profile.description,
+          email: profile.email,
+          phone: profile.phone,
+          address: profile.address,
+          city: profile.city,
+          country: profile.country,
+          website: profile.website,
+          industry: profile.industry,
+          logo: profile.logo,
+          // Additional fields for comprehensive profile
+          taxId: profile.taxId,
+          businessLicense: profile.businessLicense,
+          bankAccount: profile.bankAccount,
+          iban: profile.iban,
+          swiftCode: profile.swiftCode,
+        }),
+      })
+
+      if (response.ok) {
+        alert('Profile updated successfully!')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to update profile')
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      alert('Failed to update profile')
+    } finally {
       setSaving(false)
-      alert('Profile updated successfully!')
-    }, 1000)
+    }
   }
 
   const handleNotificationSave = async () => {
     setSaving(true)
-    // Simulate API call
-    setTimeout(() => {
+    
+    try {
+      const response = await fetch('/api/partner/settings/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(notifications),
+      })
+
+      if (response.ok) {
+        alert('Notification settings updated successfully!')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to update notification settings')
+      }
+    } catch (error) {
+      console.error('Error updating notifications:', error)
+      alert('Failed to update notification settings')
+    } finally {
       setSaving(false)
-      alert('Notification settings updated successfully!')
-    }, 1000)
+    }
   }
 
   const handleSecuritySave = async () => {
     setSaving(true)
-    // Simulate API call
-    setTimeout(() => {
+    
+    try {
+      const response = await fetch('/api/partner/settings/security', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(security),
+      })
+
+      if (response.ok) {
+        alert('Security settings updated successfully!')
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to update security settings')
+      }
+    } catch (error) {
+      console.error('Error updating security settings:', error)
+      alert('Failed to update security settings')
+    } finally {
       setSaving(false)
-      alert('Security settings updated successfully!')
-    }, 1000)
+    }
   }
 
   const handlePasswordChange = async () => {
@@ -161,18 +281,53 @@ const PartnerSettingsPage = () => {
     }, 1000)
   }
 
-  const handleLogoUpload = () => {
+  const handleLogoUpload = async () => {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'image/*'
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          setProfile(prev => ({ ...prev, logo: e.target?.result as string }))
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('File size must be less than 5MB')
+          return
         }
-        reader.readAsDataURL(file)
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          alert('Please select an image file')
+          return
+        }
+
+        try {
+          setSaving(true)
+          
+          // Create FormData for upload
+          const formData = new FormData()
+          formData.append('image', file)
+          formData.append('type', 'logo')
+
+          // Upload to Cloudinary via API
+          const response = await fetch('/api/partner/upload-image', {
+            method: 'POST',
+            body: formData,
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            setProfile(prev => ({ ...prev, logo: data.imageUrl }))
+            alert('Logo updated successfully!')
+          } else {
+            const errorData = await response.json()
+            alert(errorData.error || 'Failed to upload image')
+          }
+        } catch (error) {
+          console.error('Upload error:', error)
+          alert('Failed to upload image')
+        } finally {
+          setSaving(false)
+        }
       }
     }
     input.click()

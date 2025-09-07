@@ -277,6 +277,9 @@ export async function PUT(request: NextRequest) {
         investmentAreas: data.investmentFocus || [],
         minimumDealSize: data.minInvestment ? parseFloat(data.minInvestment) : null,
         maximumDealSize: data.maxInvestment ? parseFloat(data.maxInvestment) : null,
+        // Additional business fields
+        businessType: data.businessType,
+        registrationNumber: data.taxId,
       },
       create: {
         userId: session.user.id,
@@ -298,6 +301,9 @@ export async function PUT(request: NextRequest) {
         investmentAreas: data.investmentFocus || [],
         minimumDealSize: data.minInvestment ? parseFloat(data.minInvestment) : null,
         maximumDealSize: data.maxInvestment ? parseFloat(data.maxInvestment) : null,
+        // Additional business fields
+        businessType: data.businessType || '',
+        registrationNumber: data.taxId || '',
       },
       include: {
         user: {
