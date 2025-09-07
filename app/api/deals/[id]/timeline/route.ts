@@ -50,7 +50,20 @@ export async function GET(
     let timeline: TimelineItem[] = []
     
     if (deal.timeline && typeof deal.timeline === 'object' && Array.isArray(deal.timeline)) {
-      timeline = deal.timeline as TimelineItem[]
+      // Safely parse and validate timeline items
+      try {
+        timeline = (deal.timeline as any[]).map((item: any, index: number) => ({
+          id: item.id || `${index + 1}`,
+          title: item.title || '',
+          description: item.description || '',
+          date: item.date || new Date().toISOString(),
+          status: item.status || 'upcoming',
+          type: item.type || 'milestone'
+        })) as TimelineItem[]
+      } catch (error) {
+        console.error('Error parsing timeline:', error)
+        timeline = []
+      }
     } else {
       // Create default timeline based on deal status and dates
       timeline = [
