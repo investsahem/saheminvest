@@ -237,24 +237,29 @@ export default function AdminDashboard() {
       title={t('admin.title')} 
       subtitle={t('admin.welcome_message')}
     >
-        {/* Today's Activity Card */}
-        <div className="mb-8 flex justify-end">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm text-gray-500">{t('admin.todays_activity')}</p>
-                <p className="text-2xl font-bold text-blue-600">+{dashboardData.newUsersToday}</p>
-                <p className="text-xs text-gray-400">{t('admin.new_users')}</p>
+        {/* Key Metrics Row - Including Today's Activity */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+          {/* Today's Activity Card */}
+          <Card className="relative overflow-hidden hover:shadow-lg transition-all duration-300 border-0 shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 mb-1">{t('admin.todays_activity')}</p>
+                  <p className="text-2xl font-bold text-blue-700 mb-2">+{dashboardData.newUsersToday}</p>
+                  <div className="flex items-center">
+                    <Activity className="w-4 h-4 text-blue-500 mr-1" />
+                    <span className="text-sm font-medium text-blue-600">
+                      {t('admin.new_users')}
+                    </span>
+                  </div>
+                </div>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-100 border border-blue-200">
+                  <TrendingUp className="w-6 h-6 text-blue-600" />
+                </div>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <Activity className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Key Metrics Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-blue-500 to-indigo-500" />
+            </CardContent>
+          </Card>
           <MetricCard
             title={t('admin.monthly_revenue')}
             value={dashboardData.monthlyRevenue}
