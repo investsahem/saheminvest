@@ -512,6 +512,7 @@ const PortfolioDealsPage = () => {
                       minInvestment={deal.minInvestment || 1000}
                       isPartnerView={false}
                       isClosedView={activeTab === 'closed'}
+                      isPortfolioView={true}
                       actualReturn={actualReturn}
                       completionDate={deal.updatedAt} // Use updated date as completion date for now
                       profitDistributed={profitDistributed}

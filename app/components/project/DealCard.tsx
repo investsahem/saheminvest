@@ -27,6 +27,7 @@ interface DealCardProps {
   minInvestment: number
   isPartnerView?: boolean
   isClosedView?: boolean
+  isPortfolioView?: boolean
   actualReturn?: number
   completionDate?: string
   profitDistributed?: number
@@ -59,6 +60,7 @@ export function DealCard({
   minInvestment,
   isPartnerView = false,
   isClosedView = false,
+  isPortfolioView = false,
   actualReturn,
   completionDate,
   profitDistributed,
@@ -327,7 +329,7 @@ export function DealCard({
           <div className="space-y-3 pt-4">
             {isClosedView ? (
               // Closed deals - View results only
-              <Link href={`/deals/${id}`}>
+              <Link href={isPortfolioView ? `/portfolio/deals/${id}` : `/deals/${id}`}>
                 <Button variant="outline" className="w-full">
                   {t('deals.view_results')}
                 </Button>
@@ -353,7 +355,7 @@ export function DealCard({
                           {t('deal_card.invest_now')}
                         </Button>
                       </Link>
-                      <Link href={`/deals/${id}`}>
+                      <Link href={isPortfolioView ? `/portfolio/deals/${id}` : `/deals/${id}`}>
                         <Button variant="outline" className="w-full">
                           {t('deal_card.more_details')}
                         </Button>
@@ -361,7 +363,7 @@ export function DealCard({
                     </div>
                   </>
                 ) : (
-                  <Link href={`/deals/${id}`}>
+                  <Link href={isPortfolioView ? `/portfolio/deals/${id}` : `/deals/${id}`}>
                     <Button variant="outline" className="w-full">
                       {t('deal_card.view_results')}
                     </Button>

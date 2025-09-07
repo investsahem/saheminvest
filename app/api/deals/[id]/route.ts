@@ -21,6 +21,8 @@ export async function GET(
   try {
     const { id } = await params
     const session = await getServerSession(authOptions)
+    const { searchParams } = new URL(request.url)
+    const includePartner = searchParams.get('includePartner') === 'true'
     
     const deal = await prisma.project.findUnique({
       where: { id },
@@ -43,9 +45,22 @@ export async function GET(
                 isVerified: true,
                 isPublic: true,
                 website: true,
+                email: true,
+                phone: true,
+                address: true,
+                city: true,
+                country: true,
                 industry: true,
                 foundedYear: true,
-                yearsExperience: true
+                employeeCount: true,
+                linkedin: true,
+                twitter: true,
+                facebook: true,
+                investmentAreas: true,
+                minimumDealSize: true,
+                maximumDealSize: true,
+                businessType: true,
+                registrationNumber: true
               }
             }
           }
@@ -95,8 +110,8 @@ export async function GET(
     // Filter sensitive information based on role
       const filteredDeal = { ...deal }
 
-    // Hide partner information from investors
-    if (isInvestor) {
+    // Hide partner information from investors (unless explicitly requested)
+    if (isInvestor && !includePartner) {
       filteredDeal.owner = {
         ...deal.owner,
         name: 'Partner',
@@ -118,7 +133,13 @@ export async function GET(
       }))
     }
 
-    return NextResponse.json(filteredDeal)
+    // Map partnerProfile to partner for consistency with frontend expectations
+    const responseData = {
+      ...filteredDeal,
+      partner: filteredDeal.owner?.partnerProfile || null
+    }
+
+    return NextResponse.json(responseData)
   } catch (error) {
     console.error('Error fetching deal:', error)
     return NextResponse.json(
