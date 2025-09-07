@@ -444,7 +444,10 @@
   "return_5_plus": "عائد 5%+",
   "return_10_plus": "عائد 10%+",
   "return_15_plus": "عائد 15%+",
-  "return_20_plus": "عائد 20%+"
+  "return_20_plus": "عائد 20%+",
+    "filters": {
+      "all_categories": "جميع الفئات"
+    }
   },
   "wallet": {
     "balance": "الرصيد الحالي",
