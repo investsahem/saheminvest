@@ -24,6 +24,7 @@ interface InvestorNotificationStats {
   newReturns: number
   dealUpdates: number
   transactionUpdates: number
+  [key: string]: number
 }
 
 export const useInvestorNotifications = () => {

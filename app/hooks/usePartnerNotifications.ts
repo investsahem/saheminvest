@@ -23,6 +23,7 @@ interface PartnerNotificationStats {
   newInvestors: number
   completedDeals: number
   pendingDistributions: number
+  [key: string]: number
 }
 
 export const usePartnerNotifications = () => {
