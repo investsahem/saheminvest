@@ -8,6 +8,7 @@ import PartnerLayout from '../../../../components/layout/PartnerLayout'
 import { Card, CardContent } from '../../../../components/ui/Card'
 import { Button } from '../../../../components/ui/Button'
 import { Input } from '../../../../components/ui/Input'
+import { DealTimeline } from '../../../../components/project/DealTimeline'
 import { 
   ArrowLeft, Users, DollarSign, TrendingUp, Calendar, 
   Plus, Send, AlertCircle, CheckCircle, Clock, Eye,
@@ -492,6 +493,12 @@ const DealManagePage = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Project Timeline Management */}
+        <DealTimeline 
+          dealId={deal.id}
+          isOwner={true}
+        />
 
         {/* Profit Distribution Form Modal - Only for non-completed deals */}
         {showProfitForm && deal.status !== 'COMPLETED' && (

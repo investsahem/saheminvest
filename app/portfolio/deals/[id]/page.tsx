@@ -9,6 +9,7 @@ import { useTranslation, useI18n } from '../../../components/providers/I18nProvi
 import InvestorLayout from '../../../components/layout/InvestorLayout'
 import { Card, CardContent } from '../../../components/ui/Card'
 import { Button } from '../../../components/ui/Button'
+import { DealTimeline } from '../../../components/project/DealTimeline'
 import { 
   ArrowLeft, Calendar, MapPin, Users, TrendingUp, Shield, 
   Clock, CheckCircle, Star, BarChart3, Target, DollarSign,
@@ -423,6 +424,12 @@ export default function PortfolioDealDetailsPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Project Timeline */}
+            <DealTimeline 
+              dealId={deal.id}
+              isOwner={session?.user?.id === deal.owner?.id}
+            />
           </div>
 
           {/* Partner Information Sidebar */}

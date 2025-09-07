@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
+import { DealTimeline } from '../../components/project/DealTimeline'
 import { 
   ArrowLeft, Calendar, MapPin, Users, TrendingUp, Shield, 
   Clock, CheckCircle, Star, BarChart3, Target, DollarSign,
@@ -486,6 +487,20 @@ export default function DealDetailsPage() {
                 </p>
               </div>
             </div>
+          </motion.div>
+
+          {/* Project Timeline */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
+            <DealTimeline 
+              dealId={deal.id}
+              isOwner={false}
+              className="bg-gradient-to-br from-[#0b1124cc] to-[#0b1124aa] border border-[#253261] backdrop-blur-sm"
+            />
           </motion.div>
         </div>
       </section>
