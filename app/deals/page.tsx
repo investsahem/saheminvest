@@ -260,7 +260,7 @@ function PublicDealsPageContent() {
               transition={{ delay: 0.2 }}
             >
               <div className={`w-2 h-2 rounded-full ${statusFilter === 'closed' ? 'bg-gray-400' : 'bg-[#6be2c9] animate-pulse'}`}></div>
-              {statusFilter === 'closed' ? t('deals.closed_deals_subtitle') : 'Live Investment Opportunities'}
+              {statusFilter === 'closed' ? t('deals.closed_deals_subtitle') : t('live_activity.title')}
             </motion.div>
             
             <motion.h1 
@@ -327,7 +327,7 @@ function PublicDealsPageContent() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#b8c2d8]" />
                 <input
                   type="text"
-                  placeholder="Search deals..."
+                  placeholder={t('deal_card.search_deals')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 bg-[#0f1640] border border-[#2d3a6b] rounded-xl text-[#e9edf7] placeholder-[#b8c2d8] focus:outline-none focus:ring-2 focus:ring-[#6be2c9] focus:border-transparent"
@@ -397,14 +397,14 @@ function PublicDealsPageContent() {
               <Eye className="w-10 h-10 text-[#6be2c9]" />
             </div>
             <h3 className="text-2xl font-bold text-[#e9edf7] mb-4">
-              {statusFilter === 'closed' ? t('deals.no_closed_deals') : 'No deals found'}
+              {statusFilter === 'closed' ? t('deals.no_closed_deals') : t('deals.no_deals_found')}
             </h3>
             <p className="text-[#b8c2d8] mb-8">
               {searchTerm || categoryFilter !== 'all' 
-                ? 'Try adjusting your search or filters' 
+                ? t('deals.adjust_search') 
                 : statusFilter === 'closed' 
                   ? t('deals.closed_deals_coming_soon')
-                  : 'No active deals available at the moment'
+                  : t('deals.no_active_deals')
               }
             </p>
             <Link href="/auth/signin">
@@ -413,7 +413,7 @@ function PublicDealsPageContent() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Get Started
+{t('deals.get_started')}
               </motion.button>
             </Link>
           </motion.div>
@@ -530,7 +530,7 @@ function PublicDealsPageContent() {
                   <div className="flex items-center justify-between text-sm text-[#b8c2d8] mb-6">
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4" />
-                      <span>{deal.investorCount} investors</span>
+                      <span>{deal.investorCount} {t('deals.investors')}</span>
                     </div>
                     <div>
                       {t('deals.card.min')}: {formatCurrency(deal.minInvestment)}
