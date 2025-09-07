@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
 import { 
@@ -31,15 +32,20 @@ interface Deal {
   }
 }
 
-export default function PublicDealsPage() {
+function PublicDealsPageContent() {
   const { t } = useTranslation()
   const { locale, setLocale } = useI18n()
+  const searchParams = useSearchParams()
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [sortBy, setSortBy] = useState<string>('newest')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  
+  // Get status from URL params
+  const statusParam = searchParams.get('status')
+  const statusFilter = statusParam === 'closed' ? 'closed' : 'active'
 
   const categories = [
     'Technology', 'Real Estate', 'Healthcare', 'Energy', 
@@ -47,12 +53,18 @@ export default function PublicDealsPage() {
     'Transportation', 'Entertainment', 'Food & Beverage', 'Other'
   ]
 
-  // Fetch public deals (only ACTIVE and FUNDED deals)
+  // Fetch public deals based on status filter
   useEffect(() => {
   const fetchDeals = async () => {
     try {
       setLoading(true)
-        const response = await fetch('/api/deals?status=ACTIVE,FUNDED&limit=50')
+      let statusQuery = ''
+      if (statusFilter === 'closed') {
+        statusQuery = 'status=COMPLETED,CANCELLED'
+      } else {
+        statusQuery = 'status=ACTIVE,FUNDED'
+      }
+        const response = await fetch(`/api/deals?${statusQuery}&limit=50`)
         if (response.ok) {
           const data = await response.json()
           setDeals(data.deals || [])
@@ -66,7 +78,7 @@ export default function PublicDealsPage() {
   }
 
     fetchDeals()
-  }, [])
+  }, [statusFilter])
 
   // Filter and sort deals
   const filteredAndSortedDeals = deals
@@ -150,8 +162,11 @@ export default function PublicDealsPage() {
               <Link href="/" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
                 {t('navigation.home')}
               </Link>
-              <Link href="/deals" className="text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold">
+              <Link href="/deals" className={`px-3 py-2 rounded-lg transition-colors font-semibold ${statusFilter === 'active' ? 'text-[#6be2c9] bg-[#1a2246]' : 'text-[#e9edf7] hover:bg-[#1a2246]'}`}>
                 {t('navigation.deals')}
+              </Link>
+              <Link href="/deals?status=closed" className={`px-3 py-2 rounded-lg transition-colors font-semibold ${statusFilter === 'closed' ? 'text-[#6be2c9] bg-[#1a2246]' : 'text-[#e9edf7] hover:bg-[#1a2246]'}`}>
+                {t('deals.closed_deals')}
               </Link>
               <Link href="/about" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
                 {t('navigation.about')}
@@ -199,10 +214,17 @@ export default function PublicDealsPage() {
                   </Link>
                   <Link 
                     href="/deals" 
-                    className="block text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold"
+                    className={`block px-3 py-2 rounded-lg font-semibold ${statusFilter === 'active' ? 'text-[#6be2c9] bg-[#1a2246]' : 'text-[#e9edf7] hover:bg-[#1a2246] transition-colors'}`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {t('navigation.deals')}
+                  </Link>
+                  <Link 
+                    href="/deals?status=closed" 
+                    className={`block px-3 py-2 rounded-lg font-semibold ${statusFilter === 'closed' ? 'text-[#6be2c9] bg-[#1a2246]' : 'text-[#e9edf7] hover:bg-[#1a2246] transition-colors'}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t('deals.closed_deals')}
                   </Link>
                   <Link 
                     href="/about" 
@@ -237,8 +259,8 @@ export default function PublicDealsPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <div className="w-2 h-2 bg-[#6be2c9] rounded-full animate-pulse"></div>
-              Live Investment Opportunities
+              <div className={`w-2 h-2 rounded-full ${statusFilter === 'closed' ? 'bg-gray-400' : 'bg-[#6be2c9] animate-pulse'}`}></div>
+              {statusFilter === 'closed' ? t('deals.closed_deals_subtitle') : 'Live Investment Opportunities'}
             </motion.div>
             
             <motion.h1 
@@ -247,7 +269,7 @@ export default function PublicDealsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              {t('deals.hero_title')}
+              {statusFilter === 'closed' ? t('deals.closed_deals') : t('deals.hero_title')}
             </motion.h1>
             
             <motion.p 
@@ -256,7 +278,7 @@ export default function PublicDealsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              {t('deals.hero_description')}
+              {statusFilter === 'closed' ? t('deals.closed_deals_subtitle') : t('deals.hero_description')}
             </motion.p>
 
             {/* Quick Stats */}
@@ -267,8 +289,17 @@ export default function PublicDealsPage() {
               transition={{ delay: 0.8 }}
             >
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-full">
-                <TrendingUp className="w-4 h-4 text-[#6be2c9]" />
-                <span className="text-[#e9edf7] text-sm">{deals.length} {t('deals.stats.active_deals')}</span>
+                {statusFilter === 'closed' ? (
+                  <>
+                    <CheckCircle className="w-4 h-4 text-[#6be2c9]" />
+                    <span className="text-[#e9edf7] text-sm">{deals.length} {t('deals.completed_successfully')}</span>
+                  </>
+                ) : (
+                  <>
+                    <TrendingUp className="w-4 h-4 text-[#6be2c9]" />
+                    <span className="text-[#e9edf7] text-sm">{deals.length} {t('deals.stats.active_deals')}</span>
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-full">
                 <Shield className="w-4 h-4 text-[#6be2c9]" />
@@ -276,7 +307,7 @@ export default function PublicDealsPage() {
             </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-full">
                 <CheckCircle className="w-4 h-4 text-[#6be2c9]" />
-                <span className="text-[#e9edf7] text-sm">{t('deals.stats.guaranteed_returns')}</span>
+                <span className="text-[#e9edf7] text-sm">{statusFilter === 'closed' ? t('deals.profit_distributed') : t('deals.stats.guaranteed_returns')}</span>
           </div>
             </motion.div>
           </motion.div>
@@ -365,11 +396,15 @@ export default function PublicDealsPage() {
             <div className="w-20 h-20 bg-gradient-to-br from-[#0f1640] to-[#1a2555] border border-[#2d3a6b] rounded-2xl flex items-center justify-center mx-auto mb-6">
               <Eye className="w-10 h-10 text-[#6be2c9]" />
             </div>
-            <h3 className="text-2xl font-bold text-[#e9edf7] mb-4">No deals found</h3>
+            <h3 className="text-2xl font-bold text-[#e9edf7] mb-4">
+              {statusFilter === 'closed' ? t('deals.no_closed_deals') : 'No deals found'}
+            </h3>
             <p className="text-[#b8c2d8] mb-8">
               {searchTerm || categoryFilter !== 'all' 
                 ? 'Try adjusting your search or filters' 
-                : 'No active deals available at the moment'
+                : statusFilter === 'closed' 
+                  ? t('deals.closed_deals_coming_soon')
+                  : 'No active deals available at the moment'
               }
             </p>
             <Link href="/auth/signin">
@@ -513,15 +548,25 @@ export default function PublicDealsPage() {
                         {t('deals.card.view_details')}
                       </motion.button>
                     </Link>
-                    <Link href="/auth/signin">
+                    {statusFilter === 'closed' ? (
                       <motion.button 
-                        className="px-6 py-3 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:shadow-xl hover:shadow-[#6be2c9]/30 transition-all duration-300"
+                        className="px-6 py-3 bg-gradient-to-r from-[#10b981] to-[#059669] text-white font-bold rounded-xl shadow-lg shadow-[#10b981]/25 hover:shadow-xl hover:shadow-[#10b981]/30 transition-all duration-300"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        {t('deals.card.invest_now')}
+                        {t('deals.view_results')}
                       </motion.button>
-                    </Link>
+                    ) : (
+                      <Link href="/auth/signin">
+                        <motion.button 
+                          className="px-6 py-3 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:shadow-xl hover:shadow-[#6be2c9]/30 transition-all duration-300"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {t('deals.card.invest_now')}
+                        </motion.button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -588,5 +633,20 @@ export default function PublicDealsPage() {
         </div>
       </footer>
     </div>
+  )
+}
+
+export default function PublicDealsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 border-2 border-[#6be2c9] border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-[#e9edf7] text-lg">Loading deals...</span>
+        </div>
+      </div>
+    }>
+      <PublicDealsPageContent />
+    </Suspense>
   )
 }
