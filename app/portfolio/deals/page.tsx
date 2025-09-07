@@ -183,19 +183,19 @@ const PortfolioDealsPage = () => {
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
               <div>
-                <h1 className="text-4xl font-bold mb-2">Investment Marketplace</h1>
+                <h1 className="text-4xl font-bold mb-2">{t('deals.investment_marketplace')}</h1>
                 <p className="text-green-100 text-lg">
-                  Explore vetted investment opportunities from trusted partners
+                  {t('deals.explore_vetted_opportunities')}
                 </p>
               </div>
               <div className="flex items-center gap-4 mt-4 lg:mt-0">
                 <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                   <Sparkles className="w-5 h-5 text-yellow-300" />
-                  <span className="font-medium">{allInvestableDeals.filter(d => d.featured).length} Featured</span>
+                  <span className="font-medium">{allInvestableDeals.filter(d => d.featured).length} {t('deals.featured')}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                   <Activity className="w-5 h-5 text-emerald-300" />
-                  <span className="font-medium">{allInvestableDeals.length} Available</span>
+                  <span className="font-medium">{allInvestableDeals.length} {t('deals.available')}</span>
                 </div>
               </div>
             </div>
@@ -208,7 +208,7 @@ const PortfolioDealsPage = () => {
                     <DollarSign className="w-6 h-6 text-emerald-300" />
                   </div>
                   <div>
-                    <p className="text-emerald-100 text-sm">Total Available</p>
+                    <p className="text-emerald-100 text-sm">{t('deals.total_available')}</p>
                     <p className="text-2xl font-bold">{formatCurrency(totalFunding)}</p>
                   </div>
                 </div>
@@ -220,7 +220,7 @@ const PortfolioDealsPage = () => {
                     <TrendingUp className="w-6 h-6 text-teal-300" />
                   </div>
                   <div>
-                    <p className="text-teal-100 text-sm">Avg. Expected Return</p>
+                    <p className="text-teal-100 text-sm">{t('deals.avg_expected_return')}</p>
                     <p className="text-2xl font-bold">{avgReturn.toFixed(1)}%</p>
                   </div>
                 </div>
@@ -232,7 +232,7 @@ const PortfolioDealsPage = () => {
                     <Users className="w-6 h-6 text-green-300" />
                   </div>
                   <div>
-                    <p className="text-green-100 text-sm">Active Investors</p>
+                    <p className="text-green-100 text-sm">{t('deals.active_investors')}</p>
                     <p className="text-2xl font-bold">{totalInvestors.toLocaleString()}</p>
                   </div>
                 </div>
@@ -299,7 +299,7 @@ const PortfolioDealsPage = () => {
                   <Search className={`absolute ${locale === 'ar' ? 'right-4' : 'left-4'} top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400`} />
                   <input
                     type="text"
-                    placeholder={locale === 'ar' ? 'البحث في الفرص الاستثمارية...' : 'Search investment opportunities...'}
+                    placeholder={t('deals.search_investment_opportunities')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={`w-full ${locale === 'ar' ? 'pr-12 pl-4 text-right font-arabic' : 'pl-12 pr-4'} py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors`}
@@ -314,7 +314,7 @@ const PortfolioDealsPage = () => {
                   onChange={(e) => setCategoryFilter(e.target.value)}
                   className="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 hover:bg-white transition-colors"
                 >
-                  <option value="all">All Categories</option>
+                  <option value="all">{t('deals.all_categories')}</option>
                   {categories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
@@ -325,7 +325,7 @@ const PortfolioDealsPage = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 hover:bg-white transition-colors"
                 >
-                  <option value="featured">Featured First</option>
+                  <option value="featured">{t('deals.featured_first')}</option>
                   <option value="newest">Newest</option>
                   <option value="ending_soon">Ending Soon</option>
                   <option value="highest_return">Highest Return</option>
@@ -339,7 +339,7 @@ const PortfolioDealsPage = () => {
                   className="px-4 py-3 border-gray-200 hover:bg-gray-50"
                 >
                   <SlidersHorizontal className="w-4 h-4 mr-2" />
-                  Filters
+                  {t('deals.filters')}
                 </Button>
 
                 <div className="flex border border-gray-200 rounded-xl overflow-hidden">

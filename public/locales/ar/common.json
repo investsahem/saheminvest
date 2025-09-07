@@ -389,9 +389,6 @@
       "bank_security": "أمان مصرفي المستوى",
       "guaranteed_returns": "عوائد مضمونة"
     },
-    "filters": {
-      "all_categories": "جميع الفئات"
-    },
     "sort": {
       "newest": "الأحدث",
       "most_funded": "الأكثر تمويلاً",
@@ -419,7 +416,18 @@
       "learn_more": "تعلم المزيد"
     },
     "adjust_search": "جرب تعديل البحث أو المرشحات",
-    "no_active_deals": "لا توجد صفقات نشطة متاحة في الوقت الحالي"
+    "no_active_deals": "لا توجد صفقات نشطة متاحة في الوقت الحالي",
+    "investment_marketplace": "سوق الاستثمار",
+    "explore_vetted_opportunities": "استكشف الفرص الاستثمارية المدققة من شركاء موثوقين",
+    "featured": "مميز",
+    "available": "متاح",
+    "total_available": "إجمالي المتاح",
+    "avg_expected_return": "متوسط العائد المتوقع",
+    "active_investors": "المستثمرون النشطون",
+    "search_investment_opportunities": "البحث في الفرص الاستثمارية...",
+    "all_categories": "جميع الفئات",
+    "featured_first": "المميز أولاً",
+    "filters": "المرشحات"
   },
   "wallet": {
     "balance": "الرصيد الحالي",
