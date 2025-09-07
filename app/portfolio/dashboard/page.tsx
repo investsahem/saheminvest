@@ -147,7 +147,7 @@ export default function InvestorDashboard() {
 
   if (loading) {
     return (
-      <InvestorLayout title="Portfolio Dashboard" subtitle="Track your investment performance">
+      <InvestorLayout title={t('investor.portfolio_dashboard')} subtitle={t('investor.track_investment_performance')}>
         <div className="flex items-center justify-center min-h-96">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -157,14 +157,14 @@ export default function InvestorDashboard() {
 
   if (!portfolioData) {
     return (
-      <InvestorLayout title="Portfolio Dashboard" subtitle="Track your investment performance">
+      <InvestorLayout title={t('investor.portfolio_dashboard')} subtitle={t('investor.track_investment_performance')}>
         <Card>
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Portfolio Data</h2>
-            <p className="text-gray-600 mb-4">Start investing to see your portfolio performance.</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('investor.no_portfolio_data')}</h2>
+            <p className="text-gray-600 mb-4">{t('investor.start_investing_message')}</p>
             <Button onClick={() => router.push('/deals')}>
-              Browse Investment Opportunities
+              {t('investor.browse_investment_opportunities')}
             </Button>
           </CardContent>
         </Card>
@@ -175,7 +175,7 @@ export default function InvestorDashboard() {
   const { portfolio, dailyChange, investments, summary } = portfolioData
 
   return (
-    <InvestorLayout title="Portfolio Dashboard" subtitle="Track your investment performance">
+    <InvestorLayout title={t('investor.portfolio_dashboard')} subtitle={t('investor.track_investment_performance')}>
       <div className="space-y-6">
         {/* Portfolio Overview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -184,7 +184,7 @@ export default function InvestorDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-sm font-medium text-blue-700">Portfolio Value</p>
+                  <p className="text-sm font-medium text-blue-700">{t('investor.portfolio_value')}</p>
                   <p className="text-4xl font-bold text-blue-900">
                     {formatCurrency(portfolio.totalValue)}
                   </p>
@@ -207,7 +207,7 @@ export default function InvestorDashboard() {
                 </div>
                 
                 <div className="text-sm text-blue-700">
-                  Total Return: {formatCurrency(portfolio.totalReturns)}
+                  {t('investor.total_return')}: {formatCurrency(portfolio.totalReturns)}
                 </div>
               </div>
             </CardContent>
@@ -218,7 +218,7 @@ export default function InvestorDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-sm font-medium text-green-700">Today's Change</p>
+                  <p className="text-sm font-medium text-green-700">{t('investor.todays_change')}</p>
                   <p className={`text-2xl font-bold ${
                     dailyChange.isPositive ? 'text-green-900' : 'text-red-900'
                   }`}>
@@ -249,7 +249,7 @@ export default function InvestorDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Invested</p>
+                  <p className="text-sm font-medium text-gray-600">{t('investor.total_invested')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {formatCurrency(portfolio.totalHistoricalInvested || portfolio.totalInvested)}
                   </p>
@@ -263,7 +263,7 @@ export default function InvestorDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Current Value</p>
+                  <p className="text-sm font-medium text-gray-600">{t('investor.current_value')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {formatCurrency(portfolio.totalValue)}
                   </p>
@@ -277,7 +277,7 @@ export default function InvestorDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Return</p>
+                  <p className="text-sm font-medium text-gray-600">{t('investor.total_return')}</p>
                   <p className="text-2xl font-bold text-green-900">
                     {formatCurrency(portfolio.totalReturns)}
                   </p>
@@ -291,7 +291,7 @@ export default function InvestorDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Active Investments</p>
+                  <p className="text-sm font-medium text-gray-600">{t('investor.active_investments')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {portfolio.activeInvestments}
                   </p>
@@ -306,13 +306,13 @@ export default function InvestorDashboard() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">My Investments</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('investor.my_investments')}</h3>
               <Button 
                 onClick={() => router.push('/deals')}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                New Investment
+                {t('investor.new_investment')}
               </Button>
             </div>
 
@@ -321,13 +321,13 @@ export default function InvestorDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-medium text-gray-600">Project</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-600">Amount Invested</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-600">Current Value</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-600">Return</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-600">Progress</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-600">Status</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-600">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">{t('investor.project')}</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.amount_invested')}</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.current_value')}</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.return')}</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-600">{t('investor.progress')}</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-600">{t('investor.status')}</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-600">{t('investor.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -352,7 +352,7 @@ export default function InvestorDashboard() {
                             <div>
                               <p className="font-medium text-gray-900">{investment.projectTitle}</p>
                               <p className="text-sm text-gray-500">
-                                Invested on {formatDate(investment.investmentDate)}
+                                {t('investor.invested_on')} {formatDate(investment.investmentDate)}
                               </p>
                             </div>
                           </div>
@@ -400,7 +400,7 @@ export default function InvestorDashboard() {
                               onClick={() => router.push(`/deals/${investment.projectId}`)}
                             >
                               <Eye className="w-4 h-4 mr-1" />
-                              View Details
+                              {t('investor.view_details')}
                             </Button>
                             {investment.status === 'active' && (
                               <Button
@@ -408,7 +408,7 @@ export default function InvestorDashboard() {
                                 onClick={() => router.push(`/deals/${investment.projectId}/invest`)}
                               >
                                 <Plus className="w-4 h-4 mr-1" />
-                                Add More
+                                {t('investor.add_more')}
                               </Button>
                             )}
                           </div>
@@ -421,10 +421,10 @@ export default function InvestorDashboard() {
             ) : (
               <div className="text-center py-8">
                 <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Investments Yet</h3>
-                <p className="text-gray-600 mb-4">Start building your portfolio by investing in exciting projects.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('investor.no_investments_yet')}</h3>
+                <p className="text-gray-600 mb-4">{t('investor.start_building_portfolio')}</p>
                 <Button onClick={() => router.push('/deals')}>
-                  Browse Investment Opportunities
+                  {t('investor.browse_investment_opportunities')}
                 </Button>
               </div>
             )}
