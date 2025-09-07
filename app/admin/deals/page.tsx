@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import AdminLayout from '../../components/layout/AdminLayout'
 import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
@@ -39,6 +39,7 @@ export default function AdminDealsPage() {
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null)
   const [selectedDeals, setSelectedDeals] = useState<string[]>([])
   const [showBulkActions, setShowBulkActions] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Fetch deals using unified service
   const fetchDeals = async () => {
@@ -66,6 +67,23 @@ export default function AdminDealsPage() {
   useEffect(() => {
     fetchDeals()
   }, [searchTerm, statusFilter, categoryFilter])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setActionMenuOpen(null)
+      }
+    }
+
+    if (actionMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [actionMenuOpen])
 
   // Server-side filtering is now handled by the API
   const filteredDeals = deals
@@ -606,7 +624,11 @@ export default function AdminDealsPage() {
                         </button>
                         
                         {actionMenuOpen === deal.id && (
-                          <div className={`absolute ${locale === 'ar' ? 'left-0' : 'right-0'} mt-2 w-64 bg-white rounded-lg shadow-lg border z-50`}>
+                          <div 
+                            ref={dropdownRef}
+                            className={`absolute ${locale === 'ar' ? 'left-0' : 'right-0'} mt-2 w-64 bg-white rounded-lg shadow-2xl border border-gray-200`}
+                            style={{ zIndex: 99999 }}
+                          >
                             <div className="py-2">
                               {/* Quick Actions */}
                               <div className="px-4 py-2 border-b border-gray-100">
