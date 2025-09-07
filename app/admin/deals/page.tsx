@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useSession } from 'next-auth/react'
 import AdminLayout from '../../components/layout/AdminLayout'
 import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
@@ -39,7 +40,9 @@ export default function AdminDealsPage() {
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null)
   const [selectedDeals, setSelectedDeals] = useState<string[]>([])
   const [showBulkActions, setShowBulkActions] = useState(false)
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number; right: number } | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   // Fetch deals using unified service
   const fetchDeals = async () => {
@@ -68,11 +71,32 @@ export default function AdminDealsPage() {
     fetchDeals()
   }, [searchTerm, statusFilter, categoryFilter])
 
+  // Handle dropdown positioning
+  const handleDropdownToggle = (dealId: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    if (actionMenuOpen === dealId) {
+      setActionMenuOpen(null)
+      setDropdownPosition(null)
+    } else {
+      const button = event.currentTarget
+      const rect = button.getBoundingClientRect()
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft
+      
+      setDropdownPosition({
+        top: rect.bottom + scrollTop + 8,
+        left: rect.left + scrollLeft,
+        right: window.innerWidth - (rect.right + scrollLeft)
+      })
+      setActionMenuOpen(dealId)
+    }
+  }
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setActionMenuOpen(null)
+        setDropdownPosition(null)
       }
     }
 
@@ -617,160 +641,13 @@ export default function AdminDealsPage() {
                       {/* Action Menu */}
                       <div className="relative">
                         <button
-                          onClick={() => setActionMenuOpen(actionMenuOpen === deal.id ? null : deal.id)}
+                          ref={buttonRef}
+                          onClick={(e) => handleDropdownToggle(deal.id, e)}
                           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
                         >
                           <MoreVertical className="w-5 h-5" />
                         </button>
                         
-                        {actionMenuOpen === deal.id && (
-                          <div 
-                            ref={dropdownRef}
-                            className={`absolute ${locale === 'ar' ? 'left-0' : 'right-0'} mt-2 w-64 bg-white rounded-lg shadow-2xl border border-gray-200`}
-                            style={{ zIndex: 99999 }}
-                          >
-                            <div className="py-2">
-                              {/* Quick Actions */}
-                              <div className="px-4 py-2 border-b border-gray-100">
-                                <h4 className={`text-sm font-medium text-gray-900 ${locale === 'ar' ? 'text-right font-arabic' : ''}`}>
-                                  {locale === 'ar' ? 'إجراءات سريعة' : 'Quick Actions'}
-                                </h4>
-                              </div>
-                              
-                              {/* View Deal */}
-                              <button
-                                onClick={() => window.open(`/deals/${deal.id}`, '_blank')}
-                                className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                              >
-                                <Eye className="w-4 h-4 mr-2" />
-                                <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'عرض الصفقة' : 'View Deal'}</span>
-                              </button>
-                              
-                              {/* Approval Actions */}
-                              {deal.status === 'PENDING' && (
-                                <>
-                                  <button
-                                    onClick={() => {
-                                      setSelectedDeal(deal)
-                                      setShowApprovalModal(true)
-                                      setActionMenuOpen(null)
-                                    }}
-                                    className={`flex items-center w-full px-4 py-2 text-sm text-green-600 hover:bg-green-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                                  >
-                                    <Check className="w-4 h-4 mr-2" />
-                                    <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'موافقة' : 'Approve'}</span>
-                                  </button>
-                                  
-                                  <button
-                                    onClick={() => handleStatusChange(deal.id, 'REJECTED')}
-                                    className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                                  >
-                                    <X className="w-4 h-4 mr-2" />
-                                    <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'رفض' : 'Reject'}</span>
-                                  </button>
-                                </>
-                              )}
-                              
-                              {/* Status Controls */}
-                              {deal.status === 'ACTIVE' && (
-                                <button
-                                  onClick={() => handleStatusChange(deal.id, 'PAUSED')}
-                                  className={`flex items-center w-full px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                                >
-                                  <Pause className="w-4 h-4 mr-2" />
-                                  <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'إيقاف مؤقت' : 'Pause Deal'}</span>
-                                </button>
-                              )}
-                              
-                              {deal.status === 'PAUSED' && (
-                                <button
-                                  onClick={() => handleStatusChange(deal.id, 'ACTIVE')}
-                                  className={`flex items-center w-full px-4 py-2 text-sm text-green-600 hover:bg-green-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                                >
-                                  <Play className="w-4 h-4 mr-2" />
-                                  <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'استئناف' : 'Resume Deal'}</span>
-                                </button>
-                              )}
-                              
-                              {/* Date Management */}
-                              <button
-                                onClick={() => {
-                                  setSelectedDeal(deal)
-                                  setShowDateModal(true)
-                                  setActionMenuOpen(null)
-                                }}
-                                className={`flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                              >
-                                <Calendar className="w-4 h-4 mr-2" />
-                                <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'تعديل التواريخ' : 'Edit Dates'}</span>
-                              </button>
-                              
-                              {/* Timeline Management */}
-                              <button
-                                onClick={() => {
-                                  setSelectedDeal(deal)
-                                  setShowTimelineModal(true)
-                                  setActionMenuOpen(null)
-                                }}
-                                className={`flex items-center w-full px-4 py-2 text-sm text-teal-600 hover:bg-teal-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                              >
-                                <GanttChart className="w-4 h-4 mr-2" />
-                                <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'إدارة الجدول الزمني' : 'Manage Timeline'}</span>
-                              </button>
-                              
-                              {/* Advanced Status */}
-                              <button
-                                onClick={() => {
-                                  setSelectedDeal(deal)
-                                  setShowStatusModal(true)
-                                  setActionMenuOpen(null)
-                                }}
-                                className={`flex items-center w-full px-4 py-2 text-sm text-purple-600 hover:bg-purple-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                              >
-                                <Settings className="w-4 h-4 mr-2" />
-                                <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'تغيير الحالة' : 'Change Status'}</span>
-                              </button>
-                              
-                              <div className="border-t border-gray-100 my-2"></div>
-                              
-                              {/* Archive Action */}
-                              <button
-                                onClick={() => {
-                                  handleArchiveDeal(deal.id, deal.title)
-                                  setActionMenuOpen(null)
-                                }}
-                                className={`flex items-center w-full px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                              >
-                                <Archive className="w-4 h-4 mr-2" />
-                                <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'أرشفة الصفقة' : 'Archive Deal'}</span>
-                              </button>
-                              
-                              {/* Dangerous Actions */}
-                              <button
-                                onClick={() => {
-                                  if (confirm(locale === 'ar' ? 'هل أنت متأكد من إلغاء هذه الصفقة؟' : 'Are you sure you want to cancel this deal?')) {
-                                    handleStatusChange(deal.id, 'CANCELLED')
-                                  }
-                                }}
-                                className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                              >
-                                <StopCircle className="w-4 h-4 mr-2" />
-                                <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'إلغاء الصفقة' : 'Cancel Deal'}</span>
-                              </button>
-                              
-                              {/* Delete Action - Only for deals without investments */}
-                              <button
-                                onClick={() => {
-                                  handleDeleteDeal(deal.id, deal.title)
-                                }}
-                                className={`flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-100 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'حذف الصفقة' : 'Delete Deal'}</span>
-                              </button>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -933,6 +810,196 @@ export default function AdminDealsPage() {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Portal-based Dropdown Menu */}
+        {actionMenuOpen && dropdownPosition && typeof window !== 'undefined' && createPortal(
+          <div 
+            ref={dropdownRef}
+            className="fixed w-64 bg-white rounded-lg shadow-2xl border border-gray-200"
+            style={{ 
+              top: dropdownPosition.top,
+              left: locale === 'ar' ? 'auto' : dropdownPosition.left,
+              right: locale === 'ar' ? dropdownPosition.right : 'auto',
+              zIndex: 99999
+            }}
+          >
+            <div className="py-2">
+              {(() => {
+                const deal = deals.find(d => d.id === actionMenuOpen)
+                if (!deal) return null
+                
+                return (
+                  <>
+                    {/* Quick Actions */}
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <h4 className={`text-sm font-medium text-gray-900 ${locale === 'ar' ? 'text-right font-arabic' : ''}`}>
+                        {locale === 'ar' ? 'إجراءات سريعة' : 'Quick Actions'}
+                      </h4>
+                    </div>
+                    
+                    {/* View Deal */}
+                    <button
+                      onClick={() => {
+                        window.open(`/deals/${deal.id}`, '_blank')
+                        setActionMenuOpen(null)
+                        setDropdownPosition(null)
+                      }}
+                      className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'عرض الصفقة' : 'View Deal'}</span>
+                    </button>
+                    
+                    {/* Approval Actions */}
+                    {deal.status === 'PENDING' && (
+                      <>
+                        <button
+                          onClick={() => {
+                            setSelectedDeal(deal)
+                            setShowApprovalModal(true)
+                            setActionMenuOpen(null)
+                            setDropdownPosition(null)
+                          }}
+                          className={`flex items-center w-full px-4 py-2 text-sm text-green-600 hover:bg-green-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                        >
+                          <Check className="w-4 h-4 mr-2" />
+                          <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'موافقة' : 'Approve'}</span>
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            handleStatusChange(deal.id, 'REJECTED')
+                            setActionMenuOpen(null)
+                            setDropdownPosition(null)
+                          }}
+                          className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'رفض' : 'Reject'}</span>
+                        </button>
+                      </>
+                    )}
+                    
+                    {/* Status Controls */}
+                    {deal.status === 'ACTIVE' && (
+                      <button
+                        onClick={() => {
+                          handleStatusChange(deal.id, 'PAUSED')
+                          setActionMenuOpen(null)
+                          setDropdownPosition(null)
+                        }}
+                        className={`flex items-center w-full px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                      >
+                        <Pause className="w-4 h-4 mr-2" />
+                        <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'إيقاف مؤقت' : 'Pause Deal'}</span>
+                      </button>
+                    )}
+                    
+                    {deal.status === 'PAUSED' && (
+                      <button
+                        onClick={() => {
+                          handleStatusChange(deal.id, 'ACTIVE')
+                          setActionMenuOpen(null)
+                          setDropdownPosition(null)
+                        }}
+                        className={`flex items-center w-full px-4 py-2 text-sm text-green-600 hover:bg-green-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'استئناف' : 'Resume Deal'}</span>
+                      </button>
+                    )}
+                    
+                    {/* Date Management */}
+                    <button
+                      onClick={() => {
+                        setSelectedDeal(deal)
+                        setShowDateModal(true)
+                        setActionMenuOpen(null)
+                        setDropdownPosition(null)
+                      }}
+                      className={`flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'تعديل التواريخ' : 'Edit Dates'}</span>
+                    </button>
+                    
+                    {/* Timeline Management */}
+                    <button
+                      onClick={() => {
+                        setSelectedDeal(deal)
+                        setShowTimelineModal(true)
+                        setActionMenuOpen(null)
+                        setDropdownPosition(null)
+                      }}
+                      className={`flex items-center w-full px-4 py-2 text-sm text-teal-600 hover:bg-teal-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                    >
+                      <GanttChart className="w-4 h-4 mr-2" />
+                      <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'إدارة الجدول الزمني' : 'Manage Timeline'}</span>
+                    </button>
+                    
+                    {/* Advanced Status */}
+                    <button
+                      onClick={() => {
+                        setSelectedDeal(deal)
+                        setShowStatusModal(true)
+                        setActionMenuOpen(null)
+                        setDropdownPosition(null)
+                      }}
+                      className={`flex items-center w-full px-4 py-2 text-sm text-purple-600 hover:bg-purple-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'تغيير الحالة' : 'Change Status'}</span>
+                    </button>
+                    
+                    <div className="border-t border-gray-100 my-2"></div>
+                    
+                    {/* Archive Action */}
+                    <button
+                      onClick={() => {
+                        handleArchiveDeal(deal.id, deal.title)
+                        setActionMenuOpen(null)
+                        setDropdownPosition(null)
+                      }}
+                      className={`flex items-center w-full px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                    >
+                      <Archive className="w-4 h-4 mr-2" />
+                      <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'أرشفة الصفقة' : 'Archive Deal'}</span>
+                    </button>
+                    
+                    {/* Dangerous Actions */}
+                    <button
+                      onClick={() => {
+                        if (confirm(locale === 'ar' ? 'هل أنت متأكد من إلغاء هذه الصفقة؟' : 'Are you sure you want to cancel this deal?')) {
+                          handleStatusChange(deal.id, 'CANCELLED')
+                          setActionMenuOpen(null)
+                          setDropdownPosition(null)
+                        }
+                      }}
+                      className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                    >
+                      <StopCircle className="w-4 h-4 mr-2" />
+                      <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'إلغاء الصفقة' : 'Cancel Deal'}</span>
+                    </button>
+                    
+                    {/* Delete Action - Only for deals without investments */}
+                    <button
+                      onClick={() => {
+                        handleDeleteDeal(deal.id, deal.title)
+                        setActionMenuOpen(null)
+                        setDropdownPosition(null)
+                      }}
+                      className={`flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-100 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'حذف الصفقة' : 'Delete Deal'}</span>
+                    </button>
+                  </>
+                )
+              })()}
+            </div>
+          </div>,
+          document.body
         )}
       </div>
     </AdminLayout>
