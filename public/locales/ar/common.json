@@ -427,6 +427,11 @@
     "search_investment_opportunities": "البحث في الفرص الاستثمارية...",
     "all_categories": "جميع الفئات",
     "featured_first": "المميز أولاً",
+    "newest": "الأحدث",
+    "ending_soon": "ينتهي قريباً",
+    "highest_return": "أعلى عائد",
+    "lowest_minimum": "أقل حد أدنى",
+    "most_funded": "الأكثر تمويلاً",
     "filters": "المرشحات"
   },
   "wallet": {

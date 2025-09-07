@@ -387,6 +387,11 @@
     "search_investment_opportunities": "Search investment opportunities...",
     "all_categories": "All Categories",
     "featured_first": "Featured First",
+    "newest": "Newest",
+    "ending_soon": "Ending Soon",
+    "highest_return": "Highest Return",
+    "lowest_minimum": "Lowest Minimum",
+    "most_funded": "Most Funded",
     "filters": "Filters",
     "deal_details": {
       "back_to_deals": "Back to Deals",

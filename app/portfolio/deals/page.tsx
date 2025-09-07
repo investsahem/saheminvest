@@ -326,11 +326,11 @@ const PortfolioDealsPage = () => {
                   className="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 hover:bg-white transition-colors"
                 >
                   <option value="featured">{t('deals.featured_first')}</option>
-                  <option value="newest">Newest</option>
-                  <option value="ending_soon">Ending Soon</option>
-                  <option value="highest_return">Highest Return</option>
-                  <option value="lowest_minimum">Lowest Minimum</option>
-                  <option value="most_funded">Most Funded</option>
+                  <option value="newest">{t('deals.newest')}</option>
+                  <option value="ending_soon">{t('deals.ending_soon')}</option>
+                  <option value="highest_return">{t('deals.highest_return')}</option>
+                  <option value="lowest_minimum">{t('deals.lowest_minimum')}</option>
+                  <option value="most_funded">{t('deals.most_funded')}</option>
                 </select>
 
                 <Button
