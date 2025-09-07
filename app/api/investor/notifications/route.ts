@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const newReturns = await prisma.transaction.count({
       where: {
         userId,
-        type: 'PROFIT_RETURN',
+        type: 'RETURN',
         status: 'COMPLETED',
         createdAt: {
           gte: sevenDaysAgo

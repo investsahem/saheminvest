@@ -83,8 +83,32 @@ model User {
   // Profile information
   phone             String?
   address           String?
+  city              String?
+  country           String?
   dateOfBirth       DateTime?
   kycVerified       Boolean       @default(false)
+  profileImage      String?
+  
+  // Investment profile (for INVESTOR role)
+  investmentExperience String?
+  riskTolerance     String?
+  investmentGoals   String?
+  monthlyIncome     Decimal?      @db.Decimal(15, 2)
+  occupation        String?
+  nationalId        String?
+  
+  // User preferences
+  preferredLanguage String?       @default("en")
+  timezone          String?       @default("UTC")
+  
+  // Security settings
+  twoFactorEnabled  Boolean       @default(false)
+  
+  // Notification preferences
+  emailNotifications Boolean      @default(true)
+  smsNotifications  Boolean       @default(false)
+  pushNotifications Boolean       @default(true)
+  marketingEmails   Boolean       @default(false)
   
   // Password reset
   resetToken        String?

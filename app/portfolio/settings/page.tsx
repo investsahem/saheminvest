@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import InvestorLayout from '../../components/layout/InvestorLayout'
 import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
@@ -40,28 +40,28 @@ const ProfileSettings = () => {
     agreeToTerms: false
   })
   const [submitting, setSubmitting] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
-  // Sample user data
+  // User profile data from database
   const [userProfile, setUserProfile] = useState({
-    firstName: 'Ahmed',
-    lastName: 'Al-Rashid',
-    email: 'ahmed.alrashid@email.com',
-    phone: '+966 50 123 4567',
-    dateOfBirth: '1985-03-15',
-    nationality: 'Saudi Arabia',
-    address: {
-      street: '123 King Fahd Road',
-      city: 'Riyadh',
-      state: 'Riyadh Province',
-      zipCode: '12345',
-      country: 'Saudi Arabia'
-    },
-    profileImage: null,
-    investorType: 'Individual',
-    riskTolerance: 'Medium',
-    investmentExperience: '3-5 years',
-    annualIncome: '$50,000 - $100,000',
-    netWorth: '$100,000 - $500,000'
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    dateOfBirth: '',
+    address: '',
+    city: '',
+    country: '',
+    profileImage: '',
+    investmentExperience: '',
+    riskTolerance: '',
+    investmentGoals: '',
+    monthlyIncome: 0,
+    occupation: '',
+    nationalId: '',
+    preferredLanguage: 'en',
+    timezone: 'UTC'
   })
 
   const [securitySettings, setSecuritySettings] = useState({
@@ -106,6 +106,65 @@ const ProfileSettings = () => {
     autoLogout: 30 // minutes
   })
 
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!session?.user) return
+
+      try {
+        setLoading(true)
+        const response = await fetch('/api/investor/profile', {
+          credentials: 'include'
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setUserProfile(data.profile)
+          setNotificationSettings(prev => ({
+            ...prev,
+            email: {
+              ...prev.email,
+              marketingEmails: data.profile.marketingEmails,
+              investmentUpdates: data.profile.emailNotifications,
+              monthlyStatements: data.profile.emailNotifications,
+              dealAlerts: data.profile.emailNotifications,
+              securityAlerts: data.profile.emailNotifications
+            },
+            sms: {
+              ...prev.sms,
+              criticalAlerts: data.profile.smsNotifications,
+              payoutNotifications: data.profile.smsNotifications,
+              loginAlerts: data.profile.smsNotifications
+            },
+            push: {
+              ...prev.push,
+              dealUpdates: data.profile.pushNotifications,
+              priceAlerts: data.profile.pushNotifications,
+              newsUpdates: data.profile.pushNotifications
+            }
+          }))
+          setSecuritySettings(prev => ({
+            ...prev,
+            twoFactorEnabled: data.profile.twoFactorEnabled
+          }))
+          setPreferences(prev => ({
+            ...prev,
+            language: data.profile.preferredLanguage || locale,
+            timezone: data.profile.timezone || 'UTC'
+          }))
+        } else {
+          console.error('Failed to fetch profile')
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProfile()
+  }, [session, locale])
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
       year: 'numeric',
@@ -124,10 +183,71 @@ const ProfileSettings = () => {
     })
   }
 
-  const handleSaveProfile = () => {
-    console.log('Saving profile:', userProfile)
-    setIsEditing(false)
-    // Implement save logic
+  const handleSaveProfile = async () => {
+    if (!session?.user) return
+
+    try {
+      setSaving(true)
+      const response = await fetch('/api/investor/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(userProfile)
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Profile saved successfully:', data.message)
+        setIsEditing(false)
+        // Show success notification
+        alert('Profile updated successfully!')
+      } else {
+        const error = await response.json()
+        console.error('Failed to save profile:', error.error)
+        alert('Failed to save profile: ' + error.error)
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      alert('Error saving profile. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      setSaving(true)
+      const formData = new FormData()
+      formData.append('image', file)
+
+      const response = await fetch('/api/investor/upload-image', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUserProfile(prev => ({
+          ...prev,
+          profileImage: data.imageUrl
+        }))
+        alert('Profile image updated successfully!')
+      } else {
+        const error = await response.json()
+        alert('Failed to upload image: ' + error.error)
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      alert('Error uploading image. Please try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handlePasswordChange = () => {
@@ -209,6 +329,16 @@ const ProfileSettings = () => {
     { id: 'advisor', name: t('portfolioAdvisor.apply_for_advisor'), icon: UserCheck }
   ]
 
+  if (loading) {
+    return (
+      <InvestorLayout title={t('investor.profile_settings')}>
+        <div className="flex items-center justify-center min-h-96">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </InvestorLayout>
+    )
+  }
+
   return (
     <InvestorLayout title={t('investor.profile_settings')}>
       {/* Tab Navigation */}
@@ -252,18 +382,32 @@ const ProfileSettings = () => {
 
               {/* Profile Image */}
               <div className="flex items-center gap-6 mb-8">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                  <User className="w-10 h-10 text-white" />
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center overflow-hidden">
+                  {userProfile.profileImage ? (
+                    <img 
+                      src={userProfile.profileImage} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-10 h-10 text-white" />
+                  )}
                 </div>
                 {isEditing && (
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      <Upload className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-                      Upload Photo
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Camera className="w-4 h-4" />
-                    </Button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="profile-image-upload"
+                    />
+                    <label htmlFor="profile-image-upload">
+                      <Button variant="outline" size="sm" as="span" className="cursor-pointer">
+                        <Upload className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                        Upload Photo
+                      </Button>
+                    </label>
                   </div>
                 )}
               </div>
@@ -327,11 +471,11 @@ const ProfileSettings = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Nationality</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
                   <input
                     type="text"
-                    value={userProfile.nationality}
-                    onChange={(e) => setUserProfile({...userProfile, nationality: e.target.value})}
+                    value={userProfile.address}
+                    onChange={(e) => setUserProfile({...userProfile, address: e.target.value})}
                     disabled={!isEditing}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
                   />
@@ -343,9 +487,13 @@ const ProfileSettings = () => {
                   <Button variant="outline" onClick={() => setIsEditing(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleSaveProfile}>
-                    <Save className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-                    Save Changes
+                  <Button onClick={handleSaveProfile} disabled={saving}>
+                    {saving ? (
+                      <RefreshCw className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'} animate-spin`} />
+                    ) : (
+                      <Save className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                    )}
+                    {saving ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               )}
