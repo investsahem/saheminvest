@@ -402,11 +402,12 @@ const ProfileSettings = () => {
                       className="hidden"
                       id="profile-image-upload"
                     />
-                    <label htmlFor="profile-image-upload">
-                      <Button variant="outline" size="sm" as="span" className="cursor-pointer">
-                        <Upload className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-                        Upload Photo
-                      </Button>
+                    <label 
+                      htmlFor="profile-image-upload"
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 cursor-pointer"
+                    >
+                      <Upload className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
+                      Upload Photo
                     </label>
                   </div>
                 )}
