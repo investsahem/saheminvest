@@ -1,55 +1,22 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AdminLayout from '../../components/layout/AdminLayout'
 import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 
-// Sample data - would come from API/database in real app
-const sampleUsers = [
-  {
-    id: '1',
-    name: 'أحمد محمد',
-    email: 'ahmed@sahaminvest.com',
-    role: 'INVESTOR',
-    isActive: true,
-    createdAt: '2024-01-15',
-    lastLogin: '2024-07-20',
-    permissions: []
-  },
-  {
-    id: '2',
-    name: 'فاطمة علي',
-    email: 'fatima@sahaminvest.com',
-    role: 'DEAL_MANAGER',
-    isActive: true,
-    createdAt: '2024-02-10',
-    lastLogin: '2024-07-19',
-    permissions: ['READ_DEALS', 'WRITE_DEALS', 'READ_USERS']
-  },
-  {
-    id: '3',
-    name: 'محمد حسن',
-    email: 'mohamed@sahaminvest.com',
-    role: 'FINANCIAL_OFFICER',
-    isActive: true,
-    createdAt: '2024-03-05',
-    lastLogin: '2024-07-18',
-    permissions: ['READ_TRANSACTIONS', 'WRITE_TRANSACTIONS', 'READ_INVESTMENTS']
-  },
-  {
-    id: '4',
-    name: 'سارة أحمد',
-    email: 'sara@sahaminvest.com',
-    role: 'PORTFOLIO_ADVISOR',
-    isActive: false,
-    createdAt: '2024-04-12',
-    lastLogin: '2024-07-15',
-    permissions: ['READ_INVESTMENTS', 'WRITE_INVESTMENTS', 'READ_USERS']
-  }
-]
+interface User {
+  id: string
+  name: string
+  email: string
+  role: keyof typeof rolePermissions
+  isActive: boolean
+  createdAt: string
+  lastLogin: string | null
+  permissions: string[]
+}
 
 const rolePermissions = {
   ADMIN: [
@@ -83,8 +50,10 @@ const rolePermissions = {
 export default function UsersManagementPage() {
   const { t } = useTranslation()
   const { locale } = useI18n()
-  const [users, setUsers] = useState(sampleUsers)
-  const [selectedUser, setSelectedUser] = useState<typeof sampleUsers[0] | null>(null)
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [showRoleModal, setShowRoleModal] = useState(false)
   const [showAddUser, setShowAddUser] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -96,6 +65,33 @@ export default function UsersManagementPage() {
     role: 'INVESTOR' as keyof typeof rolePermissions,
     password: ''
   })
+
+  // Fetch users from API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await fetch('/api/admin/users', {
+          credentials: 'include'
+        })
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch users: ${response.statusText}`)
+        }
+
+        const data = await response.json()
+        setUsers(data.users || [])
+      } catch (error) {
+        console.error('Error fetching users:', error)
+        setError(error instanceof Error ? error.message : 'Failed to fetch users')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUsers()
+  }, [])
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -118,38 +114,133 @@ export default function UsersManagementPage() {
       : 'bg-red-100 text-red-800'
   }
 
-  const handleRoleChange = (userId: string, newRole: keyof typeof rolePermissions) => {
-    setUsers(users.map(user => 
-      user.id === userId 
-        ? { ...user, role: newRole, permissions: rolePermissions[newRole] }
-        : user
-    ))
-    setShowRoleModal(false)
-    setSelectedUser(null)
-  }
+  const handleRoleChange = async (userId: string, newRole: keyof typeof rolePermissions) => {
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ role: newRole })
+      })
 
-  const handleAddUser = () => {
-    if (newUser.name && newUser.email && newUser.password) {
-      const user = {
-        id: Date.now().toString(),
-        ...newUser,
-        isActive: true,
-        createdAt: new Date().toISOString().split('T')[0],
-        lastLogin: '-',
-        permissions: rolePermissions[newUser.role]
+      if (!response.ok) {
+        throw new Error('Failed to update user role')
       }
-      setUsers([...users, user])
-      setNewUser({ name: '', email: '', role: 'INVESTOR', password: '' })
-      setShowAddUser(false)
+
+      // Update local state
+      setUsers(users.map(user => 
+        user.id === userId 
+          ? { ...user, role: newRole, permissions: rolePermissions[newRole] }
+          : user
+      ))
+      setShowRoleModal(false)
+      setSelectedUser(null)
+    } catch (error) {
+      console.error('Error updating user role:', error)
+      alert('Failed to update user role. Please try again.')
     }
   }
 
-  const toggleUserStatus = (userId: string) => {
-    setUsers(users.map(user => 
-      user.id === userId 
-        ? { ...user, isActive: !user.isActive }
-        : user
-    ))
+  const handleAddUser = async () => {
+    if (newUser.name && newUser.email && newUser.password) {
+      try {
+        const response = await fetch('/api/admin/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify(newUser)
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to create user')
+        }
+
+        const data = await response.json()
+        
+        // Add the new user to local state
+        const createdUser: User = {
+          ...data.user,
+          permissions: rolePermissions[newUser.role]
+        }
+        setUsers([...users, createdUser])
+        setNewUser({ name: '', email: '', role: 'INVESTOR', password: '' })
+        setShowAddUser(false)
+      } catch (error) {
+        console.error('Error creating user:', error)
+        alert('Failed to create user. Please try again.')
+      }
+    }
+  }
+
+  const toggleUserStatus = async (userId: string) => {
+    const user = users.find(u => u.id === userId)
+    if (!user) return
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ isActive: !user.isActive })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update user status')
+      }
+
+      // Update local state
+      setUsers(users.map(u => 
+        u.id === userId 
+          ? { ...u, isActive: !u.isActive }
+          : u
+      ))
+    } catch (error) {
+      console.error('Error updating user status:', error)
+      alert('Failed to update user status. Please try again.')
+    }
+  }
+
+  if (loading) {
+    return (
+      <AdminLayout 
+        title={t('admin.users_management.title')}
+        subtitle={t('admin.users_management.subtitle')}
+      >
+        <div className="flex items-center justify-center min-h-96">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  if (error) {
+    return (
+      <AdminLayout 
+        title={t('admin.users_management.title')}
+        subtitle={t('admin.users_management.subtitle')}
+      >
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="text-red-500 mb-4">
+              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to Load Users</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
+      </AdminLayout>
+    )
   }
 
   return (
@@ -233,7 +324,7 @@ export default function UsersManagementPage() {
                         {formatDate(user.createdAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {user.lastLogin === '-' ? '-' : formatDate(user.lastLogin)}
+                        {user.lastLogin ? formatDate(user.lastLogin) : '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
                         <div className="flex gap-2">

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../../lib/auth'
 import { prisma } from '../../../lib/db'
+import bcrypt from 'bcryptjs'
 
 // GET /api/admin/users - Get all users for admin management
 export async function GET(request: NextRequest) {
@@ -59,20 +60,22 @@ export async function GET(request: NextRequest) {
       where: whereClause
     })
 
-    // Format the response
+    // Format the response to match frontend User interface
     const formattedUsers = users.map(user => ({
       id: user.id,
-      name: user.name,
+      name: user.name || 'Unknown User',
       email: user.email,
       role: user.role,
+      isActive: user.isActive,
+      createdAt: user.createdAt.toISOString(),
+      lastLogin: user.updatedAt.toISOString(), // Using updatedAt as lastLogin for now
+      permissions: [], // Will be populated on frontend based on role
+      // Additional info
       walletBalance: Number(user.walletBalance),
       totalInvested: Number(user.totalInvested),
       totalReturns: Number(user.totalReturns),
-      isActive: user.isActive,
       investmentCount: user._count.investments,
-      transactionCount: user._count.transactions,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString()
+      transactionCount: user._count.transactions
     }))
 
     return NextResponse.json({
@@ -92,4 +95,78 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// POST /api/admin/users - Create new user
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user || session.user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
 
+    const { name, email, role, password } = await request.json()
+
+    if (!name || !email || !role || !password) {
+      return NextResponse.json(
+        { error: 'Name, email, role, and password are required' },
+        { status: 400 }
+      )
+    }
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    })
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'User with this email already exists' },
+        { status: 409 }
+      )
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12)
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: role.toUpperCase(),
+        isActive: true,
+        walletBalance: 0,
+        totalInvested: 0,
+        totalReturns: 0
+      }
+    })
+
+    // Format response
+    const formattedUser = {
+      id: user.id,
+      name: user.name || 'Unknown User',
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive,
+      createdAt: user.createdAt.toISOString(),
+      lastLogin: null,
+      permissions: []
+    }
+
+    return NextResponse.json({
+      user: formattedUser,
+      message: 'User created successfully'
+    }, { status: 201 })
+
+  } catch (error) {
+    console.error('Error creating user:', error)
+    return NextResponse.json(
+      { error: 'Failed to create user' },
+      { status: 500 }
+    )
+  }
+}
