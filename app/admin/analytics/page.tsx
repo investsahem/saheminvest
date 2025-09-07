@@ -160,12 +160,12 @@ const AnalyticsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700">Total Revenue</p>
-                  <p className="text-2xl font-bold text-blue-900">{formatCurrency(totalRevenue)}</p>
+                  <p className="text-sm font-medium text-blue-700">{t('analytics.key_metrics.total_revenue')}</p>
+                  <p className="text-2xl font-bold text-blue-900">{formatCurrency(analyticsData.totalRevenue)}</p>
                   <div className="flex items-center mt-2">
                     <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                    <span className="text-sm text-green-600">+{formatPercent(revenueGrowth)}</span>
-                    <span className="text-sm text-gray-500 ml-1">vs last month</span>
+                    <span className="text-sm text-green-600">+{formatPercent(analyticsData.revenueGrowth)}</span>
+                    <span className="text-sm text-gray-500 ml-1">{t('analytics.key_metrics.vs_last_month')}</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -179,12 +179,12 @@ const AnalyticsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700">Total Investments</p>
-                  <p className="text-2xl font-bold text-green-900">{formatCurrency(totalInvestments)}</p>
+                  <p className="text-sm font-medium text-green-700">{t('analytics.key_metrics.total_investments')}</p>
+                  <p className="text-2xl font-bold text-green-900">{formatCurrency(analyticsData.totalInvestments)}</p>
                   <div className="flex items-center mt-2">
                     <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                    <span className="text-sm text-green-600">+{formatPercent(investmentGrowth)}</span>
-                    <span className="text-sm text-gray-500 ml-1">vs last month</span>
+                    <span className="text-sm text-green-600">+{formatPercent(analyticsData.investmentGrowth)}</span>
+                    <span className="text-sm text-gray-500 ml-1">{t('analytics.key_metrics.vs_last_month')}</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -198,12 +198,12 @@ const AnalyticsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-700">Total Deals</p>
-                  <p className="text-2xl font-bold text-purple-900">{totalDeals}</p>
+                  <p className="text-sm font-medium text-purple-700">{t('analytics.key_metrics.total_deals')}</p>
+                  <p className="text-2xl font-bold text-purple-900">{analyticsData.totalDeals}</p>
                   <div className="flex items-center mt-2">
                     <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                    <span className="text-sm text-green-600">+25%</span>
-                    <span className="text-sm text-gray-500 ml-1">vs last month</span>
+                    <span className="text-sm text-green-600">+{formatPercent(analyticsData.dealGrowth)}</span>
+                    <span className="text-sm text-gray-500 ml-1">{t('analytics.key_metrics.vs_last_month')}</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -217,12 +217,12 @@ const AnalyticsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-orange-700">Active Users</p>
-                  <p className="text-2xl font-bold text-orange-900">{currentUsers.toLocaleString()}</p>
+                  <p className="text-sm font-medium text-orange-700">{t('analytics.key_metrics.active_users')}</p>
+                  <p className="text-2xl font-bold text-orange-900">{analyticsData.activeUsers.toLocaleString()}</p>
                   <div className="flex items-center mt-2">
                     <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                    <span className="text-sm text-green-600">+7.8%</span>
-                    <span className="text-sm text-gray-500 ml-1">vs last month</span>
+                    <span className="text-sm text-green-600">+{formatPercent(analyticsData.userGrowth)}</span>
+                    <span className="text-sm text-gray-500 ml-1">{t('analytics.key_metrics.vs_last_month')}</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
@@ -239,27 +239,27 @@ const AnalyticsPage = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Revenue & Investment Trends</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('analytics.charts.revenue_trends')}</h3>
                 <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                    <span>Revenue</span>
+                    <span>{t('analytics.metrics.revenue')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span>Investments</span>
+                    <span>{t('analytics.metrics.investments')}</span>
                   </div>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={revenueData}>
+                <AreaChart data={analyticsData.monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                   <Area 
                     type="monotone" 
-                    dataKey="revenue" 
+                    dataKey="funding" 
                     stackId="1" 
                     stroke="#3B82F6" 
                     fill="#3B82F6" 
@@ -267,7 +267,7 @@ const AnalyticsPage = () => {
                   />
                   <Area 
                     type="monotone" 
-                    dataKey="investments" 
+                    dataKey="goal" 
                     stackId="2" 
                     stroke="#10B981" 
                     fill="#10B981" 
@@ -282,24 +282,24 @@ const AnalyticsPage = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">User Growth by Type</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('analytics.charts.user_growth')}</h3>
                 <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                    <span>Investors</span>
+                    <span>{t('analytics.labels.investors')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span>Partners</span>
+                    <span>{t('analytics.labels.partners')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                    <span>Advisors</span>
+                    <span>{t('analytics.labels.advisors')}</span>
                   </div>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={userGrowthData}>
+                <BarChart data={analyticsData.userGrowthData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -319,16 +319,16 @@ const AnalyticsPage = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Investment Flow Distribution</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('analytics.charts.investment_flow')}</h3>
                 <Button variant="outline" size="sm">
                   <Eye className="w-4 h-4 mr-2" />
-                  Details
+                  {t('analytics.buttons.details')}
                 </Button>
               </div>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={investmentFlowData}
+                    data={analyticsData.investmentFlowData}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -336,7 +336,7 @@ const AnalyticsPage = () => {
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {investmentFlowData.map((entry, index) => (
+                    {analyticsData.investmentFlowData.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -344,14 +344,14 @@ const AnalyticsPage = () => {
                 </PieChart>
               </ResponsiveContainer>
               <div className="grid grid-cols-2 gap-4 mt-4">
-                {investmentFlowData.map((item, index) => (
+                {analyticsData.investmentFlowData.map((item: any, index: number) => (
                   <div key={index} className="flex items-center gap-2">
                     <div 
                       className="w-3 h-3 rounded-full" 
                       style={{ backgroundColor: item.color }}
                     ></div>
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{t(`analytics.status.${item.name.toLowerCase()}`) || item.name}</div>
                       <div className="text-xs text-gray-500">{formatCurrency(item.amount)}</div>
                     </div>
                   </div>
@@ -364,33 +364,33 @@ const AnalyticsPage = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Deal Performance by Category</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('analytics.charts.deal_performance')}</h3>
                 <Button variant="outline" size="sm">
                   <BarChart3 className="w-4 h-4 mr-2" />
-                  View All
+                  {t('analytics.buttons.view_all')}
                 </Button>
               </div>
               <div className="space-y-4">
-                {transactionData.map((category, index) => (
+                {analyticsData.categoryPerformance.map((category: any, index: number) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-900">{category.category}</span>
-                        <span className="text-sm text-gray-600">{category.deals} deals</span>
+                        <span className="text-sm font-medium text-gray-900">{t(`analytics.categories.${category.category?.toLowerCase()}`) || category.category}</span>
+                        <span className="text-sm text-gray-600">{category.deals} {t('analytics.labels.deals')}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <span className="text-xs text-green-600">
-                            {formatPercent(category.success)} success
+                            {formatPercent(category.successRate)} {t('analytics.labels.success')}
                           </span>
                           <span className="text-xs text-blue-600">
-                            {formatCurrency(category.avgAmount)} avg
+                            {formatCurrency((category.totalFunding || 0) / (category.deals || 1))} {t('analytics.labels.avg')}
                           </span>
                         </div>
                         <div className="w-16 bg-gray-200 rounded-full h-2">
                           <div 
                             className="bg-blue-500 h-2 rounded-full" 
-                            style={{ width: `${category.success}%` }}
+                            style={{ width: `${Math.min(category.successRate || 0, 100)}%` }}
                           ></div>
                         </div>
                       </div>
@@ -402,72 +402,39 @@ const AnalyticsPage = () => {
           </Card>
         </div>
 
-        {/* Regional Performance */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Regional Performance</h3>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {regionalData.map((region, index) => (
-                <div key={index} className="p-4 border border-gray-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium text-gray-900">{region.region}</h4>
-                    <div className="flex items-center text-sm text-green-600">
-                      <TrendingUp className="w-4 h-4 mr-1" />
-                      +{formatPercent(region.growth)}
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Deals</span>
-                      <span className="font-medium">{region.deals}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Amount</span>
-                      <span className="font-medium">{formatCurrency(region.amount)}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Partner Performance */}
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Top Partner Performance</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('analytics.charts.partner_performance')}</h3>
               <Button variant="outline" size="sm">
                 <Building2 className="w-4 h-4 mr-2" />
-                View All Partners
+                {t('analytics.buttons.view_all_partners')}
               </Button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Partner</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tier</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deals</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commission</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Success Rate</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('analytics.labels.partners')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('analytics.labels.tier')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('analytics.labels.deals')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('analytics.labels.amount')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('analytics.labels.success_rate')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {partnerPerformanceData.map((partner, index) => (
+                  {analyticsData.partnerPerformance.slice(0, 5).map((partner: any, index: number) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <div className="flex items-center">
                           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
                             <Building2 className="w-4 h-4 text-white" />
                           </div>
-                          <span className="text-sm font-medium text-gray-900">{partner.name}</span>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">{partner.name || 'Unknown Partner'}</div>
+                            <div className="text-xs text-gray-500">{partner.email}</div>
+                          </div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -482,19 +449,19 @@ const AnalyticsPage = () => {
                             partner.tier === 'gold' ? 'bg-yellow-100 text-yellow-800' :
                             partner.tier === 'silver' ? 'bg-gray-100 text-gray-800' : 'bg-orange-100 text-orange-800'
                           }`}>
-                            {partner.tier.charAt(0).toUpperCase() + partner.tier.slice(1)}
+                            {t(`analytics.tiers.${partner.tier}`)}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{partner.deals}</td>
-                      <td className="px-4 py-3 text-sm font-medium text-green-600">{formatCurrency(partner.commission)}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">{partner.deals || 0}</td>
+                      <td className="px-4 py-3 text-sm font-medium text-green-600">{formatCurrency(partner.totalFunding || 0)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center">
-                          <span className="text-sm text-gray-900 mr-2">{formatPercent(partner.success)}</span>
+                          <span className="text-sm text-gray-900 mr-2">{formatPercent(partner.successRate || 0)}</span>
                           <div className="w-16 bg-gray-200 rounded-full h-2">
                             <div 
                               className="bg-green-500 h-2 rounded-full" 
-                              style={{ width: `${partner.success}%` }}
+                              style={{ width: `${Math.min(partner.successRate || 0, 100)}%` }}
                             ></div>
                           </div>
                         </div>

@@ -101,18 +101,21 @@ export async function GET(request: NextRequest) {
         where: { isActive: true }
       }),
       
-      // Monthly data for charts
-      prisma.$queryRaw`
-        SELECT 
-          DATE_TRUNC('month', "createdAt") as month,
-          COUNT(*) as projects_count,
-          SUM(CASE WHEN status = 'COMPLETED' THEN "currentFunding" ELSE 0 END) as completed_funding,
-          SUM("fundingGoal") as total_funding_goal
-        FROM "Project"
-        WHERE "createdAt" >= ${startDate}
-        GROUP BY DATE_TRUNC('month', "createdAt")
-        ORDER BY month
-      `
+      // Monthly data for charts - simplified approach
+      prisma.project.findMany({
+        where: {
+          createdAt: { gte: startDate }
+        },
+        select: {
+          createdAt: true,
+          status: true,
+          currentFunding: true,
+          fundingGoal: true
+        },
+        orderBy: {
+          createdAt: 'asc'
+        }
+      })
     ])
 
     // Get investment flow data
@@ -156,12 +159,26 @@ export async function GET(request: NextRequest) {
     }
 
     // Format monthly data for charts
-    const formattedMonthlyData = (monthlyData as any[]).map((item: any) => ({
-      month: new Date(item.month).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-      projects: Number(item.projects_count),
-      funding: Number(item.completed_funding) || 0,
-      goal: Number(item.total_funding_goal) || 0
-    }))
+    const monthlyGrouped = monthlyData.reduce((acc: any, project: any) => {
+      const month = new Date(project.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+      
+      if (!acc[month]) {
+        acc[month] = {
+          month,
+          projects: 0,
+          funding: 0,
+          goal: 0
+        }
+      }
+      
+      acc[month].projects += 1
+      acc[month].funding += project.status === 'COMPLETED' ? Number(project.currentFunding) || 0 : 0
+      acc[month].goal += Number(project.fundingGoal) || 0
+      
+      return acc
+    }, {})
+    
+    const formattedMonthlyData = Object.values(monthlyGrouped)
 
     // Format investment flow
     const investmentFlowData = investmentsByStatus.map(item => ({
@@ -206,7 +223,7 @@ export async function GET(request: NextRequest) {
     }).sort((a, b) => b.successRate - a.successRate)
 
     // Calculate user growth (mock data for chart)
-    const userGrowthData = formattedMonthlyData.map(item => ({
+    const userGrowthData = formattedMonthlyData.map((item: any) => ({
       month: item.month,
       investors: Math.floor(totalInvestors * 0.8), // Mock distribution
       partners: Math.floor(totalPartners * 1.2),
