@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
+import { usePartnerStats } from '../../hooks/usePartnerStats'
 import { 
   Building2, Briefcase, TrendingUp, Target, FileText, 
   Settings, Bell, User, LogOut, DollarSign, 
@@ -22,6 +23,9 @@ const PartnerSidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: PartnerSideba
   const { locale } = useI18n()
   const { data: session } = useSession()
   const pathname = usePathname()
+  
+  // Fetch real partner statistics
+  const { stats, loading, error } = usePartnerStats()
 
   const navigationItems = [
     {
@@ -199,29 +203,58 @@ const PartnerSidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: PartnerSideba
             {t('partner.quick_stats')}
           </h4>
           
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Briefcase className="w-4 h-4 text-gray-400 mr-2" />
-              <span className="text-sm text-gray-600">{t('partner.active_deals')}</span>
+          {loading ? (
+            /* Loading state */
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 bg-gray-200 rounded animate-pulse mr-2"></div>
+                    <div className="w-20 h-3 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="w-8 h-4 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              ))}
             </div>
-            <span className="text-sm font-semibold text-gray-900">3</span>
-          </div>
+          ) : error ? (
+            /* Error state */
+            <div className="text-xs text-red-500 text-center py-2">
+              {t('common.error_loading_data')}
+            </div>
+          ) : (
+            /* Real data */
+            <>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Briefcase className="w-4 h-4 text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-600">{t('partner.active_deals')}</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-900">
+                  {stats?.activeDeals || 0}
+                </span>
+              </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <DollarSign className="w-4 h-4 text-gray-400 mr-2" />
-              <span className="text-sm text-gray-600">{t('partner.total_raised')}</span>
-            </div>
-            <span className="text-sm font-semibold text-green-600">{formatCurrency(850000)}</span>
-          </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <DollarSign className="w-4 h-4 text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-600">{t('partner.total_raised')}</span>
+                </div>
+                <span className="text-sm font-semibold text-green-600">
+                  {formatCurrency(stats?.totalRaised || 0)}
+                </span>
+              </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Award className="w-4 h-4 text-gray-400 mr-2" />
-              <span className="text-sm text-gray-600">{t('partner.success_rate')}</span>
-            </div>
-            <span className="text-sm font-semibold text-gray-900">87%</span>
-          </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Award className="w-4 h-4 text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-600">{t('partner.success_rate')}</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-900">
+                  {stats?.successRate ? `${stats.successRate.toFixed(1)}%` : '0%'}
+                </span>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

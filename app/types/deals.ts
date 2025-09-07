@@ -41,6 +41,14 @@ export interface Deal {
       name: string
     }
   }>
+  profitDistributions?: Array<{
+    id: string
+    amount: number
+    profitRate: number
+    distributionDate: string
+    status: string
+    profitPeriod: string
+  }>
   _count: {
     investments: number
   }

@@ -30,32 +30,24 @@ export async function GET(
             id: true,
             name: true,
             email: true,
-            image: true
-          }
-        },
-        partnerProfile: {
-          select: {
-            id: true,
-            companyName: true,
-            displayName: true,
-            tagline: true,
-            description: true,
-            logo: true,
-            brandColor: true,
-            isVerified: true,
-            isPublic: true,
-            website: true,
-            industry: true,
-            foundedYear: true,
-            yearsExperience: true
-          }
-        },
-        partner: {
-          select: {
-            id: true,
-            companyName: true,
-            logo: true,
-            description: true
+            image: true,
+            partnerProfile: {
+              select: {
+                id: true,
+                companyName: true,
+                displayName: true,
+                tagline: true,
+                description: true,
+                logo: true,
+                brandColor: true,
+                isVerified: true,
+                isPublic: true,
+                website: true,
+                industry: true,
+                foundedYear: true,
+                yearsExperience: true
+              }
+            }
           }
         },
         investments: {
@@ -105,11 +97,11 @@ export async function GET(
 
     // Hide partner information from investors
     if (isInvestor) {
-      filteredDeal.partner = null
       filteredDeal.owner = {
         ...deal.owner,
         name: 'Partner',
-        email: ''
+        email: '',
+        partnerProfile: null
       }
     }
 

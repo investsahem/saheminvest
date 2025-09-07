@@ -123,19 +123,19 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               email: true,
-              image: true
-            }
-          },
-          partnerProfile: {
-            select: {
-              id: true,
-              companyName: true,
-              displayName: true,
-              tagline: true,
-              logo: true,
-              brandColor: true,
-              isVerified: true,
-              isPublic: true
+              image: true,
+              partnerProfile: {
+                select: {
+                  id: true,
+                  companyName: true,
+                  displayName: true,
+                  tagline: true,
+                  logo: true,
+                  brandColor: true,
+                  isVerified: true,
+                  isPublic: true
+                }
+              }
             }
           },
           profitDistributions: {
@@ -368,19 +368,19 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            email: true
-          }
-        },
-        partnerProfile: {
-          select: {
-            id: true,
-            companyName: true,
-            displayName: true,
-            tagline: true,
-            logo: true,
-            brandColor: true,
-            isVerified: true,
-            isPublic: true
+            email: true,
+            partnerProfile: {
+              select: {
+                id: true,
+                companyName: true,
+                displayName: true,
+                tagline: true,
+                logo: true,
+                brandColor: true,
+                isVerified: true,
+                isPublic: true
+              }
+            }
           }
         }
       }

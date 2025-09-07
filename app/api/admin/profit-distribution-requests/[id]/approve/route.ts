@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../../../../auth/[...nextauth]/route'
+import { authOptions } from '../../../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -16,6 +16,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const params = await context.params
     const requestId = params.id
 
     // Get the profit distribution request
@@ -73,9 +74,10 @@ export async function POST(
               investmentId: investment.id,
               amount: distribution.profitAmount,
               profitRate: distribution.profitRate,
-              investmentShare: (distribution.investmentAmount / distributionRequest.totalAmount) * 100,
+              investmentShare: (Number(distribution.investmentAmount) / Number(distributionRequest.totalAmount)) * 100,
               distributionDate: new Date(),
-              status: 'COMPLETED'
+              status: 'COMPLETED',
+              profitPeriod: distributionRequest.distributionType || 'FINAL'
             }
           })
 
@@ -86,8 +88,7 @@ export async function POST(
               type: 'RETURN',
               amount: distribution.profitAmount,
               status: 'COMPLETED',
-              description: `${distributionRequest.distributionType === 'PARTIAL' ? 'Partial' : 'Final'} profit distribution from ${distributionRequest.project.title}`,
-              projectId: distributionRequest.projectId
+              description: `${distributionRequest.distributionType === 'PARTIAL' ? 'Partial' : 'Final'} profit distribution from ${distributionRequest.project.title}`
             }
           })
 
@@ -121,7 +122,7 @@ export async function POST(
             totalAmount: distributionRequest.totalAmount,
             distributionType: distributionRequest.distributionType
           }),
-          isRead: false
+          read: false
         }
       })
 
@@ -139,7 +140,7 @@ export async function POST(
               profitRate: distribution.profitRate,
               distributionType: distributionRequest.distributionType
             }),
-            isRead: false
+            read: false
           }
         })
       }

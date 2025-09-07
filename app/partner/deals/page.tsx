@@ -457,7 +457,7 @@ const PartnerDealsPage = () => {
                     minInvestment={deal.minInvestment || 1000}
                     isPartnerView={true}
                     isClosedView={deal.status === 'COMPLETED'}
-                    actualReturn={deal.status === 'COMPLETED' && deal.profitDistributions?.length > 0 
+                    actualReturn={deal.status === 'COMPLETED' && deal.profitDistributions && deal.profitDistributions.length > 0 
                       ? Math.round(
                           (deal.profitDistributions.reduce((sum: number, dist: any) => {
                             const rate = Number(dist.profitRate || 0);
@@ -466,7 +466,7 @@ const PartnerDealsPage = () => {
                         ) / 10 // Average profit rate, rounded to 1 decimal place
                       : deal.status === 'COMPLETED' ? Number(deal.expectedReturn) : undefined}
                     completionDate={deal.status === 'COMPLETED' ? deal.updatedAt : undefined}
-                    profitDistributed={deal.status === 'COMPLETED' && deal.profitDistributions?.length > 0
+                    profitDistributed={deal.status === 'COMPLETED' && deal.profitDistributions && deal.profitDistributions.length > 0
                       ? deal.profitDistributions.reduce((sum: number, dist: any) => {
                           const amount = parseFloat(dist.amount?.toString() || '0');
                           return sum + (isNaN(amount) ? 0 : amount);

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../../../../auth/[...nextauth]/route'
+import { authOptions } from '../../../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -17,6 +17,7 @@ export async function POST(
     }
 
     const { reason } = await request.json()
+    const params = await context.params
     const requestId = params.id
 
     // Get the profit distribution request
@@ -62,7 +63,7 @@ export async function POST(
             rejectionReason: reason,
             totalAmount: distributionRequest.totalAmount
           }),
-          isRead: false
+          read: false
         }
       })
     })

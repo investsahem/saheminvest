@@ -8,7 +8,7 @@ const prisma = new PrismaClient()
 // GET /api/partner/profile/[id] - Get public partner profile by user ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -17,6 +17,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const params = await context.params
     const partnerId = params.id
 
     // Get partner profile with related data
@@ -88,7 +89,7 @@ export async function GET(
         expectedReturn: true,
         duration: true,
         status: true,
-        imageUrl: true,
+        images: true,
         createdAt: true
       },
       orderBy: { createdAt: 'desc' },
