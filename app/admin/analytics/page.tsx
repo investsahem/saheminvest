@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import AdminLayout from '../../components/layout/AdminLayout'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { 
@@ -17,68 +18,42 @@ import {
 
 const AnalyticsPage = () => {
   const { data: session } = useSession()
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(true)
   const [timeRange, setTimeRange] = useState<string>('6months')
   const [selectedMetric, setSelectedMetric] = useState<string>('revenue')
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  // Sample analytics data
-  const revenueData = [
-    { month: 'Jul 2023', revenue: 45000, investments: 125000, deals: 8, users: 1100 },
-    { month: 'Aug 2023', revenue: 52000, investments: 145000, deals: 12, users: 1180 },
-    { month: 'Sep 2023', revenue: 48000, investments: 132000, deals: 10, users: 1220 },
-    { month: 'Oct 2023', revenue: 61000, investments: 178000, deals: 15, users: 1350 },
-    { month: 'Nov 2023', revenue: 55000, investments: 165000, deals: 13, users: 1420 },
-    { month: 'Dec 2023', revenue: 67000, investments: 195000, deals: 18, users: 1580 },
-    { month: 'Jan 2024', revenue: 71000, investments: 210000, deals: 20, users: 1647 },
-  ]
-
-  const userGrowthData = [
-    { month: 'Jul', investors: 890, partners: 45, advisors: 12, total: 947 },
-    { month: 'Aug', investors: 945, partners: 52, advisors: 15, total: 1012 },
-    { month: 'Sep', investors: 980, partners: 48, advisors: 18, total: 1046 },
-    { month: 'Oct', investors: 1100, partners: 65, advisors: 22, total: 1187 },
-    { month: 'Nov', investors: 1180, partners: 58, advisors: 25, total: 1263 },
-    { month: 'Dec', investors: 1320, partners: 72, advisors: 28, total: 1420 },
-    { month: 'Jan', investors: 1420, partners: 78, advisors: 32, total: 1530 },
-  ]
-
-  const transactionData = [
-    { category: 'Electronics', deals: 35, funded: 32, success: 91.4, avgAmount: 85000 },
-    { category: 'Real Estate', deals: 28, funded: 27, success: 96.4, avgAmount: 150000 },
-    { category: 'Agriculture', deals: 22, funded: 19, success: 86.4, avgAmount: 65000 },
-    { category: 'Technology', deals: 18, funded: 17, success: 94.4, avgAmount: 95000 },
-    { category: 'Healthcare', deals: 15, funded: 13, success: 86.7, avgAmount: 120000 },
-    { category: 'Energy', deals: 12, funded: 11, success: 91.7, avgAmount: 200000 },
-  ]
-
-  const investmentFlowData = [
-    { name: 'New Investments', value: 65, amount: 2850000, color: '#3B82F6' },
-    { name: 'Reinvestments', value: 25, amount: 1100000, color: '#10B981' },
-    { name: 'Pending', value: 7, amount: 310000, color: '#F59E0B' },
-    { name: 'Cancelled', value: 3, amount: 140000, color: '#EF4444' },
-  ]
-
-  const regionalData = [
-    { region: 'Dubai', deals: 45, amount: 1850000, growth: 12.5 },
-    { region: 'Abu Dhabi', deals: 32, amount: 1420000, growth: 8.3 },
-    { region: 'Sharjah', deals: 18, amount: 780000, growth: 15.2 },
-    { region: 'Ras Al Khaimah', deals: 12, amount: 520000, growth: 22.1 },
-    { region: 'Ajman', deals: 8, amount: 340000, growth: 18.7 },
-    { region: 'Other Emirates', deals: 15, amount: 690000, growth: 9.8 },
-  ]
-
-  const partnerPerformanceData = [
-    { name: 'Emirates Real Estate Group', deals: 28, commission: 125000, success: 96.8, tier: 'platinum' },
-    { name: 'Tech Solutions Ltd', deals: 12, commission: 45000, success: 94.2, tier: 'gold' },
-    { name: 'Green Energy Consultants', deals: 8, commission: 22000, success: 87.5, tier: 'silver' },
-    { name: 'Healthcare Innovations LLC', deals: 5, commission: 15000, success: 80.0, tier: 'bronze' },
-    { name: 'Agricultural Ventures Co', deals: 3, commission: 5500, success: 66.7, tier: 'bronze' },
-  ]
-
+  // Fetch analytics data from API
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 1000)
-  }, [])
+    const fetchAnalytics = async () => {
+      if (!session?.user) return
+      
+      try {
+        setLoading(true)
+        setError(null)
+        
+        const response = await fetch(`/api/admin/analytics?timeRange=${timeRange}`, {
+          credentials: 'include'
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          setAnalyticsData(data)
+        } else {
+          setError('Failed to fetch analytics data')
+        }
+      } catch (error) {
+        console.error('Error fetching analytics:', error)
+        setError('Error loading analytics data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAnalytics()
+  }, [session, timeRange])
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -93,25 +68,11 @@ const AnalyticsPage = () => {
     return `${value.toFixed(1)}%`
   }
 
-  // Calculate key metrics
-  const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenue, 0)
-  const totalInvestments = revenueData.reduce((sum, item) => sum + item.investments, 0)
-  const totalDeals = revenueData.reduce((sum, item) => sum + item.deals, 0)
-  const currentUsers = userGrowthData[userGrowthData.length - 1]?.total || 0
-  
-  const revenueGrowth = revenueData.length > 1 
-    ? ((revenueData[revenueData.length - 1].revenue - revenueData[revenueData.length - 2].revenue) / revenueData[revenueData.length - 2].revenue) * 100
-    : 0
-
-  const investmentGrowth = revenueData.length > 1 
-    ? ((revenueData[revenueData.length - 1].investments - revenueData[revenueData.length - 2].investments) / revenueData[revenueData.length - 2].investments) * 100
-    : 0
-
   if (loading) {
     return (
       <AdminLayout
-        title="Analytics Dashboard"
-        subtitle="Comprehensive business intelligence and insights"
+        title={t('analytics.title')}
+        subtitle={t('analytics.subtitle')}
       >
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -120,10 +81,34 @@ const AnalyticsPage = () => {
     )
   }
 
+  if (error || !analyticsData) {
+    return (
+      <AdminLayout
+        title={t('analytics.title')}
+        subtitle={t('analytics.subtitle')}
+      >
+        <Card>
+          <CardContent className="p-8 text-center">
+            <div className="text-red-500 mb-4">
+              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to Load Analytics</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+          </CardContent>
+        </Card>
+      </AdminLayout>
+    )
+  }
+
   return (
     <AdminLayout
-      title="Analytics Dashboard"
-      subtitle="Comprehensive business intelligence and insights"
+      title={t('analytics.title')}
+      subtitle={t('analytics.subtitle')}
     >
       <div className="space-y-6">
         {/* Controls */}
@@ -136,11 +121,11 @@ const AnalyticsPage = () => {
                   onChange={(e) => setTimeRange(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="1month">Last Month</option>
-                  <option value="3months">Last 3 Months</option>
-                  <option value="6months">Last 6 Months</option>
-                  <option value="1year">Last Year</option>
-                  <option value="all">All Time</option>
+                  <option value="1month">{t('analytics.time_ranges.1month')}</option>
+                  <option value="3months">{t('analytics.time_ranges.3months')}</option>
+                  <option value="6months">{t('analytics.time_ranges.6months')}</option>
+                  <option value="1year">{t('analytics.time_ranges.1year')}</option>
+                  <option value="all">{t('analytics.time_ranges.all')}</option>
                 </select>
 
                 <select
@@ -148,21 +133,21 @@ const AnalyticsPage = () => {
                   onChange={(e) => setSelectedMetric(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="revenue">Revenue</option>
-                  <option value="investments">Investments</option>
-                  <option value="deals">Deals</option>
-                  <option value="users">Users</option>
+                  <option value="revenue">{t('analytics.metrics.revenue')}</option>
+                  <option value="investments">{t('analytics.metrics.investments')}</option>
+                  <option value="deals">{t('analytics.metrics.deals')}</option>
+                  <option value="users">{t('analytics.metrics.users')}</option>
                 </select>
               </div>
 
               <div className="flex items-center gap-2">
                 <Button variant="outline" className="flex items-center gap-2">
                   <Filter className="w-4 h-4" />
-                  Filter
+                  {t('analytics.buttons.filter')}
                 </Button>
                 <Button variant="outline" className="flex items-center gap-2">
                   <Download className="w-4 h-4" />
-                  Export
+                  {t('analytics.buttons.export')}
                 </Button>
               </div>
             </div>

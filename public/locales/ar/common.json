@@ -689,6 +689,83 @@
     "start_investing": "ابدأ الاستثمار",
     "view_details": "عرض التفاصيل"
   },
+  "analytics": {
+    "title": "لوحة التحليلات",
+    "subtitle": "رؤى شاملة لذكاء الأعمال والتحليلات",
+    "time_ranges": {
+      "1month": "الشهر الماضي",
+      "3months": "آخر 3 أشهر",
+      "6months": "آخر 6 أشهر", 
+      "1year": "السنة الماضية",
+      "all": "جميع الأوقات"
+    },
+    "metrics": {
+      "revenue": "الإيرادات",
+      "investments": "الاستثمارات",
+      "deals": "الصفقات", 
+      "users": "المستخدمون"
+    },
+    "key_metrics": {
+      "total_revenue": "إجمالي الإيرادات",
+      "total_investments": "إجمالي الاستثمارات",
+      "total_deals": "إجمالي الصفقات",
+      "active_users": "المستخدمون النشطون", 
+      "vs_last_month": "مقابل الشهر الماضي"
+    },
+    "charts": {
+      "revenue_trends": "اتجاهات الإيرادات والاستثمارات",
+      "user_growth": "نمو المستخدمين حسب النوع",
+      "investment_flow": "توزيع تدفق الاستثمارات",
+      "deal_performance": "أداء الصفقات حسب الفئة",
+      "regional_performance": "الأداء الإقليمي", 
+      "partner_performance": "أداء أفضل الشركاء"
+    },
+    "labels": {
+      "investors": "المستثمرون",
+      "partners": "الشركاء",
+      "advisors": "المستشارون",
+      "new_investments": "استثمارات جديدة",
+      "reinvestments": "إعادة استثمار",
+      "pending": "قيد الانتظار",
+      "cancelled": "ملغاة",
+      "deals": "صفقات",
+      "success": "نجاح",
+      "avg": "متوسط",
+      "growth": "النمو",
+      "amount": "المبلغ",
+      "tier": "المستوى", 
+      "commission": "العمولة",
+      "success_rate": "معدل النجاح"
+    },
+    "buttons": {
+      "filter": "تصفية",
+      "export": "تصدير",
+      "details": "التفاصيل",
+      "view_all": "عرض الكل",
+      "view_all_partners": "عرض جميع الشركاء"
+    },
+    "categories": {
+      "electronics": "إلكترونيات",
+      "real_estate": "عقارات",
+      "agriculture": "زراعة",
+      "technology": "تكنولوجيا",
+      "healthcare": "رعاية صحية",
+      "energy": "طاقة",
+      "other": "أخرى"
+    },
+    "tiers": {
+      "platinum": "بلاتينيوم",
+      "gold": "ذهبي",
+      "silver": "فضي",
+      "bronze": "برونزي"
+    },
+    "status": {
+      "completed": "مكتمل",
+      "active": "نشط",
+      "pending": "قيد الانتظار",
+      "cancelled": "ملغى"
+    }
+  },
   "admin": {
     "title": "لوحة تحكم الإدارة",
     "overview": "نظرة عامة",

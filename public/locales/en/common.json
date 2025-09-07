@@ -788,6 +788,83 @@
     "start_investing": "Start Investing",
     "view_details": "View Details"
   },
+  "analytics": {
+    "title": "Analytics Dashboard",
+    "subtitle": "Comprehensive business intelligence and insights",
+    "time_ranges": {
+      "1month": "Last Month",
+      "3months": "Last 3 Months", 
+      "6months": "Last 6 Months",
+      "1year": "Last Year",
+      "all": "All Time"
+    },
+    "metrics": {
+      "revenue": "Revenue",
+      "investments": "Investments", 
+      "deals": "Deals",
+      "users": "Users"
+    },
+    "key_metrics": {
+      "total_revenue": "Total Revenue",
+      "total_investments": "Total Investments",
+      "total_deals": "Total Deals", 
+      "active_users": "Active Users",
+      "vs_last_month": "vs last month"
+    },
+    "charts": {
+      "revenue_trends": "Revenue & Investment Trends",
+      "user_growth": "User Growth by Type",
+      "investment_flow": "Investment Flow Distribution",
+      "deal_performance": "Deal Performance by Category",
+      "regional_performance": "Regional Performance",
+      "partner_performance": "Top Partner Performance"
+    },
+    "labels": {
+      "investors": "Investors",
+      "partners": "Partners", 
+      "advisors": "Advisors",
+      "new_investments": "New Investments",
+      "reinvestments": "Reinvestments",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "deals": "deals",
+      "success": "success", 
+      "avg": "avg",
+      "growth": "Growth",
+      "amount": "Amount",
+      "tier": "Tier",
+      "commission": "Commission",
+      "success_rate": "Success Rate"
+    },
+    "buttons": {
+      "filter": "Filter",
+      "export": "Export", 
+      "details": "Details",
+      "view_all": "View All",
+      "view_all_partners": "View All Partners"
+    },
+    "categories": {
+      "electronics": "Electronics",
+      "real_estate": "Real Estate", 
+      "agriculture": "Agriculture",
+      "technology": "Technology",
+      "healthcare": "Healthcare",
+      "energy": "Energy",
+      "other": "Other"
+    },
+    "tiers": {
+      "platinum": "Platinum",
+      "gold": "Gold",
+      "silver": "Silver", 
+      "bronze": "Bronze"
+    },
+    "status": {
+      "completed": "Completed",
+      "active": "Active",
+      "pending": "Pending",
+      "cancelled": "Cancelled"
+    }
+  },
   "admin": {
     "title": "Admin Dashboard",
     "overview": "Overview",
