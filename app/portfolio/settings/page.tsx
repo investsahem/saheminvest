@@ -61,7 +61,10 @@ const ProfileSettings = () => {
     occupation: '',
     nationalId: '',
     preferredLanguage: 'en',
-    timezone: 'UTC'
+    timezone: 'UTC',
+    // Additional form fields
+    investorType: 'Individual',
+    annualIncome: ''
   })
 
   const [securitySettings, setSecuritySettings] = useState({
