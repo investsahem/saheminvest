@@ -32,7 +32,61 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ profile })
+    // Get partner statistics
+    const deals = await prisma.project.findMany({
+      where: { ownerId: session.user.id },
+      select: {
+        id: true,
+        status: true,
+        fundingGoal: true,
+        currentFunding: true,
+        investments: {
+          select: {
+            amount: true
+          }
+        }
+      }
+    })
+
+    const totalDeals = deals.length
+    const activeDeals = deals.filter(deal => ['ACTIVE', 'PUBLISHED'].includes(deal.status)).length
+    const completedDeals = deals.filter(deal => deal.status === 'COMPLETED').length
+    const totalFunding = deals.reduce((sum, deal) => sum + Number(deal.currentFunding || 0), 0)
+    const successRate = totalDeals > 0 ? (completedDeals / totalDeals) * 100 : 0
+    const averageReturn = 12 // This would be calculated from actual returns
+
+    // Format the response to match the frontend interface
+    const formattedProfile = {
+      id: profile?.id || '',
+      companyName: profile?.companyName || '',
+      companyDescription: profile?.description || '',
+      industry: profile?.industry || '',
+      foundedYear: profile?.foundedYear || new Date().getFullYear(),
+      employeeCount: profile?.employeeCount || '1-10',
+      website: profile?.website || '',
+      email: profile?.email || session.user.email || '',
+      phone: profile?.phone || '',
+      address: profile?.address || '',
+      city: profile?.city || '',
+      country: profile?.country || 'Lebanon',
+      logo: profile?.logo || '',
+      investmentFocus: profile?.investmentAreas || [],
+      minInvestment: profile?.minimumDealSize || 1000,
+      maxInvestment: profile?.maximumDealSize || 100000,
+      averageReturn,
+      successRate: Math.round(successRate),
+      totalDeals,
+      totalFunding,
+      socialLinks: {
+        linkedin: profile?.linkedin || '',
+        twitter: profile?.twitter || '',
+        facebook: profile?.facebook || ''
+      },
+      certifications: [],
+      teamMembers: []
+    }
+
+    return NextResponse.json(formattedProfile)
   } catch (error) {
     console.error('Error fetching partner profile:', error)
     return NextResponse.json(
@@ -179,6 +233,94 @@ export async function POST(request: NextRequest) {
     console.error('Error saving partner profile:', error)
     return NextResponse.json(
       { error: 'Failed to save profile' },
+      { status: 500 }
+    )
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
+// PUT /api/partner/profile - Update partner profile
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (session.user.role !== 'PARTNER') {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+    }
+
+    const data = await request.json()
+
+    // Update existing profile
+    const profile = await prisma.partnerProfile.upsert({
+      where: { userId: session.user.id },
+      update: {
+        companyName: data.companyName,
+        description: data.companyDescription,
+        logo: data.logo,
+        website: data.website,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        country: data.country,
+        industry: data.industry,
+        foundedYear: data.foundedYear ? parseInt(data.foundedYear) : null,
+        employeeCount: data.employeeCount,
+        linkedin: data.socialLinks?.linkedin,
+        twitter: data.socialLinks?.twitter,
+        facebook: data.socialLinks?.facebook,
+        investmentAreas: data.investmentFocus || [],
+        minimumDealSize: data.minInvestment ? parseFloat(data.minInvestment) : null,
+        maximumDealSize: data.maxInvestment ? parseFloat(data.maxInvestment) : null,
+      },
+      create: {
+        userId: session.user.id,
+        companyName: data.companyName || '',
+        description: data.companyDescription || '',
+        logo: data.logo || '',
+        website: data.website || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        address: data.address || '',
+        city: data.city || '',
+        country: data.country || 'Lebanon',
+        industry: data.industry || '',
+        foundedYear: data.foundedYear ? parseInt(data.foundedYear) : null,
+        employeeCount: data.employeeCount || '1-10',
+        linkedin: data.socialLinks?.linkedin || '',
+        twitter: data.socialLinks?.twitter || '',
+        facebook: data.socialLinks?.facebook || '',
+        investmentAreas: data.investmentFocus || [],
+        minimumDealSize: data.minInvestment ? parseFloat(data.minInvestment) : null,
+        maximumDealSize: data.maxInvestment ? parseFloat(data.maxInvestment) : null,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json({ 
+      success: true, 
+      profile,
+      message: 'Profile updated successfully'
+    })
+
+  } catch (error) {
+    console.error('Error updating partner profile:', error)
+    return NextResponse.json(
+      { error: 'Failed to update profile' },
       { status: 500 }
     )
   } finally {
