@@ -6,7 +6,9 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
 import { usePartnerStats } from '../../hooks/usePartnerStats'
-import { Bell, Search, User, ChevronDown, Menu, TrendingUp, DollarSign, LogOut, Building2, Target, Settings } from 'lucide-react'
+import { usePartnerNotifications } from '../../hooks/usePartnerNotifications'
+import NotificationDropdown from '../common/NotificationDropdown'
+import { Search, User, ChevronDown, Menu, TrendingUp, DollarSign, LogOut, Building2, Target, Settings } from 'lucide-react'
 import { Button } from '../ui/Button'
 
 interface PartnerHeaderProps {
@@ -26,6 +28,18 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
   
   // Fetch real partner statistics
   const { stats, loading, error } = usePartnerStats()
+  
+  // Fetch partner notifications
+  const {
+    notifications,
+    stats: notificationStats,
+    isLoading: notificationsLoading,
+    error: notificationsError,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    refreshNotifications
+  } = usePartnerNotifications()
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -204,15 +218,17 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
           </Button>
 
           {/* Notifications */}
-          <div className="relative">
-            <Button variant="outline" size="sm" className="p-2">
-              <Bell className="w-5 h-5" />
-            </Button>
-            {/* Notification badge */}
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-              <span className="text-xs text-white font-bold">3</span>
-            </div>
-          </div>
+          <NotificationDropdown
+            notifications={notifications}
+            stats={notificationStats}
+            isLoading={notificationsLoading}
+            error={notificationsError}
+            onMarkAsRead={markAsRead}
+            onMarkAllAsRead={markAllAsRead}
+            onDelete={deleteNotification}
+            onRefresh={refreshNotifications}
+            userRole="PARTNER"
+          />
 
           {/* Language Switcher */}
           <div className="flex items-center">

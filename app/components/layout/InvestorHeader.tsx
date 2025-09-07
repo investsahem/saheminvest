@@ -5,8 +5,10 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
 import { useUserData } from '../../hooks/useUserData'
+import { useInvestorNotifications } from '../../hooks/useInvestorNotifications'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
-import { Bell, Search, User, ChevronDown, Menu, TrendingUp, DollarSign, LogOut, Settings } from 'lucide-react'
+import NotificationDropdown from '../common/NotificationDropdown'
+import { Search, User, ChevronDown, Menu, TrendingUp, DollarSign, LogOut, Settings } from 'lucide-react'
 import { Button } from '../ui/Button'
 
 interface InvestorHeaderProps {
@@ -24,6 +26,18 @@ const InvestorHeader = ({ title, subtitle, onMobileMenuClick }: InvestorHeaderPr
   const { portfolioValue, dailyChange, isLoading } = useUserData()
   const [showUserDropdown, setShowUserDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  
+  // Fetch investor notifications
+  const {
+    notifications,
+    stats: notificationStats,
+    isLoading: notificationsLoading,
+    error: notificationsError,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    refreshNotifications
+  } = useInvestorNotifications()
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -147,14 +161,17 @@ const InvestorHeader = ({ title, subtitle, onMobileMenuClick }: InvestorHeaderPr
             </div>
 
             {/* Notifications */}
-            <div className="relative">
-              <Button variant="outline" size="sm" className="p-2">
-                <Bell className="w-5 h-5" />
-              </Button>
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                <span className="text-xs text-white font-bold">3</span>
-              </span>
-            </div>
+            <NotificationDropdown
+              notifications={notifications}
+              stats={notificationStats}
+              isLoading={notificationsLoading}
+              error={notificationsError}
+              onMarkAsRead={markAsRead}
+              onMarkAllAsRead={markAllAsRead}
+              onDelete={deleteNotification}
+              onRefresh={refreshNotifications}
+              userRole="INVESTOR"
+            />
 
             {/* User Avatar Dropdown */}
             <div className="relative" ref={dropdownRef}>

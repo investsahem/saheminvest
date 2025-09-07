@@ -5,7 +5,8 @@ import { useSession, signOut } from 'next-auth/react'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
 import { useAdminNotifications } from '../../hooks/useAdminNotifications'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
-import { Bell, Search, User, ChevronDown, Menu, LogOut, Clock, Target, Settings } from 'lucide-react'
+import NotificationDropdown from '../common/NotificationDropdown'
+import { Search, User, ChevronDown, Menu, LogOut, Settings } from 'lucide-react'
 import { Button } from '../ui/Button'
 
 interface AdminHeaderProps {
@@ -18,18 +19,17 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
   const { t } = useTranslation()
   const { locale } = useI18n()
   const { data: session } = useSession()
-  const { notifications } = useAdminNotifications()
-  const [showNotifications, setShowNotifications] = useState(false)
+  const { 
+    notifications: adminNotifications, 
+    isLoading: notificationsLoading,
+    refreshNotifications 
+  } = useAdminNotifications()
   const [showUserDropdown, setShowUserDropdown] = useState(false)
-  const notificationRef = useRef<HTMLDivElement>(null)
   const userDropdownRef = useRef<HTMLDivElement>(null)
 
-  // Close dropdowns when clicking outside
+  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
-        setShowNotifications(false)
-      }
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
         setShowUserDropdown(false)
       }
@@ -107,93 +107,27 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
           <LanguageSwitcher />
 
           {/* Notifications */}
-          <div className="relative" ref={notificationRef}>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="relative"
-              onClick={() => setShowNotifications(!showNotifications)}
-            >
-              <Bell className="w-4 h-4" />
-              {notifications.pendingDealsCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              )}
-            </Button>
-
-            {/* Notifications Dropdown */}
-            {showNotifications && (
-              <div className={`dropdown-menu absolute ${locale === 'ar' ? 'left-0' : 'right-0'} mt-2 w-80 bg-white rounded-lg shadow-lg border z-50`}>
-                <div className="p-4 border-b border-gray-100">
-                  <h3 className={`text-sm font-medium text-gray-900 ${locale === 'ar' ? 'text-right' : ''}`}>
-                    {locale === 'ar' ? 'الإشعارات' : 'Notifications'}
-                  </h3>
-                </div>
-                
-                <div className="max-h-64 overflow-y-auto">
-                  {notifications.pendingDealsCount > 0 && (
-                    <div className="p-4 border-b border-gray-100 hover:bg-gray-50">
-                      <div className={`flex items-center ${locale === 'ar' ? 'flex-row-reverse' : ''}`}>
-                        <div className="p-2 bg-yellow-100 rounded-lg">
-                          <Target className="w-4 h-4 text-yellow-600" />
-                        </div>
-                        <div className={`${locale === 'ar' ? 'mr-3 text-right' : 'ml-3'}`}>
-                          <p className={`text-sm font-medium text-gray-900 ${locale === 'ar' ? 'font-arabic' : ''}`}>
-                            {locale === 'ar' ? 'صفقات تحتاج موافقة' : 'Deals Pending Approval'}
-                          </p>
-                          <p className={`text-xs text-gray-500 ${locale === 'ar' ? 'font-arabic' : ''}`}>
-                            {locale === 'ar' 
-                              ? `${notifications.pendingDealsCount} صفقة تحتاج مراجعة`
-                              : `${notifications.pendingDealsCount} deals need review`
-                            }
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {notifications.notifications.slice(0, 3).map((notification) => (
-                    <div key={notification.id} className="p-4 border-b border-gray-100 hover:bg-gray-50">
-                      <div className={`flex items-start ${locale === 'ar' ? 'flex-row-reverse' : ''}`}>
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <Clock className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div className={`${locale === 'ar' ? 'mr-3 text-right' : 'ml-3'} flex-1`}>
-                          <p className={`text-sm font-medium text-gray-900 ${locale === 'ar' ? 'font-arabic' : ''}`}>
-                            {notification.title}
-                          </p>
-                          <p className={`text-xs text-gray-500 mt-1 ${locale === 'ar' ? 'font-arabic' : ''}`}>
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {new Date(notification.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-
-                  {notifications.notifications.length === 0 && notifications.pendingDealsCount === 0 && (
-                    <div className="p-6 text-center">
-                      <Bell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className={`text-sm text-gray-500 ${locale === 'ar' ? 'font-arabic' : ''}`}>
-                        {locale === 'ar' ? 'لا توجد إشعارات جديدة' : 'No new notifications'}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4 border-t border-gray-100">
-                  <a
-                    href="/admin/deals"
-                    className={`block text-sm text-blue-600 hover:text-blue-800 font-medium ${locale === 'ar' ? 'text-right font-arabic' : ''}`}
-                    onClick={() => setShowNotifications(false)}
-                  >
-                    {locale === 'ar' ? 'عرض جميع الصفقات' : 'View All Deals'}
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
+          <NotificationDropdown
+            notifications={adminNotifications.notifications.map(n => ({
+              id: n.id,
+              title: n.title,
+              message: n.message,
+              type: n.data.type || 'info',
+              read: false, // Admin notifications are always unread in the current implementation
+              createdAt: n.createdAt,
+              metadata: n.data
+            }))}
+            stats={{
+              total: adminNotifications.notifications.length,
+              unread: adminNotifications.pendingDealsCount + adminNotifications.notifications.length,
+              pendingDeals: adminNotifications.pendingDealsCount
+            }}
+            isLoading={notificationsLoading}
+            onMarkAsRead={async () => true} // Admin notifications don't support mark as read yet
+            onMarkAllAsRead={async () => true}
+            onRefresh={refreshNotifications}
+            userRole="ADMIN"
+          />
 
           {/* User Avatar Dropdown */}
           <div className="relative" ref={userDropdownRef}>

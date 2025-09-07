@@ -401,6 +401,151 @@ class NotificationService {
       throw error
     }
   }
+
+  // Partner-specific notifications
+  async notifyPartnerNewInvestor(partnerId: string, investorName: string, amount: number, dealTitle: string) {
+    const notification: PushNotification = {
+      title: '🎯 New Investor',
+      body: `${investorName} invested $${amount.toLocaleString()} in "${dealTitle}".`,
+      icon: '/icons/investor.png',
+      data: {
+        type: 'investor_joined',
+        investorName,
+        amount,
+        dealTitle,
+        action: 'view_investors'
+      }
+    }
+
+    await this.sendPushNotification(partnerId, notification)
+  }
+
+  async notifyPartnerDealFunded(partnerId: string, dealTitle: string, totalRaised: number, targetAmount: number) {
+    const notification: PushNotification = {
+      title: '🎉 Deal Fully Funded!',
+      body: `"${dealTitle}" reached its funding goal of $${targetAmount.toLocaleString()}!`,
+      icon: '/icons/success.png',
+      data: {
+        type: 'deal_funded',
+        dealTitle,
+        totalRaised,
+        targetAmount,
+        action: 'view_deal'
+      }
+    }
+
+    await this.sendPushNotification(partnerId, notification)
+  }
+
+  async notifyPartnerDistributionApproved(partnerId: string, dealTitle: string, amount: number, period: string) {
+    const notification: PushNotification = {
+      title: '✅ Distribution Approved',
+      body: `Your profit distribution of $${amount.toLocaleString()} for "${dealTitle}" (${period}) has been approved.`,
+      icon: '/icons/approved.png',
+      data: {
+        type: 'distribution_approved',
+        dealTitle,
+        amount,
+        period,
+        action: 'view_transactions'
+      }
+    }
+
+    await this.sendPushNotification(partnerId, notification)
+  }
+
+  // Investor-specific notifications
+  async notifyInvestorDealUpdate(investorId: string, dealTitle: string, updateType: string, message: string) {
+    const notification: PushNotification = {
+      title: '📈 Deal Update',
+      body: `Update on "${dealTitle}": ${message}`,
+      icon: '/icons/update.png',
+      data: {
+        type: 'deal_update',
+        dealTitle,
+        updateType,
+        action: 'view_portfolio'
+      }
+    }
+
+    await this.sendPushNotification(investorId, notification)
+  }
+
+  async notifyInvestorDealCompleted(investorId: string, dealTitle: string, totalReturn: number, roi: number) {
+    const notification: PushNotification = {
+      title: '🎉 Deal Completed!',
+      body: `"${dealTitle}" completed. Your return: $${totalReturn.toLocaleString()} (${roi.toFixed(1)}% ROI).`,
+      icon: '/icons/completed.png',
+      data: {
+        type: 'deal_completed',
+        dealTitle,
+        totalReturn,
+        roi,
+        action: 'view_portfolio'
+      }
+    }
+
+    await this.sendPushNotification(investorId, notification)
+  }
+
+  // Role-based bulk notifications
+  async notifyAllPartners(title: string, message: string, data?: Record<string, any>) {
+    try {
+      const partners = await prisma.user.findMany({
+        where: { 
+          role: 'PARTNER',
+          isActive: true 
+        },
+        select: { id: true }
+      })
+
+      const partnerIds = partners.map(partner => partner.id)
+      
+      const notification: PushNotification = {
+        title: `📢 ${title}`,
+        body: message,
+        icon: '/icons/announcement.png',
+        data: {
+          type: 'system',
+          ...data
+        }
+      }
+
+      return await this.sendBulkNotifications(partnerIds, notification)
+    } catch (error) {
+      console.error('Error notifying partners:', error)
+      throw error
+    }
+  }
+
+  async notifyAllInvestors(title: string, message: string, data?: Record<string, any>) {
+    try {
+      const investors = await prisma.user.findMany({
+        where: { 
+          role: 'INVESTOR',
+          isActive: true 
+        },
+        select: { id: true }
+      })
+
+      const investorIds = investors.map(investor => investor.id)
+      
+      const notification: PushNotification = {
+        title: `📢 ${title}`,
+        body: message,
+        icon: '/icons/announcement.png',
+        data: {
+          type: 'system',
+          ...data
+        }
+      }
+
+      return await this.sendBulkNotifications(investorIds, notification)
+    } catch (error) {
+      console.error('Error notifying investors:', error)
+      throw error
+    }
+  }
 }
 
 export const notificationService = new NotificationService()
