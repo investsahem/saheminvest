@@ -6,7 +6,7 @@ import AdminLayout from '../../components/layout/AdminLayout'
 import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
-import DealTimeline from '../../components/project/DealTimeline'
+import { DealTimeline } from '../../components/project/DealTimeline'
 import { Deal } from '../../types/deals'
 import { dealsService } from '../../lib/deals-service'
 import { 
@@ -14,7 +14,7 @@ import {
   Eye, Pause, Play, Star, TrendingUp, Clock, CheckCircle, 
   AlertCircle, X, RefreshCw, Calendar, DollarSign, Users,
   FileText, Settings, Award, Target, Activity, Check,
-  XCircle, PlayCircle, PauseCircle, StopCircle, RotateCcw, Archive
+  XCircle, PlayCircle, PauseCircle, StopCircle, RotateCcw, Archive, GanttChart
 } from 'lucide-react'
 
 
@@ -30,6 +30,7 @@ export default function AdminDealsPage() {
   const [showApprovalModal, setShowApprovalModal] = useState(false)
   const [showDateModal, setShowDateModal] = useState(false)
   const [showStatusModal, setShowStatusModal] = useState(false)
+  const [showTimelineModal, setShowTimelineModal] = useState(false)
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
   const [searchTerm, setSearchTerm] = useState('')
@@ -682,6 +683,19 @@ export default function AdminDealsPage() {
                                 <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'تعديل التواريخ' : 'Edit Dates'}</span>
                               </button>
                               
+                              {/* Timeline Management */}
+                              <button
+                                onClick={() => {
+                                  setSelectedDeal(deal)
+                                  setShowTimelineModal(true)
+                                  setActionMenuOpen(null)
+                                }}
+                                className={`flex items-center w-full px-4 py-2 text-sm text-teal-600 hover:bg-teal-50 ${locale === 'ar' ? 'flex-row-reverse text-right' : ''}`}
+                              >
+                                <GanttChart className="w-4 h-4 mr-2" />
+                                <span className={locale === 'ar' ? 'font-arabic' : ''}>{locale === 'ar' ? 'إدارة الجدول الزمني' : 'Manage Timeline'}</span>
+                              </button>
+                              
                               {/* Advanced Status */}
                               <button
                                 onClick={() => {
@@ -867,6 +881,33 @@ export default function AdminDealsPage() {
                 >
                   {locale === 'ar' ? 'إلغاء' : 'Cancel'}
                 </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Timeline Modal */}
+        {showTimelineModal && selectedDeal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <CardContent className="p-6">
+                <div className={`flex items-center justify-between mb-6 ${locale === 'ar' ? 'flex-row-reverse' : ''}`}>
+                  <h3 className={`text-lg font-semibold ${locale === 'ar' ? 'font-arabic' : ''}`}>
+                    {locale === 'ar' ? 'إدارة الجدول الزمني للصفقة' : 'Manage Deal Timeline'}: {selectedDeal.title}
+                  </h3>
+                  <Button
+                    onClick={() => setShowTimelineModal(false)}
+                    variant="outline"
+                    className="p-2"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                <DealTimeline 
+                  dealId={selectedDeal.id} 
+                  isOwner={true}
+                  className="bg-white border border-gray-200 rounded-lg"
+                />
               </CardContent>
             </Card>
           </div>

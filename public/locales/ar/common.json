@@ -432,7 +432,19 @@
     "highest_return": "أعلى عائد",
     "lowest_minimum": "أقل حد أدنى",
     "most_funded": "الأكثر تمويلاً",
-    "filters": "المرشحات"
+    "filters": "المرشحات",
+    "risk_level": "مستوى المخاطر",
+    "all_risk_levels": "جميع مستويات المخاطر",
+    "low_risk": "مخاطر منخفضة",
+    "medium_risk": "مخاطر متوسطة",
+    "high_risk": "مخاطر عالية",
+    "minimum_return": "الحد الأدنى للعائد",
+    "any_return": "أي عائد",
+    "clear_filters": "مسح المرشحات",
+  "return_5_plus": "عائد 5%+",
+  "return_10_plus": "عائد 10%+",
+  "return_15_plus": "عائد 15%+",
+  "return_20_plus": "عائد 20%+"
   },
   "wallet": {
     "balance": "الرصيد الحالي",

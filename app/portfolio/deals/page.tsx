@@ -372,31 +372,31 @@ const PortfolioDealsPage = () => {
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Risk Level</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('deals.risk_level')}</label>
                     <select
                       value={riskFilter}
                       onChange={(e) => setRiskFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="all">All Risk Levels</option>
-                      <option value="LOW">Low Risk</option>
-                      <option value="MEDIUM">Medium Risk</option>
-                      <option value="HIGH">High Risk</option>
+                      <option value="all">{t('deals.all_risk_levels')}</option>
+                      <option value="LOW">{t('deals.low_risk')}</option>
+                      <option value="MEDIUM">{t('deals.medium_risk')}</option>
+                      <option value="HIGH">{t('deals.high_risk')}</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Return</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('deals.minimum_return')}</label>
                     <select
                       value={returnFilter}
                       onChange={(e) => setReturnFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="all">Any Return</option>
-                      <option value="5">5%+ Return</option>
-                      <option value="10">10%+ Return</option>
-                      <option value="15">15%+ Return</option>
-                      <option value="20">20%+ Return</option>
+                      <option value="all">{t('deals.any_return')}</option>
+                      <option value="5">{t('return_5_plus')}</option>
+                      <option value="10">{t('return_10_plus')}</option>
+                      <option value="15">{t('return_15_plus')}</option>
+                      <option value="20">{t('return_20_plus')}</option>
                     </select>
                   </div>
 
@@ -411,7 +411,7 @@ const PortfolioDealsPage = () => {
                       variant="outline"
                       className="w-full"
                     >
-                      Clear Filters
+                      {t('deals.clear_filters')}
                     </Button>
                   </div>
                 </div>
