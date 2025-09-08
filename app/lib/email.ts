@@ -22,11 +22,19 @@ class EmailService {
   private apiKey: string
   private fromEmail: string
   private fromName: string
+  private infoEmail: string
+  private billingEmail: string
+  private supportEmail: string
+  private adminEmail: string
   private baseUrl = 'https://api.brevo.com/v3'
 
   constructor() {
     this.apiKey = process.env.BREVO_API_KEY!
     this.fromEmail = process.env.FROM_EMAIL || 'noreply@sahaminvest.com'
+    this.infoEmail = process.env.INFO_EMAIL || 'info@sahaminvest.com'
+    this.billingEmail = process.env.BILLING_EMAIL || 'billing@sahaminvest.com'
+    this.supportEmail = process.env.SUPPORT_EMAIL || 'support@sahaminvest.com'
+    this.adminEmail = process.env.ADMIN_EMAIL || 'admin@sahaminvest.com'
     this.fromName = 'Sahem Invest'
   }
 
@@ -672,6 +680,580 @@ class EmailService {
     return await this.sendEmail({
       to: recipients,
       subject: `✏️ Deal Updated - Re-approval Required: ${dealTitle}`,
+      htmlContent
+    })
+  }
+
+  // Welcome and Onboarding Emails
+  async sendWelcomeEmail(email: string, name: string, userType: 'INVESTOR' | 'PARTNER' | 'PORTFOLIO_ADVISOR') {
+    const dashboardUrl = userType === 'INVESTOR' ? '/portfolio' : 
+                        userType === 'PARTNER' ? '/partner/dashboard' : 
+                        '/portfolio-advisor'
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Welcome to Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 40px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .welcome-box { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3B82F6; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .features { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎉 Welcome to Sahem Invest!</h1>
+            <p style="font-size: 18px; margin-top: 10px;">Your investment journey begins now</p>
+          </div>
+          <div class="content">
+            <div class="welcome-box">
+              <h2>Hello ${name}!</h2>
+              <p>Welcome to Sahem Invest, the premier investment platform connecting investors with verified opportunities.</p>
+              <p>Your account has been successfully created as a <strong>${userType.replace('_', ' ').toLowerCase()}</strong>.</p>
+            </div>
+
+            <div class="features">
+              <h3>🚀 Get Started:</h3>
+              <ul>
+                ${userType === 'INVESTOR' ? `
+                  <li>✅ Browse available investment opportunities</li>
+                  <li>✅ Add funds to your wallet</li>
+                  <li>✅ Start investing with as little as $100</li>
+                  <li>✅ Track your portfolio performance</li>
+                ` : userType === 'PARTNER' ? `
+                  <li>✅ Create and submit investment deals</li>
+                  <li>✅ Manage your deal portfolio</li>
+                  <li>✅ Track investor participation</li>
+                  <li>✅ Monitor deal performance</li>
+                ` : `
+                  <li>✅ Manage client portfolios</li>
+                  <li>✅ Provide investment recommendations</li>
+                  <li>✅ Track client performance</li>
+                  <li>✅ Generate detailed reports</li>
+                `}
+              </ul>
+            </div>
+
+            <div style="text-align: center;">
+              <a href="${process.env.NEXTAUTH_URL}${dashboardUrl}" class="button">Access Your Dashboard</a>
+            </div>
+
+            <p><strong>Need help?</strong> Our support team is here to assist you at <a href="mailto:${this.supportEmail}">${this.supportEmail}</a></p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+            <p>Visit us at <a href="https://sahaminvest.com">sahaminvest.com</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: `Welcome to Sahem Invest, ${name}! 🎉`,
+      htmlContent
+    })
+  }
+
+  // Account Verification Email
+  async sendAccountVerificationEmail(email: string, name: string, verificationUrl: string) {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Verify Your Account - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .verification-box { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; text-align: center; border: 2px solid #10B981; }
+          .button { display: inline-block; background: #10B981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🔐 Verify Your Account</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name},</h2>
+            <p>Thank you for registering with Sahem Invest! To complete your account setup and start investing, please verify your email address.</p>
+            
+            <div class="verification-box">
+              <h3>✅ One Click Verification</h3>
+              <p>Click the button below to verify your email and activate your account:</p>
+              <a href="${verificationUrl}" class="button">Verify My Account</a>
+            </div>
+
+            <p><strong>Important:</strong> This verification link will expire in 24 hours for security reasons.</p>
+            <p>If you didn't create an account with Sahem Invest, please ignore this email.</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+            <p>Need help? Contact us at <a href="mailto:${this.supportEmail}">${this.supportEmail}</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: 'Verify Your Sahem Invest Account 🔐',
+      htmlContent
+    })
+  }
+
+  // KYC Status Notifications
+  async sendKYCStatusEmail(email: string, name: string, status: 'APPROVED' | 'REJECTED' | 'PENDING', reason?: string) {
+    const statusConfig = {
+      APPROVED: {
+        color: '#10B981',
+        icon: '✅',
+        title: 'KYC Approved',
+        message: 'Congratulations! Your KYC verification has been approved. You can now access all platform features.'
+      },
+      REJECTED: {
+        color: '#EF4444',
+        icon: '❌',
+        title: 'KYC Rejected',
+        message: 'Your KYC verification has been rejected. Please review the reason below and resubmit your documents.'
+      },
+      PENDING: {
+        color: '#F59E0B',
+        icon: '⏳',
+        title: 'KYC Under Review',
+        message: 'Your KYC documents are being reviewed by our team. We\'ll notify you once the review is complete.'
+      }
+    }
+
+    const config = statusConfig[status]
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>${config.title} - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: ${config.color}; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .status-box { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; border-left: 4px solid ${config.color}; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>${config.icon} ${config.title}</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name},</h2>
+            
+            <div class="status-box">
+              <p>${config.message}</p>
+              ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+              ${status === 'REJECTED' ? `
+                <p><strong>Next Steps:</strong></p>
+                <ul>
+                  <li>Review the rejection reason above</li>
+                  <li>Prepare updated documents</li>
+                  <li>Resubmit your KYC verification</li>
+                </ul>
+              ` : ''}
+            </div>
+
+            ${status === 'APPROVED' ? `
+              <div style="text-align: center;">
+                <a href="${process.env.NEXTAUTH_URL}/portfolio" class="button">Access Your Dashboard</a>
+              </div>
+            ` : status === 'REJECTED' ? `
+              <div style="text-align: center;">
+                <a href="${process.env.NEXTAUTH_URL}/portfolio/settings" class="button">Resubmit KYC</a>
+              </div>
+            ` : ''}
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+            <p>Questions? Contact us at <a href="mailto:${this.supportEmail}">${this.supportEmail}</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: `${config.title} - Sahem Invest`,
+      htmlContent
+    })
+  }
+
+  // Deal Status Notifications for Partners
+  async sendDealStatusEmail(email: string, partnerName: string, dealTitle: string, status: 'APPROVED' | 'REJECTED', reason?: string) {
+    const statusConfig = {
+      APPROVED: {
+        color: '#10B981',
+        icon: '🎉',
+        title: 'Deal Approved',
+        message: 'Great news! Your deal has been approved and is now live for investors.'
+      },
+      REJECTED: {
+        color: '#EF4444',
+        icon: '❌',
+        title: 'Deal Rejected',
+        message: 'Your deal submission has been rejected. Please review the feedback and resubmit.'
+      }
+    }
+
+    const config = statusConfig[status]
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>${config.title} - ${dealTitle}</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: ${config.color}; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .deal-box { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; border-left: 4px solid ${config.color}; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>${config.icon} ${config.title}</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${partnerName},</h2>
+            
+            <div class="deal-box">
+              <h3>📋 Deal: ${dealTitle}</h3>
+              <p>${config.message}</p>
+              ${reason ? `<p><strong>Admin Feedback:</strong> ${reason}</p>` : ''}
+            </div>
+
+            <div style="text-align: center;">
+              <a href="${process.env.NEXTAUTH_URL}/partner/deals" class="button">View My Deals</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name: partnerName }],
+      subject: `${config.title}: ${dealTitle}`,
+      htmlContent
+    })
+  }
+
+  // Monthly Portfolio Report
+  async sendMonthlyPortfolioReport(email: string, name: string, reportData: {
+    totalInvestments: number
+    totalReturns: number
+    portfolioValue: number
+    monthlyGrowth: number
+    activeDeals: number
+  }) {
+    const { totalInvestments, totalReturns, portfolioValue, monthlyGrowth, activeDeals } = reportData
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Monthly Portfolio Report - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+          .stat-box { background: white; padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #8B5CF6; }
+          .stat-value { font-size: 24px; font-weight: bold; color: #8B5CF6; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>📊 Monthly Portfolio Report</h1>
+            <p>${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+          </div>
+          <div class="content">
+            <h2>Hello ${name},</h2>
+            <p>Here's your portfolio performance summary for this month:</p>
+            
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-value">$${portfolioValue.toLocaleString()}</div>
+                <div>Portfolio Value</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">${monthlyGrowth >= 0 ? '+' : ''}${monthlyGrowth.toFixed(1)}%</div>
+                <div>Monthly Growth</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">$${totalReturns.toLocaleString()}</div>
+                <div>Total Returns</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-value">${activeDeals}</div>
+                <div>Active Deals</div>
+              </div>
+            </div>
+
+            <div style="text-align: center;">
+              <a href="${process.env.NEXTAUTH_URL}/portfolio/analytics" class="button">View Detailed Analytics</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: `📊 Your Monthly Portfolio Report - ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`,
+      htmlContent
+    })
+  }
+
+  // Security Alert Emails
+  async sendSecurityAlertEmail(email: string, name: string, alertType: 'LOGIN' | 'PASSWORD_CHANGE' | 'SUSPICIOUS_ACTIVITY', details: string) {
+    const alertConfig = {
+      LOGIN: {
+        icon: '🔐',
+        title: 'New Login Detected',
+        message: 'A new login to your account has been detected.'
+      },
+      PASSWORD_CHANGE: {
+        icon: '🔑',
+        title: 'Password Changed',
+        message: 'Your account password has been successfully changed.'
+      },
+      SUSPICIOUS_ACTIVITY: {
+        icon: '⚠️',
+        title: 'Suspicious Activity Alert',
+        message: 'We detected unusual activity on your account.'
+      }
+    }
+
+    const config = alertConfig[alertType]
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Security Alert - ${config.title}</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .alert-box { background: #FEF2F2; border: 1px solid #EF4444; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .button { display: inline-block; background: #EF4444; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>${config.icon} Security Alert</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name},</h2>
+            
+            <div class="alert-box">
+              <h3>${config.title}</h3>
+              <p>${config.message}</p>
+              <p><strong>Details:</strong> ${details}</p>
+              <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+
+            <p>If this was you, no action is needed. If you didn't authorize this activity, please secure your account immediately.</p>
+
+            <div style="text-align: center;">
+              <a href="${process.env.NEXTAUTH_URL}/portfolio/settings" class="button">Secure My Account</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+            <p>Security concerns? Contact us immediately at <a href="mailto:${this.supportEmail}">${this.supportEmail}</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: `🚨 Security Alert: ${config.title}`,
+      htmlContent
+    })
+  }
+
+  // Billing and Invoice Emails (using billing@sahaminvest.com as sender)
+  async sendInvoiceEmail(email: string, name: string, invoiceData: {
+    invoiceNumber: string
+    amount: number
+    description: string
+    dueDate: string
+    downloadUrl: string
+  }) {
+    const { invoiceNumber, amount, description, dueDate, downloadUrl } = invoiceData
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Invoice ${invoiceNumber} - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #3B82F6, #1E40AF); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .invoice-box { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb; }
+          .amount { font-size: 28px; font-weight: bold; color: #3B82F6; text-align: center; margin: 20px 0; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>📄 Invoice ${invoiceNumber}</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name},</h2>
+            
+            <div class="invoice-box">
+              <h3>Invoice Details</h3>
+              <p><strong>Invoice Number:</strong> ${invoiceNumber}</p>
+              <p><strong>Description:</strong> ${description}</p>
+              <p><strong>Due Date:</strong> ${new Date(dueDate).toLocaleDateString()}</p>
+              
+              <div class="amount">$${amount.toLocaleString()}</div>
+            </div>
+
+            <div style="text-align: center;">
+              <a href="${downloadUrl}" class="button">Download Invoice</a>
+            </div>
+
+            <p>If you have any questions about this invoice, please contact our billing team.</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+            <p>Billing questions? Contact <a href="mailto:${this.billingEmail}">${this.billingEmail}</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: `Invoice ${invoiceNumber} - Sahem Invest`,
+      htmlContent
+    })
+  }
+
+  // System Maintenance Notifications
+  async sendMaintenanceNotificationEmail(recipients: string[], maintenanceData: {
+    startTime: string
+    endTime: string
+    description: string
+    affectedServices: string[]
+  }) {
+    const { startTime, endTime, description, affectedServices } = maintenanceData
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Scheduled Maintenance - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .maintenance-box { background: #FEF3C7; border: 1px solid #F59E0B; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .services-list { background: white; padding: 15px; border-radius: 6px; margin: 15px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🔧 Scheduled Maintenance</h1>
+          </div>
+          <div class="content">
+            <h2>Important Notice</h2>
+            
+            <div class="maintenance-box">
+              <h3>⏰ Maintenance Schedule</h3>
+              <p><strong>Start:</strong> ${new Date(startTime).toLocaleString()}</p>
+              <p><strong>End:</strong> ${new Date(endTime).toLocaleString()}</p>
+              <p><strong>Duration:</strong> Approximately ${Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / (1000 * 60 * 60))} hours</p>
+            </div>
+
+            <p><strong>Description:</strong> ${description}</p>
+
+            <div class="services-list">
+              <h3>🔧 Affected Services:</h3>
+              <ul>
+                ${affectedServices.map(service => `<li>${service}</li>`).join('')}
+              </ul>
+            </div>
+
+            <p>We apologize for any inconvenience and appreciate your patience during this maintenance window.</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+            <p>Questions? Contact <a href="mailto:${this.supportEmail}">${this.supportEmail}</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    const recipientList = recipients.map(email => ({ email, name: 'User' }))
+
+    return await this.sendEmail({
+      to: recipientList,
+      subject: '🔧 Scheduled Maintenance Notification - Sahem Invest',
       htmlContent
     })
   }

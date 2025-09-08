@@ -4,6 +4,7 @@ import { authOptions } from '../../../../../lib/auth'
 import { prisma } from '../../../../../lib/db'
 import emailService from '../../../../../lib/email'
 import notificationService from '../../../../../lib/notifications'
+import EmailTriggers from '../../../../../lib/email-triggers'
 
 // POST /api/admin/deposits/[id]/reject - Reject a pending deposit
 export async function POST(
@@ -84,15 +85,8 @@ export async function POST(
         }
       )
 
-      // Send email notification
-      await emailService.sendDepositRejection({
-        to: transaction.user.email,
-        userName: transaction.user.name || 'User',
-        amount: Number(transaction.amount),
-        method: transaction.method?.toLowerCase() || 'unknown',
-        reference: transaction.reference || '',
-        reason: reason || 'Please contact our support team for more information.'
-      })
+      // Send email notification using the new trigger system
+      await EmailTriggers.onDepositRejected(transaction.id, reason || 'Please contact our support team for more information.')
     } catch (notificationError) {
       console.error('Error sending notifications:', notificationError)
       // Don't fail the transaction if notification fails

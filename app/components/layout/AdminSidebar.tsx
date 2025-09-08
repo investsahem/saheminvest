@@ -10,7 +10,7 @@ import { useProfitDistributions } from '../../hooks/useProfitDistributions'
 import { 
   LayoutDashboard, Users, DollarSign, Target, BarChart3, 
   Settings, FileText, Clock, UserCheck, Building2,
-  LogOut, User, ChevronDown, Bell, Wallet, X, TrendingUp
+  LogOut, User, ChevronDown, Bell, Wallet, X, TrendingUp, Mail
 } from 'lucide-react'
 import { Button } from '../ui/Button'
 
@@ -102,6 +102,12 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
       href: '/admin/analytics',
       icon: BarChart3,
       current: pathname === '/admin/analytics'
+    },
+    {
+      name: 'Email Management',
+      href: '/admin/emails',
+      icon: Mail,
+      current: pathname === '/admin/emails'
     },
     {
       name: t('admin.system_settings'),

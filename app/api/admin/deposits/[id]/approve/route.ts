@@ -4,6 +4,7 @@ import { authOptions } from '../../../../../lib/auth'
 import { prisma } from '../../../../../lib/db'
 import emailService from '../../../../../lib/email'
 import notificationService from '../../../../../lib/notifications'
+import EmailTriggers from '../../../../../lib/email-triggers'
 
 // POST /api/admin/deposits/[id]/approve - Approve a pending deposit
 export async function POST(
@@ -92,15 +93,8 @@ export async function POST(
         }
       )
 
-      // Send email notification
-      await emailService.sendDepositConfirmation({
-        to: transaction.user.email,
-        userName: transaction.user.name || 'User',
-        amount: Number(transaction.amount),
-        method: transaction.method?.toLowerCase() || 'unknown',
-        reference: transaction.reference || '',
-        newBalance: Number(transaction.user.walletBalance) + Number(transaction.amount)
-      })
+      // Send email notification using the new trigger system
+      await EmailTriggers.onDepositApproved(transaction.id)
     } catch (notificationError) {
       console.error('Error sending notifications:', notificationError)
       // Don't fail the transaction if notification fails
