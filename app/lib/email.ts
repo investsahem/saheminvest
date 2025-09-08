@@ -100,42 +100,110 @@ class EmailService {
         <meta charset="utf-8">
         <title>Reset Your Password - Sahem Invest</title>
         <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
-          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
-          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .header { background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 40px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 40px; border-radius: 0 0 8px 8px; }
+          .security-notice { background: #FEF3C7; border: 1px solid #F59E0B; padding: 20px; border-radius: 8px; margin: 25px 0; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; margin: 25px 0; font-weight: bold; text-align: center; }
+          .button:hover { background: #2563EB; }
+          .token-info { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #3B82F6; }
           .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+          .security-tips { background: #F3F4F6; padding: 20px; border-radius: 6px; margin: 20px 0; }
+          @media (max-width: 600px) {
+            .container { padding: 10px; }
+            .header, .content { padding: 20px; }
+          }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
             <h1>🔐 Password Reset Request</h1>
+            <p style="font-size: 18px; margin-top: 10px;">Secure your Sahem Invest account</p>
           </div>
           <div class="content">
             <h2>Hello ${name},</h2>
-            <p>We received a request to reset your password for your Sahem Invest account.</p>
-            <p>Click the button below to reset your password:</p>
-            <a href="${resetUrl}" class="button">Reset Password</a>
-            <p><strong>This link will expire in 1 hour for security reasons.</strong></p>
-            <p>If you didn't request this password reset, please ignore this email. Your password will remain unchanged.</p>
-            <p>For security, this reset link can only be used once.</p>
+            <p>We received a request to reset your password for your Sahem Invest account. If you made this request, click the button below to create a new password.</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" class="button">🔑 Reset My Password</a>
+            </div>
+
+            <div class="security-notice">
+              <h3>⚠️ Security Notice</h3>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>This link expires in 1 hour</strong> for your security</li>
+                <li>The link can only be used once</li>
+                <li>If you didn't request this, please ignore this email</li>
+                <li>Your current password remains unchanged until you complete the reset</li>
+              </ul>
+            </div>
+
+            <div class="token-info">
+              <h3>🔍 Request Details</h3>
+              <p><strong>Requested on:</strong> ${new Date().toLocaleString()}</p>
+              <p><strong>Account:</strong> ${email}</p>
+              <p><strong>Request ID:</strong> ${resetToken.substring(0, 8)}...</p>
+            </div>
+
+            <div class="security-tips">
+              <h3>🛡️ Security Tips</h3>
+              <ul style="margin: 10px 0; padding-left: 20px; font-size: 14px;">
+                <li>Always use a strong, unique password for your investment account</li>
+                <li>Never share your password or reset links with anyone</li>
+                <li>Enable two-factor authentication when available</li>
+                <li>Regularly monitor your account for suspicious activity</li>
+              </ul>
+            </div>
+
+            <p style="margin-top: 30px;"><strong>Didn't request this?</strong> If you didn't request a password reset, someone may have entered your email address by mistake. You can safely ignore this email - your account remains secure.</p>
+            
+            <p style="font-size: 14px; color: #666;">If you're having trouble clicking the button, copy and paste this link into your browser: <br><a href="${resetUrl}" style="color: #3B82F6; word-break: break-all;">${resetUrl}</a></p>
           </div>
           <div class="footer">
             <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
-            <p>If you have any questions, contact us at support@sahaminvest.com</p>
+            <p>🏢 Secure Investment Platform | 📧 <a href="mailto:${this.supportEmail}" style="color: #3B82F6;">${this.supportEmail}</a></p>
+            <p>🌐 Visit us at <a href="https://sahaminvest.com" style="color: #3B82F6;">sahaminvest.com</a></p>
           </div>
         </div>
       </body>
       </html>
     `
 
+    const textContent = `
+Password Reset Request - Sahem Invest
+
+Hello ${name},
+
+We received a request to reset your password for your Sahem Invest account.
+
+Reset your password: ${resetUrl}
+
+SECURITY NOTICE:
+- This link expires in 1 hour for your security
+- The link can only be used once
+- If you didn't request this, please ignore this email
+- Your current password remains unchanged until you complete the reset
+
+Request Details:
+- Requested on: ${new Date().toLocaleString()}
+- Account: ${email}
+- Request ID: ${resetToken.substring(0, 8)}...
+
+If you didn't request this password reset, someone may have entered your email address by mistake. You can safely ignore this email - your account remains secure.
+
+Need help? Contact us at ${this.supportEmail}
+
+© ${new Date().getFullYear()} Sahem Invest. All rights reserved.
+Visit us at https://sahaminvest.com
+    `
+
     return await this.sendEmail({
       to: [{ email, name }],
-      subject: 'Reset Your Password - Sahem Invest',
+      subject: '🔐 Reset Your Sahem Invest Password - Action Required',
       htmlContent,
-      textContent: `Hello ${name}, we received a request to reset your password. Click this link to reset: ${resetUrl} This link expires in 1 hour.`
+      textContent
     })
   }
 

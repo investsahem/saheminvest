@@ -35,46 +35,41 @@ export class EmailTriggers {
   }
 
   // Deposit Notifications
-  static async onDepositApproved(depositId: string) {
+  static async onDepositApproved(transactionId: string) {
     try {
-      const deposit = await prisma.deposit.findUnique({
-        where: { id: depositId },
+      const transaction = await prisma.transaction.findUnique({
+        where: { id: transactionId },
         include: {
           user: {
             select: {
               name: true,
-              email: true
+              email: true,
+              walletBalance: true
             }
           }
         }
       })
 
-      if (!deposit) return
-
-      // Get updated wallet balance
-      const wallet = await prisma.wallet.findUnique({
-        where: { userId: deposit.userId },
-        select: { balance: true }
-      })
+      if (!transaction || transaction.type !== 'DEPOSIT') return
 
       await emailService.sendDepositApprovedEmail(
-        deposit.user.email,
-        deposit.user.name || 'User',
-        Number(deposit.amount),
-        deposit.reference || deposit.id,
-        Number(wallet?.balance || 0)
+        transaction.user.email,
+        transaction.user.name || 'User',
+        Number(transaction.amount),
+        transaction.reference || transaction.id,
+        Number(transaction.user.walletBalance)
       )
 
-      console.log(`Deposit approval email sent to ${deposit.user.email}`)
+      console.log(`Deposit approval email sent to ${transaction.user.email}`)
     } catch (error) {
       console.error('Error sending deposit approval email:', error)
     }
   }
 
-  static async onDepositRejected(depositId: string, reason: string) {
+  static async onDepositRejected(transactionId: string, reason: string) {
     try {
-      const deposit = await prisma.deposit.findUnique({
-        where: { id: depositId },
+      const transaction = await prisma.transaction.findUnique({
+        where: { id: transactionId },
         include: {
           user: {
             select: {
@@ -85,18 +80,18 @@ export class EmailTriggers {
         }
       })
 
-      if (!deposit) return
+      if (!transaction || transaction.type !== 'DEPOSIT') return
 
       await emailService.sendDepositRejection({
-        to: deposit.user.email,
-        userName: deposit.user.name || 'User',
-        amount: Number(deposit.amount),
-        method: deposit.method,
-        reference: deposit.reference || deposit.id,
+        to: transaction.user.email,
+        userName: transaction.user.name || 'User',
+        amount: Number(transaction.amount),
+        method: transaction.method || 'deposit',
+        reference: transaction.reference || transaction.id,
         reason
       })
 
-      console.log(`Deposit rejection email sent to ${deposit.user.email}`)
+      console.log(`Deposit rejection email sent to ${transaction.user.email}`)
     } catch (error) {
       console.error('Error sending deposit rejection email:', error)
     }
@@ -402,13 +397,13 @@ export class EmailTriggers {
             }
           })
 
-          const wallet = await prisma.wallet.findUnique({
-            where: { userId: investor.id },
-            select: { balance: true }
+          const user = await prisma.user.findUnique({
+            where: { id: investor.id },
+            select: { walletBalance: true }
           })
 
           const totalInvestments = investments.reduce((sum, inv) => sum + Number(inv.amount), 0)
-          const portfolioValue = totalInvestments + Number(wallet?.balance || 0)
+          const portfolioValue = totalInvestments + Number(user?.walletBalance || 0)
           const activeDeals = investments.filter(inv => 
             ['ACTIVE', 'PUBLISHED', 'FUNDED'].includes(inv.project.status)
           ).length

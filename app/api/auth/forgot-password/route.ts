@@ -53,9 +53,16 @@ export async function POST(request: NextRequest) {
         resetToken,
         resetUrl
       )
+      console.log(`Password reset email sent to ${user.email}`)
     } catch (emailError) {
       console.error('Failed to send reset email:', emailError)
       // Don't reveal email sending failure to prevent enumeration
+      // But log it for admin monitoring
+      console.error('Email service error details:', {
+        email: user.email,
+        error: emailError instanceof Error ? emailError.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      })
     }
 
     return NextResponse.json({

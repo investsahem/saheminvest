@@ -28,10 +28,23 @@ const AdminEmailsPage = () => {
     description: '',
     affectedServices: ['Trading Platform', 'User Dashboard']
   })
+  const [passwordResetEmail, setPasswordResetEmail] = useState('')
+  const [passwordResetStats, setPasswordResetStats] = useState<any>(null)
 
   useEffect(() => {
     fetchEmailTypes()
+    fetchPasswordResetStats()
   }, [])
+
+  const fetchPasswordResetStats = async () => {
+    try {
+      const response = await fetch('/api/admin/auth/test-password-reset')
+      const data = await response.json()
+      setPasswordResetStats(data.stats)
+    } catch (error) {
+      console.error('Error fetching password reset stats:', error)
+    }
+  }
 
   const fetchEmailTypes = async () => {
     try {
@@ -139,6 +152,40 @@ const AdminEmailsPage = () => {
         })
       } else {
         setMessage({ type: 'error', text: result.error || 'Failed to send maintenance notification' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Network error occurred' })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const sendTestPasswordReset = async () => {
+    if (!passwordResetEmail) {
+      setMessage({ type: 'error', text: 'Please enter an email address' })
+      return
+    }
+
+    setIsLoading(true)
+    setMessage(null)
+
+    try {
+      const response = await fetch('/api/admin/auth/test-password-reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: passwordResetEmail })
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: result.message })
+        setPasswordResetEmail('')
+        fetchPasswordResetStats() // Refresh stats
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Failed to send test password reset' })
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Network error occurred' })
@@ -295,6 +342,50 @@ const AdminEmailsPage = () => {
             >
               {isLoading ? 'Sending...' : '📤 Send Test Email'}
             </button>
+          </div>
+        </div>
+
+        {/* Password Reset Testing */}
+        <div className="bg-white shadow rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">🔐 Password Reset Testing</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Test Email Address</label>
+              <input
+                type="email"
+                value={passwordResetEmail}
+                onChange={(e) => setPasswordResetEmail(e.target.value)}
+                placeholder="Enter user email to send test reset link"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              onClick={sendTestPasswordReset}
+              disabled={isLoading || !passwordResetEmail}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50"
+            >
+              {isLoading ? 'Sending...' : '🔑 Send Test Password Reset'}
+            </button>
+            
+            {passwordResetStats && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium text-gray-900 mb-2">📊 Reset Statistics</h3>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Total Users:</span>
+                    <span className="ml-2 font-medium">{passwordResetStats.totalUsers}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Active Tokens:</span>
+                    <span className="ml-2 font-medium text-green-600">{passwordResetStats.activeResetTokens}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Expired Tokens:</span>
+                    <span className="ml-2 font-medium text-red-600">{passwordResetStats.expiredResetTokens}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
