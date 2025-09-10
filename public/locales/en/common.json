@@ -1203,6 +1203,77 @@
     "saving": "Saving...",
     "required_field": "*"
   },
+  "partner_analytics": {
+    "title": "Analytics Dashboard",
+    "subtitle": "Comprehensive performance insights and metrics",
+    "time_ranges": {
+      "1month": "1M",
+      "3months": "3M", 
+      "6months": "6M",
+      "1year": "1Y"
+    },
+    "metrics": {
+      "success_rate": "Success Rate",
+      "avg_return": "Avg Return",
+      "total_raised": "Total Raised",
+      "total_investors": "Total Investors",
+      "total_deals": "Total Deals",
+      "total_value": "Total Value",
+      "avg_duration": "Avg Duration (months)",
+      "from_last_period": "from last period",
+      "overall": "overall",
+      "of_target": "of target",
+      "completed": "completed",
+      "funded": "funded",
+      "repeat_rate": "repeat rate",
+      "faster_than_average": "faster than average"
+    },
+    "charts": {
+      "performance_trends": "Performance Trends",
+      "target_vs_actual": "Target vs Actual",
+      "category_performance": "Category Performance",
+      "deal_status_overview": "Deal Status Overview",
+      "top_performing_deals": "Top Performing Deals",
+      "performance_summary": "Performance Summary"
+    },
+    "table_headers": {
+      "deal": "Deal",
+      "category": "Category", 
+      "raised": "Raised",
+      "return": "Return",
+      "investors": "Investors",
+      "duration": "Duration",
+      "status": "Status"
+    },
+    "categories": {
+      "technology": "Technology",
+      "real_estate": "Real Estate", 
+      "healthcare": "Healthcare",
+      "manufacturing": "Manufacturing",
+      "finance": "Finance",
+      "education": "Education",
+      "retail": "Retail",
+      "agriculture": "Agriculture"
+    },
+    "statuses": {
+      "completed": "Completed",
+      "active": "Active",
+      "pending": "Pending",
+      "draft": "Draft",
+      "published": "Published",
+      "paused": "Paused",
+      "funded": "Funded",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "view_all_deals": "View All Deals"
+    },
+    "units": {
+      "deals": "deals",
+      "months": "m",
+      "percentage": "%"
+    }
+  },
   "partners": {
     "title": "Our Partners",
     "hero_title": "Trusted Investment Partners",

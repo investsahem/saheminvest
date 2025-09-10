@@ -17,143 +17,73 @@ import {
   CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, Line, 
   BarChart, Bar, ComposedChart
 } from 'recharts'
-import { formatPercentage, formatCurrency, formatNumber } from '../utils/formatters'
+import { formatPercentage, formatCurrency, formatNumber, formatRawPercentage } from '../utils/formatters'
 
 const PartnerAnalyticsPage = () => {
   const { t } = useTranslation()
   const { data: session } = useSession()
   const [timeRange, setTimeRange] = useState('6months')
   const [loading, setLoading] = useState(true)
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
 
-  // Sample analytics data
-  const analyticsMetrics = {
-    totalDeals: 15,
-    activeDeals: 3,
-    completedDeals: 12,
-    totalValue: 850000,
-    totalRaised: 720000,
-    averageReturn: 15.2,
-    successRate: 87.5,
-    averageDuration: 16,
-    totalInvestors: 125,
-    repeatInvestors: 89
-  }
-
-  // Deal performance over time
-  const performanceData = [
-    { month: 'Jan', deals: 2, value: 120000, investors: 15, returns: 14.5 },
-    { month: 'Feb', deals: 3, value: 180000, investors: 23, returns: 15.2 },
-    { month: 'Mar', deals: 2, value: 150000, investors: 18, returns: 14.8 },
-    { month: 'Apr', deals: 3, value: 210000, investors: 28, returns: 16.1 },
-    { month: 'May', deals: 2, value: 160000, investors: 21, returns: 13.9 },
-    { month: 'Jun', deals: 3, value: 220000, investors: 32, returns: 15.7 }
-  ]
-
-  // Deal category distribution
-  const categoryData = [
-    { name: 'Technology', value: 40, amount: 340000, color: '#3B82F6', deals: 6 },
-    { name: 'Real Estate', value: 30, amount: 255000, color: '#F59E0B', deals: 5 },
-    { name: 'Healthcare', value: 20, amount: 170000, color: '#8B5CF6', deals: 3 },
-    { name: 'Manufacturing', value: 10, amount: 85000, color: '#10B981', deals: 1 }
-  ]
-
-  // Deal status distribution
-  const statusData = [
-    { name: 'Completed', value: 12, color: '#10B981' },
-    { name: 'Active', value: 3, color: '#3B82F6' },
-    { name: 'Draft', value: 0, color: '#6B7280' }
-  ]
-
-  // Top performing deals
-  const topDeals = [
-    { 
-      id: '1', 
-      title: 'AI Healthcare Platform', 
-      category: 'Technology', 
-      raised: 180000, 
-      goal: 200000, 
-      return: 18.5, 
-      investors: 25, 
-      status: 'Active',
-      duration: 18 
-    },
-    { 
-      id: '2', 
-      title: 'Smart Home Solutions', 
-      category: 'Technology', 
-      raised: 150000, 
-      goal: 150000, 
-      return: 16.8, 
-      investors: 20, 
-      status: 'Completed',
-      duration: 16 
-    },
-    { 
-      id: '3', 
-      title: 'Medical Device Manufacturing', 
-      category: 'Healthcare', 
-      raised: 120000, 
-      goal: 120000, 
-      return: 15.2, 
-      investors: 18, 
-      status: 'Completed',
-      duration: 14 
-    },
-    { 
-      id: '4', 
-      title: 'Commercial Real Estate', 
-      category: 'Real Estate', 
-      raised: 200000, 
-      goal: 200000, 
-      return: 14.5, 
-      investors: 30, 
-      status: 'Completed',
-      duration: 20 
-    }
-  ]
-
-  // Monthly targets vs actual
-  const targetVsActual = [
-    { month: 'Jan', target: 100000, actual: 120000, deals: 2 },
-    { month: 'Feb', target: 150000, actual: 180000, deals: 3 },
-    { month: 'Mar', target: 140000, actual: 150000, deals: 2 },
-    { month: 'Apr', target: 180000, actual: 210000, deals: 3 },
-    { month: 'May', target: 160000, actual: 160000, deals: 2 },
-    { month: 'Jun', target: 200000, actual: 220000, deals: 3 }
-  ]
-
-  // Investor engagement metrics
-  const investorMetrics = {
-    totalInvestors: 125,
-    newInvestors: 23,
-    repeatInvestors: 89,
-    averageInvestment: 5760,
-    investorRetention: 71.2
-  }
-
+  // Fetch real analytics data
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 1000)
-  }, [])
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`/api/partner/analytics?timeRange=${timeRange}`)
+        if (response.ok) {
+          const data = await response.json()
+          setAnalyticsData(data)
+        } else {
+          console.error('Failed to fetch analytics data')
+        }
+      } catch (error) {
+        console.error('Error fetching analytics:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value)
+    if (session?.user?.id) {
+      fetchAnalytics()
+    }
+  }, [timeRange, session])
+
+  // Fallback to prevent errors while loading
+  const analyticsMetrics = analyticsData?.metrics || {
+    totalDeals: 0,
+    activeDeals: 0,
+    completedDeals: 0,
+    totalValue: 0,
+    totalRaised: 0,
+    averageReturn: 0,
+    successRate: 0,
+    averageDuration: 0,
+    totalInvestors: 0,
+    repeatInvestors: 0
   }
 
-  const formatNumber = (value: number) => {
-    return new Intl.NumberFormat('en-US').format(value)
+  // Use real data from API
+  const performanceData = analyticsData?.performanceData || []
+  const categoryData = analyticsData?.categoryData || []
+  const statusData = analyticsData?.statusData || []
+  const topDeals = analyticsData?.topDeals || []
+  const targetVsActual = analyticsData?.targetVsActual || []
+  const investorMetrics = analyticsData?.investorMetrics || {
+    totalInvestors: 0,
+    newInvestors: 0,
+    repeatInvestors: 0,
+    averageInvestment: 0,
+    investorRetention: 0
   }
+
 
   if (loading) {
     return (
       <PartnerLayout
-        title={t('partner.analytics')}
-        subtitle={t('partner.analytics_subtitle')}
+        title={t('partner_analytics.title')}
+        subtitle={t('partner_analytics.subtitle')}
       >
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -164,18 +94,18 @@ const PartnerAnalyticsPage = () => {
 
   return (
     <PartnerLayout
-      title={t('partner.analytics')}
-      subtitle={t('partner.analytics_subtitle')}
+      title={t('partner_analytics.title')}
+      subtitle={t('partner_analytics.subtitle')}
     >
       <div className="space-y-6">
         {/* Time Range Selector */}
         <div className="flex justify-end">
           <div className="flex bg-gray-100 rounded-lg p-1">
             {[
-              { value: '1month', label: '1M' },
-              { value: '3months', label: '3M' },
-              { value: '6months', label: '6M' },
-              { value: '1year', label: '1Y' }
+              { value: '1month', label: t('partner_analytics.time_ranges.1month') },
+              { value: '3months', label: t('partner_analytics.time_ranges.3months') },
+              { value: '6months', label: t('partner_analytics.time_ranges.6months') },
+              { value: '1year', label: t('partner_analytics.time_ranges.1year') }
             ].map((option) => (
               <button
                 key={option.value}
@@ -198,11 +128,11 @@ const PartnerAnalyticsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700">Success Rate</p>
-                  <p className="text-2xl font-bold text-blue-900">{analyticsMetrics.successRate}%</p>
+                  <p className="text-sm font-medium text-blue-700">{t('partner_analytics.metrics.success_rate')}</p>
+                  <p className="text-2xl font-bold text-blue-900">{formatRawPercentage(analyticsMetrics.successRate)}%</p>
                   <p className="text-xs text-blue-600 flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +2.3% from last period
+                    +2.3% {t('partner_analytics.metrics.from_last_period')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -216,11 +146,11 @@ const PartnerAnalyticsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700">Avg Return</p>
-                  <p className="text-2xl font-bold text-green-900">{analyticsMetrics.averageReturn}%</p>
+                  <p className="text-sm font-medium text-green-700">{t('partner_analytics.metrics.avg_return')}</p>
+                  <p className="text-2xl font-bold text-green-900">{formatRawPercentage(analyticsMetrics.averageReturn)}%</p>
                   <p className="text-xs text-green-600 flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +0.8% from last period
+                    +0.8% {t('partner_analytics.metrics.from_last_period')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -234,11 +164,11 @@ const PartnerAnalyticsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-700">Total Raised</p>
+                  <p className="text-sm font-medium text-purple-700">{t('partner_analytics.metrics.total_raised')}</p>
                   <p className="text-2xl font-bold text-purple-900">{formatCurrency(analyticsMetrics.totalRaised)}</p>
                   <p className="text-xs text-purple-600 flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +15.2% from last period
+                    +15.2% {t('partner_analytics.metrics.from_last_period')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -252,11 +182,11 @@ const PartnerAnalyticsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-orange-700">Total Investors</p>
+                  <p className="text-sm font-medium text-orange-700">{t('partner_analytics.metrics.total_investors')}</p>
                   <p className="text-2xl font-bold text-orange-900">{formatNumber(analyticsMetrics.totalInvestors)}</p>
                   <p className="text-xs text-orange-600 flex items-center mt-1">
                     <TrendingUp className="w-3 h-3 mr-1" />
-                    +12.4% from last period
+                    +12.4% {t('partner_analytics.metrics.from_last_period')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
@@ -273,10 +203,10 @@ const PartnerAnalyticsPage = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Performance Trends</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('partner_analytics.charts.performance_trends')}</h3>
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-green-600">+15.2% overall</span>
+                  <span className="text-sm text-green-600">+15.2% {t('partner_analytics.metrics.overall')}</span>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={300}>
@@ -306,10 +236,10 @@ const PartnerAnalyticsPage = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Target vs Actual</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('partner_analytics.charts.target_vs_actual')}</h3>
                 <div className="flex items-center gap-2">
                   <Award className="w-4 h-4 text-yellow-500" />
-                  <span className="text-sm text-yellow-600">110% of target</span>
+                  <span className="text-sm text-yellow-600">110% {t('partner_analytics.metrics.of_target')}</span>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={300}>
@@ -332,7 +262,7 @@ const PartnerAnalyticsPage = () => {
           {/* Category Distribution */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Category Performance</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('partner_analytics.charts.category_performance')}</h3>
               <div className="flex items-center justify-center">
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
@@ -346,7 +276,7 @@ const PartnerAnalyticsPage = () => {
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {categoryData.map((entry, index) => (
+                      {categoryData.map((entry: any, index: number) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -355,7 +285,7 @@ const PartnerAnalyticsPage = () => {
                 </ResponsiveContainer>
               </div>
               <div className="mt-4 space-y-2">
-                {categoryData.map((category) => (
+                {categoryData.map((category: any) => (
                   <div key={category.name} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category.color }}></div>
@@ -363,7 +293,7 @@ const PartnerAnalyticsPage = () => {
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-semibold text-gray-900">{formatCurrency(category.amount)}</div>
-                      <div className="text-xs text-gray-500">{category.deals} deals</div>
+                      <div className="text-xs text-gray-500">{category.deals} {t('partner_analytics.units.deals')}</div>
                     </div>
                   </div>
                 ))}
@@ -374,7 +304,7 @@ const PartnerAnalyticsPage = () => {
           {/* Deal Status */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Deal Status Overview</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('partner_analytics.charts.deal_status_overview')}</h3>
               <div className="flex items-center justify-center">
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
@@ -387,7 +317,7 @@ const PartnerAnalyticsPage = () => {
                       paddingAngle={5}
                       dataKey="value"
                     >
-                      {statusData.map((entry, index) => (
+                      {statusData.map((entry: any, index: number) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -396,7 +326,7 @@ const PartnerAnalyticsPage = () => {
                 </ResponsiveContainer>
               </div>
               <div className="mt-4 space-y-2">
-                {statusData.map((status) => (
+                {statusData.map((status: any) => (
                   <div key={status.name} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: status.color }}></div>
@@ -414,26 +344,26 @@ const PartnerAnalyticsPage = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Top Performing Deals</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('partner_analytics.charts.top_performing_deals')}</h3>
               <Button variant="outline" size="sm">
-                View All Deals
+                {t('partner_analytics.actions.view_all_deals')}
               </Button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deal</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Raised</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Return</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Investors</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('partner_analytics.table_headers.deal')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('partner_analytics.table_headers.category')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('partner_analytics.table_headers.raised')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('partner_analytics.table_headers.return')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('partner_analytics.table_headers.investors')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('partner_analytics.table_headers.duration')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('partner_analytics.table_headers.status')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {topDeals.map((deal) => (
+                  {topDeals.map((deal: any) => (
                     <tr key={deal.id} className="hover:bg-gray-50">
                       <td className="px-4 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">{deal.title}</div>
@@ -460,7 +390,7 @@ const PartnerAnalyticsPage = () => {
                       <td className="px-4 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <Timer className="w-4 h-4 text-gray-400 mr-1" />
-                          <span className="text-sm text-gray-900">{deal.duration}m</span>
+                          <span className="text-sm text-gray-900">{deal.duration}{t('partner_analytics.units.months')}</span>
                         </div>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
@@ -483,16 +413,16 @@ const PartnerAnalyticsPage = () => {
         {/* Performance Summary */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Performance Summary</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('partner_analytics.charts.performance_summary')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Building2 className="w-8 h-8 text-blue-600" />
                 </div>
                 <div className="text-2xl font-bold text-gray-900">{analyticsMetrics.totalDeals}</div>
-                <div className="text-sm text-gray-600">Total Deals</div>
+                <div className="text-sm text-gray-600">{t('partner_analytics.metrics.total_deals')}</div>
                 <div className="text-xs text-green-600 mt-1">
-                  {analyticsMetrics.completedDeals} completed
+                  {analyticsMetrics.completedDeals} {t('partner_analytics.metrics.completed')}
                 </div>
               </div>
 
@@ -501,9 +431,9 @@ const PartnerAnalyticsPage = () => {
                   <DollarSign className="w-8 h-8 text-green-600" />
                 </div>
                 <div className="text-2xl font-bold text-gray-900">{formatCurrency(analyticsMetrics.totalValue)}</div>
-                <div className="text-sm text-gray-600">Total Value</div>
+                <div className="text-sm text-gray-600">{t('partner_analytics.metrics.total_value')}</div>
                 <div className="text-xs text-green-600 mt-1">
-                  {formatPercentage(analyticsMetrics.totalRaised, analyticsMetrics.totalValue)}% funded
+                  {formatPercentage(analyticsMetrics.totalRaised, analyticsMetrics.totalValue)}% {t('partner_analytics.metrics.funded')}
                 </div>
               </div>
 
@@ -512,9 +442,9 @@ const PartnerAnalyticsPage = () => {
                   <Users className="w-8 h-8 text-purple-600" />
                 </div>
                 <div className="text-2xl font-bold text-gray-900">{formatNumber(analyticsMetrics.totalInvestors)}</div>
-                <div className="text-sm text-gray-600">Total Investors</div>
+                <div className="text-sm text-gray-600">{t('partner_analytics.metrics.total_investors')}</div>
                 <div className="text-xs text-green-600 mt-1">
-                  {formatPercentage(analyticsMetrics.repeatInvestors, analyticsMetrics.totalInvestors, 0)}% repeat rate
+                  {formatPercentage(analyticsMetrics.repeatInvestors, analyticsMetrics.totalInvestors, 0)}% {t('partner_analytics.metrics.repeat_rate')}
                 </div>
               </div>
 
@@ -523,9 +453,9 @@ const PartnerAnalyticsPage = () => {
                   <Clock className="w-8 h-8 text-orange-600" />
                 </div>
                 <div className="text-2xl font-bold text-gray-900">{analyticsMetrics.averageDuration}</div>
-                <div className="text-sm text-gray-600">Avg Duration (months)</div>
+                <div className="text-sm text-gray-600">{t('partner_analytics.metrics.avg_duration')}</div>
                 <div className="text-xs text-green-600 mt-1">
-                  2 months faster than average
+                  2 {t('partner_analytics.units.months')} {t('partner_analytics.metrics.faster_than_average')}
                 </div>
               </div>
             </div>

@@ -1321,6 +1321,77 @@
     "saving": "جاري الحفظ...",
     "required_field": "*"
   },
+  "partner_analytics": {
+    "title": "لوحة التحليلات",
+    "subtitle": "رؤى شاملة للأداء والمقاييس",
+    "time_ranges": {
+      "1month": "شهر",
+      "3months": "3 أشهر", 
+      "6months": "6 أشهر",
+      "1year": "سنة"
+    },
+    "metrics": {
+      "success_rate": "معدل النجاح",
+      "avg_return": "متوسط العائد",
+      "total_raised": "إجمالي المبلغ المجمع",
+      "total_investors": "إجمالي المستثمرين",
+      "total_deals": "إجمالي الصفقات",
+      "total_value": "إجمالي القيمة",
+      "avg_duration": "متوسط المدة (أشهر)",
+      "from_last_period": "من الفترة الماضية",
+      "overall": "إجمالي",
+      "of_target": "من الهدف",
+      "completed": "مكتمل",
+      "funded": "ممول",
+      "repeat_rate": "معدل التكرار",
+      "faster_than_average": "أسرع من المتوسط"
+    },
+    "charts": {
+      "performance_trends": "اتجاهات الأداء",
+      "target_vs_actual": "الهدف مقابل الفعلي",
+      "category_performance": "أداء الفئات",
+      "deal_status_overview": "نظرة عامة على حالة الصفقات",
+      "top_performing_deals": "أفضل الصفقات أداءً",
+      "performance_summary": "ملخص الأداء"
+    },
+    "table_headers": {
+      "deal": "الصفقة",
+      "category": "الفئة", 
+      "raised": "المبلغ المجمع",
+      "return": "العائد",
+      "investors": "المستثمرون",
+      "duration": "المدة",
+      "status": "الحالة"
+    },
+    "categories": {
+      "technology": "التكنولوجيا",
+      "real_estate": "العقارات", 
+      "healthcare": "الرعاية الصحية",
+      "manufacturing": "التصنيع",
+      "finance": "المالية",
+      "education": "التعليم",
+      "retail": "التجارة",
+      "agriculture": "الزراعة"
+    },
+    "statuses": {
+      "completed": "مكتمل",
+      "active": "نشط",
+      "pending": "في الانتظار",
+      "draft": "مسودة",
+      "published": "منشور",
+      "paused": "متوقف",
+      "funded": "ممول",
+      "cancelled": "ملغي"
+    },
+    "actions": {
+      "view_all_deals": "عرض جميع الصفقات"
+    },
+    "units": {
+      "deals": "صفقات",
+      "months": "ش",
+      "percentage": "%"
+    }
+  },
   "partners": {
     "title": "شركاؤنا",
     "hero_title": "شركاء الاستثمار الموثوقون",
