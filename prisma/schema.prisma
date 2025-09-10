@@ -690,6 +690,7 @@ model ProfitDistributionRequest {
   
   // Distribution details
   totalAmount      Decimal         @db.Decimal(15, 2)
+  totalInvestmentAmount Decimal    @db.Decimal(15, 2)
   distributionType String          @default("FINAL") // PARTIAL, FINAL
   distributionData Json            // Stores the distribution breakdown
   description      String?         @db.Text

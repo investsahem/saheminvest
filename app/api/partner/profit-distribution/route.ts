@@ -74,7 +74,6 @@ export async function POST(request: NextRequest) {
 
     // Calculate total distribution amount
     const totalDistributionAmount = distributions.reduce((sum, dist) => sum + Number(dist.profitAmount), 0)
-    const totalInvestmentAmount = distributions.reduce((sum, dist) => sum + Number(dist.investmentAmount), 0)
 
     // Create profit distribution request for admin approval
     const distributionRequest = await prisma.profitDistributionRequest.create({
@@ -83,10 +82,9 @@ export async function POST(request: NextRequest) {
         partnerId: session.user.id,
         description: `Profit distribution for ${deal.title}`,
         totalAmount: totalDistributionAmount,
-        totalInvestmentAmount: totalInvestmentAmount,
         distributionData: JSON.stringify(distributions),
-        status: 'PENDING',
-        requestedAt: new Date()
+        status: 'PENDING'
+        // requestedAt is automatically set by @default(now()) in schema
       }
     })
 
