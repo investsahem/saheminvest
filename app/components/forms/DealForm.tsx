@@ -228,8 +228,8 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
             </h1>
             <p className="text-gray-600">
               {mode === 'edit' 
-                ? 'Update the deal information below' 
-                : t('partner_deals.create_new_deal_subtitle')
+                ? t('partner_deals.update_deal_subtitle')
+                : t('partner_deals.form.subtitle')
               }
             </p>
           </div>
@@ -259,7 +259,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category *
+                    {t('partner_deals.category')} {t('partner_deals.required_field')}
                   </label>
                   <select
                     name="category"
@@ -268,7 +268,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select category</option>
+                    <option value="">{t('partner_deals.select_category')}</option>
                     {categories.map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
                     ))}
@@ -278,7 +278,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description *
+                  {t('partner_deals.description')} {t('partner_deals.required_field')}
                 </label>
                 <textarea
                   name="description"
@@ -287,14 +287,14 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                   required
                   rows={6}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Describe the investment opportunity in detail..."
+                  placeholder={t('partner_deals.description_placeholder')}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <MapPin className="w-4 h-4 inline mr-1" />
-                  Location
+                  {t('partner_deals.location')}
                 </label>
                 <input
                   type="text"
@@ -302,7 +302,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                   value={formData.location}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="City, Country"
+                  placeholder={t('partner_deals.location_placeholder')}
                 />
               </div>
             </div>
@@ -310,14 +310,14 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
             {/* Financial Details */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
-                Financial Details
+                {t('partner_deals.financial_details')}
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <DollarSign className="w-4 h-4 inline mr-1" />
-                    Funding Goal *
+                    {t('partner_deals.funding_goal')} {t('partner_deals.required_field')}
                   </label>
                   <input
                     type="number"
@@ -328,13 +328,13 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                     min="0"
                     step="0.01"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="100000"
+                    placeholder={t('partner_deals.funding_goal_placeholder')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Minimum Investment *
+                    {t('partner_deals.minimum_investment')} {t('partner_deals.required_field')}
                   </label>
                   <input
                     type="number"
@@ -345,13 +345,13 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                     min="0"
                     step="0.01"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="1000"
+                    placeholder={t('partner_deals.minimum_investment_placeholder')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Expected Return (%) *
+                    {t('partner_deals.expected_return')} {t('partner_deals.required_field')}
                   </label>
                   <input
                     type="number"
@@ -363,7 +363,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                     max="100"
                     step="0.1"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="15.5"
+                    placeholder={t('partner_deals.expected_return_placeholder')}
                   />
                 </div>
               </div>
@@ -371,7 +371,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Duration (days) *
+                    {t('partner_deals.duration')} {t('partner_deals.required_field')}
                   </label>
                   <input
                     type="number"
@@ -381,13 +381,13 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                     required
                     min="1"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="365"
+                    placeholder={t('partner_deals.duration_placeholder')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Risk Level *
+                    {t('partner_deals.risk_level')} {t('partner_deals.required_field')}
                   </label>
                   <select
                     name="riskLevel"
@@ -409,14 +409,14 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
             {/* Dates */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
-                Timeline
+                {t('partner_deals.timeline')}
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     <Calendar className="w-4 h-4 inline mr-1" />
-                    Start Date
+                    {t('partner_deals.start_date')}
                   </label>
                   <input
                     type="date"
@@ -429,7 +429,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    End Date
+                    {t('partner_deals.end_date')}
                   </label>
                   <input
                     type="date"
@@ -445,13 +445,13 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
             {/* Image Upload */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
-                Media
+                {t('partner_deals.media')}
               </h2>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <ImageIcon className="w-4 h-4 inline mr-1" />
-                  Deal Image
+                  {t('partner_deals.deal_image')}
                 </label>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
                   {/* Single file input that works for both cases */}
@@ -509,10 +509,10 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                       <div className="mt-4">
                         <label htmlFor="image-input" className="cursor-pointer">
                           <span className="mt-2 block text-sm font-medium text-gray-900">
-                            Upload deal image
+                            {t('partner_deals.upload_deal_image')}
                           </span>
                           <span className="mt-1 block text-sm text-gray-500">
-                            PNG, JPG, GIF up to 10MB
+                            {t('partner_deals.image_format_info')}
                           </span>
                         </label>
                       </div>
@@ -525,7 +525,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
             {/* Highlights */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
-                Key Highlights
+                {t('partner_deals.key_highlights')}
               </h2>
               
               <div className="space-y-3">
@@ -535,7 +535,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                       type="text"
                       value={highlight}
                       onChange={(e) => updateHighlight(index, e.target.value)}
-                      placeholder="Enter a key highlight"
+                      placeholder={t('partner_deals.highlight_placeholder')}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <Button
@@ -554,7 +554,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                   onClick={addHighlight}
                   className="w-full"
                 >
-                  Add Highlight
+                  {t('partner_deals.add_highlight')}
                 </Button>
               </div>
             </div>
@@ -563,7 +563,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
                 <Tag className="w-5 h-5 inline mr-2" />
-                Tags
+                {t('partner_deals.tags')}
               </h2>
               
               <div className="space-y-3">
@@ -573,7 +573,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                       type="text"
                       value={tag}
                       onChange={(e) => updateTag(index, e.target.value)}
-                      placeholder="Enter a tag"
+                      placeholder={t('partner_deals.tag_placeholder')}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <Button
@@ -592,7 +592,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                   onClick={addTag}
                   className="w-full"
                 >
-                  Add Tag
+                  {t('partner_deals.add_tag')}
                 </Button>
               </div>
             </div>
@@ -600,13 +600,13 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
             {/* Status and Settings */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
-                Settings
+                {t('partner_deals.settings')}
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
+                    {t('partner_deals.status')}
                   </label>
                   <select
                     name="status"
@@ -614,11 +614,11 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="DRAFT">Draft</option>
-                    <option value="PENDING">Pending Review</option>
-                    <option value="PUBLISHED">Published</option>
-                    <option value="ACTIVE">Active</option>
-                    <option value="PAUSED">Paused</option>
+                    <option value="DRAFT">{t('partner_deals.status_draft')}</option>
+                    <option value="PENDING">{t('partner_deals.status_pending')}</option>
+                    <option value="PUBLISHED">{t('partner_deals.status_published')}</option>
+                    <option value="ACTIVE">{t('partner_deals.status_active')}</option>
+                    <option value="PAUSED">{t('partner_deals.status_paused')}</option>
                   </select>
                 </div>
 
@@ -631,7 +631,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label className="ml-2 block text-sm text-gray-900">
-                    Featured Deal
+                    {t('partner_deals.featured_deal')}
                   </label>
                 </div>
               </div>
@@ -645,7 +645,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <Save className="w-4 h-4 mr-2" />
-                {loading ? 'Saving...' : mode === 'edit' ? 'Update Deal' : 'Save as Draft'}
+                {loading ? t('partner_deals.saving') : mode === 'edit' ? t('partner_deals.update_deal') : t('partner_deals.save_as_draft')}
               </Button>
 
               <Button
@@ -655,7 +655,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 <Eye className="w-4 h-4 mr-2" />
-                {mode === 'edit' ? 'Update & Publish' : 'Save & Publish'}
+                {mode === 'edit' ? t('partner_deals.update_and_publish') : t('partner_deals.save_and_publish')}
               </Button>
 
               {mode === 'edit' && deal?.status === 'ACTIVE' && (
@@ -666,7 +666,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                   className="bg-yellow-600 hover:bg-yellow-700 text-white"
                 >
                   <Pause className="w-4 h-4 mr-2" />
-                  Pause Deal
+                  {t('partner_deals.pause_deal')}
                 </Button>
               )}
 
@@ -678,7 +678,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   <Play className="w-4 h-4 mr-2" />
-                  Resume Deal
+                  {t('partner_deals.resume_deal')}
                 </Button>
               )}
 
@@ -688,7 +688,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                 onClick={onCancel || (() => router.back())}
                 disabled={loading}
               >
-                Cancel
+                {t('partner_deals.cancel')}
               </Button>
             </div>
           </form>

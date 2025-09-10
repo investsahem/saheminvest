@@ -1201,7 +1201,27 @@
     "update_and_publish": "Update & Publish",
     "cancel": "Cancel",
     "saving": "Saving...",
-    "required_field": "*"
+    "required_field": "*",
+    "select_category": "Select category",
+    "description_placeholder": "Describe the investment opportunity in detail...",
+    "location_placeholder": "City, Country",
+    "funding_goal_placeholder": "100000",
+    "minimum_investment_placeholder": "1000",
+    "expected_return_placeholder": "15.5",
+    "duration_placeholder": "365",
+    "upload_deal_image": "Upload deal image",
+    "image_format_info": "PNG, JPG, GIF up to 10MB",
+    "highlight_placeholder": "Enter a key highlight",
+    "tag_placeholder": "Enter a tag",
+    "status_draft": "Draft",
+    "status_pending": "Pending Review",
+    "status_published": "Published",
+    "status_active": "Active",
+    "status_paused": "Paused",
+    "featured_deal": "Featured Deal",
+    "pause_deal": "Pause Deal",
+    "resume_deal": "Resume Deal",
+    "update_deal_subtitle": "Update the deal information below"
   },
   "partner_analytics": {
     "title": "Analytics Dashboard",
@@ -1272,6 +1292,60 @@
       "deals": "deals",
       "months": "m",
       "percentage": "%"
+    }
+  },
+  "partner_performance": {
+    "title": "Performance Tracking",
+    "subtitle": "Monitor your investment performance and rankings",
+    "time_ranges": {
+      "1month": "1M",
+      "3months": "3M", 
+      "6months": "6M",
+      "1year": "1Y"
+    },
+    "metrics": {
+      "success_rate": "Success Rate",
+      "avg_return": "Avg Return",
+      "satisfaction": "Satisfaction",
+      "time_to_fund": "Time to Fund",
+      "total_deals": "Total Deals",
+      "total_value": "Total Value",
+      "total_investors": "Total Investors",
+      "avg_completion": "Avg Completion (months)",
+      "from_last_period": "from last period",
+      "excellent_rating": "Excellent rating",
+      "days_improved": "days improved",
+      "successful": "successful",
+      "roi": "ROI",
+      "repeat_rate": "repeat rate",
+      "faster_than_industry": "faster than industry"
+    },
+    "sections": {
+      "performance_summary": "Performance Summary",
+      "performance_rankings": "Performance Rankings",
+      "industry_benchmark": "Industry Benchmark Comparison",
+      "top_overall": "Top 10% overall"
+    },
+    "rankings": {
+      "deal_success_rate": "Deal Success Rate",
+      "average_returns": "Average Returns",
+      "investor_satisfaction": "Investor Satisfaction",
+      "time_to_funding": "Time to Funding",
+      "deal_volume": "Deal Volume",
+      "out_of": "out of",
+      "partners": "partners",
+      "percentile_suffix": "th percentile"
+    },
+    "benchmark": {
+      "you": "You",
+      "industry": "Industry",
+      "excellent": "Excellent"
+    },
+    "units": {
+      "days": "d",
+      "months": "m",
+      "percentage": "%",
+      "rating": "/5"
     }
   },
   "partners": {

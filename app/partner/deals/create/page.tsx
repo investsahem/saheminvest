@@ -13,8 +13,8 @@ const CreateDealPage = () => {
 
   return (
     <PartnerLayout
-      title={t('partner.create_new_deal')}
-      subtitle={t('partner.create_new_deal_subtitle')}
+      title={t('partner_deals.form.title')}
+      subtitle={t('partner_deals.form.subtitle')}
     >
       <DealForm
         mode="create"

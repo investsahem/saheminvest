@@ -1319,7 +1319,27 @@
     "update_and_publish": "تحديث ونشر",
     "cancel": "إلغاء",
     "saving": "جاري الحفظ...",
-    "required_field": "*"
+    "required_field": "*",
+    "select_category": "اختر الفئة",
+    "description_placeholder": "اوصف فرصة الاستثمار بالتفصيل...",
+    "location_placeholder": "المدينة، البلد",
+    "funding_goal_placeholder": "100000",
+    "minimum_investment_placeholder": "1000",
+    "expected_return_placeholder": "15.5",
+    "duration_placeholder": "365",
+    "upload_deal_image": "رفع صورة الصفقة",
+    "image_format_info": "PNG, JPG, GIF حتى 10 ميجابايت",
+    "highlight_placeholder": "أدخل نقطة مميزة",
+    "tag_placeholder": "أدخل علامة",
+    "status_draft": "مسودة",
+    "status_pending": "في انتظار المراجعة",
+    "status_published": "منشور",
+    "status_active": "نشط",
+    "status_paused": "متوقف",
+    "featured_deal": "صفقة مميزة",
+    "pause_deal": "إيقاف الصفقة",
+    "resume_deal": "استئناف الصفقة",
+    "update_deal_subtitle": "قم بتحديث معلومات الصفقة أدناه"
   },
   "partner_analytics": {
     "title": "لوحة التحليلات",
@@ -1390,6 +1410,60 @@
       "deals": "صفقات",
       "months": "ش",
       "percentage": "%"
+    }
+  },
+  "partner_performance": {
+    "title": "تتبع الأداء",
+    "subtitle": "راقب أداء استثماراتك وترتيبك",
+    "time_ranges": {
+      "1month": "شهر",
+      "3months": "3 أشهر", 
+      "6months": "6 أشهر",
+      "1year": "سنة"
+    },
+    "metrics": {
+      "success_rate": "معدل النجاح",
+      "avg_return": "متوسط العائد",
+      "satisfaction": "الرضا",
+      "time_to_fund": "وقت التمويل",
+      "total_deals": "إجمالي الصفقات",
+      "total_value": "إجمالي القيمة",
+      "total_investors": "إجمالي المستثمرين",
+      "avg_completion": "متوسط الإنجاز (أشهر)",
+      "from_last_period": "من الفترة الماضية",
+      "excellent_rating": "تقييم ممتاز",
+      "days_improved": "أيام تحسن",
+      "successful": "ناجح",
+      "roi": "عائد الاستثمار",
+      "repeat_rate": "معدل التكرار",
+      "faster_than_industry": "أسرع من الصناعة"
+    },
+    "sections": {
+      "performance_summary": "ملخص الأداء",
+      "performance_rankings": "ترتيبات الأداء",
+      "industry_benchmark": "مقارنة معايير الصناعة",
+      "top_overall": "أفضل 10% إجمالي"
+    },
+    "rankings": {
+      "deal_success_rate": "معدل نجاح الصفقات",
+      "average_returns": "متوسط العوائد",
+      "investor_satisfaction": "رضا المستثمرين",
+      "time_to_funding": "وقت التمويل",
+      "deal_volume": "حجم الصفقات",
+      "out_of": "من أصل",
+      "partners": "شريك",
+      "percentile_suffix": "المئين"
+    },
+    "benchmark": {
+      "you": "أنت",
+      "industry": "الصناعة",
+      "excellent": "ممتاز"
+    },
+    "units": {
+      "days": "ي",
+      "months": "ش",
+      "percentage": "%",
+      "rating": "/5"
     }
   },
   "partners": {
