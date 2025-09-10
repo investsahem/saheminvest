@@ -325,16 +325,16 @@ const ProfileSettings = () => {
   }
 
   const tabs = [
-    { id: 'profile', name: 'Profile Information', icon: User },
-    { id: 'security', name: 'Security', icon: Shield },
-    { id: 'notifications', name: 'Notifications', icon: Bell },
-    { id: 'preferences', name: 'Preferences', icon: Settings },
-    { id: 'advisor', name: t('portfolioAdvisor.apply_for_advisor'), icon: UserCheck }
+    { id: 'profile', name: t('portfolio_settings.tabs.profile'), icon: User },
+    { id: 'security', name: t('portfolio_settings.tabs.security'), icon: Shield },
+    { id: 'notifications', name: t('portfolio_settings.tabs.notifications'), icon: Bell },
+    { id: 'preferences', name: t('portfolio_settings.tabs.preferences'), icon: Settings },
+    { id: 'advisor', name: t('portfolio_settings.tabs.advisor'), icon: UserCheck }
   ]
 
   if (loading) {
     return (
-      <InvestorLayout title={t('investor.profile_settings')}>
+      <InvestorLayout title={t('portfolio_settings.title')}>
         <div className="flex items-center justify-center min-h-96">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -343,7 +343,7 @@ const ProfileSettings = () => {
   }
 
   return (
-    <InvestorLayout title={t('investor.profile_settings')}>
+    <InvestorLayout title={t('portfolio_settings.title')}>
       {/* Tab Navigation */}
       <Card className="mb-6">
         <CardContent className="p-6">
@@ -373,13 +373,13 @@ const ProfileSettings = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Profile Information</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_settings.profile.title')}</h3>
                 <Button
                   variant="outline"
                   onClick={() => setIsEditing(!isEditing)}
                 >
                   <Edit className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-                  {isEditing ? 'Cancel' : 'Edit'}
+                  {isEditing ? t('portfolio_settings.profile.cancel') : t('portfolio_settings.profile.edit')}
                 </Button>
               </div>
 
@@ -410,7 +410,7 @@ const ProfileSettings = () => {
                       className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 cursor-pointer"
                     >
                       <Upload className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-                      Upload Photo
+                      {t('portfolio_settings.profile.upload_photo')}
                     </label>
                   </div>
                 )}
@@ -419,7 +419,7 @@ const ProfileSettings = () => {
               {/* Personal Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('portfolio_settings.profile.first_name')}</label>
                   <input
                     type="text"
                     value={userProfile.firstName}
@@ -429,7 +429,7 @@ const ProfileSettings = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('portfolio_settings.profile.last_name')}</label>
                   <input
                     type="text"
                     value={userProfile.lastName}
@@ -439,7 +439,7 @@ const ProfileSettings = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('portfolio_settings.profile.email')}</label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -452,7 +452,7 @@ const ProfileSettings = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('portfolio_settings.profile.phone')}</label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
@@ -465,7 +465,7 @@ const ProfileSettings = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('portfolio_settings.profile.date_of_birth')}</label>
                   <input
                     type="date"
                     value={userProfile.dateOfBirth}
@@ -475,7 +475,7 @@ const ProfileSettings = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('portfolio_settings.profile.address')}</label>
                   <input
                     type="text"
                     value={userProfile.address}
@@ -489,7 +489,7 @@ const ProfileSettings = () => {
               {isEditing && (
                 <div className="flex justify-end gap-2 mt-6">
                   <Button variant="outline" onClick={() => setIsEditing(false)}>
-                    Cancel
+                    {t('portfolio_settings.profile.cancel')}
                   </Button>
                   <Button onClick={handleSaveProfile} disabled={saving}>
                     {saving ? (
@@ -497,7 +497,7 @@ const ProfileSettings = () => {
                     ) : (
                       <Save className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
                     )}
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? t('portfolio_settings.profile.saving') : t('portfolio_settings.profile.save_changes')}
                   </Button>
                 </div>
               )}
@@ -507,7 +507,7 @@ const ProfileSettings = () => {
           {/* Investment Profile */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Investment Profile</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('portfolio_settings.profile.investment_profile')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Investor Type</label>

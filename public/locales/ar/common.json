@@ -2008,5 +2008,152 @@
     "partner_not_found": "الشريك غير موجود",
     "partner_not_found_message": "الشريك الذي تبحث عنه غير موجود أو تم حذفه.",
     "back_to_partners": "العودة للشركاء"
+  },
+  "portfolio_documents": {
+    "title": "الوثائق",
+    "subtitle": "إدارة وثائق الاستثمار والبيانات",
+    "summary": {
+      "total_documents": "إجمالي الوثائق",
+      "statements": "البيانات",
+      "contracts": "العقود",
+      "important": "مهم"
+    },
+    "search": {
+      "placeholder": "البحث في الوثائق...",
+      "no_results": "لم يتم العثور على وثائق",
+      "try_adjusting": "حاول تعديل البحث أو التصفية للعثور على الوثائق.",
+      "no_documents": "ليس لديك أي وثائق بعد."
+    },
+    "filters": {
+      "all_types": "جميع الأنواع",
+      "statements": "البيانات",
+      "contracts": "العقود",
+      "tax_documents": "وثائق الضرائب",
+      "certificates": "الشهادات",
+      "sort_by_date": "ترتيب بالتاريخ",
+      "sort_by_name": "ترتيب بالاسم",
+      "sort_by_type": "ترتيب بالنوع"
+    },
+    "actions": {
+      "upload": "رفع",
+      "refresh": "تحديث",
+      "view": "عرض",
+      "download": "تحميل",
+      "share": "مشاركة",
+      "upload_document": "رفع وثيقة"
+    },
+    "document_count": "{count} وثيقة",
+    "status": {
+      "available": "متاح",
+      "processing": "قيد المعالجة",
+      "draft": "مسودة",
+      "archived": "مؤرشف"
+    },
+    "related_to": "مرتبط بـ: {dealName}",
+    "downloads": "{count} تحميل",
+    "security": {
+      "title": "أمان الوثائق",
+      "description": "جميع الوثائق مشفرة ومحفوظة بأمان. يتم تسجيل ومراقبة الوصول لضمان أمانك. يتم نسخ الوثائق احتياطياً تلقائياً وهي متاحة للتحميل في أي وقت."
+    },
+    "categories": {
+      "monthly_statement": "بيان شهري",
+      "investment_contract": "عقد استثمار", 
+      "tax_statement": "بيان ضريبي",
+      "investment_certificate": "شهادة استثمار",
+      "return_report": "تقرير العوائد",
+      "due_diligence": "العناية الواجبة",
+      "performance_report": "تقرير الأداء",
+      "verification": "التحقق"
+    }
+  },
+  "portfolio_settings": {
+    "title": "إعدادات الملف الشخصي",
+    "tabs": {
+      "profile": "معلومات الملف الشخصي",
+      "security": "الأمان",
+      "notifications": "الإشعارات",
+      "preferences": "التفضيلات",
+      "advisor": "مستشار المحفظة"
+    },
+    "profile": {
+      "title": "معلومات الملف الشخصي",
+      "edit": "تعديل",
+      "cancel": "إلغاء",
+      "save_changes": "حفظ التغييرات",
+      "saving": "جاري الحفظ...",
+      "upload_photo": "رفع صورة",
+      "first_name": "الاسم الأول",
+      "last_name": "اسم العائلة",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "date_of_birth": "تاريخ الميلاد",
+      "address": "العنوان",
+      "investment_profile": "ملف الاستثمار",
+      "investor_type": "نوع المستثمر",
+      "risk_tolerance": "تحمل المخاطر",
+      "investment_experience": "خبرة الاستثمار",
+      "annual_income": "الدخل السنوي",
+      "individual": "فردي",
+      "corporate": "شركة",
+      "institutional": "مؤسسي",
+      "low": "منخفض",
+      "medium": "متوسط",
+      "high": "عالي",
+      "less_than_1_year": "أقل من سنة",
+      "1_3_years": "1-3 سنوات",
+      "3_5_years": "3-5 سنوات",
+      "more_than_5_years": "أكثر من 5 سنوات",
+      "less_than_50k": "أقل من 50,000 دولار",
+      "50k_100k": "50,000 - 100,000 دولار",
+      "100k_250k": "100,000 - 250,000 دولار",
+      "more_than_250k": "أكثر من 250,000 دولار"
+    },
+    "security": {
+      "password_auth": "كلمة المرور والمصادقة",
+      "password": "كلمة المرور",
+      "last_changed": "آخر تغيير: {date}",
+      "change_password": "تغيير كلمة المرور",
+      "two_factor": "المصادقة الثنائية",
+      "enabled": "مفعّل",
+      "disabled": "معطّل",
+      "enable": "تفعيل",
+      "disable": "إلغاء التفعيل",
+      "verification_status": "حالة التحقق",
+      "email_verified": "البريد الإلكتروني محقق",
+      "phone_verified": "الهاتف محقق",
+      "active_sessions": "الجلسات النشطة",
+      "current": "الحالية",
+      "end_session": "إنهاء الجلسة",
+      "last_active": "آخر نشاط: {time}"
+    },
+    "notifications": {
+      "email_notifications": "إشعارات البريد الإلكتروني",
+      "sms_notifications": "إشعارات الرسائل النصية",
+      "receive_email": "تلقي الإشعارات عبر البريد الإلكتروني",
+      "receive_sms": "تلقي الإشعارات عبر الرسائل النصية",
+      "investment_updates": "تحديثات الاستثمار",
+      "monthly_statements": "البيانات الشهرية",
+      "deal_alerts": "تنبيهات الصفقات",
+      "security_alerts": "تنبيهات الأمان",
+      "marketing_emails": "رسائل التسويق",
+      "critical_alerts": "التنبيهات الحرجة",
+      "payout_notifications": "إشعارات الدفع",
+      "login_alerts": "تنبيهات تسجيل الدخول"
+    },
+    "preferences": {
+      "language_region": "اللغة والمنطقة",
+      "language": "اللغة",
+      "currency": "العملة",
+      "timezone": "المنطقة الزمنية",
+      "date_format": "تنسيق التاريخ",
+      "english": "English",
+      "arabic": "العربية",
+      "account_actions": "إجراءات الحساب",
+      "export_data": "تصدير البيانات",
+      "download_account_data": "تحميل جميع بيانات حسابك",
+      "export": "تصدير",
+      "delete_account": "حذف الحساب",
+      "delete_account_warning": "حذف حسابك وجميع البيانات نهائياً"
+    }
   }
 }
