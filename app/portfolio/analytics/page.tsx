@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import InvestorLayout from '../../components/layout/InvestorLayout'
 import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
@@ -22,52 +22,80 @@ const ReturnsAnalytics = () => {
   const { data: session } = useSession()
   const [timeframe, setTimeframe] = useState<'1M' | '3M' | '6M' | '1Y' | 'ALL'>('6M')
   const [viewType, setViewType] = useState<'returns' | 'portfolio' | 'comparison'>('returns')
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Sample analytics data
-  const monthlyReturns = [
-    { month: 'Jul 2023', returns: 320, cumulative: 320, benchmark: 280 },
-    { month: 'Aug 2023', returns: 450, cumulative: 770, benchmark: 520 },
-    { month: 'Sep 2023', returns: 380, cumulative: 1150, benchmark: 780 },
-    { month: 'Oct 2023', returns: 520, cumulative: 1670, benchmark: 1100 },
-    { month: 'Nov 2023', returns: 290, cumulative: 1960, benchmark: 1350 },
-    { month: 'Dec 2023', returns: 410, cumulative: 2370, benchmark: 1680 },
-    { month: 'Jan 2024', returns: 480, cumulative: 2850, benchmark: 2020 }
-  ]
+  // Fetch analytics data from API
+  const fetchAnalyticsData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const response = await fetch(`/api/portfolio/analytics?timeframe=${timeframe}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch analytics data')
+      }
+      
+      const data = await response.json()
+      setAnalyticsData(data)
+    } catch (error) {
+      console.error('Error fetching analytics:', error)
+      setError('Failed to load analytics data')
+      // Fallback to empty data structure
+      setAnalyticsData({
+        monthlyReturns: [],
+        portfolioGrowth: [],
+        sectorPerformance: [],
+        riskAnalysis: [],
+        performanceMetrics: {
+          totalReturns: 0,
+          totalInvested: 0,
+          averageReturn: 0,
+          bestMonth: { month: 'N/A', return: 0 },
+          worstMonth: { month: 'N/A', return: 0 },
+          volatility: 0,
+          sharpeRatio: 0,
+          maxDrawdown: 0,
+          winRate: 0
+        },
+        summary: {
+          totalInvestments: 0,
+          totalInvested: 0,
+          totalReturns: 0,
+          activeInvestments: 0
+        }
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  const portfolioGrowth = [
-    { month: 'Jul 2023', invested: 15000, value: 15320, benchmark: 15280 },
-    { month: 'Aug 2023', invested: 18000, value: 18770, benchmark: 18520 },
-    { month: 'Sep 2023', invested: 20000, value: 21150, benchmark: 20780 },
-    { month: 'Oct 2023', invested: 22000, value: 23670, benchmark: 23100 },
-    { month: 'Nov 2023', invested: 24000, value: 25960, benchmark: 25350 },
-    { month: 'Dec 2023', invested: 25000, value: 27370, benchmark: 26680 },
-    { month: 'Jan 2024', invested: 26000, value: 28850, benchmark: 28020 }
-  ]
+  useEffect(() => {
+    if (session?.user) {
+      fetchAnalyticsData()
+    }
+  }, [session, timeframe])
 
-  const sectorPerformance = [
-    { sector: 'Real Estate', invested: 10000, returns: 1200, returnRate: 12.0, color: '#10B981' },
-    { sector: 'Technology', invested: 8000, returns: 1460, returnRate: 18.25, color: '#3B82F6' },
-    { sector: 'Healthcare', invested: 5000, returns: 750, returnRate: 15.0, color: '#8B5CF6' },
-    { sector: 'Energy', invested: 2500, returns: 200, returnRate: 8.0, color: '#F59E0B' },
-    { sector: 'Agriculture', invested: 500, returns: 25, returnRate: 5.0, color: '#EF4444' }
-  ]
+  const handleRefresh = () => {
+    fetchAnalyticsData()
+  }
 
-  const riskAnalysis = [
-    { risk: 'Low Risk', allocation: 35, returns: 8.5, color: '#10B981' },
-    { risk: 'Medium Risk', allocation: 45, returns: 15.2, color: '#F59E0B' },
-    { risk: 'High Risk', allocation: 20, returns: 22.8, color: '#EF4444' }
-  ]
-
-  const performanceMetrics = {
-    totalReturns: 3635,
-    totalInvested: 26000,
-    averageReturn: 13.98,
-    bestMonth: { month: 'Oct 2023', return: 520 },
-    worstMonth: { month: 'Nov 2023', return: 290 },
-    volatility: 8.4,
-    sharpeRatio: 1.67,
-    maxDrawdown: -2.1,
-    winRate: 85.7
+  // Extract data from API response
+  const monthlyReturns = analyticsData?.monthlyReturns || []
+  const portfolioGrowth = analyticsData?.portfolioGrowth || []
+  const sectorPerformance = analyticsData?.sectorPerformance || []
+  const riskAnalysis = analyticsData?.riskAnalysis || []
+  const performanceMetrics = analyticsData?.performanceMetrics || {
+    totalReturns: 0,
+    totalInvested: 0,
+    averageReturn: 0,
+    bestMonth: { month: 'N/A', return: 0 },
+    worstMonth: { month: 'N/A', return: 0 },
+    volatility: 0,
+    sharpeRatio: 0,
+    maxDrawdown: 0,
+    winRate: 0
   }
 
   const formatCurrency = (amount: number) => {
@@ -81,6 +109,32 @@ const ReturnsAnalytics = () => {
 
   const formatPercentage = (value: number) => {
     return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <InvestorLayout title={t('investor.returns_analytics')}>
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </InvestorLayout>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <InvestorLayout title={t('investor.returns_analytics')}>
+        <div className="text-center py-12">
+          <div className="text-red-600 mb-4">⚠️ {error}</div>
+          <Button onClick={handleRefresh} variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </InvestorLayout>
+    )
   }
 
   return (
@@ -185,7 +239,7 @@ const ReturnsAnalytics = () => {
                 <Download className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
                 {t('portfolio_analytics.actions.export_report')}
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleRefresh}>
                 <RefreshCw className="w-4 h-4" />
               </Button>
             </div>
@@ -345,7 +399,7 @@ const ReturnsAnalytics = () => {
                 <PieIcon className="w-5 h-5 text-gray-400" />
               </div>
               <div className="space-y-4">
-                {sectorPerformance.map((sector) => (
+                {sectorPerformance.length > 0 ? sectorPerformance.map((sector: any) => (
                   <div key={sector.sector} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div 
@@ -368,7 +422,13 @@ const ReturnsAnalytics = () => {
                       </p>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <div className="text-4xl mb-4">📊</div>
+                    <p>No sector data available</p>
+                    <p className="text-sm">Start investing to see sector performance</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -382,50 +442,58 @@ const ReturnsAnalytics = () => {
                   <p className="text-sm text-gray-500">{t('portfolio_analytics.charts.allocation_by_risk')}</p>
                 </div>
               </div>
-              <div className="flex">
-                <div className="flex-1">
-                  <ResponsiveContainer width="100%" height={200}>
-                    <PieChart>
-                      <Pie
-                        data={riskAnalysis}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={70}
-                        dataKey="allocation"
-                        label={({ allocation }) => `${allocation}%`}
-                      >
-                        {riskAnalysis.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className={`w-44 ${locale === 'ar' ? 'mr-2' : 'ml-2'}`}>
-                  <div className="space-y-3">
-                    {riskAnalysis.map((item) => (
-                      <div key={item.risk} className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div 
-                            className={`w-3 h-3 rounded-full ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} 
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <span className="text-sm text-gray-600">{item.risk}</span>
+              {riskAnalysis.length > 0 ? (
+                <div className="flex">
+                  <div className="flex-1">
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie
+                          data={riskAnalysis}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={70}
+                          dataKey="allocation"
+                          label={({ allocation }) => `${allocation.toFixed(1)}%`}
+                        >
+                          {riskAnalysis.map((entry: any, index: number) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className={`w-44 ${locale === 'ar' ? 'mr-2' : 'ml-2'}`}>
+                    <div className="space-y-3">
+                      {riskAnalysis.map((item: any) => (
+                        <div key={item.risk} className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div 
+                              className={`w-3 h-3 rounded-full ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} 
+                              style={{ backgroundColor: item.color }}
+                            />
+                            <span className="text-sm text-gray-600">{item.risk}</span>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-medium text-gray-900">
+                              {formatPercentage(item.returns)}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {item.allocation.toFixed(1)}% {t('portfolio_analytics.labels.allocation')}
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-gray-900">
-                            {formatPercentage(item.returns)}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {item.allocation}% {t('portfolio_analytics.labels.allocation')}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <div className="text-4xl mb-4">⚖️</div>
+                  <p>No risk analysis data available</p>
+                  <p className="text-sm">Make investments to see risk distribution</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
