@@ -1510,6 +1510,62 @@
         "investment_in": "استثمار في"
       }
     },
+    "portfolio_transactions": {
+      "title": "تاريخ المعاملات",
+      "subtitle": "تتبع جميع معاملاتك المالية",
+      "summary_cards": {
+        "total_deposits": "إجمالي الإيداعات",
+        "total_withdrawals": "إجمالي السحوبات",
+        "total_invested": "إجمالي الاستثمارات",
+        "total_returns": "إجمالي العوائد",
+        "transactions": "معاملة",
+        "investments": "استثمار",
+        "payments": "دفعة"
+      },
+      "filters": {
+        "search_placeholder": "بحث في المعاملات...",
+        "all_types": "جميع الأنواع",
+        "deposits": "إيداعات",
+        "withdrawals": "سحوبات",
+        "investments": "استثمارات",
+        "returns": "عوائد",
+        "all_status": "جميع الحالات",
+        "completed": "مكتمل",
+        "pending": "قيد الانتظار",
+        "failed": "فشل",
+        "last_7_days": "آخر 7 أيام",
+        "last_30_days": "آخر 30 يوم",
+        "last_90_days": "آخر 90 يوم",
+        "last_year": "العام الماضي",
+        "all_time": "كل الأوقات",
+        "export": "تصدير",
+        "refresh": "تحديث"
+      },
+      "transaction_list": {
+        "title": "تاريخ المعاملات",
+        "reference": "المرجع",
+        "date": "التاريخ",
+        "method": "الطريقة",
+        "fees": "الرسوم",
+        "balance": "الرصيد",
+        "deal": "الصفقة",
+        "partner": "الشريك",
+        "processing": "جارٍ المعالجة",
+        "expected_completion": "الإنجاز المتوقع",
+        "failed_reason": "السبب",
+        "amount_refunded": "تم استرداد المبلغ إلى المحفظة"
+      },
+      "payment_methods": {
+        "bank_transfer": "حوالة مصرفية",
+        "credit_card": "بطاقة ائتمان",
+        "wallet": "محفظة"
+      },
+      "empty_state": {
+        "no_transactions": "لا توجد معاملات",
+        "adjust_filters": "جرب تعديل الفلاتر لرؤية المزيد من المعاملات.",
+        "no_transactions_yet": "ليس لديك أي معاملات بعد."
+      }
+    },
     "portfolio_wallet": {
       "title": "المحفظة الرقمية",
       "subtitle": "إدارة أموالك ومعاملاتك",

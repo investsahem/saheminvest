@@ -1397,6 +1397,62 @@
         "investment_in": "Investment in"
       }
     },
+    "portfolio_transactions": {
+      "title": "Transaction History",
+      "subtitle": "Track all your financial transactions",
+      "summary_cards": {
+        "total_deposits": "Total Deposits",
+        "total_withdrawals": "Total Withdrawals",
+        "total_invested": "Total Invested",
+        "total_returns": "Total Returns",
+        "transactions": "transactions",
+        "investments": "investments",
+        "payments": "payments"
+      },
+      "filters": {
+        "search_placeholder": "Search transactions...",
+        "all_types": "All Types",
+        "deposits": "Deposits",
+        "withdrawals": "Withdrawals",
+        "investments": "Investments",
+        "returns": "Returns",
+        "all_status": "All Status",
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed",
+        "last_7_days": "Last 7 days",
+        "last_30_days": "Last 30 days",
+        "last_90_days": "Last 90 days",
+        "last_year": "Last year",
+        "all_time": "All time",
+        "export": "Export",
+        "refresh": "Refresh"
+      },
+      "transaction_list": {
+        "title": "Transaction History",
+        "reference": "Reference",
+        "date": "Date",
+        "method": "Method",
+        "fees": "Fees",
+        "balance": "Balance",
+        "deal": "Deal",
+        "partner": "Partner",
+        "processing": "Processing",
+        "expected_completion": "Expected completion",
+        "failed_reason": "Reason",
+        "amount_refunded": "Amount refunded to wallet"
+      },
+      "payment_methods": {
+        "bank_transfer": "Bank Transfer",
+        "credit_card": "Credit Card",
+        "wallet": "Wallet"
+      },
+      "empty_state": {
+        "no_transactions": "No transactions found",
+        "adjust_filters": "Try adjusting your filters to see more transactions.",
+        "no_transactions_yet": "You don't have any transactions yet."
+      }
+    },
     "portfolio_wallet": {
       "title": "Digital Wallet",
       "subtitle": "Manage your funds and transactions",

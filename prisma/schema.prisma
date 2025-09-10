@@ -61,6 +61,7 @@ enum TransactionType {
   RETURN
   FEE
   COMMISSION
+  PROFIT_DISTRIBUTION
 }
 
 enum ApplicationStatus {
