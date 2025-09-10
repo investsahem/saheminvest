@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import PartnerLayout from '../../components/layout/PartnerLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -28,6 +29,7 @@ interface DocumentItem {
 }
 
 const PartnerDocumentsPage = () => {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const [documents, setDocuments] = useState<DocumentItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -38,95 +40,42 @@ const PartnerDocumentsPage = () => {
   const [uploading, setUploading] = useState(false)
   const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(null)
   const [showViewModal, setShowViewModal] = useState(false)
+  const [summary, setSummary] = useState<any>({})
+  const [pagination, setPagination] = useState<any>({})
 
-  // Sample documents data
+  // Fetch real documents data
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const sampleDocuments: DocumentItem[] = [
-        {
-          id: '1',
-          name: 'AI Healthcare Platform - Business Plan.pdf',
-          type: 'contract',
-          category: 'deal',
-          size: 2457600,
-          uploadedAt: '2024-01-20',
-          uploadedBy: 'Partner User',
-          dealId: '1',
-          dealTitle: 'AI Healthcare Platform',
-          status: 'approved',
-          url: '/documents/business-plan.pdf',
-          description: 'Comprehensive business plan for AI healthcare platform investment'
-        },
-        {
-          id: '2',
-          name: 'Q4 2023 Financial Report.xlsx',
-          type: 'report',
-          category: 'financial',
-          size: 1843200,
-          uploadedAt: '2024-01-18',
-          uploadedBy: 'Partner User',
-          status: 'approved',
-          url: '/documents/q4-report.xlsx',
-          description: 'Quarterly financial performance report'
-        },
-        {
-          id: '3',
-          name: 'Smart Home Solutions - Pitch Deck.pptx',
-          type: 'presentation',
-          category: 'marketing',
-          size: 5242880,
-          uploadedAt: '2024-01-15',
-          uploadedBy: 'Partner User',
-          dealId: '2',
-          dealTitle: 'Smart Home Solutions',
-          status: 'review',
-          url: '/documents/pitch-deck.pptx',
-          description: 'Investor presentation for smart home solutions project'
-        },
-        {
-          id: '4',
-          name: 'Partnership Agreement Template.docx',
-          type: 'contract',
-          category: 'legal',
-          size: 1024000,
-          uploadedAt: '2024-01-12',
-          uploadedBy: 'Partner User',
-          status: 'approved',
-          url: '/documents/partnership-agreement.docx',
-          description: 'Standard partnership agreement template'
-        },
-        {
-          id: '5',
-          name: 'Medical Device Manufacturing - Product Images.zip',
-          type: 'image',
-          category: 'marketing',
-          size: 10485760,
-          uploadedAt: '2024-01-10',
-          uploadedBy: 'Partner User',
-          dealId: '3',
-          dealTitle: 'Medical Device Manufacturing',
-          status: 'approved',
-          url: '/documents/product-images.zip',
-          description: 'Product images and marketing materials'
-        },
-        {
-          id: '6',
-          name: 'Compliance Checklist 2024.pdf',
-          type: 'other',
-          category: 'compliance',
-          size: 512000,
-          uploadedAt: '2024-01-08',
-          uploadedBy: 'Partner User',
-          status: 'draft',
-          url: '/documents/compliance-checklist.pdf',
-          description: 'Annual compliance requirements checklist'
+    const fetchDocuments = async () => {
+      try {
+        setLoading(true)
+        const queryParams = new URLSearchParams({
+          type: filterType,
+          category: filterCategory,
+          status: filterStatus,
+          page: '1',
+          limit: '50'
+        })
+        
+        const response = await fetch(`/api/partner/documents?${queryParams}`)
+        if (response.ok) {
+          const data = await response.json()
+          setDocuments(data.documents)
+          setSummary(data.summary)
+          setPagination(data.pagination)
+        } else {
+          console.error('Failed to fetch documents')
         }
-      ]
-      setDocuments(sampleDocuments)
-      setLoading(false)
-    }, 1000)
-  }, [])
+      } catch (error) {
+        console.error('Error fetching documents:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (session?.user?.id) {
+      fetchDocuments()
+    }
+  }, [session, filterType, filterCategory, filterStatus])
 
   // Filter documents
   const filteredDocuments = documents.filter(doc => {
@@ -192,28 +141,39 @@ const PartnerDocumentsPage = () => {
     globalThis.document.getElementById('file-upload')?.click()
   }
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files && files.length > 0) {
       setUploading(true)
-      // Simulate upload
-      setTimeout(() => {
-        setUploading(false)
-        // Add new document to list
-        const newDoc: DocumentItem = {
-          id: Date.now().toString(),
-          name: files[0].name,
-          type: 'other',
-          category: 'deal',
-          size: files[0].size,
-          uploadedAt: new Date().toISOString().split('T')[0],
-          uploadedBy: session?.user?.name || 'Partner User',
-          status: 'draft',
-          url: URL.createObjectURL(files[0]),
-          description: 'Recently uploaded document'
+      try {
+        const formData = new FormData()
+        formData.append('file', files[0])
+        formData.append('type', 'OTHER')
+        formData.append('category', 'DEAL')
+        formData.append('description', t('partner_documents.descriptions.recently_uploaded'))
+        
+        const response = await fetch('/api/partner/documents', {
+          method: 'POST',
+          body: formData
+        })
+        
+        if (response.ok) {
+          const newDoc = await response.json()
+          setDocuments(prev => [newDoc, ...prev])
+          // Update summary
+          setSummary((prev: any) => ({
+            ...prev,
+            totalDocuments: (prev.totalDocuments || 0) + 1,
+            totalSize: (prev.totalSize || 0) + files[0].size
+          }))
+        } else {
+          console.error('Failed to upload document')
         }
-        setDocuments(prev => [newDoc, ...prev])
-      }, 2000)
+      } catch (error) {
+        console.error('Error uploading document:', error)
+      } finally {
+        setUploading(false)
+      }
     }
   }
 
@@ -230,28 +190,74 @@ const PartnerDocumentsPage = () => {
     link.click()
   }
 
-  const handleDelete = (documentId: string) => {
-    if (confirm('Are you sure you want to delete this document?')) {
-      setDocuments(prev => prev.filter(doc => doc.id !== documentId))
+  const handleDelete = async (documentId: string) => {
+    if (confirm(t('partner_documents.confirmation.delete_document'))) {
+      try {
+        const response = await fetch(`/api/partner/documents?id=${documentId}`, {
+          method: 'DELETE'
+        })
+        
+        if (response.ok) {
+          const deletedDoc = documents.find(doc => doc.id === documentId)
+          setDocuments(prev => prev.filter(doc => doc.id !== documentId))
+          // Update summary
+          setSummary((prev: any) => ({
+            ...prev,
+            totalDocuments: Math.max((prev.totalDocuments || 1) - 1, 0),
+            totalSize: Math.max((prev.totalSize || 0) - (deletedDoc?.size || 0), 0)
+          }))
+        } else {
+          console.error('Failed to delete document')
+        }
+      } catch (error) {
+        console.error('Error deleting document:', error)
+      }
     }
   }
 
-  const handleStatusChange = (documentId: string, newStatus: string) => {
-    setDocuments(prev => prev.map(doc => 
-      doc.id === documentId ? { ...doc, status: newStatus as any } : doc
-    ))
+  const handleStatusChange = async (documentId: string, newStatus: string) => {
+    try {
+      const response = await fetch('/api/partner/documents', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          documentId,
+          status: newStatus
+        })
+      })
+      
+      if (response.ok) {
+        const updatedDoc = await response.json()
+        setDocuments(prev => prev.map(doc => 
+          doc.id === documentId ? updatedDoc : doc
+        ))
+        // Update summary if status changed to approved or review
+        if (newStatus === 'review') {
+          setSummary((prev: any) => ({
+            ...prev,
+            pendingReview: (prev.pendingReview || 0) + 1
+          }))
+        }
+      } else {
+        console.error('Failed to update document status')
+      }
+    } catch (error) {
+      console.error('Error updating document status:', error)
+    }
   }
 
-  // Calculate summary metrics
-  const totalDocuments = documents.length
-  const approvedDocuments = documents.filter(d => d.status === 'approved').length
-  const pendingReview = documents.filter(d => d.status === 'review').length
-  const totalSize = documents.reduce((sum, doc) => sum + doc.size, 0)
+  // Get summary metrics from API response
+  const totalDocuments = summary.totalDocuments || 0
+  const approvedDocuments = summary.approvedDocuments || 0
+  const pendingReview = summary.pendingReview || 0
+  const totalSize = summary.totalSize || 0
 
   return (
     <PartnerLayout
-      title="Documents"
-      subtitle="Manage your documents and files"
+      title={t('partner_documents.title')}
+      subtitle={t('partner_documents.subtitle')}
     >
       <div className="space-y-6">
         {/* Summary Cards */}
@@ -260,7 +266,7 @@ const PartnerDocumentsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700">Total Documents</p>
+                  <p className="text-sm font-medium text-blue-700">{t('partner_documents.summary.total_documents')}</p>
                   <p className="text-2xl font-bold text-blue-900">{totalDocuments}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -274,7 +280,7 @@ const PartnerDocumentsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700">Approved</p>
+                  <p className="text-sm font-medium text-green-700">{t('partner_documents.summary.approved')}</p>
                   <p className="text-2xl font-bold text-green-900">{approvedDocuments}</p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -288,7 +294,7 @@ const PartnerDocumentsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-yellow-700">Pending Review</p>
+                  <p className="text-sm font-medium text-yellow-700">{t('partner_documents.summary.pending_review')}</p>
                   <p className="text-2xl font-bold text-yellow-900">{pendingReview}</p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
@@ -302,7 +308,7 @@ const PartnerDocumentsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-700">Total Size</p>
+                  <p className="text-sm font-medium text-purple-700">{t('partner_documents.summary.total_size')}</p>
                   <p className="text-2xl font-bold text-purple-900">{formatFileSize(totalSize)}</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -322,7 +328,7 @@ const PartnerDocumentsPage = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     type="text"
-                    placeholder="Search documents..."
+                    placeholder={t('partner_documents.filters.search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -334,12 +340,12 @@ const PartnerDocumentsPage = () => {
                   onChange={(e) => setFilterType(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Types</option>
-                  <option value="contract">Contract</option>
-                  <option value="report">Report</option>
-                  <option value="presentation">Presentation</option>
-                  <option value="image">Image</option>
-                  <option value="other">Other</option>
+                  <option value="all">{t('partner_documents.filters.all_types')}</option>
+                  <option value="contract">{t('partner_documents.types.contract')}</option>
+                  <option value="report">{t('partner_documents.types.report')}</option>
+                  <option value="presentation">{t('partner_documents.types.presentation')}</option>
+                  <option value="image">{t('partner_documents.types.image')}</option>
+                  <option value="other">{t('partner_documents.types.other')}</option>
                 </select>
 
                 <select
@@ -347,12 +353,12 @@ const PartnerDocumentsPage = () => {
                   onChange={(e) => setFilterCategory(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Categories</option>
-                  <option value="deal">Deal</option>
-                  <option value="legal">Legal</option>
-                  <option value="financial">Financial</option>
-                  <option value="marketing">Marketing</option>
-                  <option value="compliance">Compliance</option>
+                  <option value="all">{t('partner_documents.filters.all_categories')}</option>
+                  <option value="deal">{t('partner_documents.categories.deal')}</option>
+                  <option value="legal">{t('partner_documents.categories.legal')}</option>
+                  <option value="financial">{t('partner_documents.categories.financial')}</option>
+                  <option value="marketing">{t('partner_documents.categories.marketing')}</option>
+                  <option value="compliance">{t('partner_documents.categories.compliance')}</option>
                 </select>
 
                 <select
@@ -360,11 +366,11 @@ const PartnerDocumentsPage = () => {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Status</option>
-                  <option value="draft">Draft</option>
-                  <option value="review">Review</option>
-                  <option value="approved">Approved</option>
-                  <option value="archived">Archived</option>
+                  <option value="all">{t('partner_documents.filters.all_status')}</option>
+                  <option value="draft">{t('partner_documents.status.draft')}</option>
+                  <option value="review">{t('partner_documents.status.review')}</option>
+                  <option value="approved">{t('partner_documents.status.approved')}</option>
+                  <option value="archived">{t('partner_documents.status.archived')}</option>
                 </select>
               </div>
 
@@ -375,7 +381,7 @@ const PartnerDocumentsPage = () => {
                   disabled={uploading}
                 >
                   <Upload className="w-4 h-4" />
-                  {uploading ? 'Uploading...' : 'Upload'}
+                  {uploading ? t('partner_documents.filters.uploading') : t('partner_documents.filters.upload')}
                 </Button>
                 <input
                   id="file-upload"
@@ -410,13 +416,13 @@ const PartnerDocumentsPage = () => {
                           {document.name}
                         </h3>
                         <p className="text-xs text-gray-500 capitalize">
-                          {document.type} • {document.category}
+                          {t(`partner_documents.types.${document.type}`)} • {t(`partner_documents.categories.${document.category}`)}
                         </p>
                       </div>
                     </div>
                     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(document.status)}`}>
                       {getStatusIcon(document.status)}
-                      {document.status}
+                      {t(`partner_documents.status.${document.status}`)}
                     </span>
                   </div>
 
@@ -462,7 +468,7 @@ const PartnerDocumentsPage = () => {
                       onClick={() => handleView(document)}
                     >
                       <Eye className="w-3 h-3 mr-1" />
-                      View
+                      {t('partner_documents.actions.view')}
                     </Button>
                     <Button
                       size="sm"
@@ -471,7 +477,7 @@ const PartnerDocumentsPage = () => {
                       onClick={() => handleDownload(document)}
                     >
                       <Download className="w-3 h-3 mr-1" />
-                      Download
+                      {t('partner_documents.actions.download')}
                     </Button>
                     <Button
                       size="sm"
@@ -491,7 +497,7 @@ const PartnerDocumentsPage = () => {
                         className="w-full text-xs"
                         onClick={() => handleStatusChange(document.id, 'review')}
                       >
-                        Submit for Review
+                        {t('partner_documents.actions.submit_for_review')}
                       </Button>
                     </div>
                   )}
@@ -505,17 +511,17 @@ const PartnerDocumentsPage = () => {
           <Card>
             <CardContent className="p-12 text-center">
               <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No documents found</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('partner_documents.empty_state.no_documents')}</h3>
               <p className="text-gray-600 mb-4">
                 {searchTerm || filterType !== 'all' || filterCategory !== 'all' || filterStatus !== 'all'
-                  ? 'Try adjusting your search or filter criteria.'
-                  : 'Upload your first document to get started.'
+                  ? t('partner_documents.empty_state.adjust_filters')
+                  : t('partner_documents.empty_state.upload_first')
                 }
               </p>
               {(!searchTerm && filterType === 'all' && filterCategory === 'all' && filterStatus === 'all') && (
                 <Button onClick={handleUpload}>
                   <Upload className="w-4 h-4 mr-2" />
-                  Upload Document
+                  {t('partner_documents.actions.upload_document')}
                 </Button>
               )}
             </CardContent>

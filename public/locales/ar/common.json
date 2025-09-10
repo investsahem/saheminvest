@@ -1476,6 +1476,62 @@
         "investment_in": "استثمار في"
       }
     },
+    "partner_documents": {
+      "title": "المستندات",
+      "subtitle": "إدارة مستنداتك وملفاتك",
+      "summary": {
+        "total_documents": "إجمالي المستندات",
+        "approved": "موافق عليها",
+        "pending_review": "قيد المراجعة",
+        "total_size": "الحجم الإجمالي"
+      },
+      "filters": {
+        "search_placeholder": "البحث في المستندات...",
+        "all_types": "جميع الأنواع",
+        "all_categories": "جميع الفئات",
+        "all_status": "جميع الحالات",
+        "upload": "رفع",
+        "uploading": "جاري الرفع..."
+      },
+      "types": {
+        "contract": "عقد",
+        "report": "تقرير",
+        "presentation": "عرض تقديمي",
+        "image": "صورة",
+        "other": "أخرى"
+      },
+      "categories": {
+        "deal": "صفقة",
+        "legal": "قانوني",
+        "financial": "مالي",
+        "marketing": "تسويق",
+        "compliance": "التزام"
+      },
+      "status": {
+        "draft": "مسودة",
+        "review": "مراجعة",
+        "approved": "موافق عليه",
+        "archived": "مؤرشف"
+      },
+      "actions": {
+        "view": "عرض",
+        "download": "تحميل",
+        "delete": "حذف",
+        "submit_for_review": "إرسال للمراجعة",
+        "upload_document": "رفع مستند"
+      },
+      "empty_state": {
+        "no_documents": "لم يتم العثور على مستندات",
+        "adjust_filters": "جرب تعديل معايير البحث أو التصفية.",
+        "upload_first": "ارفع مستندك الأول للبدء."
+      },
+      "confirmation": {
+        "delete_document": "هل أنت متأكد من أنك تريد حذف هذا المستند؟"
+      },
+      "descriptions": {
+        "recently_uploaded": "مستند مرفوع حديثاً"
+      }
+    },
     "partner_performance": {
     "title": "تتبع الأداء",
     "subtitle": "راقب أداء استثماراتك وترتيبك",

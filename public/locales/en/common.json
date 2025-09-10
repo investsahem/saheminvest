@@ -1358,6 +1358,62 @@
         "investment_in": "Investment in"
       }
     },
+    "partner_documents": {
+      "title": "Documents",
+      "subtitle": "Manage your documents and files",
+      "summary": {
+        "total_documents": "Total Documents",
+        "approved": "Approved",
+        "pending_review": "Pending Review",
+        "total_size": "Total Size"
+      },
+      "filters": {
+        "search_placeholder": "Search documents...",
+        "all_types": "All Types",
+        "all_categories": "All Categories",
+        "all_status": "All Status",
+        "upload": "Upload",
+        "uploading": "Uploading..."
+      },
+      "types": {
+        "contract": "Contract",
+        "report": "Report",
+        "presentation": "Presentation",
+        "image": "Image",
+        "other": "Other"
+      },
+      "categories": {
+        "deal": "Deal",
+        "legal": "Legal",
+        "financial": "Financial",
+        "marketing": "Marketing",
+        "compliance": "Compliance"
+      },
+      "status": {
+        "draft": "Draft",
+        "review": "Review",
+        "approved": "Approved",
+        "archived": "Archived"
+      },
+      "actions": {
+        "view": "View",
+        "download": "Download",
+        "delete": "Delete",
+        "submit_for_review": "Submit for Review",
+        "upload_document": "Upload Document"
+      },
+      "empty_state": {
+        "no_documents": "No documents found",
+        "adjust_filters": "Try adjusting your search or filter criteria.",
+        "upload_first": "Upload your first document to get started."
+      },
+      "confirmation": {
+        "delete_document": "Are you sure you want to delete this document?"
+      },
+      "descriptions": {
+        "recently_uploaded": "Recently uploaded document"
+      }
+    },
     "partner_performance": {
     "title": "Performance Tracking",
     "subtitle": "Monitor your investment performance and rankings",

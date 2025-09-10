@@ -143,6 +143,7 @@ model User {
   processedBudgets  BudgetRequest[] @relation("BudgetProcessedBy")
   revenueStreams    RevenueStream[]
   financialReports  FinancialReport[]
+  documents         Document[]
   
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
@@ -293,6 +294,7 @@ model Project {
   dealPerformances DealPerformance[]
   profitDistributions ProfitDistribution[]
   profitDistributionRequests ProfitDistributionRequest[] @relation("ProfitDistributionRequests")
+  documentFiles    Document[]
   
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
@@ -332,6 +334,29 @@ enum TransactionStatus {
   CANCELLED
 }
 
+enum DocumentType {
+  CONTRACT
+  REPORT
+  PRESENTATION
+  IMAGE
+  OTHER
+}
+
+enum DocumentCategory {
+  DEAL
+  LEGAL
+  FINANCIAL
+  MARKETING
+  COMPLIANCE
+}
+
+enum DocumentStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  ARCHIVED
+}
+
 model Transaction {
   id               String            @id @default(cuid())
   amount           Decimal           @db.Decimal(15, 2)
@@ -356,6 +381,35 @@ model Transaction {
   updatedAt        DateTime          @updatedAt
   
   @@map("transactions")
+}
+
+model Document {
+  id               String            @id @default(cuid())
+  name             String
+  type             DocumentType
+  category         DocumentCategory
+  status           DocumentStatus    @default(DRAFT)
+  description      String?           @db.Text
+  
+  // File information
+  url              String
+  fileName         String?
+  fileSize         Int?              // Size in bytes
+  mimeType         String?
+  
+  // Relationships
+  uploadedBy       String
+  uploader         User              @relation(fields: [uploadedBy], references: [id])
+  projectId        String?
+  project          Project?          @relation(fields: [projectId], references: [id])
+  
+  // Metadata
+  metadata         Json?
+  
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  
+  @@map("documents")
 }
 
 model Notification {
