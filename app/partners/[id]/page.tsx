@@ -165,7 +165,7 @@ export default function PartnerDetailsPage() {
           <p className="text-[#b8c2d8] mb-6">The partner you're looking for doesn't exist or has been removed.</p>
           <Link href="/partners" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0a0f2e] font-bold rounded-xl hover:shadow-lg transition-all">
             <ArrowLeft className="w-4 h-4" />
-            Back to Partners
+            {t('partners.back_to_partners')}
           </Link>
         </div>
       </div>
@@ -198,7 +198,7 @@ export default function PartnerDetailsPage() {
             <div className="flex items-center gap-4">
               <Link href="/partners" className="flex items-center gap-2 text-[#b8c2d8] hover:text-[#e9edf7] transition-colors">
                 <ArrowLeft className="w-4 h-4" />
-                Back to Partners
+                {t('partners.back_to_partners')}
               </Link>
               <Link href="/auth/signin" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all">
                 Go to Panel
@@ -253,7 +253,7 @@ export default function PartnerDetailsPage() {
                       {partner.verified && (
                         <div className="flex items-center gap-2 bg-[#6be2c9]/20 border border-[#6be2c9]/30 rounded-full px-4 py-2">
                           <BadgeCheck className="w-5 h-5 text-[#6be2c9]" />
-                          <span className="text-sm font-medium text-[#6be2c9]">Verified Partner</span>
+                          <span className="text-sm font-medium text-[#6be2c9]">{t('partners.verified_partner')}</span>
                         </div>
                       )}
                     </div>
@@ -317,22 +317,22 @@ export default function PartnerDetailsPage() {
               {/* Stats */}
               <div className="space-y-6">
                 <div className="bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-2xl p-6">
-                  <h3 className="text-lg font-bold text-[#e9edf7] mb-4">Performance Stats</h3>
+                  <h3 className="text-lg font-bold text-[#e9edf7] mb-4">{t('partners.performance_stats')}</h3>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-[#b8c2d8]">Total Deals</span>
+                      <span className="text-[#b8c2d8]">{t('partners.total_deals')}</span>
                       <span className="text-xl font-bold text-[#6be2c9]">{partner._count.deals}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[#b8c2d8]">Successful Deals</span>
+                      <span className="text-[#b8c2d8]">{t('partners.successful_deals')}</span>
                       <span className="text-xl font-bold text-[#23a1ff]">{successfulDeals}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[#b8c2d8]">Avg. Return</span>
+                      <span className="text-[#b8c2d8]">{t('partners.avg_return')}</span>
                       <span className="text-xl font-bold text-[#f59e0b]">{avgReturn.toFixed(1)}%</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[#b8c2d8]">Total Funding</span>
+                      <span className="text-[#b8c2d8]">{t('partners.total_funding')}</span>
                       <span className="text-xl font-bold text-[#10b981]">{formatCurrency(totalFunding)}</span>
                     </div>
                   </div>
@@ -340,7 +340,7 @@ export default function PartnerDetailsPage() {
 
                 {/* Rating */}
                 <div className="bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-2xl p-6">
-                  <h3 className="text-lg font-bold text-[#e9edf7] mb-4">Partner Rating</h3>
+                  <h3 className="text-lg font-bold text-[#e9edf7] mb-4">{t('partners.partner_rating')}</h3>
                   <div className="text-center">
                     <div className="text-3xl font-black text-[#6be2c9] mb-2">
                       {partner.averageRating ? partner.averageRating.toFixed(1) : '4.8'}
@@ -349,7 +349,7 @@ export default function PartnerDetailsPage() {
                       {renderStars(Math.round(partner.averageRating || 4.8))}
                     </div>
                     <div className="text-sm text-[#b8c2d8]">
-                      Based on {partner.totalReviews || 0} reviews
+                      {t('partners.based_on_reviews').replace('{count}', (partner.totalReviews || 0).toString())}
                     </div>
                   </div>
                 </div>
@@ -372,7 +372,7 @@ export default function PartnerDetailsPage() {
               }`}
             >
               <BarChart3 className="w-4 h-4" />
-              Overview
+              {t('partners.overview')}
             </button>
             <button
               onClick={() => setActiveTab('deals')}
@@ -383,7 +383,7 @@ export default function PartnerDetailsPage() {
               }`}
             >
               <Briefcase className="w-4 h-4" />
-              Deals ({partner._count.deals})
+              {t('partners.deals')} ({partner._count.deals})
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
@@ -394,7 +394,7 @@ export default function PartnerDetailsPage() {
               }`}
             >
               <MessageSquare className="w-4 h-4" />
-              Reviews ({partner.totalReviews || 0})
+              {t('partners.reviews')} ({partner.totalReviews || 0})
             </button>
           </div>
         </div>

@@ -174,7 +174,7 @@ export default function PartnersPage() {
               transition={{ delay: 0.2 }}
             >
               <Building2 className="w-4 h-4" />
-              Trusted Investment Partners
+              {t('partners.hero_title')}
             </motion.div>
             
             <motion.h1 
@@ -183,7 +183,7 @@ export default function PartnersPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              Our Investment Partners
+              {t('partners.hero_subtitle')}
             </motion.h1>
             
             <motion.p 
@@ -192,7 +192,7 @@ export default function PartnersPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              Discover our network of verified investment partners offering diverse opportunities across multiple industries. Each partner is carefully vetted to ensure quality and reliability.
+              {t('partners.hero_description')}
             </motion.p>
 
             {/* Stats */}
@@ -204,15 +204,15 @@ export default function PartnersPage() {
             >
               <div className="flex flex-col items-center gap-2 px-6 py-4 bg-[#10173a] border border-[#283363] rounded-xl">
                 <div className="text-3xl font-black text-[#6be2c9]">{totalPartners}</div>
-                <div className="text-sm text-[#b8c2d8]">Verified Partners</div>
+                <div className="text-sm text-[#b8c2d8]">{t('partners.verified_partners')}</div>
               </div>
               <div className="flex flex-col items-center gap-2 px-6 py-4 bg-[#10173a] border border-[#283363] rounded-xl">
                 <div className="text-3xl font-black text-[#23a1ff]">{industries.length}</div>
-                <div className="text-sm text-[#b8c2d8]">Industries</div>
+                <div className="text-sm text-[#b8c2d8]">{t('partners.industries')}</div>
               </div>
               <div className="flex flex-col items-center gap-2 px-6 py-4 bg-[#10173a] border border-[#283363] rounded-xl">
                 <div className="text-3xl font-black text-[#f59e0b]">4.8</div>
-                <div className="text-sm text-[#b8c2d8]">Avg Rating</div>
+                <div className="text-sm text-[#b8c2d8]">{t('partners.avg_rating')}</div>
               </div>
             </motion.div>
           </motion.div>
@@ -234,7 +234,7 @@ export default function PartnersPage() {
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#b8c2d8]" />
                 <input
                   type="text"
-                  placeholder="Search partners by name or industry..."
+                  placeholder={t('partners.search_placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-[#0f1640] border border-[#2d3a6b] rounded-xl text-[#e9edf7] placeholder-[#b8c2d8] focus:outline-none focus:ring-2 focus:ring-[#6be2c9] focus:border-transparent"
@@ -249,7 +249,7 @@ export default function PartnersPage() {
                 onChange={(e) => setIndustryFilter(e.target.value)}
                 className="w-full px-4 py-3 bg-[#0f1640] border border-[#2d3a6b] rounded-xl text-[#e9edf7] focus:outline-none focus:ring-2 focus:ring-[#6be2c9] focus:border-transparent"
               >
-                <option value="all">All Industries</option>
+                <option value="all">{t('partners.all_industries')}</option>
                 {industries.map(industry => (
                   <option key={industry} value={industry}>{industry}</option>
                 ))}
@@ -320,13 +320,13 @@ export default function PartnersPage() {
                     <div className="grid grid-cols-2 gap-4 mb-6">
                       <div className="text-center">
                         <div className="text-xl font-bold text-[#6be2c9] mb-1">{partner._count.deals}</div>
-                        <div className="text-xs text-[#b8c2d8]">Active Deals</div>
+                        <div className="text-xs text-[#b8c2d8]">{t('partners.active_deals')}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-xl font-bold text-[#23a1ff] mb-1">
                           {partner.averageRating ? partner.averageRating.toFixed(1) : '4.5'}
                         </div>
-                        <div className="text-xs text-[#b8c2d8]">Rating</div>
+                        <div className="text-xs text-[#b8c2d8]">{t('partners.rating')}</div>
                       </div>
                     </div>
 
@@ -347,7 +347,7 @@ export default function PartnersPage() {
                       {partner.employeeCount && (
                         <div className="flex items-center gap-2 text-xs text-[#b8c2d8]">
                           <Users className="w-3 h-3" />
-                          {partner.employeeCount} employees
+                          {partner.employeeCount} {t('partners.employees')}
                         </div>
                       )}
                     </div>
@@ -359,7 +359,7 @@ export default function PartnersPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        View Partner Details
+                        {t('partners.view_partner_details')}
                         <ArrowUpRight className="w-4 h-4" />
                       </motion.button>
                     </Link>
