@@ -1566,6 +1566,51 @@
         "no_transactions_yet": "ليس لديك أي معاملات بعد."
       }
     },
+    "portfolio_analytics": {
+      "summary": {
+        "total_returns": "إجمالي العوائد",
+        "sharpe_ratio": "نسبة شارب",
+        "risk_adjusted_return": "العائد المعدل للمخاطر",
+        "win_rate": "معدل النجاح",
+        "profitable_investments": "الاستثمارات المربحة",
+        "volatility": "التقلبات",
+        "standard_deviation": "الانحراف المعياري"
+      },
+      "view_toggle": {
+        "returns_analysis": "تحليل العوائد",
+        "portfolio_growth": "نمو المحفظة",
+        "sector_analysis": "تحليل القطاعات"
+      },
+      "actions": {
+        "export_report": "تصدير التقرير",
+        "detailed_analysis": "تحليل مفصل"
+      },
+      "charts": {
+        "monthly_returns": "العوائد الشهرية",
+        "monthly_trends": "اتجاهات العوائد الشهرية مقابل المعيار",
+        "cumulative_returns": "العوائد التراكمية",
+        "total_returns_time": "إجمالي العوائد عبر الزمن",
+        "portfolio_growth": "نمو المحفظة",
+        "portfolio_vs_benchmark": "قيمة المحفظة مقابل المبلغ المستثمر مقابل المعيار",
+        "sector_performance": "أداء القطاعات",
+        "returns_by_sector": "العوائد حسب توزيع القطاعات",
+        "risk_analysis": "تحليل المخاطر",
+        "allocation_by_risk": "توزيع المحفظة حسب مستوى المخاطر"
+      },
+      "labels": {
+        "invested": "مستثمر",
+        "allocation": "توزيع"
+      },
+      "performance": {
+        "title": "مقاييس الأداء",
+        "best_month": "أفضل شهر",
+        "worst_month": "أسوأ شهر",
+        "max_drawdown": "أقصى انخفاض",
+        "largest_decline": "أكبر تراجع",
+        "average_return": "متوسط العائد",
+        "annual_equivalent": "المعادل السنوي"
+      }
+    },
     "portfolio_wallet": {
       "title": "المحفظة الرقمية",
       "subtitle": "إدارة أموالك ومعاملاتك",

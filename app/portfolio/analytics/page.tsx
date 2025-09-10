@@ -71,7 +71,7 @@ const ReturnsAnalytics = () => {
   }
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
@@ -91,7 +91,7 @@ const ReturnsAnalytics = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-700">Total Returns</p>
+                <p className="text-sm font-medium text-green-700">{t('portfolio_analytics.summary.total_returns')}</p>
                 <p className="text-2xl font-bold text-green-900">{formatCurrency(performanceMetrics.totalReturns)}</p>
                 <div className="flex items-center mt-2">
                   <ArrowUpRight className={`w-4 h-4 text-green-600 ${locale === 'ar' ? 'ml-1' : 'mr-1'}`} />
@@ -111,9 +111,9 @@ const ReturnsAnalytics = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Sharpe Ratio</p>
+                <p className="text-sm font-medium text-gray-600">{t('portfolio_analytics.summary.sharpe_ratio')}</p>
                 <p className="text-2xl font-bold text-gray-900">{performanceMetrics.sharpeRatio}</p>
-                <p className="text-sm text-blue-600 mt-2">Risk-adjusted return</p>
+                <p className="text-sm text-blue-600 mt-2">{t('portfolio_analytics.summary.risk_adjusted_return')}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                 <Target className="w-6 h-6 text-blue-600" />
@@ -126,9 +126,9 @@ const ReturnsAnalytics = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Win Rate</p>
+                <p className="text-sm font-medium text-gray-600">{t('portfolio_analytics.summary.win_rate')}</p>
                 <p className="text-2xl font-bold text-gray-900">{performanceMetrics.winRate}%</p>
-                <p className="text-sm text-purple-600 mt-2">Profitable investments</p>
+                <p className="text-sm text-purple-600 mt-2">{t('portfolio_analytics.summary.profitable_investments')}</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
                 <Award className="w-6 h-6 text-purple-600" />
@@ -141,9 +141,9 @@ const ReturnsAnalytics = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Volatility</p>
+                <p className="text-sm font-medium text-gray-600">{t('portfolio_analytics.summary.volatility')}</p>
                 <p className="text-2xl font-bold text-gray-900">{performanceMetrics.volatility}%</p>
-                <p className="text-sm text-orange-600 mt-2">Standard deviation</p>
+                <p className="text-sm text-orange-600 mt-2">{t('portfolio_analytics.summary.standard_deviation')}</p>
               </div>
               <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
                 <Activity className="w-6 h-6 text-orange-600" />
@@ -163,27 +163,27 @@ const ReturnsAnalytics = () => {
                 size="sm"
                 onClick={() => setViewType('returns')}
               >
-                Returns Analysis
+                {t('portfolio_analytics.view_toggle.returns_analysis')}
               </Button>
               <Button
                 variant={viewType === 'portfolio' ? 'primary' : 'outline'}
                 size="sm"
                 onClick={() => setViewType('portfolio')}
               >
-                Portfolio Growth
+                {t('portfolio_analytics.view_toggle.portfolio_growth')}
               </Button>
               <Button
                 variant={viewType === 'comparison' ? 'primary' : 'outline'}
                 size="sm"
                 onClick={() => setViewType('comparison')}
               >
-                Sector Analysis
+                {t('portfolio_analytics.view_toggle.sector_analysis')}
               </Button>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm">
                 <Download className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-                Export Report
+                {t('portfolio_analytics.actions.export_report')}
               </Button>
               <Button variant="outline" size="sm">
                 <RefreshCw className="w-4 h-4" />
@@ -201,8 +201,8 @@ const ReturnsAnalytics = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Monthly Returns</h3>
-                  <p className="text-sm text-gray-500">Monthly return trends vs benchmark</p>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_analytics.charts.monthly_returns')}</h3>
+                  <p className="text-sm text-gray-500">{t('portfolio_analytics.charts.monthly_trends')}</p>
                 </div>
                 <div className={`flex ${locale === 'ar' ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
                   {(['1M', '3M', '6M', '1Y', 'ALL'] as const).map((period) => (
@@ -237,8 +237,8 @@ const ReturnsAnalytics = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Cumulative Returns</h3>
-                  <p className="text-sm text-gray-500">Total returns over time</p>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_analytics.charts.cumulative_returns')}</h3>
+                  <p className="text-sm text-gray-500">{t('portfolio_analytics.charts.total_returns_time')}</p>
                 </div>
                 <BarChart3 className="w-5 h-5 text-gray-400" />
               </div>
@@ -278,8 +278,8 @@ const ReturnsAnalytics = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Portfolio Growth</h3>
-                <p className="text-sm text-gray-500">Portfolio value vs invested amount vs benchmark</p>
+                <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_analytics.charts.portfolio_growth')}</h3>
+                <p className="text-sm text-gray-500">{t('portfolio_analytics.charts.portfolio_vs_benchmark')}</p>
               </div>
               <div className={`flex ${locale === 'ar' ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
                 {(['1M', '3M', '6M', '1Y', 'ALL'] as const).map((period) => (
@@ -339,8 +339,8 @@ const ReturnsAnalytics = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Sector Performance</h3>
-                  <p className="text-sm text-gray-500">Returns by sector allocation</p>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_analytics.charts.sector_performance')}</h3>
+                  <p className="text-sm text-gray-500">{t('portfolio_analytics.charts.returns_by_sector')}</p>
                 </div>
                 <PieIcon className="w-5 h-5 text-gray-400" />
               </div>
@@ -355,7 +355,7 @@ const ReturnsAnalytics = () => {
                       <div>
                         <p className="font-medium text-gray-900">{sector.sector}</p>
                         <p className="text-sm text-gray-500">
-                          {formatCurrency(sector.invested)} invested
+                          {formatCurrency(sector.invested)} {t('portfolio_analytics.labels.invested')}
                         </p>
                       </div>
                     </div>
@@ -378,8 +378,8 @@ const ReturnsAnalytics = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Risk Analysis</h3>
-                  <p className="text-sm text-gray-500">Portfolio allocation by risk level</p>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_analytics.charts.risk_analysis')}</h3>
+                  <p className="text-sm text-gray-500">{t('portfolio_analytics.charts.allocation_by_risk')}</p>
                 </div>
               </div>
               <div className="flex">
@@ -418,7 +418,7 @@ const ReturnsAnalytics = () => {
                             {formatPercentage(item.returns)}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {item.allocation}% allocation
+                            {item.allocation}% {t('portfolio_analytics.labels.allocation')}
                           </p>
                         </div>
                       </div>
@@ -435,16 +435,16 @@ const ReturnsAnalytics = () => {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Performance Metrics</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_analytics.performance.title')}</h3>
             <Button variant="outline" size="sm">
               <Eye className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-              Detailed Analysis
+              {t('portfolio_analytics.actions.detailed_analysis')}
             </Button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="text-center p-4 bg-green-50 rounded-lg">
-              <p className="text-sm text-green-700 mb-1">Best Month</p>
+              <p className="text-sm text-green-700 mb-1">{t('portfolio_analytics.performance.best_month')}</p>
               <p className="text-lg font-bold text-green-900">
                 {formatCurrency(performanceMetrics.bestMonth.return)}
               </p>
@@ -452,7 +452,7 @@ const ReturnsAnalytics = () => {
             </div>
             
             <div className="text-center p-4 bg-red-50 rounded-lg">
-              <p className="text-sm text-red-700 mb-1">Worst Month</p>
+              <p className="text-sm text-red-700 mb-1">{t('portfolio_analytics.performance.worst_month')}</p>
               <p className="text-lg font-bold text-red-900">
                 {formatCurrency(performanceMetrics.worstMonth.return)}
               </p>
@@ -460,19 +460,19 @@ const ReturnsAnalytics = () => {
             </div>
             
             <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-700 mb-1">Max Drawdown</p>
+              <p className="text-sm text-blue-700 mb-1">{t('portfolio_analytics.performance.max_drawdown')}</p>
               <p className="text-lg font-bold text-blue-900">
                 {formatPercentage(performanceMetrics.maxDrawdown)}
               </p>
-              <p className="text-xs text-blue-600">Largest decline</p>
+              <p className="text-xs text-blue-600">{t('portfolio_analytics.performance.largest_decline')}</p>
             </div>
             
             <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <p className="text-sm text-purple-700 mb-1">Average Return</p>
+              <p className="text-sm text-purple-700 mb-1">{t('portfolio_analytics.performance.average_return')}</p>
               <p className="text-lg font-bold text-purple-900">
                 {formatPercentage(performanceMetrics.averageReturn)}
               </p>
-              <p className="text-xs text-purple-600">Annual equivalent</p>
+              <p className="text-xs text-purple-600">{t('portfolio_analytics.performance.annual_equivalent')}</p>
             </div>
           </div>
         </CardContent>

@@ -1453,6 +1453,51 @@
         "no_transactions_yet": "You don't have any transactions yet."
       }
     },
+    "portfolio_analytics": {
+      "summary": {
+        "total_returns": "Total Returns",
+        "sharpe_ratio": "Sharpe Ratio",
+        "risk_adjusted_return": "Risk-adjusted return",
+        "win_rate": "Win Rate",
+        "profitable_investments": "Profitable investments",
+        "volatility": "Volatility",
+        "standard_deviation": "Standard deviation"
+      },
+      "view_toggle": {
+        "returns_analysis": "Returns Analysis",
+        "portfolio_growth": "Portfolio Growth",
+        "sector_analysis": "Sector Analysis"
+      },
+      "actions": {
+        "export_report": "Export Report",
+        "detailed_analysis": "Detailed Analysis"
+      },
+      "charts": {
+        "monthly_returns": "Monthly Returns",
+        "monthly_trends": "Monthly return trends vs benchmark",
+        "cumulative_returns": "Cumulative Returns",
+        "total_returns_time": "Total returns over time",
+        "portfolio_growth": "Portfolio Growth",
+        "portfolio_vs_benchmark": "Portfolio value vs invested amount vs benchmark",
+        "sector_performance": "Sector Performance",
+        "returns_by_sector": "Returns by sector allocation",
+        "risk_analysis": "Risk Analysis",
+        "allocation_by_risk": "Portfolio allocation by risk level"
+      },
+      "labels": {
+        "invested": "invested",
+        "allocation": "allocation"
+      },
+      "performance": {
+        "title": "Performance Metrics",
+        "best_month": "Best Month",
+        "worst_month": "Worst Month",
+        "max_drawdown": "Max Drawdown",
+        "largest_decline": "Largest decline",
+        "average_return": "Average Return",
+        "annual_equivalent": "Annual equivalent"
+      }
+    },
     "portfolio_wallet": {
       "title": "Digital Wallet",
       "subtitle": "Manage your funds and transactions",
