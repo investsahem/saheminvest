@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import InvestorLayout from '../../components/layout/InvestorLayout'
 import { Button } from '../../components/ui/Button'
 import { Card, CardContent } from '../../components/ui/Card'
@@ -112,6 +113,7 @@ interface PortfolioData {
 }
 
 export default function InvestmentsPage() {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const router = useRouter()
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
@@ -209,45 +211,45 @@ export default function InvestmentsPage() {
     switch (stage) {
       case 'ACTIVE':
         return {
-          label: 'Investment Active',
+          label: t('portfolio_investments.lifecycle_stages.investment_active'),
           color: 'bg-blue-100 text-blue-800',
           icon: <Activity className="w-4 h-4" />,
-          description: 'Investment is active, awaiting partner profits'
+          description: t('portfolio_investments.lifecycle_stages.investment_active_desc')
         }
       case 'PROFITS_PENDING':
         return {
-          label: 'Profits Pending',
+          label: t('portfolio_investments.lifecycle_stages.profits_pending'),
           color: 'bg-yellow-100 text-yellow-800',
           icon: <Clock className="w-4 h-4" />,
-          description: 'Partner has added profits, awaiting admin distribution'
+          description: t('portfolio_investments.lifecycle_stages.profits_pending_desc')
         }
       case 'PROFITS_DISTRIBUTED':
         return {
-          label: 'Profits Distributed',
+          label: t('portfolio_investments.lifecycle_stages.profits_distributed'),
           color: 'bg-green-100 text-green-800',
           icon: <Coins className="w-4 h-4" />,
-          description: 'Profits have been distributed to your wallet'
+          description: t('portfolio_investments.lifecycle_stages.profits_distributed_desc')
         }
       case 'COMPLETED_WITH_PROFITS':
         return {
-          label: 'Investment Completed',
+          label: t('portfolio_investments.lifecycle_stages.investment_completed'),
           color: 'bg-emerald-100 text-emerald-800',
           icon: <CheckCircle className="w-4 h-4" />,
-          description: 'Investment completed with profits distributed'
+          description: t('portfolio_investments.lifecycle_stages.investment_completed_desc')
         }
       case 'COMPLETED':
         return {
-          label: 'Investment Completed',
+          label: t('portfolio_investments.lifecycle_stages.investment_completed'),
           color: 'bg-gray-100 text-gray-800',
           icon: <CheckCircle className="w-4 h-4" />,
-          description: 'Investment completed'
+          description: t('portfolio_investments.lifecycle_stages.investment_completed_no_profits_desc')
         }
       default:
         return {
-          label: 'Unknown Status',
+          label: t('portfolio_investments.lifecycle_stages.unknown_status'),
           color: 'bg-gray-100 text-gray-800',
           icon: <AlertCircle className="w-4 h-4" />,
-          description: 'Status unknown'
+          description: t('portfolio_investments.lifecycle_stages.status_unknown')
         }
     }
   }
@@ -267,10 +269,10 @@ export default function InvestmentsPage() {
       <InvestorLayout>
         <div className="text-center py-12">
           <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">No Investments Yet</h2>
-          <p className="text-gray-600 mb-6">Start building your portfolio by investing in exciting projects.</p>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t('portfolio_investments.empty_state.title')}</h2>
+          <p className="text-gray-600 mb-6">{t('portfolio_investments.empty_state.description')}</p>
           <Button onClick={() => router.push('/deals')}>
-            Browse Investment Opportunities
+            {t('portfolio_investments.empty_state.cta')}
           </Button>
         </div>
       </InvestorLayout>
@@ -283,27 +285,27 @@ export default function InvestmentsPage() {
     <InvestorLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">My Investments</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('portfolio_investments.title')}</h1>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm font-medium text-gray-500">Total Invested</div>
+            <div className="text-sm font-medium text-gray-500">{t('portfolio_investments.summary_cards.total_invested')}</div>
             <div className="text-2xl font-bold text-gray-900">{formatCurrency(portfolio.totalInvested)}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm font-medium text-gray-500">Current Value</div>
+            <div className="text-sm font-medium text-gray-500">{t('portfolio_investments.summary_cards.current_value')}</div>
             <div className="text-2xl font-bold text-gray-900">{formatCurrency(portfolio.totalValue)}</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm font-medium text-gray-500">Total Return</div>
+            <div className="text-sm font-medium text-gray-500">{t('portfolio_investments.summary_cards.total_return')}</div>
             <div className={`text-2xl font-bold ${portfolio.totalReturns >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {formatCurrency(portfolio.totalReturns)}
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-sm font-medium text-gray-500">Active Investments</div>
+            <div className="text-sm font-medium text-gray-500">{t('portfolio_investments.summary_cards.active_investments')}</div>
             <div className="text-2xl font-bold text-gray-900">
               {portfolio.activeInvestments}
             </div>
@@ -317,25 +319,25 @@ export default function InvestmentsPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Project
+                    {t('portfolio_investments.table.project')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount Invested
+                    {t('portfolio_investments.table.amount_invested')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Current Value
+                    {t('portfolio_investments.table.current_value')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Return
+                    {t('portfolio_investments.table.return')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Progress
+                    {t('portfolio_investments.table.progress')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    {t('portfolio_investments.table.status')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    {t('portfolio_investments.table.actions')}
                   </th>
                 </tr>
               </thead>
@@ -363,7 +365,7 @@ export default function InvestmentsPage() {
                             {investment.projectTitle}
                           </div>
                           <div className="text-sm text-gray-500">
-                            Invested on {formatDate(investment.investmentDate)}
+                            {t('portfolio_investments.table.invested_on')} {formatDate(investment.investmentDate)}
                           </div>
                         </div>
                       </div>
@@ -396,7 +398,7 @@ export default function InvestmentsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(investment.status)}`}>
                         {getStatusIcon(investment.status)}
-                        <span className="ml-1 capitalize">{investment.status}</span>
+                        <span className="ml-1 capitalize">{t(`portfolio_investments.status.${investment.status}`) || investment.status}</span>
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -408,7 +410,7 @@ export default function InvestmentsPage() {
                           disabled={detailsLoading}
                         >
                           <Eye className="w-4 h-4 mr-1" />
-                          {detailsLoading ? 'Loading...' : 'View Details'}
+                          {detailsLoading ? t('portfolio_investments.actions.loading') : t('portfolio_investments.actions.view_details')}
                         </Button>
                         {investment.status === 'active' && (
                           <Button
@@ -416,7 +418,7 @@ export default function InvestmentsPage() {
                             onClick={() => router.push(`/deals/${investment.projectId}/invest`)}
                           >
                             <Plus className="w-4 h-4 mr-1" />
-                            Add More
+                            {t('portfolio_investments.actions.add_more')}
                           </Button>
                         )}
                       </div>
@@ -434,7 +436,7 @@ export default function InvestmentsPage() {
             <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Investment Details</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{t('portfolio_investments.modal.investment_details')}</h2>
                   <Button
                     variant="outline"
                     size="sm"
@@ -466,7 +468,7 @@ export default function InvestmentsPage() {
                         <h3 className="text-xl font-semibold text-gray-900">{selectedInvestment.project.title}</h3>
                         <p className="text-gray-600">{selectedInvestment.project.category}</p>
                         <p className="text-sm text-gray-500">
-                          Partner: {selectedInvestment.project.partner.companyName || selectedInvestment.project.partner.name}
+                          {t('portfolio_investments.modal.partner')}: {selectedInvestment.project.partner.companyName || selectedInvestment.project.partner.name}
                         </p>
                       </div>
                       <div className="text-right">
@@ -491,7 +493,7 @@ export default function InvestmentsPage() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-600">Invested Amount</p>
+                          <p className="text-sm font-medium text-gray-600">{t('portfolio_investments.modal.invested_amount')}</p>
                           <p className="text-lg font-bold text-gray-900">
                             {formatCurrency(selectedInvestment.investedAmount)}
                           </p>
@@ -505,7 +507,7 @@ export default function InvestmentsPage() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-600">Current Value</p>
+                          <p className="text-sm font-medium text-gray-600">{t('portfolio_investments.modal.current_value')}</p>
                           <p className="text-lg font-bold text-gray-900">
                             {formatCurrency(selectedInvestment.currentValue)}
                           </p>
@@ -519,7 +521,7 @@ export default function InvestmentsPage() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-600">Distributed Profits</p>
+                          <p className="text-sm font-medium text-gray-600">{t('portfolio_investments.modal.distributed_profits')}</p>
                           <p className="text-lg font-bold text-green-600">
                             {formatCurrency(selectedInvestment.distributedProfits)}
                           </p>
@@ -533,7 +535,7 @@ export default function InvestmentsPage() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-600">Pending Profits</p>
+                          <p className="text-sm font-medium text-gray-600">{t('portfolio_investments.modal.pending_profits')}</p>
                           <p className="text-lg font-bold text-yellow-600">
                             {formatCurrency(selectedInvestment.pendingProfits)}
                           </p>
@@ -547,10 +549,10 @@ export default function InvestmentsPage() {
                 {/* Investment Progress */}
                 <Card className="mb-6">
                   <CardContent className="p-6">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Investment Progress</h4>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('portfolio_investments.modal.investment_progress')}</h4>
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-600">Project Progress</span>
+                        <span className="text-sm font-medium text-gray-600">{t('portfolio_investments.modal.project_progress')}</span>
                         <span className="text-sm text-gray-600">{selectedInvestment.progress}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
@@ -562,16 +564,16 @@ export default function InvestmentsPage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-600">Investment Date</p>
+                        <p className="text-gray-600">{t('portfolio_investments.modal.investment_date')}</p>
                         <p className="font-medium">{formatDate(selectedInvestment.investmentDate)}</p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Expected Return</p>
+                        <p className="text-gray-600">{t('portfolio_investments.modal.expected_return')}</p>
                         <p className="font-medium">{selectedInvestment.project.expectedReturn}%</p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Duration</p>
-                        <p className="font-medium">{selectedInvestment.project.duration} months</p>
+                        <p className="text-gray-600">{t('portfolio_investments.modal.duration')}</p>
+                        <p className="font-medium">{selectedInvestment.project.duration} {t('portfolio_investments.modal.months')}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -583,7 +585,7 @@ export default function InvestmentsPage() {
                     <CardContent className="p-6">
                       <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <History className="w-5 h-5 mr-2" />
-                        Profit Distribution History
+                        {t('portfolio_investments.modal.profit_distribution_history')}
                       </h4>
                       <div className="space-y-3">
                         {selectedInvestment.profitHistory.map((profit) => (
@@ -596,7 +598,7 @@ export default function InvestmentsPage() {
                             <div className="text-right">
                               <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                                 <CheckCircle className="w-3 h-3 mr-1" />
-                                Distributed
+                                {t('portfolio_investments.modal.distributed')}
                               </span>
                             </div>
                           </div>
@@ -612,7 +614,7 @@ export default function InvestmentsPage() {
                     <CardContent className="p-6">
                       <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                         <Clock className="w-5 h-5 mr-2" />
-                        Pending Profit Distributions
+                        {t('portfolio_investments.modal.pending_profit_distributions')}
                       </h4>
                       <div className="space-y-3">
                         {selectedInvestment.pendingProfitDistributions.map((profit) => (
@@ -625,7 +627,7 @@ export default function InvestmentsPage() {
                             <div className="text-right">
                               <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
                                 <Clock className="w-3 h-3 mr-1" />
-                                Awaiting Admin
+                                {t('portfolio_investments.modal.awaiting_admin')}
                               </span>
                             </div>
                           </div>
@@ -638,7 +640,7 @@ export default function InvestmentsPage() {
                 {/* Lifecycle Stage Information */}
                 <Card>
                   <CardContent className="p-6">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Investment Lifecycle</h4>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('portfolio_investments.modal.investment_lifecycle')}</h4>
                     {(() => {
                       const stageInfo = getLifecycleStageInfo(selectedInvestment.lifecycleStage)
                       return (

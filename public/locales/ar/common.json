@@ -442,13 +442,10 @@
     "minimum_return": "الحد الأدنى للعائد",
     "any_return": "أي عائد",
     "clear_filters": "مسح المرشحات",
-  "return_5_plus": "عائد 5%+",
-  "return_10_plus": "عائد 10%+",
-  "return_15_plus": "عائد 15%+",
-  "return_20_plus": "عائد 20%+",
-    "filters": {
-      "all_categories": "جميع الفئات"
-    }
+    "return_5_plus": "عائد 5%+",
+    "return_10_plus": "عائد 10%+",
+    "return_15_plus": "عائد 15%+",
+    "return_20_plus": "عائد 20%+"
   },
   "wallet": {
     "balance": "الرصيد الحالي",
@@ -1028,9 +1025,7 @@
       "invalid_phone": "يرجى إدخال رقم هاتف صحيح",
       "invalid_national_id": "يرجى إدخال رقم هوية وطنية صحيح",
       "have_account": "هل لديك حساب بالفعل؟",
-      "existing_user_redirect": "يوجد حساب بهذا البريد الإلكتروني بالفعل. هل تريد تسجيل الدخول بدلاً من ذلك؟",
-      "submitting": "جاري الإرسال...",
-      "submit_application": "إرسال الطلب"
+      "existing_user_redirect": "يوجد حساب بهذا البريد الإلكتروني بالفعل. هل تريد تسجيل الدخول بدلاً من ذلك؟"
     }
   },
   "common": {
@@ -1476,6 +1471,75 @@
         "investment_in": "استثمار في"
       }
     },
+    "portfolio_investments": {
+      "title": "استثماراتي",
+      "subtitle": "تتبع وإدارة محفظتك الاستثمارية",
+      "empty_state": {
+        "title": "لا توجد استثمارات بعد",
+        "description": "ابدأ ببناء محفظتك بالاستثمار في مشاريع مثيرة.",
+        "cta": "تصفح فرص الاستثمار"
+      },
+      "summary_cards": {
+        "total_invested": "إجمالي الاستثمار",
+        "current_value": "القيمة الحالية",
+        "total_return": "إجمالي العائد",
+        "active_investments": "الاستثمارات النشطة"
+      },
+      "table": {
+        "project": "المشروع",
+        "amount_invested": "مبلغ الاستثمار",
+        "current_value": "القيمة الحالية",
+        "return": "العائد",
+        "progress": "التقدم",
+        "status": "الحالة",
+        "actions": "الإجراءات",
+        "invested_on": "تم الاستثمار في"
+      },
+      "actions": {
+        "view_details": "عرض التفاصيل",
+        "add_more": "إضافة المزيد",
+        "loading": "جاري التحميل..."
+      },
+      "modal": {
+        "investment_details": "تفاصيل الاستثمار",
+        "project_information": "معلومات المشروع",
+        "investment_metrics": "مقاييس الاستثمار",
+        "invested_amount": "مبلغ الاستثمار",
+        "current_value": "القيمة الحالية",
+        "distributed_profits": "الأرباح الموزعة",
+        "pending_profits": "الأرباح المعلقة",
+        "investment_progress": "تقدم الاستثمار",
+        "project_progress": "تقدم المشروع",
+        "investment_date": "تاريخ الاستثمار",
+        "expected_return": "العائد المتوقع",
+        "duration": "المدة",
+        "months": "أشهر",
+        "profit_distribution_history": "تاريخ توزيع الأرباح",
+        "pending_profit_distributions": "توزيعات الأرباح المعلقة",
+        "distributed": "موزع",
+        "awaiting_admin": "في انتظار الإدارة",
+        "investment_lifecycle": "دورة حياة الاستثمار",
+        "partner": "الشريك"
+      },
+      "lifecycle_stages": {
+        "investment_active": "استثمار نشط",
+        "investment_active_desc": "الاستثمار نشط، في انتظار أرباح الشريك",
+        "profits_pending": "أرباح معلقة",
+        "profits_pending_desc": "أضاف الشريك أرباحاً، في انتظار توزيع الإدارة",
+        "profits_distributed": "تم توزيع الأرباح",
+        "profits_distributed_desc": "تم توزيع الأرباح على محفظتك",
+        "investment_completed": "اكتمل الاستثمار",
+        "investment_completed_desc": "اكتمل الاستثمار مع توزيع الأرباح",
+        "investment_completed_no_profits_desc": "اكتمل الاستثمار",
+        "unknown_status": "حالة غير معروفة",
+        "status_unknown": "الحالة غير معروفة"
+      },
+      "status": {
+        "active": "نشط",
+        "completed": "مكتمل",
+        "funded": "ممول"
+      }
+    },
     "partner_documents": {
       "title": "المستندات",
       "subtitle": "إدارة مستنداتك وملفاتك",
@@ -1530,6 +1594,139 @@
       },
       "descriptions": {
         "recently_uploaded": "مستند مرفوع حديثاً"
+      }
+    },
+    "partner_settings": {
+      "title": "الإعدادات",
+      "subtitle": "إدارة إعدادات حسابك وتفضيلاتك",
+      "tabs": {
+        "profile": "الملف الشخصي",
+        "notifications": "الإشعارات",
+        "security": "الأمان",
+        "billing": "الفواتير"
+      },
+      "profile": {
+        "company_information": "معلومات الشركة",
+        "save": "حفظ التغييرات",
+        "saving": "جاري الحفظ...",
+        "logo_update_hint": "انقر على أيقونة الكاميرا لتحديث شعارك",
+        "company_name": "اسم الشركة",
+        "contact_name": "اسم جهة الاتصال",
+        "email": "البريد الإلكتروني",
+        "phone": "رقم الهاتف",
+        "industry": "الصناعة",
+        "website": "الموقع الإلكتروني",
+        "company_description": "وصف الشركة",
+        "company_description_placeholder": "وصف موجز عن شركتك...",
+        "address_information": "معلومات العنوان",
+        "address": "العنوان",
+        "city": "المدينة",
+        "country": "البلد",
+        "banking_legal_information": "المعلومات المصرفية والقانونية",
+        "tax_id": "الرقم الضريبي",
+        "business_license": "رخصة العمل",
+        "bank_account": "الحساب المصرفي",
+        "iban": "رقم الحساب الدولي",
+        "swift_code": "رمز سويفت",
+        "industries": {
+          "technology": "التكنولوجيا",
+          "healthcare": "الرعاية الصحية",
+          "finance": "المالية",
+          "real_estate": "العقارات",
+          "manufacturing": "التصنيع",
+          "energy": "الطاقة",
+          "retail": "تجارة التجزئة",
+          "other": "أخرى"
+        }
+      },
+      "notifications": {
+        "title": "تفضيلات الإشعارات",
+        "save": "حفظ التغييرات",
+        "saving": "جاري الحفظ...",
+        "communication_channels": "قنوات التواصل",
+        "notification_types": "أنواع الإشعارات",
+        "email_notifications": "إشعارات البريد الإلكتروني",
+        "email_notifications_desc": "استقبال الإشعارات عبر البريد الإلكتروني",
+        "sms_notifications": "إشعارات الرسائل النصية",
+        "sms_notifications_desc": "استقبال الإشعارات عبر الرسائل النصية",
+        "push_notifications": "إشعارات الدفع",
+        "push_notifications_desc": "استقبال إشعارات المتصفح",
+        "deal_updates": "تحديثات الصفقات",
+        "deal_updates_desc": "تحديثات حول صفقاتك النشطة",
+        "investor_messages": "رسائل المستثمرين",
+        "investor_messages_desc": "رسائل من المستثمرين",
+        "system_alerts": "تنبيهات النظام",
+        "system_alerts_desc": "إشعارات هامة من النظام",
+        "marketing_emails": "رسائل تسويقية",
+        "marketing_emails_desc": "محتوى ترويجي وتسويقي",
+        "weekly_reports": "تقارير أسبوعية",
+        "weekly_reports_desc": "ملخصات الأداء الأسبوعية",
+        "monthly_statements": "بيانات شهرية",
+        "monthly_statements_desc": "البيانات المالية الشهرية"
+      },
+      "security": {
+        "change_password": "تغيير كلمة المرور",
+        "current_password": "كلمة المرور الحالية",
+        "new_password": "كلمة المرور الجديدة",
+        "confirm_password": "تأكيد كلمة المرور الجديدة",
+        "change_password_btn": "تغيير كلمة المرور",
+        "changing": "جاري التغيير...",
+        "security_settings": "إعدادات الأمان",
+        "save": "حفظ التغييرات",
+        "saving": "جاري الحفظ...",
+        "two_factor_auth": "المصادقة الثنائية",
+        "two_factor_desc": "أضف طبقة إضافية من الأمان لحسابك",
+        "enabled": "مفعّل",
+        "enable": "تفعيل",
+        "disable": "إلغاء التفعيل",
+        "session_timeout": "مهلة انتهاء الجلسة",
+        "session_timeout_desc": "تسجيل الخروج تلقائياً بعد فترة من عدم النشاط",
+        "login_alerts": "تنبيهات تسجيل الدخول",
+        "login_alerts_desc": "احصل على إشعار بمحاولات تسجيل الدخول الجديدة",
+        "timeout_options": {
+          "15_minutes": "15 دقيقة",
+          "30_minutes": "30 دقيقة",
+          "1_hour": "ساعة واحدة",
+          "2_hours": "ساعتان",
+          "4_hours": "4 ساعات"
+        }
+      },
+      "billing": {
+        "current_plan": "الخطة الحالية",
+        "active": "نشط",
+        "professional_plan": "الخطة المهنية",
+        "professional_desc": "وصول كامل لجميع ميزات الشريك",
+        "per_month": "في الشهر",
+        "unlimited_deals": "غير محدود",
+        "deals": "الصفقات",
+        "support_24_7": "24/7",
+        "support": "الدعم",
+        "premium_analytics": "متقدمة",
+        "analytics": "التحليلات",
+        "payment_method": "طريقة الدفع",
+        "expires": "تنتهي في",
+        "update": "تحديث",
+        "billing_history": "تاريخ الفواتير",
+        "paid": "مدفوع",
+        "download": "تحميل"
+      },
+      "language_region": {
+        "title": "اللغة والمنطقة",
+        "language": "اللغة",
+        "language_desc": "اختر لغتك المفضلة"
+      },
+      "messages": {
+        "profile_updated": "تم تحديث الملف الشخصي بنجاح!",
+        "notifications_updated": "تم تحديث إعدادات الإشعارات بنجاح!",
+        "security_updated": "تم تحديث إعدادات الأمان بنجاح!",
+        "password_changed": "تم تغيير كلمة المرور بنجاح!",
+        "passwords_no_match": "كلمات المرور الجديدة غير متطابقة!",
+        "password_too_short": "يجب أن تكون كلمة المرور 8 أحرف على الأقل!",
+        "logo_updated": "تم تحديث الشعار بنجاح!",
+        "file_too_large": "يجب أن يكون حجم الملف أقل من 5 ميجابايت",
+        "select_image": "يرجى اختيار ملف صورة",
+        "update_failed": "فشل في التحديث",
+        "upload_failed": "فشل في رفع الصورة"
       }
     },
     "partner_performance": {

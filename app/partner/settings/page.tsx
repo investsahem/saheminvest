@@ -336,8 +336,8 @@ const PartnerSettingsPage = () => {
   if (loading) {
     return (
       <PartnerLayout
-        title={t('partner.settings')}
-        subtitle={t('partner.settings_subtitle')}
+        title={t('partner_settings.title')}
+        subtitle={t('partner_settings.subtitle')}
       >
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -348,17 +348,17 @@ const PartnerSettingsPage = () => {
 
   return (
     <PartnerLayout
-      title={t('partner.settings')}
-      subtitle={t('partner.settings_subtitle')}
+      title={t('partner_settings.title')}
+      subtitle={t('partner_settings.subtitle')}
     >
       <div className="space-y-6">
         {/* Tab Navigation */}
         <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
           {[
-            { key: 'profile', label: t('partner.profile_settings_title'), icon: User },
-            { key: 'notifications', label: t('partner.notification_settings'), icon: Bell },
-            { key: 'security', label: t('partner.security_settings'), icon: Shield },
-            { key: 'billing', label: t('partner.billing_settings'), icon: CreditCard }
+            { key: 'profile', label: t('partner_settings.tabs.profile'), icon: User },
+            { key: 'notifications', label: t('partner_settings.tabs.notifications'), icon: Bell },
+            { key: 'security', label: t('partner_settings.tabs.security'), icon: Shield },
+            { key: 'billing', label: t('partner_settings.tabs.billing'), icon: CreditCard }
           ].map((tab) => {
             const Icon = tab.icon
             return (
@@ -385,10 +385,10 @@ const PartnerSettingsPage = () => {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">{t('partner.company_name')}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('partner_settings.profile.company_information')}</h3>
                   <Button onClick={handleProfileSave} disabled={saving}>
                     <Save className="w-4 h-4 mr-2" />
-                    {saving ? t('partner.loading') : t('partner.save')}
+                    {saving ? t('partner_settings.profile.saving') : t('partner_settings.profile.save')}
                   </Button>
                 </div>
 
@@ -412,7 +412,7 @@ const PartnerSettingsPage = () => {
                   <div>
                     <h4 className="font-semibold text-gray-900">{profile.companyName}</h4>
                     <p className="text-sm text-gray-600">{profile.industry}</p>
-                    <p className="text-xs text-gray-500 mt-1">Click the camera icon to update your logo</p>
+                    <p className="text-xs text-gray-500 mt-1">{t('partner_settings.profile.logo_update_hint')}</p>
                   </div>
                 </div>
 
