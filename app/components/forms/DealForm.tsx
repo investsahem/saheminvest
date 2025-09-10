@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from '../providers/I18nProvider'
 import { Button } from '../ui/Button'
 import { Card, CardContent } from '../ui/Card'
 import { 
@@ -18,6 +19,7 @@ interface DealFormProps {
 }
 
 const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) => {
+  const { t } = useTranslation()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [imagePreview, setImagePreview] = useState<string>(deal?.thumbnailImage || '')
@@ -222,12 +224,12 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
         <CardContent className="p-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {mode === 'edit' ? 'Edit Deal' : 'Create New Deal'}
+              {mode === 'edit' ? t('partner_deals.edit_deal') : t('partner_deals.create_new_deal')}
             </h1>
             <p className="text-gray-600">
               {mode === 'edit' 
                 ? 'Update the deal information below' 
-                : 'Fill in the details to create a new investment opportunity'
+                : t('partner_deals.create_new_deal_subtitle')
               }
             </p>
           </div>
@@ -236,13 +238,13 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
             {/* Basic Information */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
-                Basic Information
+{t('partner_deals.basic_information')}
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Deal Title *
+{t('partner_deals.deal_title')} {t('partner_deals.required_field')}
                   </label>
                   <input
                     type="text"
@@ -251,7 +253,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter deal title"
+                    placeholder={t('partner_deals.deal_title_placeholder')}
                   />
                 </div>
 

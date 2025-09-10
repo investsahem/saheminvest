@@ -318,7 +318,7 @@ const PartnerDealsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700">Total Deals</p>
+                  <p className="text-sm font-medium text-blue-700">{t('partner_deals.total_deals')}</p>
                   <p className="text-2xl font-bold text-blue-900">{deals.length}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -332,7 +332,7 @@ const PartnerDealsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700">Active</p>
+                  <p className="text-sm font-medium text-green-700">{t('partner_deals.active')}</p>
                   <p className="text-2xl font-bold text-green-900">
                     {deals.filter(d => d.status === 'ACTIVE' || d.status === 'PUBLISHED').length}
                   </p>
@@ -348,7 +348,7 @@ const PartnerDealsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-yellow-700">Pending Review</p>
+                  <p className="text-sm font-medium text-yellow-700">{t('partner_deals.pending_review')}</p>
                   <p className="text-2xl font-bold text-yellow-900">
                     {deals.filter(d => d.status === 'PENDING').length}
                   </p>
@@ -364,7 +364,7 @@ const PartnerDealsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-700">Completed</p>
+                  <p className="text-sm font-medium text-purple-700">{t('partner_deals.completed')}</p>
                   <p className="text-2xl font-bold text-purple-900">
                     {deals.filter(d => d.status === 'COMPLETED').length}
                   </p>
@@ -386,7 +386,7 @@ const PartnerDealsPage = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     type="text"
-                    placeholder={t('deal_card.search_deals')}
+                    placeholder={t('partner_deals.search_deals')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -398,30 +398,30 @@ const PartnerDealsPage = () => {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Status</option>
-                  <option value="DRAFT">Draft</option>
-                  <option value="PENDING">Pending Review</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="PUBLISHED">Published</option>
-                  <option value="PAUSED">Paused</option>
-                  <option value="FUNDED">Funded</option>
-                  <option value="COMPLETED">Completed</option>
-                  <option value="REJECTED">Rejected</option>
-                  <option value="CANCELLED">Cancelled</option>
+                  <option value="all">{t('partner_deals.all_status')}</option>
+                  <option value="DRAFT">{t('partner_deals.draft')}</option>
+                  <option value="PENDING">{t('partner_deals.pending_review')}</option>
+                  <option value="ACTIVE">{t('partner_deals.active')}</option>
+                  <option value="PUBLISHED">{t('partner_deals.published')}</option>
+                  <option value="PAUSED">{t('partner_deals.paused')}</option>
+                  <option value="FUNDED">{t('partner_deals.funded')}</option>
+                  <option value="COMPLETED">{t('partner_deals.completed')}</option>
+                  <option value="REJECTED">{t('partner_deals.rejected')}</option>
+                  <option value="CANCELLED">{t('partner_deals.cancelled')}</option>
                 </select>
               </div>
 
               <div className="flex gap-2">
                 <Button variant="outline" className="flex items-center gap-2">
                   <Filter className="w-4 h-4" />
-                  Export
+                  {t('partner_deals.export')}
                 </Button>
                 <Button 
                   className="flex items-center gap-2"
                   onClick={() => setShowAddDeal(true)}
                 >
                   <Plus className="w-4 h-4" />
-                  Create Deal
+                  {t('partner_deals.create_deal')}
                 </Button>
               </div>
             </div>
@@ -481,9 +481,15 @@ const PartnerDealsPage = () => {
                     <div className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(deal.status)}`}>
                       {getStatusIcon(deal.status)}
                       <span className="ml-1">
-                        {deal.status === 'PENDING' ? 'Pending Review' : 
-                         deal.status === 'ACTIVE' ? 'Active' :
-                         deal.status === 'PUBLISHED' ? 'Published' :
+                        {deal.status === 'PENDING' ? t('partner_deals.pending_review') : 
+                         deal.status === 'ACTIVE' ? t('partner_deals.active') :
+                         deal.status === 'PUBLISHED' ? t('partner_deals.published') :
+                         deal.status === 'COMPLETED' ? t('partner_deals.completed') :
+                         deal.status === 'DRAFT' ? t('partner_deals.draft') :
+                         deal.status === 'PAUSED' ? t('partner_deals.paused') :
+                         deal.status === 'FUNDED' ? t('partner_deals.funded') :
+                         deal.status === 'REJECTED' ? t('partner_deals.rejected') :
+                         deal.status === 'CANCELLED' ? t('partner_deals.cancelled') :
                          deal.status}
                       </span>
                     </div>
@@ -618,17 +624,17 @@ const PartnerDealsPage = () => {
           <Card>
             <CardContent className="p-12 text-center">
               <Briefcase className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No deals found</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('partner_deals.no_deals_found')}</h3>
               <p className="text-gray-600 mb-4">
                 {searchTerm || filterStatus !== 'all' 
                   ? 'Try adjusting your search or filter criteria.'
-                  : 'Get started by creating your first deal.'
+                  : t('partner_deals.no_deals_message')
                 }
               </p>
               {(!searchTerm && filterStatus === 'all') && (
                 <Button onClick={() => setShowAddDeal(true)}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Deal
+                  {t('partner_deals.create_deal')}
                 </Button>
               )}
             </CardContent>

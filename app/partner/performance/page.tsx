@@ -12,6 +12,7 @@ import {
   Building2, CheckCircle, Clock, AlertCircle, ArrowUpRight, 
   ArrowDownRight, Star, Trophy, Zap, Timer
 } from 'lucide-react'
+import { formatPercentage, formatCurrency, formatNumber } from '../utils/formatters'
 
 const PartnerPerformancePage = () => {
   const { t } = useTranslation()
@@ -194,7 +195,7 @@ const PartnerPerformancePage = () => {
                 <div className="text-2xl font-bold text-gray-900">{formatCurrency(performanceMetrics.totalValue)}</div>
                 <div className="text-sm text-gray-600">Total Value</div>
                 <div className="text-xs text-green-600 mt-1">
-                  {((performanceMetrics.totalReturns / performanceMetrics.totalValue) * 100).toFixed(1)}% ROI
+                  {formatPercentage(performanceMetrics.totalReturns, performanceMetrics.totalValue)}% ROI
                 </div>
               </div>
 
@@ -205,7 +206,7 @@ const PartnerPerformancePage = () => {
                 <div className="text-2xl font-bold text-gray-900">{formatNumber(performanceMetrics.totalInvestors)}</div>
                 <div className="text-sm text-gray-600">Total Investors</div>
                 <div className="text-xs text-green-600 mt-1">
-                  {Math.round((performanceMetrics.repeatInvestors / performanceMetrics.totalInvestors) * 100)}% repeat rate
+                  {formatPercentage(performanceMetrics.repeatInvestors, performanceMetrics.totalInvestors, 0)}% repeat rate
                 </div>
               </div>
 

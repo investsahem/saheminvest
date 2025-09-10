@@ -17,6 +17,7 @@ import {
   CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, Line, 
   BarChart, Bar, ComposedChart
 } from 'recharts'
+import { formatPercentage, formatCurrency, formatNumber } from '../utils/formatters'
 
 const PartnerAnalyticsPage = () => {
   const { t } = useTranslation()
@@ -502,7 +503,7 @@ const PartnerAnalyticsPage = () => {
                 <div className="text-2xl font-bold text-gray-900">{formatCurrency(analyticsMetrics.totalValue)}</div>
                 <div className="text-sm text-gray-600">Total Value</div>
                 <div className="text-xs text-green-600 mt-1">
-                  {((analyticsMetrics.totalRaised / analyticsMetrics.totalValue) * 100).toFixed(1)}% funded
+                  {formatPercentage(analyticsMetrics.totalRaised, analyticsMetrics.totalValue)}% funded
                 </div>
               </div>
 
@@ -513,7 +514,7 @@ const PartnerAnalyticsPage = () => {
                 <div className="text-2xl font-bold text-gray-900">{formatNumber(analyticsMetrics.totalInvestors)}</div>
                 <div className="text-sm text-gray-600">Total Investors</div>
                 <div className="text-xs text-green-600 mt-1">
-                  {Math.round((analyticsMetrics.repeatInvestors / analyticsMetrics.totalInvestors) * 100)}% repeat rate
+                  {formatPercentage(analyticsMetrics.repeatInvestors, analyticsMetrics.totalInvestors, 0)}% repeat rate
                 </div>
               </div>
 

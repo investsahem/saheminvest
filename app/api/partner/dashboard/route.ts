@@ -206,11 +206,11 @@ export async function GET(request: NextRequest) {
     const lastMonthRevenue = Number(lastMonthInvestments._sum.amount) || 0
     
     const monthlyGrowth = lastMonthRevenue > 0 
-      ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 
+      ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 * 100) / 100  // Round to 2 decimal places
       : 0
     
     const successRate = totalDeals > 0 
-      ? (completedDeals / totalDeals) * 100 
+      ? Math.round((completedDeals / totalDeals) * 100 * 100) / 100  // Round to 2 decimal places
       : 0
     
     const averageReturn = Number(partner.successRate) || 6.2 // From partner profile or calculate

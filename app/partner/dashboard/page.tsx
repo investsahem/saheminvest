@@ -17,6 +17,7 @@ import {
   LineChart, AreaChart, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer, Area, Line
 } from 'recharts'
+import { formatRawPercentage, formatCurrency, formatNumber } from '../utils/formatters'
 
 interface PartnerDashboardData {
   partnerData: {
@@ -256,7 +257,7 @@ const PartnerDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-purple-700">{t('partner.success_rate')}</p>
-                  <p className="text-2xl font-bold text-purple-900">{partnerData.successRate}%</p>
+                  <p className="text-2xl font-bold text-purple-900">{formatRawPercentage(partnerData.successRate)}%</p>
                   <p className="text-xs text-purple-600 flex items-center mt-1">
                     <Award className="w-3 h-3 mr-1" />
                     {partnerData.completedDeals} {t('partner.completed')}
