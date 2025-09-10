@@ -61,7 +61,11 @@
     },
     "signup": {
       "title": "Create Account",
-      "subtitle": "Join thousands of investors on our platform"
+      "subtitle": "Join thousands of investors on our platform",
+      "existing_user_redirect": "An account with this email already exists. Would you like to sign in instead?",
+      "have_account": "Already have an account?",
+      "submitting": "Submitting...",
+      "submit_application": "Submit Application"
     }
   },
   "hero": {

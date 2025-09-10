@@ -4,12 +4,12 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
-import { Shield, Users, Target, Award, CheckCircle, Menu, X } from 'lucide-react'
+import PublicHeader from '../components/layout/PublicHeader'
+import { Shield, Users, Target, Award, CheckCircle } from 'lucide-react'
 
 export default function AboutPage() {
   const { t } = useTranslation()
   const { locale, setLocale } = useI18n()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   
 
   const staggerContainer = {
@@ -61,91 +61,8 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-slate-900">
-      {/* Navigation Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-lg bg-gradient-to-r from-[#0b1124ee] via-[#0b1124ee] to-[#0b112490] border-b border-[#233059]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-3">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-conic from-[#6be2c9] via-[#23a1ff] to-[#7ef1d9] p-0.5">
-                <div className="w-full h-full rounded-xl bg-[#0b1020] flex items-center justify-center">
-                  <span className="text-[#6be2c9] font-bold text-lg">S</span>
-                </div>
-              </div>
-              <span className="text-[#e9edf7] font-black text-xl tracking-wide">Sahem Invest</span>
-            </Link>
-            
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-2">
-              <Link href="/" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                {t('navigation.home')}
-              </Link>
-              <Link href="/deals" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                {t('navigation.deals')}
-              </Link>
-              <Link href="/about" className="text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold">
-                {t('navigation.about')}
-              </Link>
-              <button 
-                onClick={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
-                className="ml-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7] hover:bg-gradient-to-r hover:from-[#2d3757] hover:to-[#1a2143] transition-all cursor-pointer"
-              >
-                {locale === 'ar' ? 'English' : 'عربي'}
-              </button>
-              <Link href="/auth/signin" className="ml-2 px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all">
-                {t('navigation.go_to_panel')}
-              </Link>
-            </nav>
-
-            {/* Mobile Navigation */}
-            <div className="flex md:hidden items-center gap-3">
-              <button 
-                onClick={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
-                className="px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7] hover:bg-gradient-to-r hover:from-[#2d3757] hover:to-[#1a2143] transition-all cursor-pointer"
-              >
-                {locale === 'ar' ? 'English' : 'عربي'}
-              </button>
-              <Link href="/auth/signin" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all text-sm">
-                {t('navigation.panel')}
-              </Link>
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-[#e9edf7] hover:bg-[#1a2246] rounded-lg transition-colors"
-              >
-                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
-
-            {/* Mobile Menu Overlay */}
-            {isMobileMenuOpen && (
-              <div className="md:hidden absolute top-full left-0 right-0 bg-[#0b1124] border-b border-[#233059] shadow-xl z-50">
-                <nav className="container mx-auto px-4 py-4 space-y-2">
-                  <Link 
-                    href="/" 
-                    className="block text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {t('navigation.home')}
-                  </Link>
-                  <Link 
-                    href="/deals" 
-                    className="block text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {t('navigation.deals')}
-                  </Link>
-                  <Link 
-                    href="/about" 
-                    className="block text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {t('navigation.about')}
-                  </Link>
-                </nav>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* Unified Public Header */}
+      <PublicHeader />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden py-16 lg:py-24">

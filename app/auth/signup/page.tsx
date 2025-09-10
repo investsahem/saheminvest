@@ -46,6 +46,7 @@ interface FormErrors {
 
 export default function SignUpPage() {
   const { t } = useTranslation()
+  const router = useRouter()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -135,6 +136,16 @@ export default function SignUpPage() {
         setSuccess(true)
       } else {
         const error = await response.json()
+        
+        // Check if it's an existing user error
+        if (response.status === 409 && error.message?.includes('user account')) {
+          // Show modal asking if they want to sign in instead
+          if (window.confirm(t('auth.signup.existing_user_redirect') || 'An account with this email already exists. Would you like to sign in instead?')) {
+            router.push('/auth/signin')
+            return
+          }
+        }
+        
         setErrors({ general: error.message || 'An error occurred' })
       }
     } catch (error) {
