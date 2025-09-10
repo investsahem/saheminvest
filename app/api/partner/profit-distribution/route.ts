@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+// POST /api/partner/profit-distribution - Submit profit distribution request
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -18,27 +19,36 @@ export async function POST(request: NextRequest) {
 
     if (session.user.role !== 'PARTNER') {
       return NextResponse.json(
-        { error: 'Insufficient permissions' },
+        { error: 'Only partners can submit profit distributions' },
         { status: 403 }
       )
     }
 
-    const { dealId, distributions, distributionType = 'PARTIAL', description } = await request.json()
+    const { dealId, distributions } = await request.json()
 
     if (!dealId || !distributions || !Array.isArray(distributions)) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Deal ID and distributions are required' },
         { status: 400 }
       )
     }
 
-    // Verify the deal belongs to the current partner
-    const deal = await prisma.project.findUnique({
-      where: { id: dealId },
+    // Verify the deal belongs to this partner
+    const deal = await prisma.project.findFirst({
+      where: {
+        id: dealId,
+        ownerId: session.user.id
+      },
       include: {
         investments: {
           include: {
-            investor: { select: { id: true, name: true, email: true } }
+            investor: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
           }
         }
       }
@@ -46,62 +56,46 @@ export async function POST(request: NextRequest) {
 
     if (!deal) {
       return NextResponse.json(
-        { error: 'Deal not found' },
+        { error: 'Deal not found or you do not have permission to distribute profits for this deal' },
         { status: 404 }
       )
     }
 
-    if (deal.ownerId !== session.user.id) {
+    // Validate distributions match actual investments
+    const investorIds = new Set(deal.investments.map(inv => inv.investorId))
+    const distributionInvestorIds = new Set(distributions.map(dist => dist.investorId))
+    
+    if (distributions.some(dist => !investorIds.has(dist.investorId))) {
       return NextResponse.json(
-        { error: 'You can only distribute profits for your own deals' },
-        { status: 403 }
+        { error: 'Some distributions are for investors who did not invest in this deal' },
+        { status: 400 }
       )
     }
 
-    // Calculate profit rates for each distribution
-    const enhancedDistributions = distributions.map((dist: any) => ({
-      ...dist,
-      profitRate: dist.investmentAmount > 0 ? (dist.profitAmount / dist.investmentAmount) * 100 : 0
-    }))
+    // Calculate total distribution amount
+    const totalDistributionAmount = distributions.reduce((sum, dist) => sum + Number(dist.profitAmount), 0)
+    const totalInvestmentAmount = distributions.reduce((sum, dist) => sum + Number(dist.investmentAmount), 0)
 
-    // Create a profit distribution request for admin approval
-    const profitDistributionRequest = await prisma.profitDistributionRequest.create({
+    // Create profit distribution request for admin approval
+    const distributionRequest = await prisma.profitDistributionRequest.create({
       data: {
         projectId: dealId,
         partnerId: session.user.id,
-        totalAmount: distributions.reduce((sum: number, dist: any) => sum + (dist.profitAmount || 0), 0),
+        description: `Profit distribution for ${deal.title}`,
+        totalAmount: totalDistributionAmount,
+        totalInvestmentAmount: totalInvestmentAmount,
+        distributionData: JSON.stringify(distributions),
         status: 'PENDING',
-        distributionType: distributionType,
-        distributionData: JSON.stringify(enhancedDistributions),
-        description: description || `${distributionType === 'PARTIAL' ? 'Partial' : 'Final'} profit distribution for ${deal.title}`,
-        requestedAt: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    })
-
-    // Create a notification for admins
-    await prisma.notification.create({
-      data: {
-        userId: session.user.id, // This will be updated to notify all admins
-        type: 'PROFIT_DISTRIBUTION_REQUEST',
-        title: 'New Profit Distribution Request',
-        message: `${session.user.name} has requested to distribute profits for deal "${deal.title}"`,
-        metadata: JSON.stringify({
-          dealId,
-          requestId: profitDistributionRequest.id,
-          partnerName: session.user.name,
-          totalAmount: profitDistributionRequest.totalAmount
-        }),
-        createdAt: new Date(),
-        updatedAt: new Date()
+        requestedAt: new Date()
       }
     })
 
     return NextResponse.json({
       success: true,
-      requestId: profitDistributionRequest.id,
-      message: 'Profit distribution request submitted for admin approval'
+      message: 'Profit distribution request submitted for admin approval',
+      requestId: distributionRequest.id,
+      totalAmount: totalDistributionAmount,
+      investorCount: distributions.length
     })
 
   } catch (error) {

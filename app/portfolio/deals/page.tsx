@@ -7,6 +7,7 @@ import InvestorLayout from '../../components/layout/InvestorLayout'
 import { DealCard } from '../../components/project/DealCard'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import ReviewModal from '../../components/ui/ReviewModal'
 import { Deal } from '../../types/deals'
 import { dealsService } from '../../lib/deals-service'
 import { 
@@ -38,6 +39,13 @@ const PortfolioDealsPage = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [allInvestableDeals, setAllInvestableDeals] = useState<Deal[]>([])
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [reviewData, setReviewData] = useState<{
+    partnerId: string
+    dealId: string
+    partnerName: string
+    dealTitle: string
+  } | null>(null)
 
   // Fetch deals for investors - separate active and closed
   const fetchDeals = async () => {
@@ -148,6 +156,50 @@ const PortfolioDealsPage = () => {
         ? prev.filter(id => id !== dealId)
         : [...prev, dealId]
     )
+  }
+
+  // Handle review partner
+  const handleReviewPartner = (partnerId: string, dealId: string, partnerName: string) => {
+    const deal = [...activeDeals, ...closedDeals].find(d => d.id === dealId)
+    if (!deal) return
+
+    setReviewData({
+      partnerId,
+      dealId,
+      partnerName,
+      dealTitle: deal.title
+    })
+    setShowReviewModal(true)
+  }
+
+  // Submit review
+  const handleSubmitReview = async (reviewData: { rating: number; comment: string }) => {
+    if (!reviewData || !session?.user?.id) return
+
+    try {
+      const response = await fetch('/api/partner/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          partnerId: reviewData.partnerId,
+          projectId: reviewData.dealId,
+          rating: reviewData.rating,
+          comment: reviewData.comment
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to submit review')
+      }
+
+      // Success handled by the modal
+    } catch (error) {
+      console.error('Error submitting review:', error)
+      throw error
+    }
   }
 
   // Format currency
@@ -516,6 +568,8 @@ const PortfolioDealsPage = () => {
                       actualReturn={actualReturn}
                       completionDate={deal.updatedAt} // Use updated date as completion date for now
                       profitDistributed={profitDistributed}
+                      partnerId={deal.partner?.id || deal.ownerId}
+                      onReviewPartner={handleReviewPartner}
                     />
                   
                     {/* Save/Bookmark Button */}
@@ -582,6 +636,27 @@ const PortfolioDealsPage = () => {
           </>
         )}
       </div>
+
+      {/* Review Modal */}
+      {showReviewModal && reviewData && (
+        <ReviewModal
+          isOpen={showReviewModal}
+          onClose={() => {
+            setShowReviewModal(false)
+            setReviewData(null)
+          }}
+          partner={{
+            id: reviewData.partnerId,
+            companyName: reviewData.partnerName,
+            industry: 'Business' // We could get this from the deal data if needed
+          }}
+          deal={{
+            id: reviewData.dealId,
+            title: reviewData.dealTitle
+          }}
+          onSubmit={handleSubmitReview}
+        />
+      )}
     </InvestorLayout>
   )
 }

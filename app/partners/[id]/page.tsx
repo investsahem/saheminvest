@@ -1,110 +1,124 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import Image from 'next/image'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
-import InvestorLayout from '../../components/layout/InvestorLayout'
-import { Card, CardContent } from '../../components/ui/Card'
-import { Button } from '../../components/ui/Button'
 import { DealCard } from '../../components/project/DealCard'
 import { 
-  ArrowLeft, Calendar, MapPin, Users, TrendingUp, Shield, 
-  Clock, CheckCircle, Star, BarChart3, Target, DollarSign,
-  ArrowRight, AlertCircle, Info, Building2, Mail, Phone,
-  Globe, User, ExternalLink, Eye, Award, Briefcase
+  ArrowLeft, MapPin, Calendar, Star, Users, TrendingUp, 
+  Building2, Globe, Award, ChevronRight, Eye, Briefcase,
+  Clock, CheckCircle, ArrowUpRight, Sparkles, BarChart3,
+  Target, DollarSign, Phone, Mail, ExternalLink, Shield,
+  MessageSquare, ThumbsUp, Verified, BadgeCheck, Trophy,
+  Activity, PieChart, TrendingDown
 } from 'lucide-react'
 
 interface Partner {
   id: string
-  name: string
-  email: string
-  role: string
+  companyName: string
+  contactEmail: string
+  contactPhone?: string
+  industry: string
+  description?: string
+  website?: string
+  foundedYear?: number
+  employeeCount?: string
+  location?: string
+  logoUrl?: string
+  verified: boolean
   createdAt: string
-  partnerProfile?: {
-    id: string
-    companyName: string
-    description?: string
-    logo?: string
-    website?: string
-    email?: string
-    phone?: string
-    address?: string
-    city?: string
-    country?: string
-    industry?: string
-    foundedYear?: number
-    employeeCount?: string
-    linkedin?: string
-    twitter?: string
-    facebook?: string
-    investmentAreas?: string[]
-    minimumDealSize?: number
-    maximumDealSize?: number
-    businessType?: string
-    registrationNumber?: string
+  _count: {
+    deals: number
   }
-  projects?: Array<{
+  deals?: Array<{
     id: string
     title: string
-    description: string
-    category: string
-    fundingGoal: number
-    currentFunding: number
-    expectedReturn: number
-    duration: number
-    riskLevel: string
-    thumbnailImage: string
+    description?: string
+    thumbnailImage?: string
     status: string
-    minInvestment: number
-    endDate: string
+    expectedReturn: number
+    currentFunding: number
+    fundingGoal: number
+    duration?: number
+    endDate?: string
+    minInvestment?: number
     _count?: {
       investments: number
+    }
+    investorCount?: number
+  }>
+  averageRating?: number
+  totalReviews?: number
+  reviews?: Array<{
+    id: string
+    rating: number
+    comment: string
+    createdAt: string
+    investor: {
+      name: string
+    }
+    deal: {
+      title: string
     }
   }>
 }
 
-export default function PartnerProfilePage() {
-  const params = useParams()
-  const router = useRouter()
-  const { data: session } = useSession()
+export default function PartnerDetailsPage() {
   const { t } = useTranslation()
   const { locale } = useI18n()
-  const partnerId = params.id as string
+  const params = useParams()
+  const partnerId = params?.id as string
   
   const [partner, setPartner] = useState<Partner | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'overview' | 'deals' | 'reviews'>('overview')
 
+  // Fetch partner details
   useEffect(() => {
     const fetchPartner = async () => {
+      if (!partnerId) return
+      
       try {
         setLoading(true)
-        const response = await fetch(`/api/partners/${partnerId}`)
-        
+        const response = await fetch(`/api/partners/${partnerId}/public`)
         if (response.ok) {
           const data = await response.json()
           setPartner(data)
-        } else if (response.status === 404) {
-          setError('Partner not found')
         } else {
-          setError('Failed to load partner details')
+          console.error('Failed to fetch partner details')
         }
       } catch (error) {
-        console.error('Error fetching partner:', error)
-        setError('Network error occurred')
+        console.error('Error fetching partner details:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    if (partnerId) {
-      fetchPartner()
-    }
+    fetchPartner()
   }, [partnerId])
 
+  // Get industry icon
+  const getIndustryIcon = (industry: string) => {
+    const icons: { [key: string]: string } = {
+      'Technology': '💻',
+      'Real Estate': '🏢',
+      'Healthcare': '🏥',
+      'Energy': '⚡',
+      'Agriculture': '🌱',
+      'Manufacturing': '🏭',
+      'Finance': '💰',
+      'Education': '📚',
+      'Transportation': '🚛',
+      'Entertainment': '🎭',
+      'Food & Beverage': '🍽️',
+      'Retail': '🛍️'
+    }
+    return icons[industry] || '🏢'
+  }
+
+  // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -114,439 +128,443 @@ export default function PartnerProfilePage() {
     }).format(amount)
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+  // Format number
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
+    return num.toString()
+  }
+
+  // Render star rating
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star 
+        key={i} 
+        className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+      />
+    ))
   }
 
   if (loading) {
     return (
-      <InvestorLayout title={t('common.loading')} subtitle="">
-        <div className="flex items-center justify-center min-h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-        </div>
-      </InvestorLayout>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6be2c9]"></div>
+      </div>
     )
   }
 
-  if (error || !partner) {
+  if (!partner) {
     return (
-      <InvestorLayout 
-        title={error === 'Partner not found' ? t('partner.profile') : t('common.error')}
-        subtitle=""
-      >
-        <Card>
-          <CardContent className="p-16 text-center">
-            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <AlertCircle className="w-10 h-10 text-red-500" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              {error === 'Partner not found' ? (locale === 'ar' ? 'لم يتم العثور على الشريك' : 'Partner Not Found') : t('common.error')}
-            </h2>
-            <p className="text-gray-600 mb-8">
-              {error === 'Partner not found' 
-                ? (locale === 'ar' ? 'الشريك الذي تبحث عنه غير موجود أو تم حذفه.' : 'The partner you\'re looking for doesn\'t exist or has been removed.')
-                : (locale === 'ar' ? 'حدث خطأ أثناء تحميل تفاصيل الشريك. يرجى المحاولة مرة أخرى.' : 'We encountered an error while loading the partner details. Please try again.')
-              }
-            </p>
-            <Button onClick={() => router.push('/portfolio/deals')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              {locale === 'ar' ? 'العودة للصفقات' : 'Back to Deals'}
-            </Button>
-          </CardContent>
-        </Card>
-      </InvestorLayout>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-[#0f1640] border border-[#2d3a6b] rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Building2 className="w-10 h-10 text-[#6be2c9]" />
+          </div>
+          <h3 className="text-2xl font-bold text-[#e9edf7] mb-4">Partner Not Found</h3>
+          <p className="text-[#b8c2d8] mb-6">The partner you're looking for doesn't exist or has been removed.</p>
+          <Link href="/partners" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0a0f2e] font-bold rounded-xl hover:shadow-lg transition-all">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Partners
+          </Link>
+        </div>
+      </div>
     )
   }
 
-  const profile = partner.partnerProfile
-  const activeProjects = partner.projects?.filter(p => ['ACTIVE', 'PUBLISHED'].includes(p.status)) || []
-  const completedProjects = partner.projects?.filter(p => p.status === 'COMPLETED') || []
-  const totalFunding = partner.projects?.reduce((sum, p) => sum + p.currentFunding, 0) || 0
-  const successRate = partner.projects?.length ? (completedProjects.length / partner.projects.length) * 100 : 0
+  // Calculate stats
+  const totalFunding = partner.deals?.reduce((sum, deal) => sum + deal.currentFunding, 0) || 0
+  const totalGoal = partner.deals?.reduce((sum, deal) => sum + deal.fundingGoal, 0) || 0
+  const avgReturn = partner.deals && partner.deals.length > 0 
+    ? partner.deals.reduce((sum, deal) => sum + deal.expectedReturn, 0) / partner.deals.length 
+    : 0
+  const successfulDeals = partner.deals?.filter(deal => deal.status === 'COMPLETED').length || 0
 
   return (
-    <InvestorLayout 
-      title={profile?.companyName || partner.name}
-      subtitle={locale === 'ar' ? 'ملف الشريك' : 'Partner Profile'}
-    >
-      <div className="space-y-8">
-        {/* Back Button */}
-        <div>
-          <Button 
-            variant="outline" 
-            onClick={() => router.back()}
-            className={`flex items-center gap-2 ${locale === 'ar' ? 'flex-row-reverse' : ''}`}
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {locale === 'ar' ? 'العودة' : 'Back'}
-          </Button>
-        </div>
-
-        {/* Partner Header */}
-        <Card className="overflow-hidden">
-          <div className="bg-gradient-to-r from-green-600 to-blue-600 p-8 text-white">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              {/* Partner Logo */}
-              <div className="flex-shrink-0">
-                {profile?.logo ? (
-                  <div className="w-24 h-24 relative rounded-xl overflow-hidden border-4 border-white/20">
-                    <Image
-                      src={profile.logo}
-                      alt={profile.companyName}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-24 h-24 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Building2 className="w-12 h-12 text-white" />
-                  </div>
-                )}
+    <div className="min-h-screen bg-slate-900">
+      {/* Navigation Header */}
+      <header className="sticky top-0 z-50 backdrop-blur-lg bg-gradient-to-r from-[#0b1124ee] via-[#0b1124ee] to-[#0b112490] border-b border-[#233059]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-3">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-conic from-[#6be2c9] via-[#23a1ff] to-[#7ef1d9] p-0.5">
+                <div className="w-full h-full rounded-xl bg-[#0b1020] flex items-center justify-center">
+                  <span className="text-[#6be2c9] font-bold text-lg">S</span>
+                </div>
               </div>
+              <span className="text-[#e9edf7] font-black text-xl tracking-wide">Sahem Invest</span>
+            </Link>
+            
+            <div className="flex items-center gap-4">
+              <Link href="/partners" className="flex items-center gap-2 text-[#b8c2d8] hover:text-[#e9edf7] transition-colors">
+                <ArrowLeft className="w-4 h-4" />
+                Back to Partners
+              </Link>
+              <Link href="/auth/signin" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all">
+                Go to Panel
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
 
+      {/* Partner Header */}
+      <section className="relative overflow-hidden py-16 lg:py-20">
+        {/* Background Effects */}
+        <div className="absolute top-[-40px] right-[10%] w-56 h-56 rounded-full bg-gradient-radial from-[#54ffe3] to-transparent opacity-20 blur-[40px] pointer-events-none"></div>
+        <div className="absolute bottom-[-60px] left-[5%] w-56 h-56 rounded-full bg-gradient-radial from-[#2fa4ff] to-transparent opacity-20 blur-[40px] pointer-events-none"></div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <motion.div 
+            className="bg-gradient-to-br from-[#0b1124cc] to-[#0b1124aa] border border-[#253261] rounded-3xl p-8 lg:p-12 backdrop-blur-sm"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Partner Info */}
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl font-bold">{profile?.companyName || partner.name}</h1>
-                  <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
-                    <CheckCircle className="w-4 h-4" />
-                    <span className="text-sm">{locale === 'ar' ? 'موثق' : 'Verified'}</span>
+              <div className="lg:col-span-2">
+                <div className="flex items-start gap-6 mb-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-2xl flex items-center justify-center text-3xl backdrop-blur-sm flex-shrink-0">
+                    {getIndustryIcon(partner.industry)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-2">
+                      <h1 className="text-3xl lg:text-4xl font-black text-[#ffffff] mb-2">{partner.companyName}</h1>
+                      {partner.verified && (
+                        <div className="flex items-center gap-2 bg-[#6be2c9]/20 border border-[#6be2c9]/30 rounded-full px-4 py-2">
+                          <BadgeCheck className="w-5 h-5 text-[#6be2c9]" />
+                          <span className="text-sm font-medium text-[#6be2c9]">Verified Partner</span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xl text-[#23a1ff] mb-4">{partner.industry}</p>
+                    {partner.description && (
+                      <p className="text-[#b8c2d8] leading-relaxed">{partner.description}</p>
+                    )}
                   </div>
                 </div>
-                
-                {profile?.industry && (
-                  <p className="text-white/90 mb-2">{profile.industry}</p>
-                )}
-                
-                {profile?.description && (
-                  <p className="text-white/80 leading-relaxed max-w-2xl">
-                    {profile.description}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
 
-          {/* Stats Row */}
-          <div className="bg-white p-6 border-t">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600 mb-1">{partner.projects?.length || 0}</div>
-                <div className="text-sm text-gray-600">{locale === 'ar' ? 'إجمالي الصفقات' : 'Total Deals'}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600 mb-1">{activeProjects.length}</div>
-                <div className="text-sm text-gray-600">{locale === 'ar' ? 'صفقات نشطة' : 'Active Deals'}</div>
-              </div>
-              <div className="text-2xl font-bold text-purple-600 mb-1 text-center">
-                <div>{formatCurrency(totalFunding)}</div>
-                <div className="text-sm text-gray-600">{locale === 'ar' ? 'إجمالي التمويل' : 'Total Funding'}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600 mb-1">{successRate.toFixed(1)}%</div>
-                <div className="text-sm text-gray-600">{locale === 'ar' ? 'معدل النجاح' : 'Success Rate'}</div>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Partner Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Company Information */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">{locale === 'ar' ? 'معلومات الشركة' : 'Company Information'}</h2>
-                
+                {/* Contact & Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {profile?.foundedYear && (
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Calendar className="w-5 h-5 text-blue-600" />
+                  <div className="space-y-4">
+                    {partner.location && (
+                      <div className="flex items-center gap-3 text-[#b8c2d8]">
+                        <MapPin className="w-5 h-5 text-[#6be2c9]" />
+                        <span>{partner.location}</span>
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-600">{locale === 'ar' ? 'تأسست في' : 'Founded'}</div>
-                        <div className="font-semibold text-gray-900">{profile.foundedYear}</div>
+                    )}
+                    {partner.foundedYear && (
+                      <div className="flex items-center gap-3 text-[#b8c2d8]">
+                        <Calendar className="w-5 h-5 text-[#6be2c9]" />
+                        <span>Founded {partner.foundedYear}</span>
                       </div>
+                    )}
+                    {partner.employeeCount && (
+                      <div className="flex items-center gap-3 text-[#b8c2d8]">
+                        <Users className="w-5 h-5 text-[#6be2c9]" />
+                        <span>{partner.employeeCount} employees</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 text-[#b8c2d8]">
+                      <Mail className="w-5 h-5 text-[#6be2c9]" />
+                      <span>{partner.contactEmail}</span>
                     </div>
-                  )}
+                    {partner.contactPhone && (
+                      <div className="flex items-center gap-3 text-[#b8c2d8]">
+                        <Phone className="w-5 h-5 text-[#6be2c9]" />
+                        <span>{partner.contactPhone}</span>
+                      </div>
+                    )}
+                    {partner.website && (
+                      <div className="flex items-center gap-3 text-[#b8c2d8]">
+                        <Globe className="w-5 h-5 text-[#6be2c9]" />
+                        <a 
+                          href={partner.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="hover:text-[#6be2c9] transition-colors"
+                        >
+                          Visit Website
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-                  {profile?.employeeCount && (
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                        <Users className="w-5 h-5 text-green-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-600">{locale === 'ar' ? 'عدد الموظفين' : 'Team Size'}</div>
-                        <div className="font-semibold text-gray-900">{profile.employeeCount} {locale === 'ar' ? 'موظف' : 'employees'}</div>
-                      </div>
+              {/* Stats */}
+              <div className="space-y-6">
+                <div className="bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-[#e9edf7] mb-4">Performance Stats</h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#b8c2d8]">Total Deals</span>
+                      <span className="text-xl font-bold text-[#6be2c9]">{partner._count.deals}</span>
                     </div>
-                  )}
-
-                  {profile?.businessType && (
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <Briefcase className="w-5 h-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-600">{locale === 'ar' ? 'نوع العمل' : 'Business Type'}</div>
-                        <div className="font-semibold text-gray-900">{profile.businessType}</div>
-                      </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#b8c2d8]">Successful Deals</span>
+                      <span className="text-xl font-bold text-[#23a1ff]">{successfulDeals}</span>
                     </div>
-                  )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#b8c2d8]">Avg. Return</span>
+                      <span className="text-xl font-bold text-[#f59e0b]">{avgReturn.toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#b8c2d8]">Total Funding</span>
+                      <span className="text-xl font-bold text-[#10b981]">{formatCurrency(totalFunding)}</span>
+                    </div>
+                  </div>
+                </div>
 
-                  {(profile?.city || profile?.country) && (
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                        <MapPin className="w-5 h-5 text-red-600" />
+                {/* Rating */}
+                <div className="bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-2xl p-6">
+                  <h3 className="text-lg font-bold text-[#e9edf7] mb-4">Partner Rating</h3>
+                  <div className="text-center">
+                    <div className="text-3xl font-black text-[#6be2c9] mb-2">
+                      {partner.averageRating ? partner.averageRating.toFixed(1) : '4.8'}
+                    </div>
+                    <div className="flex justify-center gap-1 mb-2">
+                      {renderStars(Math.round(partner.averageRating || 4.8))}
+                    </div>
+                    <div className="text-sm text-[#b8c2d8]">
+                      Based on {partner.totalReviews || 0} reviews
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Tab Navigation */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <div className="flex justify-center">
+          <div className="flex bg-[#0f1640] border border-[#2d3a6b] rounded-2xl p-2">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                activeTab === 'overview'
+                  ? 'bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0a0f2e]'
+                  : 'text-[#b8c2d8] hover:text-[#e9edf7]'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4" />
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('deals')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                activeTab === 'deals'
+                  ? 'bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0a0f2e]'
+                  : 'text-[#b8c2d8] hover:text-[#e9edf7]'
+              }`}
+            >
+              <Briefcase className="w-4 h-4" />
+              Deals ({partner._count.deals})
+            </button>
+            <button
+              onClick={() => setActiveTab('reviews')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                activeTab === 'reviews'
+                  ? 'bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0a0f2e]'
+                  : 'text-[#b8c2d8] hover:text-[#e9edf7]'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              Reviews ({partner.totalReviews || 0})
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Tab Content */}
+      <section className="container mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        {activeTab === 'overview' && (
+          <motion.div 
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            {/* Recent Activity */}
+            <div className="lg:col-span-2">
+              <div className="bg-gradient-to-br from-[#0b1124cc] to-[#0b1124aa] border border-[#253261] rounded-2xl p-6 backdrop-blur-sm">
+                <h3 className="text-xl font-bold text-[#e9edf7] mb-6">Recent Deals</h3>
+                <div className="space-y-4">
+                  {partner.deals?.slice(0, 3).map((deal) => (
+                    <div key={deal.id} className="flex items-center gap-4 p-4 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-xl">
+                      <div className="w-12 h-12 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Briefcase className="w-6 h-6 text-[#6be2c9]" />
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-600">{locale === 'ar' ? 'الموقع' : 'Location'}</div>
-                        <div className="font-semibold text-gray-900">
-                          {[profile.city, profile.country].filter(Boolean).join(', ')}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-[#e9edf7] truncate">{deal.title}</h4>
+                        <div className="flex items-center gap-4 text-sm text-[#b8c2d8]">
+                          <span>{deal.expectedReturn}% ROI</span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            deal.status === 'ACTIVE' ? 'bg-green-500/20 text-green-400' :
+                            deal.status === 'COMPLETED' ? 'bg-blue-500/20 text-blue-400' :
+                            'bg-gray-500/20 text-gray-400'
+                          }`}>
+                            {deal.status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-[#6be2c9]">
+                          {formatCurrency(deal.currentFunding)}
+                        </div>
+                        <div className="text-sm text-[#b8c2d8]">
+                          of {formatCurrency(deal.fundingGoal)}
                         </div>
                       </div>
                     </div>
-                  )}
+                  ))}
                 </div>
+              </div>
+            </div>
 
-                {/* Investment Areas */}
-                {profile?.investmentAreas && profile.investmentAreas.length > 0 && (
-                  <div className="mt-6 pt-6 border-t">
-                    <h3 className="font-semibold text-gray-900 mb-3">{locale === 'ar' ? 'مجالات الاستثمار' : 'Investment Areas'}</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {profile.investmentAreas.map((area, index) => (
-                        <span 
-                          key={index}
-                          className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
-                        >
-                          {area}
-                        </span>
-                      ))}
+            {/* Quick Stats */}
+            <div className="space-y-6">
+              <div className="bg-gradient-to-br from-[#0b1124cc] to-[#0b1124aa] border border-[#253261] rounded-2xl p-6 backdrop-blur-sm">
+                <h3 className="text-xl font-bold text-[#e9edf7] mb-6">Investment Metrics</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#6be2c9]/20 rounded-lg">
+                      <Target className="w-5 h-5 text-[#6be2c9]" />
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-[#e9edf7]">
+                        {((totalFunding / totalGoal) * 100).toFixed(1)}%
+                      </div>
+                      <div className="text-sm text-[#b8c2d8]">Funding Success Rate</div>
                     </div>
                   </div>
-                )}
-
-                {/* Deal Size Range */}
-                {(profile?.minimumDealSize || profile?.maximumDealSize) && (
-                  <div className="mt-6 pt-6 border-t">
-                    <h3 className="font-semibold text-gray-900 mb-3">{locale === 'ar' ? 'نطاق حجم الصفقة' : 'Deal Size Range'}</h3>
-                    <div className="flex items-center gap-2 text-gray-700">
-                      {profile.minimumDealSize && (
-                        <span>{locale === 'ar' ? 'من' : 'From'} {formatCurrency(profile.minimumDealSize)}</span>
-                      )}
-                      {profile.minimumDealSize && profile.maximumDealSize && (
-                        <span>-</span>
-                      )}
-                      {profile.maximumDealSize && (
-                        <span>{locale === 'ar' ? 'إلى' : 'to'} {formatCurrency(profile.maximumDealSize)}</span>
-                      )}
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#23a1ff]/20 rounded-lg">
+                      <TrendingUp className="w-5 h-5 text-[#23a1ff]" />
+                    </div>
+                    <div>
+                      <div className="text-lg font-bold text-[#e9edf7]">
+                        {avgReturn.toFixed(1)}%
+                      </div>
+                      <div className="text-sm text-[#b8c2d8]">Average Return</div>
                     </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Active Deals */}
-            {activeProjects.length > 0 && (
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">{locale === 'ar' ? 'الصفقات النشطة' : 'Active Deals'}</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {activeProjects.slice(0, 4).map((project) => (
-                      <DealCard
-                        key={project.id}
-                        id={project.id}
-                        title={project.title}
-                        description={project.description}
-                        image={project.thumbnailImage || '/images/default-deal.jpg'}
-                        fundingGoal={project.fundingGoal}
-                        currentFunding={project.currentFunding}
-                        expectedReturn={{
-                          min: project.expectedReturn,
-                          max: project.expectedReturn
-                        }}
-                        duration={project.duration}
-                        endDate={project.endDate}
-                        contributorsCount={project._count?.investments || 0}
-                        partnerName={profile?.companyName || partner.name}
-                        partnerDealsCount={partner.projects?.length || 0}
-                        minInvestment={project.minInvestment}
-                        isPortfolioView={true}
-                      />
-                    ))}
-                  </div>
-                  {activeProjects.length > 4 && (
-                    <div className="text-center mt-6">
-                      <Button 
-                        variant="outline"
-                        onClick={() => router.push(`/portfolio/deals?partner=${partnerId}`)}
-                      >
-                        {locale === 'ar' ? 'عرض جميع الصفقات النشطة' : 'View All Active Deals'}
-                      </Button>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-[#f59e0b]/20 rounded-lg">
+                      <Trophy className="w-5 h-5 text-[#f59e0b]" />
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                    <div>
+                      <div className="text-lg font-bold text-[#e9edf7]">{successfulDeals}</div>
+                      <div className="text-sm text-[#b8c2d8]">Completed Deals</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'deals' && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            {partner.deals && partner.deals.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {partner.deals.map((deal) => (
+                  <DealCard
+                    key={deal.id}
+                    id={deal.id}
+                    title={deal.title}
+                    description={deal.description || ''}
+                    image={deal.thumbnailImage || '/images/default-deal.jpg'}
+                    fundingGoal={deal.fundingGoal}
+                    currentFunding={deal.currentFunding}
+                    expectedReturn={{
+                      min: deal.expectedReturn,
+                      max: deal.expectedReturn
+                    }}
+                    duration={deal.duration || 12}
+                    endDate={deal.endDate || ''}
+                    contributorsCount={deal._count?.investments || deal.investorCount || 0}
+                    partnerName={partner.companyName}
+                    partnerDealsCount={partner._count.deals}
+                    minInvestment={deal.minInvestment || 1000}
+                    isPartnerView={false}
+                    isClosedView={deal.status === 'COMPLETED'}
+                    isPortfolioView={false}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20">
+                <div className="w-20 h-20 bg-[#0f1640] border border-[#2d3a6b] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Briefcase className="w-10 h-10 text-[#6be2c9]" />
+                </div>
+                <h3 className="text-2xl font-bold text-[#e9edf7] mb-4">No Deals Available</h3>
+                <p className="text-[#b8c2d8]">This partner hasn't published any deals yet.</p>
+              </div>
             )}
-          </div>
+          </motion.div>
+        )}
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Contact Information */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{locale === 'ar' ? 'معلومات التواصل' : 'Contact Information'}</h3>
-                
-                <div className="space-y-3">
-                  {profile?.website && (
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-gray-400" />
-                      <a 
-                        href={profile.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-green-600 hover:text-green-700 text-sm"
-                      >
-                        {profile.website.replace(/^https?:\/\//, '')}
-                      </a>
+        {activeTab === 'reviews' && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            {partner.reviews && partner.reviews.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {partner.reviews.map((review) => (
+                  <div 
+                    key={review.id} 
+                    className="bg-gradient-to-br from-[#0b1124cc] to-[#0b1124aa] border border-[#253261] rounded-2xl p-6 backdrop-blur-sm"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h4 className="font-semibold text-[#e9edf7]">{review.investor.name}</h4>
+                        <p className="text-sm text-[#b8c2d8]">Deal: {review.deal.title}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        {renderStars(review.rating)}
+                      </div>
                     </div>
-                  )}
-
-                  {profile?.email && (
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-gray-400" />
-                      <a 
-                        href={`mailto:${profile.email}`}
-                        className="text-green-600 hover:text-green-700 text-sm"
-                      >
-                        {profile.email}
-                      </a>
+                    <p className="text-[#b8c2d8] mb-4">{review.comment}</p>
+                    <div className="text-sm text-[#95a5c9]">
+                      {new Date(review.createdAt).toLocaleDateString()}
                     </div>
-                  )}
-
-                  {profile?.phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-gray-400" />
-                      <a 
-                        href={`tel:${profile.phone}`}
-                        className="text-green-600 hover:text-green-700 text-sm"
-                      >
-                        {profile.phone}
-                      </a>
-                    </div>
-                  )}
-
-                  {profile?.address && (
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                      <span className="text-gray-700 text-sm">{profile.address}</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Social Links */}
-            {(profile?.linkedin || profile?.twitter || profile?.facebook) && (
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">{locale === 'ar' ? 'وسائل التواصل الاجتماعي' : 'Social Media'}</h3>
-                  <div className="space-y-2">
-                    {profile.linkedin && (
-                      <a 
-                        href={profile.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        LinkedIn
-                      </a>
-                    )}
-                    {profile.twitter && (
-                      <a 
-                        href={profile.twitter}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        Twitter
-                      </a>
-                    )}
-                    {profile.facebook && (
-                      <a 
-                        href={profile.facebook}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        Facebook
-                      </a>
-                    )}
                   </div>
-                </CardContent>
-              </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20">
+                <div className="w-20 h-20 bg-[#0f1640] border border-[#2d3a6b] rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <MessageSquare className="w-10 h-10 text-[#6be2c9]" />
+                </div>
+                <h3 className="text-2xl font-bold text-[#e9edf7] mb-4">No Reviews Yet</h3>
+                <p className="text-[#b8c2d8]">This partner hasn't received any reviews yet.</p>
+              </div>
             )}
+          </motion.div>
+        )}
+      </section>
 
-            {/* Partnership Since */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{locale === 'ar' ? 'شريك منذ' : 'Partner Since'}</h3>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Award className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">{formatDate(partner.createdAt)}</div>
-                    <div className="text-sm text-gray-600">
-                      {locale === 'ar' ? 'عضو في ساهم إنفست' : 'Member of Sahem Invest'}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      {/* Footer */}
+      <footer className="py-8 border-t border-[#24315b] bg-gradient-to-b from-[#0b1124] to-[#0b1124f0]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-[#95a5c9]">
+              © 2025 Sahem Invest. All rights reserved.
+            </p>
           </div>
         </div>
-
-        {/* CTA Section */}
-        <Card className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
-          <CardContent className="p-8 text-center">
-            <h2 className="text-3xl font-bold mb-4">
-              {locale === 'ar' ? 'مهتم بالاستثمار؟' : 'Interested in Investing?'}
-            </h2>
-            <p className="text-lg mb-6 opacity-90">
-              {locale === 'ar' ? 
-                'استكشف الفرص الاستثمارية المتاحة من هذا الشريك الموثوق.' :
-                'Explore available investment opportunities from this trusted partner.'
-              }
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                className="bg-white text-green-600 hover:bg-gray-100 font-bold px-8 py-3"
-                onClick={() => router.push(`/portfolio/deals?partner=${partnerId}`)}
-              >
-                {locale === 'ar' ? 'عرض الصفقات' : 'View Deals'}
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              <Button 
-                variant="outline" 
-                className="border-white text-white hover:bg-white/10 px-8 py-3"
-                onClick={() => router.push('/portfolio/deals')}
-              >
-                {locale === 'ar' ? 'جميع الفرص' : 'All Opportunities'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </InvestorLayout>
+      </footer>
+    </div>
   )
 }

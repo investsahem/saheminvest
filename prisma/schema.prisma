@@ -452,6 +452,7 @@ model PartnerReview {
   id               String          @id @default(cuid())
   rating           Int             // 1-5 stars
   comment          String?         @db.Text
+  status           ApplicationStatus @default(PENDING) // PENDING, APPROVED, REJECTED
   
   // Relationships
   partnerId        String

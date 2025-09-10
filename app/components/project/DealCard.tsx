@@ -42,13 +42,15 @@ interface DealCardProps {
     isPublic: boolean
   }
   ownerId?: string
+  partnerId?: string
+  onReviewPartner?: (partnerId: string, dealId: string, partnerName: string) => void
 }
 
 export function DealCard({ 
   id,
   title, 
   description, 
-  image, 
+  image,
   fundingGoal,
   currentFunding,
   expectedReturn,
@@ -65,7 +67,9 @@ export function DealCard({
   completionDate,
   profitDistributed,
   partnerProfile,
-  ownerId
+  ownerId,
+  partnerId,
+  onReviewPartner
 }: DealCardProps) {
   const { t } = useTranslation()
   const { data: session } = useSession()
@@ -329,11 +333,23 @@ export function DealCard({
           <div className="space-y-3 pt-4">
             {isClosedView ? (
               // Closed deals - View results only
-              <Link href={isPortfolioView ? `/portfolio/deals/${id}` : `/deals/${id}`}>
-                <Button variant="outline" className="w-full">
-                  {t('deals.view_results')}
-                </Button>
-              </Link>
+              <>
+                <Link href={isPortfolioView ? `/portfolio/deals/${id}` : `/deals/${id}`}>
+                  <Button variant="outline" className="w-full">
+                    {t('deals.view_results')}
+                  </Button>
+                </Link>
+                {/* Review Partner Button for Portfolio View */}
+                {isPortfolioView && partnerId && onReviewPartner && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
+                    onClick={() => onReviewPartner(partnerId, id, partnerName)}
+                  >
+                    Review Partner
+                  </Button>
+                )}
+              </>
             ) : isPartnerView ? (
               // Partner view - Management buttons
               <Link href={`/partner/deals/${id}/manage`}>

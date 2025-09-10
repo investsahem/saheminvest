@@ -336,6 +336,9 @@ export default function HomePage() {
               <Link href="/deals" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
                 {t('navigation.deals')}
               </Link>
+              <Link href="/partners" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
+                Our Partners
+              </Link>
               <Link href="/deals?status=closed" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
                 {t('deals.closed_deals')}
               </Link>
@@ -389,6 +392,13 @@ export default function HomePage() {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {t('navigation.deals')}
+                  </Link>
+                  <Link 
+                    href="/partners" 
+                    className="block text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Our Partners
                   </Link>
                   <Link 
                     href="/deals?status=closed" 
