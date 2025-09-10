@@ -173,8 +173,8 @@ const PortfolioDealsPage = () => {
   }
 
   // Submit review
-  const handleSubmitReview = async (reviewData: { rating: number; comment: string }) => {
-    if (!reviewData || !session?.user?.id) return
+  const handleSubmitReview = async (reviewFormData: { rating: number; comment: string }) => {
+    if (!reviewFormData || !reviewData || !session?.user?.id) return
 
     try {
       const response = await fetch('/api/partner/reviews', {
@@ -185,8 +185,8 @@ const PortfolioDealsPage = () => {
         body: JSON.stringify({
           partnerId: reviewData.partnerId,
           projectId: reviewData.dealId,
-          rating: reviewData.rating,
-          comment: reviewData.comment
+          rating: reviewFormData.rating,
+          comment: reviewFormData.comment
         })
       })
 
@@ -568,7 +568,7 @@ const PortfolioDealsPage = () => {
                       actualReturn={actualReturn}
                       completionDate={deal.updatedAt} // Use updated date as completion date for now
                       profitDistributed={profitDistributed}
-                      partnerId={deal.partner?.id || deal.ownerId}
+                      partnerId={deal.partner?.id || deal.owner.id}
                       onReviewPartner={handleReviewPartner}
                     />
                   

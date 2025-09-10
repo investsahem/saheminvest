@@ -35,16 +35,16 @@ export async function GET(request: Request) {
         skip,
         take: limit,
         orderBy: [
-          { verified: 'desc' }, // Verified partners first
+          { status: 'asc' }, // Active partners first (PENDING, ACTIVE, etc.)
           { createdAt: 'desc' }
         ],
         include: {
-          _count: {
-            select: {
-              deals: true
-            }
-          },
-          deals: {
+        _count: {
+          select: {
+            projects: true
+          }
+        },
+        projects: {
             select: {
               id: true,
               title: true,
@@ -72,7 +72,7 @@ export async function GET(request: Request) {
       prisma.partner.count({ where })
     ])
 
-    // Calculate average ratings
+    // Calculate average ratings and map projects to deals
     const partnersWithRatings = partners.map(partner => {
       const ratings = partner.reviews.map(r => r.rating)
       const averageRating = ratings.length > 0 
@@ -83,7 +83,12 @@ export async function GET(request: Request) {
         ...partner,
         averageRating,
         totalReviews: ratings.length,
-        reviews: undefined // Remove reviews from response for privacy
+        _count: {
+          deals: partner._count.projects // Map projects count to deals for backward compatibility
+        },
+        deals: partner.projects, // Map projects to deals for backward compatibility
+        reviews: undefined, // Remove reviews from response for privacy
+        projects: undefined // Remove original projects field
       }
     })
 

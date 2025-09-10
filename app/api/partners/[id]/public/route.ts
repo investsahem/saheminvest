@@ -23,10 +23,10 @@ export async function GET(
       include: {
         _count: {
           select: {
-            deals: true
+            projects: true
           }
         },
-        deals: {
+        projects: {
           select: {
             id: true,
             title: true,
@@ -97,7 +97,12 @@ export async function GET(
     const partnerWithRating = {
       ...partner,
       averageRating,
-      totalReviews: ratings.length
+      totalReviews: ratings.length,
+      _count: {
+        deals: partner._count.projects // Map projects count to deals for backward compatibility
+      },
+      deals: partner.projects, // Map projects to deals for backward compatibility
+      projects: undefined // Remove original projects field
     }
 
     return NextResponse.json(partnerWithRating)
