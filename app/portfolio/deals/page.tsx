@@ -57,6 +57,7 @@ const PortfolioDealsPage = () => {
         limit: 100, // Get more to filter client-side
         category: categoryFilter !== 'all' ? categoryFilter : undefined,
         search: searchTerm || undefined,
+        status: 'ACTIVE,PUBLISHED,COMPLETED', // Include both active and completed deals for portfolio view
         includeAll: false // Investor view
       }
 
