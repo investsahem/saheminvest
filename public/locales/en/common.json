@@ -554,6 +554,41 @@
     "start_building_portfolio": "Start building your portfolio by investing in exciting projects."
   },
   "wallet": {
+    "payment_methods": {
+      "cash_office": "Cash at Office",
+      "credit_card": "Credit/Debit Card",
+      "bank_transfer": "Bank Transfer",
+      "instant_no_fees": "Instant - No fees",
+      "instant_fee": "Instant - 2.5% fee",
+      "bank_transfer_time": "1-3 business days - No fees",
+      "cash": "Cash"
+    },
+    "security": {
+      "secure_payment": "Secure & Encrypted Payment",
+      "info_protected": "Information Protected",
+      "encryption_notice": "All card data is encrypted and secure. We don't store card information."
+    },
+    "card_details": {
+      "card_number": "Card Number",
+      "cardholder_name": "Cardholder Name",
+      "expiry_date": "Expiry Date",
+      "fill_all_fields": "Please fill in all card details"
+    },
+    "deposit": {
+      "confirm_deposit": "Are you sure you want to deposit ${{amount}} via {{method}}?"
+    },
+    "withdraw": {
+      "maximum": "Maximum",
+      "max": "Max",
+      "withdrawal_method": "Withdrawal Method",
+      "cash_office": "Cash from Office",
+      "notice_title": "Important Notice",
+      "notice_text": "Withdrawals require administrative approval and may take 1-3 business days to process.",
+      "bank_notice": "Bank transfers may take additional time depending on your bank."
+    },
+    "errors": {
+      "payment_failed": "Payment processing failed. Please try again."
+    },
     "balance": "Current Balance",
     "total_invested": "Total Invested",
     "total_returns": "Total Returns",
@@ -1072,6 +1107,10 @@
     "PARTNER": "Partner"
   },
   "common": {
+    "amount": "Amount",
+    "payment_method": "Payment Method",
+    "processing": "Processing...",
+    "cancel": "Cancel",
     "yes": "Yes",
     "no": "No",
     "ok": "OK",
@@ -1356,6 +1395,53 @@
         "deposit_to_account": "Deposit to partner account",
         "withdrawal_from_account": "Withdrawal from partner account",
         "investment_in": "Investment in"
+      }
+    },
+    "portfolio_wallet": {
+      "title": "Digital Wallet",
+      "subtitle": "Manage your funds and transactions",
+      "loading": "Loading...",
+      "balance_summary": {
+        "current_balance": "Current Balance",
+        "total_invested": "Total Invested",
+        "total_returns": "Total Returns",
+        "distributed_profits": "Distributed Profits",
+        "unrealized_gains": "Unrealized Gains"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "deposit": "Deposit",
+        "withdraw": "Withdraw",
+        "transaction_history": "Transaction History"
+      },
+      "wallet_overview": {
+        "title": "Wallet Overview",
+        "deposit_title": "Deposit",
+        "deposit_subtitle": "Add funds to wallet",
+        "withdraw_title": "Withdraw",
+        "withdraw_subtitle": "Withdraw from wallet"
+      },
+      "transactions": {
+        "recent_transactions": "Recent Transactions",
+        "view_all": "View All",
+        "no_transactions": "No transactions found",
+        "transaction_types": {
+          "deposit": "Deposit",
+          "withdrawal": "Withdrawal",
+          "investment": "Investment",
+          "return": "Return",
+          "fee": "Fee"
+        },
+        "status": {
+          "pending": "Pending",
+          "completed": "Completed",
+          "failed": "Failed"
+        }
+      },
+      "actions": {
+        "deposit_funds": "Deposit Funds",
+        "withdraw_funds": "Withdraw Funds",
+        "view_transaction": "View Transaction"
       }
     },
     "portfolio_investments": {

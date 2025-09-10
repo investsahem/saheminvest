@@ -222,7 +222,7 @@ export function Wallet({
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700">Current Balance</p>
+                <p className="text-sm font-medium text-blue-700">{t('portfolio_wallet.balance_summary.current_balance')}</p>
                 <p className="text-2xl font-bold text-blue-900">
                   {showBalance ? `$${formatNumber(balance)}` : '••••••'}
                 </p>
@@ -248,7 +248,7 @@ export function Wallet({
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-700">Total Invested</p>
+                <p className="text-sm font-medium text-green-700">{t('portfolio_wallet.balance_summary.total_invested')}</p>
                 <p className="text-2xl font-bold text-green-900">
                   {showBalance ? `$${formatNumber(totalInvested)}` : '••••••'}
                 </p>
@@ -264,7 +264,7 @@ export function Wallet({
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-700">Total Returns</p>
+                <p className="text-sm font-medium text-purple-700">{t('portfolio_wallet.balance_summary.total_returns')}</p>
                 <p className="text-2xl font-bold text-purple-900">
                   {showBalance ? `$${formatNumber(totalReturns)}` : '••••••'}
                 </p>
@@ -280,7 +280,7 @@ export function Wallet({
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-700">Distributed Profits</p>
+                <p className="text-sm font-medium text-orange-700">{t('portfolio_wallet.balance_summary.distributed_profits')}</p>
                 <p className="text-2xl font-bold text-orange-900">
                   {showBalance ? `$${formatNumber(profitsSummary.distributedProfits)}` : '••••••'}
                 </p>
@@ -296,7 +296,7 @@ export function Wallet({
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">Unrealized Gains</p>
+                <p className="text-sm font-medium text-emerald-700">{t('portfolio_wallet.balance_summary.unrealized_gains')}</p>
                 <p className="text-2xl font-bold text-emerald-900">
                   {showBalance ? `$${formatNumber(profitsSummary.unrealizedGains)}` : '••••••'}
                 </p>
@@ -324,10 +324,10 @@ export function Wallet({
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  {tab === 'overview' && 'Overview'}
-                  {tab === 'deposit' && 'Deposit'}
-                  {tab === 'withdraw' && 'Withdraw'}
-                  {tab === 'history' && 'Transaction History'}
+                  {tab === 'overview' && t('portfolio_wallet.tabs.overview')}
+                  {tab === 'deposit' && t('portfolio_wallet.tabs.deposit')}
+                  {tab === 'withdraw' && t('portfolio_wallet.tabs.withdraw')}
+                  {tab === 'history' && t('portfolio_wallet.tabs.transaction_history')}
                 </button>
               ))}
             </nav>
@@ -336,7 +336,7 @@ export function Wallet({
           {/* Tab Content */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900">Wallet Overview</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_wallet.wallet_overview.title')}</h3>
               
               {/* Quick Actions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -346,8 +346,8 @@ export function Wallet({
                 >
                   <Plus className="w-5 h-5" />
                   <div className="text-center">
-                    <p className="font-medium">Deposit</p>
-                    <p className="text-xs opacity-80">Add funds to wallet</p>
+                    <p className="font-medium">{t('portfolio_wallet.wallet_overview.deposit_title')}</p>
+                    <p className="text-xs opacity-80">{t('portfolio_wallet.wallet_overview.deposit_subtitle')}</p>
                   </div>
                 </Button>
                 <Button 
@@ -357,8 +357,8 @@ export function Wallet({
                 >
                   <Minus className="w-5 h-5" />
                   <div className="text-center">
-                    <p className="font-medium">Withdraw</p>
-                    <p className="text-xs opacity-80">Withdraw from wallet</p>
+                    <p className="font-medium">{t('portfolio_wallet.wallet_overview.withdraw_title')}</p>
+                    <p className="text-xs opacity-80">{t('portfolio_wallet.wallet_overview.withdraw_subtitle')}</p>
                   </div>
                 </Button>
               </div>
@@ -367,13 +367,13 @@ export function Wallet({
               {transactions.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-medium text-gray-900">Recent Transactions</h4>
+                    <h4 className="font-medium text-gray-900">{t('portfolio_wallet.transactions.recent_transactions')}</h4>
                     <Button 
                       variant="outline" 
                       size="sm"
                       onClick={() => setActiveTab('history')}
                     >
-                      View All
+                      {t('portfolio_wallet.transactions.view_all')}
                     </Button>
                   </div>
                   <div className="space-y-2">

@@ -131,7 +131,7 @@ const WalletPage = () => {
 
   if (loading) {
     return (
-      <InvestorLayout title="Digital Wallet" subtitle="Manage your funds and transactions">
+      <InvestorLayout title={t('portfolio_wallet.title')} subtitle={t('portfolio_wallet.subtitle')}>
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -141,8 +141,8 @@ const WalletPage = () => {
 
   return (
     <InvestorLayout
-      title="Digital Wallet"
-      subtitle="Manage your funds and transactions"
+      title={t('portfolio_wallet.title')}
+      subtitle={t('portfolio_wallet.subtitle')}
     >
       <Wallet
         balance={walletData.balance}

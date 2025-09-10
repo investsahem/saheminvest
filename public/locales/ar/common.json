@@ -448,6 +448,41 @@
     "return_20_plus": "عائد 20%+"
   },
   "wallet": {
+    "payment_methods": {
+      "cash_office": "نقد في المكتب",
+      "credit_card": "بطاقة ائتمان/خصم",
+      "bank_transfer": "حوالة مصرفية",
+      "instant_no_fees": "فوري - بدون رسوم",
+      "instant_fee": "فوري - رسوم 2.5%",
+      "bank_transfer_time": "1-3 أيام عمل - بدون رسوم",
+      "cash": "نقد"
+    },
+    "security": {
+      "secure_payment": "دفع آمن ومشفر",
+      "info_protected": "المعلومات محمية",
+      "encryption_notice": "جميع بيانات البطاقة مشفرة وآمنة. لا نحتفظ بمعلومات البطاقة."
+    },
+    "card_details": {
+      "card_number": "رقم البطاقة",
+      "cardholder_name": "اسم حامل البطاقة",
+      "expiry_date": "تاريخ انتهاء الصلاحية",
+      "fill_all_fields": "يرجى ملء جميع بيانات البطاقة"
+    },
+    "deposit": {
+      "confirm_deposit": "هل أنت متأكد من إيداع ${{amount}} عبر {{method}}؟"
+    },
+    "withdraw": {
+      "maximum": "الحد الأقصى",
+      "max": "الأقصى",
+      "withdrawal_method": "طريقة السحب",
+      "cash_office": "نقد من المكتب",
+      "notice_title": "إشعار هام",
+      "notice_text": "تتطلب عمليات السحب موافقة إدارية وقد تستغرق 1-3 أيام عمل للمعالجة.",
+      "bank_notice": "قد تستغرق الحوالات المصرفية وقتاً إضافياً حسب مصرفك."
+    },
+    "errors": {
+      "payment_failed": "فشل في معالجة الدفع. يرجى المحاولة مرة أخرى."
+    },
     "balance": "الرصيد الحالي",
     "total_invested": "إجمالي الاستثمارات",
     "total_returns": "إجمالي العوائد",
@@ -1029,6 +1064,10 @@
     }
   },
   "common": {
+    "amount": "المبلغ",
+    "payment_method": "طريقة الدفع",
+    "processing": "جارٍ المعالجة...",
+    "cancel": "إلغاء",
     "yes": "نعم",
     "no": "لا",
     "ok": "موافق",
@@ -1469,6 +1508,53 @@
         "deposit_to_account": "إيداع في حساب الشريك",
         "withdrawal_from_account": "سحب من حساب الشريك",
         "investment_in": "استثمار في"
+      }
+    },
+    "portfolio_wallet": {
+      "title": "المحفظة الرقمية",
+      "subtitle": "إدارة أموالك ومعاملاتك",
+      "loading": "جارٍ التحميل...",
+      "balance_summary": {
+        "current_balance": "الرصيد الحالي",
+        "total_invested": "إجمالي الاستثمار",
+        "total_returns": "إجمالي العوائد",
+        "distributed_profits": "الأرباح الموزعة",
+        "unrealized_gains": "المكاسب غير المحققة"
+      },
+      "tabs": {
+        "overview": "نظرة عامة",
+        "deposit": "إيداع",
+        "withdraw": "سحب",
+        "transaction_history": "تاريخ المعاملات"
+      },
+      "wallet_overview": {
+        "title": "نظرة عامة على المحفظة",
+        "deposit_title": "إيداع",
+        "deposit_subtitle": "إضافة أموال إلى المحفظة",
+        "withdraw_title": "سحب",
+        "withdraw_subtitle": "سحب من المحفظة"
+      },
+      "transactions": {
+        "recent_transactions": "المعاملات الأخيرة",
+        "view_all": "عرض الكل",
+        "no_transactions": "لا توجد معاملات",
+        "transaction_types": {
+          "deposit": "إيداع",
+          "withdrawal": "سحب",
+          "investment": "استثمار",
+          "return": "عائد",
+          "fee": "رسوم"
+        },
+        "status": {
+          "pending": "قيد الانتظار",
+          "completed": "مكتمل",
+          "failed": "فشل"
+        }
+      },
+      "actions": {
+        "deposit_funds": "إيداع أموال",
+        "withdraw_funds": "سحب أموال",
+        "view_transaction": "عرض المعاملة"
       }
     },
     "portfolio_investments": {
