@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../../../auth/[...nextauth]/route'
+import { authOptions } from '../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -8,9 +8,10 @@ const prisma = new PrismaClient()
 // PUT - Update review status (approve/reject)
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: reviewId } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -21,8 +22,6 @@ export async function PUT(
     if (session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
-
-    const reviewId = params.id
     const { status, adminNote } = await request.json()
 
     // Validate status
@@ -114,9 +113,10 @@ export async function PUT(
 // DELETE - Delete a review
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: reviewId } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -127,8 +127,6 @@ export async function DELETE(
     if (session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
-
-    const reviewId = params.id
 
     // Check if review exists
     const existingReview = await prisma.partnerReview.findUnique({
