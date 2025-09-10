@@ -27,6 +27,16 @@ export interface Deal {
     name: string
     email: string
     image?: string
+    partnerProfile?: {
+      id: string
+      companyName: string
+      displayName?: string
+      tagline?: string
+      logo?: string
+      brandColor?: string
+      isVerified: boolean
+      isPublic: boolean
+    }
   }
   partner?: {
     id: string

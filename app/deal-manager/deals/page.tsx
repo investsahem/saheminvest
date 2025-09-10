@@ -335,7 +335,8 @@ const ManageDealsPage = () => {
                   duration={deal.duration || 12}
                   endDate={deal.endDate || ''}
                   contributorsCount={deal.investorCount || 0}
-                  partnerName={deal.partner?.companyName || 'Unknown Partner'}
+                  partnerName={deal.owner?.partnerProfile?.companyName || deal.partner?.companyName || deal.owner?.name || 'Unknown Partner'}
+                  partnerProfile={deal.owner?.partnerProfile}
                   partnerDealsCount={5} // You might want to fetch this from the API
                   minInvestment={deal.minInvestment || 1000}
                   isPartnerView={true}

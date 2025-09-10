@@ -559,7 +559,7 @@ const PortfolioDealsPage = () => {
                       duration={deal.duration || 12}
                       endDate={deal.endDate || ''}
                       contributorsCount={deal._count?.investments || deal.investorCount || 0}
-                      partnerName={deal.partner?.companyName || deal.owner.name || 'Partner'}
+                      partnerName={deal.owner?.partnerProfile?.companyName || deal.partner?.companyName || deal.owner.name || 'Partner'}
                       partnerDealsCount={5}
                       minInvestment={deal.minInvestment || 1000}
                       isPartnerView={false}
@@ -569,6 +569,7 @@ const PortfolioDealsPage = () => {
                       completionDate={deal.updatedAt} // Use updated date as completion date for now
                       profitDistributed={profitDistributed}
                       partnerId={deal.partner?.id || deal.owner.id}
+                      partnerProfile={deal.owner?.partnerProfile}
                       onReviewPartner={handleReviewPartner}
                     />
                   

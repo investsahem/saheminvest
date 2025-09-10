@@ -17,9 +17,49 @@ export async function GET(
       )
     }
 
-    // Get partner with deals and reviews
-    const partner = await prisma.partner.findUnique({
+    // First try to find by Partner ID, then by PartnerProfile ID
+    let partnerProfile = null
+    let partner = null
+
+    // Try to find partner first and get their profile
+    partner = await prisma.partner.findUnique({
       where: { id: partnerId },
+      include: {
+        user: {
+          select: {
+            partnerProfile: true
+          }
+        }
+      }
+    })
+
+    if (partner?.user?.partnerProfile) {
+      partnerProfile = partner.user.partnerProfile
+    } else {
+      // If not found by partner ID, try by profile ID directly
+      partnerProfile = await prisma.partnerProfile.findUnique({
+        where: { id: partnerId },
+        include: {
+          user: {
+            select: {
+              partner: true
+            }
+          }
+        }
+      })
+      partner = partnerProfile?.user?.partner
+    }
+
+    if (!partnerProfile) {
+      return NextResponse.json(
+        { error: 'Partner not found' },
+        { status: 404 }
+      )
+    }
+
+    // Get partner deals and reviews using the partner ID
+    const partnerWithDetails = partner ? await prisma.partner.findUnique({
+      where: { id: partner.id },
       include: {
         _count: {
           select: {
@@ -45,11 +85,7 @@ export async function GET(
               }
             }
           },
-          where: {
-            status: {
-              in: ['ACTIVE', 'PUBLISHED', 'FUNDED', 'COMPLETED']
-            }
-          },
+          // Include all deals (including closed ones)
           orderBy: {
             createdAt: 'desc'
           }
@@ -79,33 +115,43 @@ export async function GET(
           }
         }
       }
-    })
-
-    if (!partner) {
-      return NextResponse.json(
-        { error: 'Partner not found' },
-        { status: 404 }
-      )
-    }
+    }) : null
 
     // Calculate average rating
-    const ratings = partner.reviews.map(r => r.rating)
+    const ratings = partnerWithDetails?.reviews?.map(r => r.rating) || []
     const averageRating = ratings.length > 0 
       ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
       : null
 
-    const partnerWithRating = {
-      ...partner,
+    // Use PartnerProfile data as the primary source
+    const result = {
+      id: partner?.id || partnerProfile.id,
+      companyName: partnerProfile.companyName,
+      contactEmail: partnerProfile.email,
+      contactPhone: partnerProfile.phone,
+      industry: partnerProfile.industry,
+      description: partnerProfile.description,
+      website: partnerProfile.website,
+      foundedYear: partnerProfile.foundedYear,
+      employeeCount: partnerProfile.employeeCount,
+      location: partnerProfile.city && partnerProfile.country ? `${partnerProfile.city}, ${partnerProfile.country}` : null,
+      logoUrl: partnerProfile.logo,
+      verified: partner?.status === 'ACTIVE',
+      createdAt: partnerProfile.createdAt,
+      status: partner?.status || 'PENDING',
       averageRating,
       totalReviews: ratings.length,
       _count: {
-        deals: partner._count.projects // Map projects count to deals for backward compatibility
+        deals: partnerWithDetails?._count?.projects || 0
       },
-      deals: partner.projects, // Map projects to deals for backward compatibility
-      projects: undefined // Remove original projects field
+      deals: partnerWithDetails?.projects || [],
+      reviews: partnerWithDetails?.reviews?.map(review => ({
+        ...review,
+        deal: review.project // Map project to deal for backward compatibility
+      })) || []
     }
 
-    return NextResponse.json(partnerWithRating)
+    return NextResponse.json(result)
 
   } catch (error) {
     console.error('Error fetching partner details:', error)

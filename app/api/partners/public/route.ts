@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     
     const skip = (page - 1) * limit
 
-    // Build where clause
+    // Build where clause for PartnerProfile
     const where: any = {}
 
     if (search) {
@@ -28,67 +28,94 @@ export async function GET(request: Request) {
       where.industry = industry
     }
 
-    // Get partners with deal counts and ratings
-    const [partners, total] = await Promise.all([
-      prisma.partner.findMany({
+    // Only show profiles where the user has an active partner status
+    where.user = {
+      partner: {
+        status: {
+          in: ['ACTIVE', 'PENDING'] // Show active and pending partners
+        }
+      }
+    }
+
+    // Get partner profiles with deal counts and ratings
+    const [partnerProfiles, total] = await Promise.all([
+      prisma.partnerProfile.findMany({
         where,
         skip,
         take: limit,
         orderBy: [
-          { status: 'asc' }, // Active partners first (PENDING, ACTIVE, etc.)
           { createdAt: 'desc' }
         ],
         include: {
-        _count: {
-          select: {
-            projects: true
-          }
-        },
-        projects: {
+          user: {
             select: {
               id: true,
-              title: true,
-              status: true,
-              expectedReturn: true,
-              currentFunding: true,
-              fundingGoal: true
-            },
-            where: {
-              status: {
-                in: ['ACTIVE', 'PUBLISHED', 'FUNDED', 'COMPLETED']
+              partner: {
+                select: {
+                  id: true,
+                  status: true,
+                  _count: {
+                    select: {
+                      projects: true
+                    }
+                  },
+                  projects: {
+                    select: {
+                      id: true,
+                      title: true,
+                      status: true,
+                      expectedReturn: true,
+                      currentFunding: true,
+                      fundingGoal: true
+                    }
+                    // Include all deals (including closed ones)
+                  },
+                  reviews: {
+                    select: {
+                      rating: true
+                    },
+                    where: {
+                      status: 'APPROVED'
+                    }
+                  }
+                }
               }
-            }
-          },
-          reviews: {
-            select: {
-              rating: true
-            },
-            where: {
-              status: 'APPROVED'
             }
           }
         }
       }),
-      prisma.partner.count({ where })
+      prisma.partnerProfile.count({ where })
     ])
 
-    // Calculate average ratings and map projects to deals
-    const partnersWithRatings = partners.map(partner => {
-      const ratings = partner.reviews.map(r => r.rating)
+    // Map to the expected format
+    const partnersWithRatings = partnerProfiles.map(profile => {
+      const partner = profile.user?.partner
+      const ratings = partner?.reviews?.map(r => r.rating) || []
       const averageRating = ratings.length > 0 
         ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
         : null
       
       return {
-        ...partner,
+        id: partner?.id || profile.id,
+        companyName: profile.companyName,
+        contactEmail: profile.email,
+        contactPhone: profile.phone,
+        industry: profile.industry,
+        description: profile.description,
+        website: profile.website,
+        foundedYear: profile.foundedYear,
+        employeeCount: profile.employeeCount,
+        location: profile.city && profile.country ? `${profile.city}, ${profile.country}` : null,
+        logoUrl: profile.logo,
+        verified: partner?.status === 'ACTIVE',
+        createdAt: profile.createdAt,
+        status: partner?.status || 'PENDING',
         averageRating,
         totalReviews: ratings.length,
         _count: {
-          deals: partner._count.projects // Map projects count to deals for backward compatibility
+          deals: partner?._count?.projects || 0
         },
-        deals: partner.projects, // Map projects to deals for backward compatibility
-        reviews: undefined, // Remove reviews from response for privacy
-        projects: undefined // Remove original projects field
+        deals: partner?.projects || []
       }
     })
 
