@@ -1294,7 +1294,71 @@
       "percentage": "%"
     }
   },
-  "partner_performance": {
+    "partner_transactions": {
+      "title": "Transactions",
+      "subtitle": "Track all your financial transactions",
+      "summary": {
+        "total_income": "Total Income",
+        "total_outgoing": "Total Outgoing",
+        "pending": "Pending",
+        "net_balance": "Net Balance",
+        "this_month": "this month",
+        "awaiting_processing": "Awaiting processing"
+      },
+      "filters": {
+        "search_placeholder": "Search transactions...",
+        "all_types": "All Types",
+        "all_status": "All Status",
+        "export": "Export"
+      },
+      "types": {
+        "commission": "Commission",
+        "return": "Return",
+        "deposit": "Deposit",
+        "withdrawal": "Withdrawal",
+        "investment": "Investment",
+        "fee": "Fee"
+      },
+      "status": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "table": {
+        "transaction": "Transaction",
+        "type": "Type",
+        "amount": "Amount",
+        "status": "Status",
+        "date": "Date",
+        "method": "Method",
+        "actions": "Actions"
+      },
+      "methods": {
+        "bank_transfer": "Bank Transfer",
+        "auto_deduction": "Auto Deduction",
+        "card": "Card",
+        "cash": "Cash"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "empty_state": {
+        "no_transactions": "No transactions found",
+        "adjust_filters": "Try adjusting your search or filter criteria.",
+        "history_appears_here": "Your transaction history will appear here."
+      },
+      "descriptions": {
+        "commission_from": "Commission from",
+        "return_payment": "Return payment to investors",
+        "platform_fee": "Platform fee for deal management",
+        "deposit_to_account": "Deposit to partner account",
+        "withdrawal_from_account": "Withdrawal from partner account",
+        "investment_in": "Investment in"
+      }
+    },
+    "partner_performance": {
     "title": "Performance Tracking",
     "subtitle": "Monitor your investment performance and rankings",
     "time_ranges": {

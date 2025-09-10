@@ -1412,7 +1412,71 @@
       "percentage": "%"
     }
   },
-  "partner_performance": {
+    "partner_transactions": {
+      "title": "المعاملات",
+      "subtitle": "تتبع جميع معاملاتك المالية",
+      "summary": {
+        "total_income": "إجمالي الدخل",
+        "total_outgoing": "إجمالي الصادر",
+        "pending": "قيد الانتظار",
+        "net_balance": "الرصيد الصافي",
+        "this_month": "هذا الشهر",
+        "awaiting_processing": "في انتظار المعالجة"
+      },
+      "filters": {
+        "search_placeholder": "البحث في المعاملات...",
+        "all_types": "جميع الأنواع",
+        "all_status": "جميع الحالات",
+        "export": "تصدير"
+      },
+      "types": {
+        "commission": "عمولة",
+        "return": "إرجاع",
+        "deposit": "إيداع",
+        "withdrawal": "سحب",
+        "investment": "استثمار",
+        "fee": "رسوم"
+      },
+      "status": {
+        "completed": "مكتمل",
+        "pending": "قيد الانتظار",
+        "failed": "فشل",
+        "cancelled": "ملغي"
+      },
+      "table": {
+        "transaction": "المعاملة",
+        "type": "النوع",
+        "amount": "المبلغ",
+        "status": "الحالة",
+        "date": "التاريخ",
+        "method": "الطريقة",
+        "actions": "الإجراءات"
+      },
+      "methods": {
+        "bank_transfer": "تحويل بنكي",
+        "auto_deduction": "خصم تلقائي",
+        "card": "بطاقة",
+        "cash": "نقدي"
+      },
+      "pagination": {
+        "previous": "السابق",
+        "next": "التالي"
+      },
+      "empty_state": {
+        "no_transactions": "لم يتم العثور على معاملات",
+        "adjust_filters": "جرب تعديل معايير البحث أو التصفية.",
+        "history_appears_here": "سيظهر تاريخ معاملاتك هنا."
+      },
+      "descriptions": {
+        "commission_from": "عمولة من",
+        "return_payment": "دفع إرجاع للمستثمرين",
+        "platform_fee": "رسوم المنصة لإدارة الصفقات",
+        "deposit_to_account": "إيداع في حساب الشريك",
+        "withdrawal_from_account": "سحب من حساب الشريك",
+        "investment_in": "استثمار في"
+      }
+    },
+    "partner_performance": {
     "title": "تتبع الأداء",
     "subtitle": "راقب أداء استثماراتك وترتيبك",
     "time_ranges": {

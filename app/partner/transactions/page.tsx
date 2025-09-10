@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import PartnerLayout from '../../components/layout/PartnerLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -11,6 +12,7 @@ import {
   DollarSign, Calendar, CheckCircle, Clock, AlertCircle, 
   TrendingUp, TrendingDown, CreditCard, Landmark, Building2
 } from 'lucide-react'
+import { formatCurrency, formatNumber, formatRawPercentage } from '../utils/formatters'
 
 interface Transaction {
   id: string
@@ -26,6 +28,7 @@ interface Transaction {
 }
 
 const PartnerTransactionsPage = () => {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,114 +36,57 @@ const PartnerTransactionsPage = () => {
   const [filterType, setFilterType] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
+  const [summary, setSummary] = useState<any>({})
+  const [pagination, setPagination] = useState<any>({})
   const transactionsPerPage = 20
 
-  // Sample transactions data
+  // Fetch real transactions data
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const sampleTransactions: Transaction[] = [
-        {
-          id: '1',
-          type: 'COMMISSION',
-          amount: 15000,
-          status: 'COMPLETED',
-          date: '2024-01-20',
-          description: 'Commission from AI Healthcare Platform deal',
-          dealTitle: 'AI Healthcare Platform',
-          investorName: 'Ahmed Al-Rashid',
-          reference: 'COM-2024-001',
-          method: 'Bank Transfer'
-        },
-        {
-          id: '2',
-          type: 'RETURN',
-          amount: 25000,
-          status: 'COMPLETED',
-          date: '2024-01-18',
-          description: 'Return payment to investors - Smart Home Solutions',
-          dealTitle: 'Smart Home Solutions',
-          reference: 'RET-2024-002',
-          method: 'Bank Transfer'
-        },
-        {
-          id: '3',
-          type: 'COMMISSION',
-          amount: 12000,
-          status: 'PENDING',
-          date: '2024-01-15',
-          description: 'Commission from Medical Device Manufacturing',
-          dealTitle: 'Medical Device Manufacturing',
-          investorName: 'Sarah Johnson',
-          reference: 'COM-2024-003',
-          method: 'Bank Transfer'
-        },
-        {
-          id: '4',
-          type: 'FEE',
-          amount: -500,
-          status: 'COMPLETED',
-          date: '2024-01-12',
-          description: 'Platform fee for deal management',
-          reference: 'FEE-2024-004',
-          method: 'Auto Deduction'
-        },
-        {
-          id: '5',
-          type: 'COMMISSION',
-          amount: 18000,
-          status: 'COMPLETED',
-          date: '2024-01-10',
-          description: 'Commission from Commercial Real Estate deal',
-          dealTitle: 'Commercial Real Estate',
-          investorName: 'Mohammed Al-Saadoun',
-          reference: 'COM-2024-005',
-          method: 'Bank Transfer'
-        },
-        {
-          id: '6',
-          type: 'RETURN',
-          amount: 30000,
-          status: 'COMPLETED',
-          date: '2024-01-08',
-          description: 'Return payment to investors - Tech Startup Fund',
-          dealTitle: 'Tech Startup Fund',
-          reference: 'RET-2024-006',
-          method: 'Bank Transfer'
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true)
+        const queryParams = new URLSearchParams({
+          type: filterType,
+          status: filterStatus,
+          page: currentPage.toString(),
+          limit: transactionsPerPage.toString()
+        })
+        
+        const response = await fetch(`/api/partner/transactions?${queryParams}`)
+        if (response.ok) {
+          const data = await response.json()
+          setTransactions(data.transactions)
+          setSummary(data.summary)
+          setPagination(data.pagination)
+        } else {
+          console.error('Failed to fetch transactions')
         }
-      ]
-      setTransactions(sampleTransactions)
-      setLoading(false)
-    }, 1000)
-  }, [])
+      } catch (error) {
+        console.error('Error fetching transactions:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  // Filter transactions
+    if (session?.user?.id) {
+      fetchTransactions()
+    }
+  }, [session, filterType, filterStatus, currentPage])
+
+  // Filter transactions (client-side search only since API handles type/status filtering)
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = searchTerm === '' || 
       transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (transaction.dealTitle && transaction.dealTitle.toLowerCase().includes(searchTerm.toLowerCase()))
 
-    const matchesType = filterType === 'all' || transaction.type === filterType
-    const matchesStatus = filterStatus === 'all' || transaction.status === filterStatus
-
-    return matchesSearch && matchesType && matchesStatus
+    return matchesSearch
   })
 
-  // Paginate transactions
-  const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage)
-  const paginatedTransactions = filteredTransactions.slice(
-    (currentPage - 1) * transactionsPerPage,
-    currentPage * transactionsPerPage
-  )
+  const paginatedTransactions = filteredTransactions
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(Math.abs(amount))
+  const formatTransactionCurrency = (amount: number) => {
+    return formatCurrency(Math.abs(amount), 'USD', 0)
   }
 
   const formatDate = (dateString: string) => {
@@ -195,23 +141,17 @@ const PartnerTransactionsPage = () => {
     }
   }
 
-  // Calculate summary metrics
-  const totalIncome = transactions
-    .filter(t => ['COMMISSION', 'RETURN', 'DEPOSIT'].includes(t.type) && t.status === 'COMPLETED')
-    .reduce((sum, t) => sum + t.amount, 0)
-
-  const totalOutgoing = transactions
-    .filter(t => ['WITHDRAWAL', 'FEE'].includes(t.type) && t.status === 'COMPLETED')
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0)
-
-  const pendingAmount = transactions
-    .filter(t => t.status === 'PENDING')
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+  // Get summary metrics from API response
+  const totalIncome = summary.totalIncome || 0
+  const totalOutgoing = summary.totalOutgoing || 0
+  const pendingAmount = summary.pendingAmount || 0
+  const netBalance = summary.netBalance || 0
+  const growth = summary.growth || { income: 0, outgoing: 0, net: 0 }
 
   return (
     <PartnerLayout
-      title="Transactions"
-      subtitle="Track all your financial transactions"
+      title={t('partner_transactions.title')}
+      subtitle={t('partner_transactions.subtitle')}
     >
       <div className="space-y-6">
         {/* Summary Cards */}
@@ -220,11 +160,11 @@ const PartnerTransactionsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700">Total Income</p>
-                  <p className="text-2xl font-bold text-green-900">{formatCurrency(totalIncome)}</p>
+                  <p className="text-sm font-medium text-green-700">{t('partner_transactions.summary.total_income')}</p>
+                  <p className="text-2xl font-bold text-green-900">{formatTransactionCurrency(totalIncome)}</p>
                   <p className="text-xs text-green-600 flex items-center mt-1">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    +15.2% this month
+                    {growth.income >= 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
+                    {growth.income >= 0 ? '+' : ''}{formatRawPercentage(growth.income)}% {t('partner_transactions.summary.this_month')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -238,11 +178,11 @@ const PartnerTransactionsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-red-700">Total Outgoing</p>
-                  <p className="text-2xl font-bold text-red-900">{formatCurrency(totalOutgoing)}</p>
+                  <p className="text-sm font-medium text-red-700">{t('partner_transactions.summary.total_outgoing')}</p>
+                  <p className="text-2xl font-bold text-red-900">{formatTransactionCurrency(totalOutgoing)}</p>
                   <p className="text-xs text-red-600 flex items-center mt-1">
-                    <TrendingDown className="w-3 h-3 mr-1" />
-                    -5.8% this month
+                    {growth.outgoing >= 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
+                    {growth.outgoing >= 0 ? '+' : ''}{formatRawPercentage(Math.abs(growth.outgoing))}% {t('partner_transactions.summary.this_month')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
@@ -256,11 +196,11 @@ const PartnerTransactionsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-yellow-700">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-900">{formatCurrency(pendingAmount)}</p>
+                  <p className="text-sm font-medium text-yellow-700">{t('partner_transactions.summary.pending')}</p>
+                  <p className="text-2xl font-bold text-yellow-900">{formatTransactionCurrency(pendingAmount)}</p>
                   <p className="text-xs text-yellow-600 flex items-center mt-1">
                     <Clock className="w-3 h-3 mr-1" />
-                    Awaiting processing
+                    {t('partner_transactions.summary.awaiting_processing')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
@@ -274,11 +214,11 @@ const PartnerTransactionsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700">Net Balance</p>
-                  <p className="text-2xl font-bold text-blue-900">{formatCurrency(totalIncome - totalOutgoing)}</p>
+                  <p className="text-sm font-medium text-blue-700">{t('partner_transactions.summary.net_balance')}</p>
+                  <p className="text-2xl font-bold text-blue-900">{formatTransactionCurrency(netBalance)}</p>
                   <p className="text-xs text-blue-600 flex items-center mt-1">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    +21.4% this month
+                    {growth.net >= 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
+                    {growth.net >= 0 ? '+' : ''}{formatRawPercentage(growth.net)}% {t('partner_transactions.summary.this_month')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -298,7 +238,7 @@ const PartnerTransactionsPage = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     type="text"
-                    placeholder="Search transactions..."
+                    placeholder={t('partner_transactions.filters.search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -310,13 +250,13 @@ const PartnerTransactionsPage = () => {
                   onChange={(e) => setFilterType(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Types</option>
-                  <option value="COMMISSION">Commission</option>
-                  <option value="RETURN">Return</option>
-                  <option value="DEPOSIT">Deposit</option>
-                  <option value="WITHDRAWAL">Withdrawal</option>
-                  <option value="INVESTMENT">Investment</option>
-                  <option value="FEE">Fee</option>
+                  <option value="all">{t('partner_transactions.filters.all_types')}</option>
+                  <option value="COMMISSION">{t('partner_transactions.types.commission')}</option>
+                  <option value="RETURN">{t('partner_transactions.types.return')}</option>
+                  <option value="DEPOSIT">{t('partner_transactions.types.deposit')}</option>
+                  <option value="WITHDRAWAL">{t('partner_transactions.types.withdrawal')}</option>
+                  <option value="INVESTMENT">{t('partner_transactions.types.investment')}</option>
+                  <option value="FEE">{t('partner_transactions.types.fee')}</option>
                 </select>
 
                 <select
@@ -324,18 +264,18 @@ const PartnerTransactionsPage = () => {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Status</option>
-                  <option value="COMPLETED">Completed</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="FAILED">Failed</option>
-                  <option value="CANCELLED">Cancelled</option>
+                  <option value="all">{t('partner_transactions.filters.all_status')}</option>
+                  <option value="COMPLETED">{t('partner_transactions.status.completed')}</option>
+                  <option value="PENDING">{t('partner_transactions.status.pending')}</option>
+                  <option value="FAILED">{t('partner_transactions.status.failed')}</option>
+                  <option value="CANCELLED">{t('partner_transactions.status.cancelled')}</option>
                 </select>
               </div>
 
               <div className="flex gap-2">
                 <Button variant="outline" className="flex items-center gap-2">
                   <Download className="w-4 h-4" />
-                  Export
+                  {t('partner_transactions.filters.export')}
                 </Button>
               </div>
             </div>
@@ -355,25 +295,25 @@ const PartnerTransactionsPage = () => {
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Transaction
+                        {t('partner_transactions.table.transaction')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Type
+                        {t('partner_transactions.table.type')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Amount
+                        {t('partner_transactions.table.amount')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
+                        {t('partner_transactions.table.status')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
+                        {t('partner_transactions.table.date')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Method
+                        {t('partner_transactions.table.method')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
+                        {t('partner_transactions.table.actions')}
                       </th>
                     </tr>
                   </thead>
@@ -409,7 +349,7 @@ const PartnerTransactionsPage = () => {
                           <div className={`text-sm font-bold ${
                             transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
-                            {transaction.amount >= 0 ? '+' : '-'}{formatCurrency(transaction.amount)}
+                            {transaction.amount >= 0 ? '+' : '-'}{formatTransactionCurrency(transaction.amount)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -449,18 +389,18 @@ const PartnerTransactionsPage = () => {
         </Card>
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {pagination.pages > 1 && (
           <div className="flex justify-center items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              disabled={currentPage === 1}
+              disabled={!pagination.hasPrev}
               onClick={() => setCurrentPage(currentPage - 1)}
             >
-              Previous
+              {t('partner_transactions.pagination.previous')}
             </Button>
             
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
               <Button
                 key={page}
                 variant={page === currentPage ? "primary" : "outline"}
@@ -474,10 +414,10 @@ const PartnerTransactionsPage = () => {
             <Button
               variant="outline"
               size="sm"
-              disabled={currentPage === totalPages}
+              disabled={!pagination.hasNext}
               onClick={() => setCurrentPage(currentPage + 1)}
             >
-              Next
+              {t('partner_transactions.pagination.next')}
             </Button>
           </div>
         )}
@@ -486,11 +426,11 @@ const PartnerTransactionsPage = () => {
           <Card>
             <CardContent className="p-12 text-center">
               <DollarSign className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No transactions found</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('partner_transactions.empty_state.no_transactions')}</h3>
               <p className="text-gray-600">
                 {searchTerm || filterType !== 'all' || filterStatus !== 'all'
-                  ? 'Try adjusting your search or filter criteria.'
-                  : 'Your transaction history will appear here.'
+                  ? t('partner_transactions.empty_state.adjust_filters')
+                  : t('partner_transactions.empty_state.history_appears_here')
                 }
               </p>
             </CardContent>
