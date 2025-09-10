@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
@@ -224,8 +225,27 @@ export default function PartnerDetailsPage() {
               {/* Partner Info */}
               <div className="lg:col-span-2">
                 <div className="flex items-start gap-6 mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-2xl flex items-center justify-center text-3xl backdrop-blur-sm flex-shrink-0">
-                    {getIndustryIcon(partner.industry)}
+                  <div className="w-20 h-20 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-2xl flex items-center justify-center text-3xl backdrop-blur-sm flex-shrink-0 overflow-hidden">
+                    {partner.logoUrl ? (
+                      <Image 
+                        src={partner.logoUrl} 
+                        alt={partner.companyName}
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-cover rounded-2xl"
+                        onError={(e) => {
+                          // Fallback to industry icon if logo fails to load
+                          const target = e.target as HTMLImageElement
+                          target.style.display = 'none'
+                          const parent = target.parentElement
+                          if (parent) {
+                            parent.innerHTML = getIndustryIcon(partner.industry)
+                          }
+                        }}
+                      />
+                    ) : (
+                      getIndustryIcon(partner.industry)
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2">
