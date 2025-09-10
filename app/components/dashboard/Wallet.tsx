@@ -120,7 +120,7 @@ export function Wallet({
     } else {
       setShowPaymentForm(false)
       // For cash and bank, process immediately with confirmation
-      if (confirm(`Are you sure you want to deposit $${formatNumber(parseFloat(depositAmount))} via ${method === 'cash' ? 'cash' : 'bank transfer'}?`)) {
+      if (confirm(`${t('wallet.deposit.confirm_deposit')} $${formatNumber(parseFloat(depositAmount))} ${method === 'cash' ? t('wallet.payment_methods.cash') : t('wallet.payment_methods.bank_transfer')}?`)) {
         const amount = parseFloat(depositAmount)
         if (amount > 0 && onDeposit) {
           setIsProcessing(true)
@@ -145,7 +145,7 @@ export function Wallet({
 
   const handleCardPayment = async () => {
     if (!cardDetails.number || !cardDetails.expiry || !cardDetails.cvv || !cardDetails.name) {
-      alert('Please fill in all card details')
+      alert(t('wallet.card_details.fill_all_fields'))
       return
     }
 
@@ -168,7 +168,7 @@ export function Wallet({
         }
       }
     } catch (error) {
-      alert('Payment processing failed. Please try again.')
+      alert(t('wallet.errors.payment_failed'))
     } finally {
       setIsProcessing(false)
     }
@@ -406,12 +406,12 @@ export function Wallet({
 
           {activeTab === 'deposit' && (
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900">Deposit Funds</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_wallet.actions.deposit_funds')}</h3>
               
               {/* Amount Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Amount
+                  {t('common.amount')}
                 </label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -431,7 +431,7 @@ export function Wallet({
               {depositAmount && parseFloat(depositAmount) > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Payment Method
+                    {t('common.payment_method')}
                   </label>
                   <div className="space-y-3">
                     <div 
@@ -442,8 +442,8 @@ export function Wallet({
                     >
                       <WalletIcon className="w-5 h-5 text-gray-600 mr-3" />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">Cash at Office</p>
-                        <p className="text-sm text-gray-500">Instant - No fees</p>
+                        <p className="font-medium text-gray-900">{t('wallet.payment_methods.cash_office')}</p>
+                        <p className="text-sm text-gray-500">{t('wallet.payment_methods.instant_no_fees')}</p>
                       </div>
                       {paymentMethod === 'cash' && <CheckCircle className="w-5 h-5 text-blue-600" />}
                     </div>
@@ -456,8 +456,8 @@ export function Wallet({
                     >
                       <CreditCard className="w-5 h-5 text-gray-600 mr-3" />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">Credit/Debit Card</p>
-                        <p className="text-sm text-gray-500">Instant - 2.5% fee</p>
+                        <p className="font-medium text-gray-900">{t('wallet.payment_methods.credit_card')}</p>
+                        <p className="text-sm text-gray-500">{t('wallet.payment_methods.instant_fee')}</p>
                       </div>
                       {paymentMethod === 'card' && <CheckCircle className="w-5 h-5 text-blue-600" />}
                     </div>
@@ -470,8 +470,8 @@ export function Wallet({
                     >
                       <Landmark className="w-5 h-5 text-gray-600 mr-3" />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">Bank Transfer</p>
-                        <p className="text-sm text-gray-500">1-3 business days - No fees</p>
+                        <p className="font-medium text-gray-900">{t('wallet.payment_methods.bank_transfer')}</p>
+                        <p className="text-sm text-gray-500">{t('wallet.payment_methods.bank_transfer_time')}</p>
                       </div>
                       {paymentMethod === 'bank' && <CheckCircle className="w-5 h-5 text-blue-600" />}
                     </div>
@@ -484,13 +484,13 @@ export function Wallet({
                 <div className="bg-gray-50 p-6 rounded-lg space-y-4">
                   <div className="flex items-center gap-2 mb-4">
                     <Shield className="w-5 h-5 text-green-600" />
-                    <span className="text-sm font-medium text-green-800">Secure & Encrypted Payment</span>
+                    <span className="text-sm font-medium text-green-800">{t('wallet.security.secure_payment')}</span>
                   </div>
 
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Card Number
+                        {t('wallet.card_details.card_number')}
                       </label>
                       <Input
                         type="text"
@@ -503,7 +503,7 @@ export function Wallet({
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Cardholder Name
+                        {t('wallet.card_details.cardholder_name')}
                       </label>
                       <Input
                         type="text"
@@ -516,7 +516,7 @@ export function Wallet({
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Expiry Date
+                          {t('wallet.card_details.expiry_date')}
                         </label>
                         <Input
                           type="text"
@@ -545,8 +545,8 @@ export function Wallet({
                     <div className="flex items-start gap-2">
                       <Lock className="w-4 h-4 text-blue-600 mt-0.5" />
                       <div className="text-sm text-blue-800">
-                        <p className="font-medium">Information Protected</p>
-                        <p>All card data is encrypted and secure. We don't store card information.</p>
+                        <p className="font-medium">{t('wallet.security.info_protected')}</p>
+                        <p>{t('wallet.security.encryption_notice')}</p>
                       </div>
                     </div>
                   </div>
@@ -560,7 +560,7 @@ export function Wallet({
                       {isProcessing ? (
                         <>
                           <Clock className="w-4 h-4 mr-2 animate-spin" />
-                          Processing...
+                          {t('common.processing')}
                         </>
                       ) : (
                         <>
@@ -578,7 +578,7 @@ export function Wallet({
                       }}
                       disabled={isProcessing}
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </Button>
                   </div>
                 </div>
@@ -604,12 +604,12 @@ export function Wallet({
 
           {activeTab === 'withdraw' && (
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900">Withdraw Funds</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_wallet.actions.withdraw_funds')}</h3>
               
               {/* Amount Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Amount
+                  {t('common.amount')}
                 </label>
                 <div className="relative">
                   <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -626,7 +626,7 @@ export function Wallet({
                 </div>
                 <div className="flex items-center justify-between mt-2">
                   <p className="text-sm text-gray-500">
-                    Maximum: {showBalance ? `$${formatNumber(balance)}` : '••••••'}
+                    {t('wallet.withdraw.maximum')}: {showBalance ? `$${formatNumber(balance)}` : '••••••'}
                   </p>
                   <Button
                     variant="outline"
@@ -634,7 +634,7 @@ export function Wallet({
                     onClick={() => setWithdrawAmount(balance.toString())}
                     disabled={balance <= 0}
                   >
-                    Max
+                    {t('wallet.withdraw.max')}
                   </Button>
                 </div>
               </div>
@@ -643,7 +643,7 @@ export function Wallet({
               {withdrawAmount && parseFloat(withdrawAmount) > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Withdrawal Method
+                    {t('wallet.withdraw.withdrawal_method')}
                   </label>
                   <div className="space-y-3">
                     <div 
@@ -654,8 +654,8 @@ export function Wallet({
                     >
                       <WalletIcon className="w-5 h-5 text-gray-600 mr-3" />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">Cash from Office</p>
-                        <p className="text-sm text-gray-500">Instant - No fees</p>
+                        <p className="font-medium text-gray-900">{t('wallet.withdraw.cash_office')}</p>
+                        <p className="text-sm text-gray-500">{t('wallet.payment_methods.instant_no_fees')}</p>
                       </div>
                       {withdrawMethod === 'cash' && <CheckCircle className="w-5 h-5 text-blue-600" />}
                     </div>
@@ -668,8 +668,8 @@ export function Wallet({
                     >
                       <Landmark className="w-5 h-5 text-gray-600 mr-3" />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">Bank Transfer</p>
-                        <p className="text-sm text-gray-500">1-3 business days - No fees</p>
+                        <p className="font-medium text-gray-900">{t('wallet.payment_methods.bank_transfer')}</p>
+                        <p className="text-sm text-gray-500">{t('wallet.payment_methods.bank_transfer_time')}</p>
                       </div>
                       {withdrawMethod === 'bank' && <CheckCircle className="w-5 h-5 text-blue-600" />}
                     </div>
@@ -682,10 +682,10 @@ export function Wallet({
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-5 h-5 text-orange-600 mt-0.5" />
                   <div>
-                    <h4 className="font-medium text-orange-900 mb-1">Important Notice</h4>
+                    <h4 className="font-medium text-orange-900 mb-1">{t('wallet.withdraw.notice_title')}</h4>
                     <p className="text-sm text-orange-800">
-                      Withdrawals require administrative approval and may take 1-3 business days to process.
-                      {withdrawMethod === 'bank' && ' Bank transfers may take additional time depending on your bank.'}
+                      {t('wallet.withdraw.notice_text')}
+                      {withdrawMethod === 'bank' && ` ${t('wallet.withdraw.bank_notice')}`}
                     </p>
                   </div>
                 </div>
@@ -726,7 +726,7 @@ export function Wallet({
 
           {activeTab === 'history' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Transaction History</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_wallet.tabs.transaction_history')}</h3>
               {transactions.length > 0 ? (
                 <div className="space-y-3">
                   {transactions.map((transaction) => (
@@ -759,7 +759,7 @@ export function Wallet({
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  No transactions yet
+                  {t('portfolio_wallet.transactions.no_transactions')}
                 </div>
               )}
             </div>
