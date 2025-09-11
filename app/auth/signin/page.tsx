@@ -85,10 +85,10 @@ export default function SignInPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            تسجيل الدخول - ساهم إنفست
+            {t('auth.signin.title')} - {t('platform.name')}
           </h1>
           <p className="text-gray-600">
-            منصة الاستثمار الرقمية الموثوقة
+            {t('auth.signin.subtitle')}
           </p>
         </CardHeader>
         
@@ -96,7 +96,7 @@ export default function SignInPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                البريد الإلكتروني
+                {t('forms.email')}
               </label>
               <Input
                 id="email"
@@ -105,13 +105,13 @@ export default function SignInPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full"
-                placeholder="أدخل البريد الإلكتروني"
+                placeholder={t('forms.email_placeholder')}
               />
             </div>
             
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                كلمة المرور
+                {t('forms.password')}
               </label>
               <Input
                 id="password"
@@ -120,7 +120,7 @@ export default function SignInPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full"
-                placeholder="أدخل كلمة المرور"
+                placeholder={t('forms.password_placeholder')}
               />
             </div>
             
@@ -135,7 +135,7 @@ export default function SignInPage() {
               disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
             >
-              {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
+              {loading ? t('auth.signin.logging_in') : t('auth.signin.title')}
             </Button>
           </form>
           
@@ -144,7 +144,7 @@ export default function SignInPage() {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">أو</span>
+              <span className="px-2 bg-white text-gray-500">{t('auth.signin.or_signin_with')}</span>
             </div>
           </div>
           
@@ -158,23 +158,23 @@ export default function SignInPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            المتابعة مع Google
+            {t('auth.signin.continue_google')}
           </Button>
           
           <div className="text-center">
             <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
-              نسيت كلمة المرور؟
+              {t('auth.signin.forgot_password')}
             </Link>
           </div>
           
           <div className="text-center">
             <Link href="/auth/admin/signin" className="text-xs text-gray-500 hover:text-gray-700">
-              تسجيل دخول الإدارة
+              {t('auth.signin.admin_login')}
             </Link>
           </div>
           
           <div className="text-center text-sm text-gray-500">
-            محمي بأمان مصرفي • جميع البيانات مشفرة
+            {t('auth.signin.security_notice')}
           </div>
         </CardContent>
       </Card>

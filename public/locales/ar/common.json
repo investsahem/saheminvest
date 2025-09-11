@@ -987,7 +987,7 @@
       "invalid_credentials": "بيانات الدخول غير صحيحة",
       "error_try_again": "حدث خطأ، يرجى المحاولة مرة أخرى",
       "logging_in": "جارٍ الدخول...",
-      "or_signin_with": "أو تسجيل الدخول عبر",
+      "or_signin_with": "أو",
       "continue_google": "المتابعة مع Google",
       "demo_accounts": "حسابات تجريبية:",
       "use": "استخدام",
@@ -1014,7 +1014,8 @@
         "portfolio_advisor": "مستشار المحفظة",
         "investor": "مستثمر",
         "partner": "شريك"
-      }
+      },
+      "forgot_password": "نسيت كلمة المرور؟"
     },
     "signup": {
       "title": "إنشاء حساب",
