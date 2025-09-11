@@ -19,7 +19,7 @@ import {
   Briefcase,
   Target,
   Award,
-  Handshake,
+  UserCheck,
   BarChart3,
   Clock,
   Phone,
@@ -114,7 +114,7 @@ const partnerTypes = [
   {
     title: 'Business Brokers',
     description: 'Professionals facilitating business acquisitions and investments',
-    icon: Handshake,
+    icon: UserCheck,
     examples: ['M&A Advisors', 'Business Brokers', 'Corporate Finance']
   }
 ]
