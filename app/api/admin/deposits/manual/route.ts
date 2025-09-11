@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/db'
-import emailService from '../../../../lib/email'
+import { emailService } from '../../../../lib/email'
 import notificationService from '../../../../lib/notifications'
 
 // POST /api/admin/deposits/manual - Add manual deposit for an investor

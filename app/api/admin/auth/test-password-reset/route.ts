@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/db'
 import crypto from 'crypto'
-import emailService from '../../../../lib/email'
+import { emailService } from '../../../../lib/email'
 
 export async function POST(request: NextRequest) {
   try {

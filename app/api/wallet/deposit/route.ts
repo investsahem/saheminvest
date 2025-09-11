@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
-import emailService from '../../../lib/email'
+import { emailService } from '../../../lib/email'
 import notificationService from '../../../lib/notifications'
 
 const prisma = new PrismaClient()
