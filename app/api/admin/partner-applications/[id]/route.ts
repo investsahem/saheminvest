@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 const prisma = new PrismaClient()
 
-const updateApplicationSchema = z.object({
+const updatePartnerApplicationSchema = z.object({
   status: z.enum(['PENDING', 'IN_PROGRESS', 'APPROVED', 'REJECTED']),
   rejectionReason: z.string().optional(),
   reviewNotes: z.string().optional()
@@ -36,7 +36,7 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const validationResult = updateApplicationSchema.safeParse(body)
+    const validationResult = updatePartnerApplicationSchema.safeParse(body)
     
     if (!validationResult.success) {
       return NextResponse.json(
@@ -53,13 +53,13 @@ export async function PATCH(
     const applicationId = resolvedParams.id
 
     // Check if application exists
-    const existingApplication = await prisma.userApplication.findUnique({
+    const existingApplication = await prisma.partnerApplication.findUnique({
       where: { id: applicationId }
     })
 
     if (!existingApplication) {
       return NextResponse.json(
-        { message: 'Application not found' },
+        { message: 'Partner application not found' },
         { status: 404 }
       )
     }
@@ -73,7 +73,7 @@ export async function PATCH(
     }
 
     // Update the application
-    const updatedApplication = await prisma.userApplication.update({
+    const updatedApplication = await prisma.partnerApplication.update({
       where: { id: applicationId },
       data: {
         status,
@@ -93,28 +93,55 @@ export async function PATCH(
       }
     })
 
-    // TODO: Send email notification to applicant about status change
-    
-    // If approved, TODO: Create user account and send welcome email
+    // If approved, create partner account
     if (status === 'APPROVED') {
-      // Logic to create user account from approved application
-      // This would typically include:
-      // 1. Create User record
-      // 2. Send welcome email with login instructions
-      // 3. Maybe send temporary password
+      try {
+        // Create user account first
+        const newUser = await prisma.user.create({
+          data: {
+            email: existingApplication.email,
+            name: existingApplication.contactName,
+            role: 'PARTNER',
+            isActive: true
+          }
+        })
+
+        // Create partner profile
+        await prisma.partner.create({
+          data: {
+            companyName: existingApplication.companyName,
+            contactName: existingApplication.contactName,
+            phone: existingApplication.phone,
+            address: existingApplication.address,
+            website: existingApplication.website,
+            industry: existingApplication.industry,
+            description: existingApplication.description,
+            userId: newUser.id,
+            status: 'PENDING', // They still need to complete onboarding
+            tier: 'BRONZE'
+          }
+        })
+
+        // TODO: Send welcome email with login instructions
+        // TODO: Send notification about approved application
+        
+      } catch (partnerCreationError) {
+        console.error('Error creating partner account:', partnerCreationError)
+        // Don't fail the application approval, but log the error
+      }
     }
 
     return NextResponse.json({
       application: updatedApplication,
-      message: 'Application status updated successfully'
+      message: `Partner application ${status.toLowerCase()} successfully`
     })
 
   } catch (error) {
-    console.error('Error updating application:', error)
+    console.error('Error updating partner application:', error)
     
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
-        { message: 'Application not found' },
+        { message: 'Partner application not found' },
         { status: 404 }
       )
     }
@@ -126,4 +153,4 @@ export async function PATCH(
   } finally {
     await prisma.$disconnect()
   }
-} 
+}

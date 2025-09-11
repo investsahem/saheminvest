@@ -132,6 +132,7 @@ model User {
   assignedInvestors UserInvestorAssignment[] @relation("PortfolioAdvisor")
   advisorFor        UserInvestorAssignment[] @relation("AssignedInvestor")
   reviewedApplications UserApplication[] @relation("ApplicationReviewer")
+  reviewedPartnerApplications PartnerApplication[] @relation("PartnerApplicationReviewer")
   profitDistributions ProfitDistribution[] @relation("ProfitDistributions")
   
   // Profit distribution requests
@@ -207,6 +208,60 @@ model UserApplication {
   updatedAt       DateTime          @updatedAt
   
   @@map("user_applications")
+}
+
+model PartnerApplication {
+  id              String            @id @default(cuid())
+  
+  // Company Information
+  companyName     String
+  contactName     String
+  email           String            @unique
+  phone           String
+  website         String?
+  
+  // Address
+  address         String
+  city            String
+  country         String
+  postalCode      String?
+  
+  // Business Information
+  industry        String
+  businessType    String            // LLC, Corporation, Partnership, etc.
+  registrationNumber String?
+  foundedYear     Int?
+  employeeCount   String?           // "1-10", "11-50", "51-200", etc.
+  description     String            @db.Text
+  
+  // Experience & Investment Focus
+  yearsExperience Int?
+  investmentAreas String[]          // Array of investment focus areas
+  minimumDealSize Decimal?          @db.Decimal(15, 2)
+  maximumDealSize Decimal?          @db.Decimal(15, 2)
+  previousDeals   Int?              @default(0)
+  
+  // Documents & Compliance
+  businessLicense String?           // Document URL
+  taxCertificate  String?           // Document URL
+  bankStatement   String?           // Document URL
+  
+  // Application Status
+  status          ApplicationStatus @default(PENDING)
+  rejectionReason String?           @db.Text
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  reviewer        User?             @relation("PartnerApplicationReviewer", fields: [reviewedBy], references: [id])
+  
+  // Additional Information
+  notes           String?           @db.Text
+  agreeToTerms    Boolean           @default(false)
+  marketingConsent Boolean          @default(false)
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@map("partner_applications")
 }
 
 model Account {

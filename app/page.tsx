@@ -1069,6 +1069,7 @@ export default function HomePage() {
               <div className="space-y-2">
                 <Link href="/deals" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">Deals</Link>
                 <Link href="/portfolio" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">Portfolio</Link>
+                <Link href="/become-partner" className="block text-[#6be2c9] hover:text-[#79ffd6] transition-colors font-medium">Become a Partner</Link>
                 <Link href="/about" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">About Us</Link>
                 <Link href="/contact" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">Contact Us</Link>
               </div>
