@@ -102,6 +102,13 @@ export default function ApplicationsPage() {
   const handleApplicationAction = async (applicationId: string, action: 'approve' | 'reject', notes?: string) => {
     setProcessing(applicationId)
     try {
+      console.log(`🔄 Attempting to ${action} application:`, {
+        applicationId,
+        action,
+        notes,
+        session: session?.user
+      })
+      
       const response = await fetch(`/api/admin/applications/${applicationId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -111,16 +118,30 @@ export default function ApplicationsPage() {
         })
       })
       
+      console.log(`📡 API Response:`, {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url
+      })
+      
       if (response.ok) {
+        const data = await response.json()
+        console.log(`✅ Success:`, data)
         await fetchApplications()
         setSelectedApplication(null)
         alert(`Application ${action}d successfully!`)
       } else {
-        alert(`Failed to ${action} application`)
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }))
+        console.error(`❌ API Error:`, {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        })
+        alert(`Failed to ${action} application: ${errorData.message || response.statusText}`)
       }
     } catch (error) {
-      console.error(`Error ${action}ing application:`, error)
-      alert(`Error ${action}ing application`)
+      console.error(`💥 Network/Runtime Error:`, error)
+      alert(`Error ${action}ing application: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setProcessing(null)
     }
@@ -176,7 +197,57 @@ export default function ApplicationsPage() {
       <AdminLayout title="Manage Applications" subtitle="Review and manage investor applications">
         <div className="flex items-center justify-center min-h-96">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  // Debug: Show session status in development or if there are issues
+  if (!session?.user) {
+    return (
+      <AdminLayout title="Authentication Required" subtitle="Please sign in to continue">
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Authentication Required</h3>
+            <p className="text-gray-600 mb-6">You need to be signed in as an admin to access this page.</p>
+            <div className="bg-gray-100 p-4 rounded-lg mb-4 text-left">
+              <p className="text-sm text-gray-600">
+                Debug Info:<br/>
+                Session: {session ? 'exists' : 'null'}<br/>
+                User: {session?.user ? 'exists' : 'null'}<br/>
+                Role: {session?.user?.role || 'none'}<br/>
+                Current URL: {typeof window !== 'undefined' ? window.location.href : 'N/A'}
+              </p>
+            </div>
+            <Button onClick={() => window.location.href = '/auth/signin'} className="bg-blue-600 hover:bg-blue-700">
+              Sign In
+            </Button>
+          </div>
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  // Debug: Show role mismatch
+  if (session.user.role !== 'ADMIN') {
+    return (
+      <AdminLayout title="Access Denied" subtitle="Insufficient permissions">
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <XCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
+            <p className="text-gray-600 mb-6">You need ADMIN role to access this page.</p>
+            <div className="bg-gray-100 p-4 rounded-lg mb-4 text-left">
+              <p className="text-sm text-gray-600">
+                Your Role: {session.user.role}<br/>
+                Required: ADMIN<br/>
+                User ID: {session.user.id}<br/>
+                Email: {session.user.email}
+              </p>
+            </div>
+          </div>
+        </div>
       </AdminLayout>
     )
   }
