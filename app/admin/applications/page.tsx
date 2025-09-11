@@ -113,7 +113,7 @@ export default function ApplicationsPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          status: action.toUpperCase(), 
+          status: action === 'approve' ? 'APPROVED' : 'REJECTED', 
           reviewNotes: notes || `Application ${action}d by admin`
         })
       })

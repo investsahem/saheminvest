@@ -114,7 +114,7 @@ export default function PartnerApplicationsPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          status: action.toUpperCase(), 
+          status: action === 'approve' ? 'APPROVED' : 'REJECTED', 
           reviewNotes: notes || `Partner application ${action}d by admin`
         })
       })
