@@ -51,6 +51,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             role: user.role,
+            needsPasswordChange: user.needsPasswordChange,
           }
           
         } catch (error) {
@@ -64,7 +65,8 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = (user as any).role
-        console.log('✅ SIMPLE AUTH - JWT callback:', { role: token.role })
+        token.needsPasswordChange = (user as any).needsPasswordChange
+        console.log('✅ SIMPLE AUTH - JWT callback:', { role: token.role, needsPasswordChange: token.needsPasswordChange })
       }
       return token
     },
@@ -72,7 +74,8 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user.id = token.sub!
         session.user.role = token.role as string
-        console.log('✅ SIMPLE AUTH - Session callback:', { role: session.user.role })
+        session.user.needsPasswordChange = token.needsPasswordChange as boolean
+        console.log('✅ SIMPLE AUTH - Session callback:', { role: session.user.role, needsPasswordChange: session.user.needsPasswordChange })
       }
       return session
     },

@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { PrismaClient } from '@prisma/client'
 import { authOptions } from '../../../../lib/auth'
 import { z } from 'zod'
+import { createUserFromApplication } from '../../../../lib/user-onboarding'
 
 const prisma = new PrismaClient()
 
@@ -93,41 +94,51 @@ export async function PATCH(
       }
     })
 
-    // If approved, create partner account
+    // If approved, create partner account and send welcome email
     if (status === 'APPROVED') {
+      console.log('🎉 Partner application approved, creating user account for:', existingApplication.email)
+      
       try {
-        // Create user account first
-        const newUser = await prisma.user.create({
-          data: {
-            email: existingApplication.email,
-            name: existingApplication.contactName,
-            role: 'PARTNER',
-            isActive: true
-          }
+        // Create user account with temporary password and email
+        const userCreationResult = await createUserFromApplication({
+          email: existingApplication.email,
+          name: existingApplication.contactName,
+          phone: existingApplication.phone || undefined,
+          role: 'PARTNER',
+          applicationId: applicationId,
+          applicationType: 'partner'
         })
-
-        // Create partner profile
-        await prisma.partner.create({
-          data: {
-            companyName: existingApplication.companyName,
-            contactName: existingApplication.contactName,
-            phone: existingApplication.phone,
-            address: existingApplication.address,
-            website: existingApplication.website,
-            industry: existingApplication.industry,
-            description: existingApplication.description,
-            userId: newUser.id,
-            status: 'PENDING', // They still need to complete onboarding
-            tier: 'BRONZE'
-          }
-        })
-
-        // TODO: Send welcome email with login instructions
-        // TODO: Send notification about approved application
         
+        if (userCreationResult.success && userCreationResult.user) {
+          console.log('✅ Partner user account created successfully for:', existingApplication.email)
+          
+          // Create partner profile linked to the user
+          try {
+            await prisma.partner.create({
+              data: {
+                companyName: existingApplication.companyName,
+                contactName: existingApplication.contactName,
+                phone: existingApplication.phone,
+                address: existingApplication.address,
+                website: existingApplication.website,
+                industry: existingApplication.industry,
+                description: existingApplication.description,
+                userId: userCreationResult.user.id,
+                status: 'PENDING', // They still need to complete onboarding
+                tier: 'BRONZE'
+              }
+            })
+            console.log('✅ Partner profile created successfully for:', existingApplication.contactName)
+          } catch (partnerProfileError) {
+            console.error('❌ Failed to create partner profile:', partnerProfileError)
+            // The user account was created, so they can still log in
+          }
+        } else {
+          console.error('❌ Failed to create partner user account:', userCreationResult.error)
+        }
       } catch (partnerCreationError) {
-        console.error('Error creating partner account:', partnerCreationError)
-        // Don't fail the application approval, but log the error
+        console.error('❌ Error during partner creation:', partnerCreationError)
+        // Continue with the approval even if user creation fails
       }
     }
 

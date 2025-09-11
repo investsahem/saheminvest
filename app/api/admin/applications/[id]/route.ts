@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { PrismaClient } from '@prisma/client'
 import { authOptions } from '../../../../lib/auth'
 import { z } from 'zod'
+import { createUserFromApplication } from '../../../../lib/user-onboarding'
 
 const prisma = new PrismaClient()
 
@@ -93,15 +94,31 @@ export async function PATCH(
       }
     })
 
-    // TODO: Send email notification to applicant about status change
-    
-    // If approved, TODO: Create user account and send welcome email
+    // If approved, create user account and send welcome email
     if (status === 'APPROVED') {
-      // Logic to create user account from approved application
-      // This would typically include:
-      // 1. Create User record
-      // 2. Send welcome email with login instructions
-      // 3. Maybe send temporary password
+      console.log('🎉 Application approved, creating user account for:', existingApplication.email)
+      
+      try {
+        const userCreationResult = await createUserFromApplication({
+          email: existingApplication.email,
+          name: `${existingApplication.firstName} ${existingApplication.lastName}`,
+          phone: existingApplication.phone || undefined,
+          role: 'INVESTOR',
+          applicationId: applicationId,
+          applicationType: 'investor'
+        })
+        
+        if (userCreationResult.success) {
+          console.log('✅ User account created successfully for:', existingApplication.email)
+        } else {
+          console.error('❌ Failed to create user account:', userCreationResult.error)
+          // Don't fail the approval if user creation fails, just log it
+          // The admin can manually create the account if needed
+        }
+      } catch (userCreationError) {
+        console.error('❌ Error during user creation:', userCreationError)
+        // Continue with the approval even if user creation fails
+      }
     }
 
     return NextResponse.json({

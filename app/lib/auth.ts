@@ -87,6 +87,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             role: user.role,
             image: user.image,
+            needsPasswordChange: user.needsPasswordChange,
           }
 
           console.log('✅ Authorization successful, returning user:', returnUser)
@@ -113,11 +114,13 @@ export const authOptions: NextAuthOptions = {
         account: account?.provider
       })
       
-      // Persist the role in the token right after signin
+      // Persist the role and password change flag in the token right after signin
       if (user) {
         token.role = (user as any).role
-        console.log('✅ JWT callback - Setting role in token:', {
+        token.needsPasswordChange = (user as any).needsPasswordChange
+        console.log('✅ JWT callback - Setting user data in token:', {
           userRole: (user as any).role,
+          needsPasswordChange: (user as any).needsPasswordChange,
           tokenRole: token.role,
           userId: user.id
         })
@@ -138,10 +141,12 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.sub!
         session.user.role = token.role as string
+        session.user.needsPasswordChange = token.needsPasswordChange as boolean
         
         console.log('✅ Session callback - Setting session data:', {
           userId: session.user.id,
           userRole: session.user.role,
+          needsPasswordChange: session.user.needsPasswordChange,
           userEmail: session.user.email
         })
       }
