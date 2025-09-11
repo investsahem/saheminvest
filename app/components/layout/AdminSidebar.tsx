@@ -24,7 +24,7 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
   const { locale } = useI18n()
   const { data: session } = useSession()
   const pathname = usePathname()
-  const { pendingApplications, isLoading } = useAdminStats()
+  const { pendingApplications, pendingPartnerApplications, isLoading } = useAdminStats()
   const { notifications } = useAdminNotifications()
   const { pendingCount: pendingProfitDistributions } = useProfitDistributions()
 
@@ -58,6 +58,13 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
       href: '/admin/advisor-applications',
       icon: UserCheck,
       current: pathname === '/admin/advisor-applications'
+    },
+    {
+      name: 'Partner Applications',
+      href: '/admin/partner-applications',
+      icon: Building2,
+      current: pathname === '/admin/partner-applications',
+      badge: isLoading ? '...' : pendingPartnerApplications
     },
     {
       name: t('admin.manage_users'),
