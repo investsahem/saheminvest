@@ -40,6 +40,13 @@ class EmailService {
 
   private async makeRequest(endpoint: string, data: any) {
     try {
+      console.log('🚀 Making Brevo API request:', {
+        endpoint,
+        apiKeyExists: !!this.apiKey,
+        fromEmail: this.fromEmail,
+        to: data.to
+      })
+
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: 'POST',
         headers: {
@@ -50,15 +57,35 @@ class EmailService {
         body: JSON.stringify(data)
       })
 
+      console.log('📡 Brevo API response status:', response.status)
+
       if (!response.ok) {
         const error = await response.text()
-        throw new Error(`Brevo API Error: ${response.status} - ${error}`)
+        console.error('❌ Brevo API Error:', {
+          status: response.status,
+          error: error
+        })
+        return {
+          success: false,
+          error: `Brevo API Error: ${response.status} - ${error}`,
+          status: response.status
+        }
       }
 
-      return await response.json()
+      const result = await response.json()
+      console.log('✅ Brevo API success:', result)
+      
+      return {
+        success: true,
+        data: result,
+        messageId: result.messageId
+      }
     } catch (error) {
-      console.error('Email service error:', error)
-      throw error
+      console.error('💥 Email service network error:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown network error'
+      }
     }
   }
 

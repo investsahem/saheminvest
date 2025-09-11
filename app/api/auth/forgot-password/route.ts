@@ -47,20 +47,29 @@ export async function POST(request: NextRequest) {
 
     // Send email
     try {
-      await emailService.sendForgotPasswordEmail(
+      console.log('📧 Attempting to send forgot password email to:', user.email)
+      const emailResult = await emailService.sendForgotPasswordEmail(
         user.email,
         user.name || 'User',
         resetToken,
         resetUrl
       )
-      console.log(`Password reset email sent to ${user.email}`)
+      
+      console.log('📧 Email service result:', emailResult)
+      
+      if (emailResult && emailResult.success) {
+        console.log(`✅ Password reset email sent successfully to ${user.email}`)
+      } else {
+        console.error('❌ Email service returned failure:', emailResult)
+      }
     } catch (emailError) {
-      console.error('Failed to send reset email:', emailError)
+      console.error('💥 Failed to send reset email (exception):', emailError)
       // Don't reveal email sending failure to prevent enumeration
       // But log it for admin monitoring
-      console.error('Email service error details:', {
+      console.error('📊 Email service error details:', {
         email: user.email,
         error: emailError instanceof Error ? emailError.message : 'Unknown error',
+        stack: emailError instanceof Error ? emailError.stack : undefined,
         timestamp: new Date().toISOString()
       })
     }
