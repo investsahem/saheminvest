@@ -270,7 +270,7 @@ export default function BecomePartnerPage() {
             </motion.div>
           </div>
         </div>
-      </section>
+      </main>
 
       {/* Benefits Section */}
       <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
