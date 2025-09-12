@@ -86,10 +86,9 @@ export async function GET(request: NextRequest) {
       const project = investment.project
 
       if (project.status === 'COMPLETED') {
-        // For completed projects, the investment is no longer "active" in the portfolio
-        // The capital has been returned to the wallet, so current portfolio value is 0
-        // But we still track it for historical purposes in the investments list
-        currentValue = 0
+        // For completed projects, the value includes distributed profits
+        // The original investment capital is returned to wallet balance
+        currentValue = distributedProfits
       } else if (project.status === 'FUNDED') {
         // For funded projects, current value = investment + any distributed profits
         currentValue = investedAmount + distributedProfits
@@ -219,9 +218,19 @@ export async function GET(request: NextRequest) {
       ['active', 'funded'].includes(inv.status)
     ).length
 
+    // Get user's current wallet balance to include in total portfolio value
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { walletBalance: true }
+    })
+    const walletBalance = Number(user?.walletBalance || 0)
+    
+    // Total portfolio value = active investments + wallet balance
+    const totalPortfolioValue = currentPortfolioValue + walletBalance
+
     return NextResponse.json({
       portfolio: {
-        totalValue: Math.round(currentPortfolioValue * 100) / 100,
+        totalValue: Math.round(totalPortfolioValue * 100) / 100,
         totalInvested: Math.round(totalInvested * 100) / 100, // Only active investments
         totalHistoricalInvested: Math.round(totalHistoricalInvested * 100) / 100, // All investments ever
         totalReturns: Math.round(totalReturns * 100) / 100,
