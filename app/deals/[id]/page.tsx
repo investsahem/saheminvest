@@ -29,8 +29,32 @@ interface Deal {
   startDate: string
   endDate: string
   partner?: {
+    id: string
     companyName: string
+    displayName?: string
+    tagline?: string
     description?: string
+    logo?: string
+    brandColor?: string
+    isVerified?: boolean
+    isPublic?: boolean
+    website?: string
+    email?: string
+    phone?: string
+    address?: string
+    city?: string
+    country?: string
+    industry?: string
+    foundedYear?: number
+    employeeCount?: string
+    linkedin?: string
+    twitter?: string
+    facebook?: string
+    investmentAreas?: string[]
+    minimumDealSize?: number
+    maximumDealSize?: number
+    businessType?: string
+    registrationNumber?: string
   }
   owner: {
     name: string
@@ -48,7 +72,7 @@ export default function DealDetailsPage() {
     const fetchDeal = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/deals/${dealId}`)
+        const response = await fetch(`/api/deals/${dealId}?includePartner=true`)
         
         if (response.ok) {
           const data = await response.json()
@@ -261,9 +285,24 @@ export default function DealDetailsPage() {
                 </h1>
                 <div className="flex items-center gap-2 text-[#b8c2d8]">
                   <span>by</span>
-                  <span className="text-[#6be2c9] font-semibold">
-                    {deal.partner?.companyName || deal.owner.name}
-                  </span>
+                  {deal.partner?.id ? (
+                    <Link 
+                      href={`/partners/${deal.partner.id}`}
+                      className="text-[#6be2c9] font-semibold hover:text-[#79ffd6] transition-colors cursor-pointer"
+                    >
+                      {deal.partner.companyName}
+                    </Link>
+                  ) : (
+                    <span className="text-[#6be2c9] font-semibold">
+                      {deal.partner?.companyName || deal.owner.name}
+                    </span>
+                  )}
+                  {deal.partner?.isVerified && (
+                    <div className="flex items-center gap-1 px-2 py-1 bg-[#6be2c9]/20 border border-[#6be2c9]/30 rounded-full text-xs text-[#6be2c9]">
+                      <CheckCircle className="w-3 h-3" />
+                      <span>Verified</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -434,11 +473,177 @@ export default function DealDetailsPage() {
             </div>
           </motion.div>
 
+          {/* Partner Information */}
+          {deal.partner && (
+            <motion.div
+              className="p-8 bg-gradient-to-br from-[#0b1124cc] to-[#0b1124aa] border border-[#253261] rounded-2xl backdrop-blur-sm"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">About the Partner</h2>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Partner Logo and Basic Info */}
+                <div className="lg:col-span-2">
+                  <div className="flex items-start gap-6 mb-6">
+                    {deal.partner.logo ? (
+                      <div className="w-16 h-16 rounded-2xl overflow-hidden border border-[#6be2c9]/30 flex-shrink-0">
+                        <img 
+                          src={deal.partner.logo} 
+                          alt={deal.partner.companyName}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">
+                        🏢
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-xl font-bold text-[#e9edf7]">
+                          {deal.partner.companyName}
+                        </h3>
+                        {deal.partner.isVerified && (
+                          <div className="flex items-center gap-1 px-3 py-1 bg-[#6be2c9]/20 border border-[#6be2c9]/30 rounded-full text-sm text-[#6be2c9]">
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Verified Partner</span>
+                          </div>
+                        )}
+                      </div>
+                      {deal.partner.industry && (
+                        <p className="text-[#23a1ff] font-medium mb-2">{deal.partner.industry}</p>
+                      )}
+                      {deal.partner.tagline && (
+                        <p className="text-[#b8c2d8] italic mb-3">{deal.partner.tagline}</p>
+                      )}
+                      {deal.partner.description && (
+                        <p className="text-[#b8c2d8] leading-relaxed">{deal.partner.description}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Partner Details Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {deal.partner.foundedYear && (
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-xl flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-[#6be2c9]" />
+                        </div>
+                        <div>
+                          <div className="text-sm text-[#b8c2d8]">Founded</div>
+                          <div className="text-[#e9edf7] font-semibold">{deal.partner.foundedYear}</div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {deal.partner.employeeCount && (
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-xl flex items-center justify-center">
+                          <Users className="w-5 h-5 text-[#6be2c9]" />
+                        </div>
+                        <div>
+                          <div className="text-sm text-[#b8c2d8]">Team Size</div>
+                          <div className="text-[#e9edf7] font-semibold">{deal.partner.employeeCount} employees</div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {(deal.partner.city || deal.partner.country) && (
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-xl flex items-center justify-center">
+                          <MapPin className="w-5 h-5 text-[#6be2c9]" />
+                        </div>
+                        <div>
+                          <div className="text-sm text-[#b8c2d8]">Location</div>
+                          <div className="text-[#e9edf7] font-semibold">
+                            {[deal.partner.city, deal.partner.country].filter(Boolean).join(', ')}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {deal.partner.website && (
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-xl flex items-center justify-center">
+                          <ArrowRight className="w-5 h-5 text-[#6be2c9]" />
+                        </div>
+                        <div>
+                          <div className="text-sm text-[#b8c2d8]">Website</div>
+                          <a 
+                            href={deal.partner.website} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-[#6be2c9] font-semibold hover:text-[#79ffd6] transition-colors"
+                          >
+                            Visit Website
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Partner Stats */}
+                <div className="space-y-6">
+                  <div className="p-4 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-xl">
+                    <h4 className="text-lg font-bold text-[#e9edf7] mb-4">Investment Focus</h4>
+                    <div className="space-y-3">
+                      {deal.partner.minimumDealSize && (
+                        <div>
+                          <div className="text-sm text-[#b8c2d8]">Min Deal Size</div>
+                          <div className="text-[#6be2c9] font-bold">
+                            {formatCurrency(deal.partner.minimumDealSize)}
+                          </div>
+                        </div>
+                      )}
+                      {deal.partner.maximumDealSize && (
+                        <div>
+                          <div className="text-sm text-[#b8c2d8]">Max Deal Size</div>
+                          <div className="text-[#6be2c9] font-bold">
+                            {formatCurrency(deal.partner.maximumDealSize)}
+                          </div>
+                        </div>
+                      )}
+                      {deal.partner.investmentAreas && deal.partner.investmentAreas.length > 0 && (
+                        <div>
+                          <div className="text-sm text-[#b8c2d8] mb-2">Investment Areas</div>
+                          <div className="flex flex-wrap gap-2">
+                            {deal.partner.investmentAreas.map((area, index) => (
+                              <span 
+                                key={index}
+                                className="px-2 py-1 bg-[#6be2c9]/20 border border-[#6be2c9]/30 rounded-full text-xs text-[#6be2c9]"
+                              >
+                                {area}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <Link 
+                      href={`/partners/${deal.partner.id}`}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6be2c9]/10 to-[#23a1ff]/10 border border-[#6be2c9]/30 rounded-xl text-[#6be2c9] font-medium hover:from-[#6be2c9]/20 hover:to-[#23a1ff]/20 transition-all duration-300"
+                    >
+                      View Partner Profile
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Project Timeline */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
             viewport={{ once: true }}
           >
             <DealTimeline 
