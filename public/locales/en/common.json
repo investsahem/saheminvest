@@ -15,7 +15,8 @@
     "signup": "Sign Up",
     "signout": "Sign Out",
     "go_to_panel": "Create New Account",
-    "panel": "Panel"
+    "panel": "Panel",
+    "logout": "Logout"
   },
   "auth": {
     "signin": {

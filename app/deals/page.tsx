@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
 import PublicHeader from '../components/layout/PublicHeader'
 import PublicFooter from '../components/layout/PublicFooter'
+import SmartInvestButton from '../components/common/SmartInvestButton'
 import { 
   Search, Filter, TrendingUp, Clock, MapPin, Users, 
   ArrowRight, Star, Shield, Eye, CheckCircle 
@@ -315,7 +316,7 @@ function PublicDealsPageContent() {
                   : t('deals.no_active_deals')
               }
             </p>
-            <Link href="/auth/signin">
+            <SmartInvestButton>
               <motion.button
                 className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#6be2c9] to-[#55e6a5] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:transform hover:-translate-y-1 transition-all"
                 whileHover={{ scale: 1.02 }}
@@ -323,7 +324,7 @@ function PublicDealsPageContent() {
               >
 {t('deals.get_started')}
               </motion.button>
-            </Link>
+            </SmartInvestButton>
           </motion.div>
         ) : (
           <motion.div 
@@ -465,7 +466,7 @@ function PublicDealsPageContent() {
                         {t('deals.view_results')}
                       </motion.button>
                     ) : (
-                      <Link href="/auth/signin">
+                      <SmartInvestButton dealId={deal.id}>
                         <motion.button 
                           className="px-6 py-3 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:shadow-xl hover:shadow-[#6be2c9]/30 transition-all duration-300"
                           whileHover={{ scale: 1.05 }}
@@ -473,7 +474,7 @@ function PublicDealsPageContent() {
                         >
                           {t('deals.card.invest_now')}
                         </motion.button>
-                      </Link>
+                      </SmartInvestButton>
                     )}
                   </div>
                 </div>
@@ -499,7 +500,7 @@ function PublicDealsPageContent() {
             {t('deals.cta.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/signin">
+            <SmartInvestButton>
               <motion.button
                 className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#6be2c9] to-[#55e6a5] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:transform hover:-translate-y-1 transition-all"
                 whileHover={{ scale: 1.02 }}
@@ -508,7 +509,7 @@ function PublicDealsPageContent() {
                 {t('deals.cta.create_account')}
                 <ArrowRight className="w-5 h-5" />
               </motion.button>
-            </Link>
+            </SmartInvestButton>
             <Link href="/about">
               <motion.button
                 className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] text-[#e9edf7] font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all"

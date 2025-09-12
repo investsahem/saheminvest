@@ -8,6 +8,7 @@ import { Card, CardContent } from './components/ui/Card'
 import { useTranslation, useI18n } from './components/providers/I18nProvider'
 import PublicHeader from './components/layout/PublicHeader'
 import PublicFooter from './components/layout/PublicFooter'
+import SmartInvestButton from './components/common/SmartInvestButton'
 import { Play, TrendingUp, Shield, BarChart3, Briefcase, Smartphone, Target, Users, CheckCircle, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Deal {
@@ -397,7 +398,7 @@ export default function HomePage() {
                  animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
                >
-                 <Link href="/auth/signin">
+                 <SmartInvestButton>
                   <motion.button
                     className="inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-b from-[#6be2c9] to-[#55e6a5] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:transform hover:-translate-y-1 transition-all"
                     whileHover={{ scale: 1.02 }}
@@ -405,7 +406,7 @@ export default function HomePage() {
                   >
                     <span>{t('hero.cta.start_investing')}</span>
                   </motion.button>
-                 </Link>
+                 </SmartInvestButton>
                  <Link href="/deals">
                   <motion.button
                     className="inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] text-[#e9edf7] font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all"
@@ -872,7 +873,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Action Button */}
-                <Link href={`/deals/${deal.id}`}>
+                <SmartInvestButton dealId={deal.id}>
                   <motion.button 
                     className="w-full py-3 bg-gradient-to-r from-[#6be2c9]/10 to-[#23a1ff]/10 border border-[#6be2c9]/30 rounded-xl text-[#6be2c9] font-medium hover:from-[#6be2c9]/20 hover:to-[#23a1ff]/20 transition-all duration-300 backdrop-blur-sm"
                     whileHover={{ scale: 1.02 }}
@@ -884,7 +885,7 @@ export default function HomePage() {
                   >
                     {t('live_activity.view_details')}
                   </motion.button>
-                </Link>
+                </SmartInvestButton>
               </div>
             </motion.div>
           ))}
