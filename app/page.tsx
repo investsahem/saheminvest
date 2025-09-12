@@ -171,9 +171,17 @@ export default function HomePage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/homepage/stats')
+        // Add cache busting parameter to ensure fresh data
+        const response = await fetch(`/api/homepage/stats?t=${Date.now()}`, {
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        })
         if (response.ok) {
           const data = await response.json()
+          console.log('Fetched stats:', data) // Debug log
           setLiveStats({
             totalToday: data.todayInvestments,
             activeInvestors: data.activeInvestors,
@@ -238,9 +246,16 @@ export default function HomePage() {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const response = await fetch('/api/homepage/stats')
+        const response = await fetch(`/api/homepage/stats?t=${Date.now()}`, {
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        })
         if (response.ok) {
           const data = await response.json()
+          console.log('Refreshed stats:', data) // Debug log
           setLiveStats({
             totalToday: data.todayInvestments,
             activeInvestors: data.activeInvestors,
