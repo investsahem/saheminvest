@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
 import PublicHeader from '../components/layout/PublicHeader'
@@ -10,8 +10,23 @@ import { Shield, Users, Target, Award, CheckCircle } from 'lucide-react'
 
 export default function AboutPage() {
   const { t } = useTranslation()
-  const { locale, setLocale } = useI18n()
-  
+  const { locale } = useI18n()
+  const [liveStats, setLiveStats] = useState({
+    activeInvestors: 0,
+    successfulDeals: 0,
+    totalInvested: 0,
+    averageReturn: 12.5
+  })
+
+  const formatInvestmentAmount = (amount: number) => {
+    if (amount >= 1000000) {
+      return `$${(amount / 1000000).toFixed(1)}M+`
+    } else if (amount >= 1000) {
+      return `$${(amount / 1000).toFixed(1)}K+`
+    } else {
+      return `$${amount.toFixed(0)}+`
+    }
+  }
 
   const staggerContainer = {
     hidden: { opacity: 0 },
@@ -30,10 +45,10 @@ export default function AboutPage() {
   }
 
   const stats = [
-    { number: '5000+', label: t('about.stats.active_investors') },
-    { number: '150+', label: t('about.stats.successful_deals') },
-    { number: '$50M+', label: t('about.stats.total_invested') },
-    { number: '15%', label: t('about.stats.average_return') }
+    { number: `${liveStats.activeInvestors.toLocaleString(locale === 'ar' ? 'ar-LB' : 'en-US')}+`, label: t('about.stats.active_investors') },
+    { number: liveStats.successfulDeals.toString(), label: t('about.stats.successful_deals') },
+    { number: formatInvestmentAmount(liveStats.totalInvested), label: t('about.stats.total_invested') },
+    { number: `${liveStats.averageReturn.toFixed(1)}%`, label: t('about.stats.average_return') }
   ]
 
   const values = [
@@ -59,6 +74,34 @@ export default function AboutPage() {
     }
   ]
 
+  // Fetch real homepage statistics
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Add cache busting parameter to ensure fresh data
+        const response = await fetch(`/api/homepage/stats?t=${Date.now()}`, {
+          cache: 'no-cache',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setLiveStats({
+            activeInvestors: data.activeInvestors,
+            successfulDeals: data.successfulDeals,
+            totalInvested: data.totalInvested,
+            averageReturn: data.averageReturn
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching homepage stats:', error)
+      }
+    }
+
+    fetchStats()
+  }, [])
 
   return (
     <div className="min-h-screen bg-slate-900">

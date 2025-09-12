@@ -37,7 +37,6 @@ export default function HomePage() {
   const [deals, setDeals] = useState<Deal[]>([])
   const [isMobile, setIsMobile] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-
   const formatInvestmentAmount = (amount: number) => {
     if (amount >= 1000000) {
       return `$${(amount / 1000000).toFixed(1)}M+`
