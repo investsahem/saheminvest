@@ -21,14 +21,14 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Get total funding amount across all deals
-    const totalFundingResult = await prisma.project.aggregate({
+    // Get total actual investment amount from all user investments
+    const totalInvestedResult = await prisma.investment.aggregate({
       _sum: {
-        currentFunding: true
+        amount: true
       },
       where: {
         status: {
-          in: ['ACTIVE', 'FUNDED', 'COMPLETED']
+          in: ['ACTIVE', 'COMPLETED', 'PENDING']
         }
       }
     })
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     const stats = {
       activeInvestors: totalInvestors,
       successfulDeals: successfulDealsCount,
-      totalInvested: Number(totalFundingResult._sum.currentFunding || 0),
+      totalInvested: Number(totalInvestedResult._sum.amount || 0),
       averageReturn: Number(avgReturnResult._avg.expectedReturn || 12.5),
       todayInvestments: Number(todayInvestments._sum.amount || 0)
     }
