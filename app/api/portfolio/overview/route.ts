@@ -86,14 +86,15 @@ export async function GET(request: NextRequest) {
       const project = investment.project
 
       if (project.status === 'COMPLETED') {
-        // For completed projects, the value includes distributed profits
-        // The original investment capital is returned to wallet balance
-        currentValue = distributedProfits
+        // For completed projects, no current portfolio value since capital is returned to wallet
+        // Distributed profits are already in wallet balance
+        currentValue = 0
       } else if (project.status === 'FUNDED') {
-        // For funded projects, current value = investment + any distributed profits
-        currentValue = investedAmount + distributedProfits
+        // For funded projects, current value = investment only (profits already distributed to wallet)
+        currentValue = investedAmount
       } else if (project.status === 'ACTIVE') {
-        // For active projects, estimate based on expected return and progress + any distributed profits
+        // For active projects, estimate based on expected return and progress
+        // Don't include distributed profits as they're already in wallet
         const fundingProgress = Number(project.currentFunding) / Number(project.fundingGoal)
         const timeProgress = project.endDate ? 
           Math.min(1, (Date.now() - new Date(project.createdAt).getTime()) / 
@@ -101,10 +102,10 @@ export async function GET(request: NextRequest) {
         
         // Conservative estimation: partial expected return based on time progress
         const estimatedReturn = investedAmount * (Number(project.expectedReturn) / 100) * timeProgress * 0.5
-        currentValue = investedAmount + estimatedReturn + distributedProfits
+        currentValue = investedAmount + estimatedReturn
       } else {
-        // For other statuses, just add distributed profits
-        currentValue = investedAmount + distributedProfits
+        // For other statuses, just the invested amount (profits already in wallet)
+        currentValue = investedAmount
       }
 
       currentPortfolioValue += currentValue
@@ -225,8 +226,10 @@ export async function GET(request: NextRequest) {
     })
     const walletBalance = Number(user?.walletBalance || 0)
     
-    // Total portfolio value = active investments + wallet balance
-    const totalPortfolioValue = currentPortfolioValue + walletBalance
+    // Total portfolio value = wallet balance + active investments (excluding distributed profits to avoid double counting)
+    // currentPortfolioValue includes estimated gains on active investments
+    // walletBalance already includes distributed profits from completed investments
+    const totalPortfolioValue = walletBalance + currentPortfolioValue
 
     return NextResponse.json({
       portfolio: {
