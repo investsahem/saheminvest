@@ -7,6 +7,7 @@ import { Button } from './components/ui/Button'
 import { Card, CardContent } from './components/ui/Card'
 import { useTranslation, useI18n } from './components/providers/I18nProvider'
 import PublicHeader from './components/layout/PublicHeader'
+import PublicFooter from './components/layout/PublicFooter'
 import { Play, TrendingUp, Shield, BarChart3, Briefcase, Smartphone, Target, Users, CheckCircle, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Deal {
@@ -1038,7 +1039,7 @@ export default function HomePage() {
              transition={{ duration: 0.6, delay: 0.6 }}
              viewport={{ once: true }}
            >
-             <Link href="/auth/signin">
+             <Link href="/auth/signup">
               <motion.button
                 className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#6be2c9] to-[#55e6a5] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:transform hover:-translate-y-1 transition-all"
                 whileHover={{ scale: 1.02 }}
@@ -1060,64 +1061,8 @@ export default function HomePage() {
          </motion.div>
        </section>
 
-      {/* Footer */}
-      <footer className="mt-12 py-8 border-t border-[#24315b] bg-gradient-to-b from-[#0b1124] to-[#0b1124f0]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-conic from-[#6be2c9] via-[#23a1ff] to-[#7ef1d9] p-0.5">
-                  <div className="w-full h-full rounded-xl bg-[#0b1020] flex items-center justify-center">
-                    <span className="text-[#6be2c9] font-bold text-lg">S</span>
-                  </div>
-                </div>
-                <span className="text-[#e9edf7] font-black text-xl tracking-wide">Sahem Invest</span>
-              </div>
-              <p className="text-[#b8c2d8] mb-4 leading-relaxed">
-                {t('footer.description')}
-              </p>
-              <div className="flex gap-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7]" title="Email">
-                  📧
-                </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7]" title="Phone">
-                  📱
-                </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-[#1d2547aa] to-[#121833aa] border border-[#2c3769] rounded-full text-sm text-[#e9edf7]" title="Website">
-                  🌐
-              </div>
-              </div>
-        </div>
-
-            <div>
-              <h4 className="text-lg font-bold text-[#e9edf7] mb-4">Quick Links</h4>
-              <div className="space-y-2">
-                <Link href="/deals" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">Deals</Link>
-                <Link href="/portfolio" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">Portfolio</Link>
-                <Link href="/become-partner" className="block text-[#6be2c9] hover:text-[#79ffd6] transition-colors font-medium">Become a Partner</Link>
-                <Link href="/about" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">About Us</Link>
-                <Link href="/contact" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">Contact Us</Link>
-              </div>
-                  </div>
-            
-            <div>
-              <h4 className="text-lg font-bold text-[#e9edf7] mb-4">Support</h4>
-              <div className="space-y-2">
-                <Link href="/help" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">Help Center</Link>
-                <Link href="/terms" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">Terms of Service</Link>
-                <Link href="/privacy" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">Privacy Policy</Link>
-                <Link href="/security" className="block text-[#b8c2d8] hover:text-[#e6f0ff] transition-colors">Security</Link>
-              </div>
-                  </div>
-                </div>
-          
-          <div className="mt-8 pt-6 border-t border-[#24315b] text-center">
-            <p className="text-[#95a5c9]">
-              © 2025 Sahem Invest. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Unified Footer */}
+      <PublicFooter />
     </div>
   )
 }
