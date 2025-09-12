@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation'
 import { DealTimeline } from '../../components/project/DealTimeline'
 import PublicHeader from '../../components/layout/PublicHeader'
 import PublicFooter from '../../components/layout/PublicFooter'
+import SmartInvestButton from '../../components/common/SmartInvestButton'
 import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
 import { 
   ArrowLeft, Calendar, MapPin, Users, TrendingUp, Shield, 
@@ -371,7 +372,7 @@ export default function DealDetailsPage() {
                   {t('deals.join_investors')} {deal.investorCount} {t('deals.other_investors')} {t('deals.earning_returns')} {deal.expectedReturn}% {t('deals.annually')}.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/auth/signin" className="flex-1">
+                  <SmartInvestButton dealId={deal.id} className="flex-1">
                     <motion.button
                       className="w-full py-4 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:shadow-xl hover:shadow-[#6be2c9]/30 transition-all duration-300"
                       whileHover={{ scale: 1.02 }}
@@ -379,8 +380,8 @@ export default function DealDetailsPage() {
                     >
                       {t('deals.invest_now')}
                     </motion.button>
-                  </Link>
-                  <Link href="/auth/signin">
+                  </SmartInvestButton>
+                  <Link href={`/deals/${deal.id}`}>
                     <motion.button
                       className="px-6 py-4 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] text-[#e9edf7] font-bold rounded-xl hover:transform hover:-translate-y-0.5 transition-all"
                       whileHover={{ scale: 1.02 }}
@@ -675,7 +676,7 @@ export default function DealDetailsPage() {
             {t('deals.create_account_description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/signup">
+            <SmartInvestButton dealId={deal.id}>
               <motion.button
                 className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#6be2c9] to-[#55e6a5] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:transform hover:-translate-y-1 transition-all"
                 whileHover={{ scale: 1.02 }}
@@ -684,7 +685,7 @@ export default function DealDetailsPage() {
                 {t('deals.create_account_invest')}
                 <ArrowRight className="w-5 h-5" />
               </motion.button>
-            </Link>
+            </SmartInvestButton>
             <Link href="/deals">
               <motion.button
                 className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] text-[#e9edf7] font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all"

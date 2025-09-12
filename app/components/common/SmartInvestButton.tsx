@@ -19,9 +19,9 @@ export default function SmartInvestButton({
 }: SmartInvestButtonProps) {
   const { data: session, status } = useSession()
   
-  // If user is authenticated, redirect to appropriate investment page
+  // If user is authenticated, redirect to investment page
   if (session) {
-    const investUrl = dealId ? `/deals/${dealId}` : '/deals'
+    const investUrl = dealId ? `/deals/${dealId}/invest` : '/deals'
     
     return (
       <Link href={investUrl} className={className} {...props}>
@@ -30,9 +30,9 @@ export default function SmartInvestButton({
     )
   }
   
-  // If not authenticated, redirect to sign up
+  // If not authenticated, redirect to sign-in
   return (
-    <Link href="/auth/signup" className={className} {...props}>
+    <Link href="/auth/signin" className={className} {...props}>
       {children}
     </Link>
   )
