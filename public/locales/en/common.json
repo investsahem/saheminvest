@@ -308,15 +308,20 @@
     "description": "The leading digital investment platform in Lebanon",
     "quick_links": "Quick Links",
     "support": "Support",
-    "legal": "Legal",
-    "about_us": "About Us",
-    "how_it_works": "How It Works",
-    "contact_us": "Contact Us",
-    "help_center": "Help Center",
-    "terms": "Terms of Service",
-    "privacy": "Privacy Policy",
-    "follow_us": "Follow Us",
-    "rights_reserved": "All rights reserved."
+    "links": {
+      "deals": "Deals",
+      "portfolio": "Portfolio",
+      "become_partner": "Become a Partner",
+      "about_us": "About Us",
+      "contact_us": "Contact Us"
+    },
+    "support_links": {
+      "help_center": "Help Center",
+      "terms_of_service": "Terms of Service",
+      "privacy_policy": "Privacy Policy",
+      "security": "Security"
+    },
+    "copyright": "© 2025 Sahem Invest. All rights reserved."
   },
   "features": {
     "bank_security": {

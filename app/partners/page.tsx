@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
 import PublicHeader from '../components/layout/PublicHeader'
+import PublicFooter from '../components/layout/PublicFooter'
 import { 
   Search, Filter, MapPin, Calendar, Star, Users, TrendingUp, 
   Building2, Globe, Award, ChevronRight, Eye, Briefcase,
@@ -402,16 +403,8 @@ export default function PartnersPage() {
         )}
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 border-t border-[#24315b] bg-gradient-to-b from-[#0b1124] to-[#0b1124f0]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <p className="text-[#95a5c9]">
-              © 2025 Sahem Invest. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Unified Footer */}
+      <PublicFooter />
     </div>
   )
 }

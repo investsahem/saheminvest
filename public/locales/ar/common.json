@@ -265,16 +265,20 @@
     "description": "منصة الاستثمار الرقمية الرائدة في لبنان. نربط المستثمرين بالفرص التجارية المربحة بأمان وشفافية تامة.",
     "quick_links": "روابط سريعة",
     "support": "الدعم",
-    "legal": "قانوني",
-    "about_us": "من نحن",
-    "how_it_works": "كيف نعمل",
-    "contact_us": "تواصل معنا",
-    "help_center": "مركز المساعدة",
-    "terms": "شروط الخدمة",
-    "privacy": "سياسة الخصوصية",
-    "security": "الأمان",
-    "follow_us": "تابعنا",
-    "rights_reserved": "جميع الحقوق محفوظة. • مرخص من هيئة السوق المالية"
+    "links": {
+      "deals": "الصفقات",
+      "portfolio": "المحفظة",
+      "become_partner": "كن شريكًا",
+      "about_us": "من نحن",
+      "contact_us": "تواصل معنا"
+    },
+    "support_links": {
+      "help_center": "مركز المساعدة",
+      "terms_of_service": "شروط الخدمة",
+      "privacy_policy": "سياسة الخصوصية",
+      "security": "الأمان"
+    },
+    "copyright": "© 2025 سهم إنفست. جميع الحقوق محفوظة."
   },
   "features": {
     "bank_security": {

@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useTranslation, useI18n } from '../components/providers/I18nProvider'
 import PublicHeader from '../components/layout/PublicHeader'
+import PublicFooter from '../components/layout/PublicFooter'
 import { 
   Search, Filter, TrendingUp, Clock, MapPin, Users, 
   ArrowRight, Star, Shield, Eye, CheckCircle 
@@ -521,24 +522,8 @@ function PublicDealsPageContent() {
         </motion.div>
       </section>
 
-      {/* Footer */}
-      <footer className="mt-12 py-8 border-t border-[#24315b] bg-gradient-to-b from-[#0b1124] to-[#0b1124f0]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-conic from-[#6be2c9] via-[#23a1ff] to-[#7ef1d9] p-0.5">
-                <div className="w-full h-full rounded-xl bg-[#0b1020] flex items-center justify-center">
-                  <span className="text-[#6be2c9] font-bold text-lg">S</span>
-                </div>
-              </div>
-              <span className="text-[#e9edf7] font-black text-xl tracking-wide">Sahem Invest</span>
-            </div>
-            <p className="text-[#95a5c9]">
-              © 2025 Sahem Invest. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Unified Footer */}
+      <PublicFooter />
     </div>
   )
 }
