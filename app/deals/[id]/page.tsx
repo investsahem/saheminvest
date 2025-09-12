@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
 import { DealTimeline } from '../../components/project/DealTimeline'
 import PublicHeader from '../../components/layout/PublicHeader'
+import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
 import { 
   ArrowLeft, Calendar, MapPin, Users, TrendingUp, Shield, 
   Clock, CheckCircle, Star, BarChart3, Target, DollarSign,
@@ -62,6 +63,8 @@ interface Deal {
 }
 
 export default function DealDetailsPage() {
+  const { t } = useTranslation()
+  const { locale } = useI18n()
   const params = useParams()
   const dealId = params.id as string
   const [deal, setDeal] = useState<Deal | null>(null)
@@ -109,7 +112,7 @@ export default function DealDetailsPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(locale === 'ar' ? 'en-US' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -175,12 +178,12 @@ export default function DealDetailsPage() {
               <AlertCircle className="w-10 h-10 text-[#6be2c9]" />
             </div>
             <h1 className="text-3xl font-bold text-[#e9edf7] mb-4">
-              {error === 'Deal not found' ? 'Deal Not Found' : 'Error Loading Deal'}
+              {error === 'Deal not found' ? t('deals.deal_not_found') : t('deals.error_loading')}
             </h1>
             <p className="text-[#b8c2d8] mb-8">
               {error === 'Deal not found' 
-                ? 'The deal you\'re looking for doesn\'t exist or has been removed.'
-                : 'We encountered an error while loading the deal details. Please try again.'
+                ? t('deals.deal_not_found_desc')
+                : t('deals.error_loading_desc')
               }
             </p>
             <Link href="/deals">
@@ -190,7 +193,7 @@ export default function DealDetailsPage() {
                 whileTap={{ scale: 0.98 }}
               >
                 <ArrowLeft className="w-5 h-5" />
-                Back to Deals
+{t('deals.back_to_deals')}
               </motion.button>
             </Link>
           </div>
@@ -213,7 +216,7 @@ export default function DealDetailsPage() {
             whileTap={{ scale: 0.98 }}
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Deals
+{t('deals.back_to_deals')}
           </motion.button>
         </Link>
       </div>
@@ -284,7 +287,7 @@ export default function DealDetailsPage() {
                   {deal.title}
                 </h1>
                 <div className="flex items-center gap-2 text-[#b8c2d8]">
-                  <span>by</span>
+                  <span>{t('deals.by')}</span>
                   {deal.partner?.id ? (
                     <Link 
                       href={`/partners/${deal.partner.id}`}
@@ -300,7 +303,7 @@ export default function DealDetailsPage() {
                   {deal.partner?.isVerified && (
                     <div className="flex items-center gap-1 px-2 py-1 bg-[#6be2c9]/20 border border-[#6be2c9]/30 rounded-full text-xs text-[#6be2c9]">
                       <CheckCircle className="w-3 h-3" />
-                      <span>Verified</span>
+                      <span>{t('deals.verified')}</span>
                     </div>
                   )}
                 </div>
@@ -309,7 +312,7 @@ export default function DealDetailsPage() {
               {/* Progress Section */}
               <div className="p-6 bg-gradient-to-br from-[#0b1124cc] to-[#0b1124aa] border border-[#253261] rounded-2xl backdrop-blur-sm">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-[#e9edf7] font-semibold">Funding Progress</span>
+                  <span className="text-[#e9edf7] font-semibold">{t('deals.funding_progress')}</span>
                   <span className="text-[#6be2c9] font-bold text-xl">
                     {getProgressPercentage(deal.currentFunding, deal.fundingGoal).toFixed(0)}%
                   </span>
@@ -332,10 +335,10 @@ export default function DealDetailsPage() {
 
                 <div className="flex justify-between text-sm">
                   <span className="text-[#b8c2d8]">
-                    Raised: <span className="text-[#6be2c9] font-bold">{formatCurrency(deal.currentFunding)}</span>
+                    {t('deals.raised')}: <span className="text-[#6be2c9] font-bold">{formatCurrency(deal.currentFunding)}</span>
                   </span>
                   <span className="text-[#b8c2d8]">
-                    Goal: <span className="text-[#e9edf7] font-bold">{formatCurrency(deal.fundingGoal)}</span>
+                    {t('deals.goal')}: <span className="text-[#e9edf7] font-bold">{formatCurrency(deal.fundingGoal)}</span>
                   </span>
                 </div>
               </div>
@@ -344,27 +347,27 @@ export default function DealDetailsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-gradient-to-br from-[#0f1636cc] to-[#0f1636aa] border border-[#2a3666] rounded-xl backdrop-blur-sm text-center">
                   <div className="text-2xl font-bold text-[#6be2c9] mb-1">{deal.duration}M</div>
-                  <div className="text-sm text-[#b8c2d8]">Duration</div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals.duration')}</div>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-[#0f1636cc] to-[#0f1636aa] border border-[#2a3666] rounded-xl backdrop-blur-sm text-center">
                   <div className="text-2xl font-bold text-[#23a1ff] mb-1">{deal.investorCount}</div>
-                  <div className="text-sm text-[#b8c2d8]">Investors</div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals.investors')}</div>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-[#0f1636cc] to-[#0f1636aa] border border-[#2a3666] rounded-xl backdrop-blur-sm text-center">
                   <div className="text-2xl font-bold text-[#f59e0b] mb-1">{formatCurrency(deal.minInvestment)}</div>
-                  <div className="text-sm text-[#b8c2d8]">Min Investment</div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals.min_investment')}</div>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-[#0f1636cc] to-[#0f1636aa] border border-[#2a3666] rounded-xl backdrop-blur-sm text-center">
                   <div className="text-2xl font-bold text-[#6be2c9] mb-1">{deal.expectedReturn}%</div>
-                  <div className="text-sm text-[#b8c2d8]">Expected Return</div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals.expected_return')}</div>
                 </div>
               </div>
 
               {/* Investment CTA */}
               <div className="p-6 bg-gradient-to-br from-[#111a3f] to-[#0c1230] border border-[#2a3566] rounded-2xl backdrop-blur-sm">
-                <h3 className="text-xl font-bold text-[#e9edf7] mb-4">Ready to Invest?</h3>
+                <h3 className="text-xl font-bold text-[#e9edf7] mb-4">{t('deals.ready_to_invest')}</h3>
                 <p className="text-[#b8c2d8] mb-6">
-                  Join {deal.investorCount} other investors and start earning returns of up to {deal.expectedReturn}% annually.
+                  {t('deals.join_investors', { count: deal.investorCount, return: deal.expectedReturn })}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link href="/auth/signin" className="flex-1">
@@ -373,7 +376,7 @@ export default function DealDetailsPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      Invest Now
+                      {t('deals.invest_now')}
                     </motion.button>
                   </Link>
                   <Link href="/auth/signin">
@@ -382,7 +385,7 @@ export default function DealDetailsPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      Learn More
+                      {t('deals.learn_more')}
                     </motion.button>
                   </Link>
                 </div>
@@ -403,7 +406,7 @@ export default function DealDetailsPage() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl font-bold text-[#e9edf7] mb-4">About This Investment</h2>
+            <h2 className="text-2xl font-bold text-[#e9edf7] mb-4">{t('deals.about_investment')}</h2>
             <p className="text-[#b8c2d8] leading-relaxed text-lg">
               {deal.description}
             </p>
@@ -417,16 +420,16 @@ export default function DealDetailsPage() {
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">Investment Timeline</h2>
+            <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">{t('deals.investment_timeline')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-xl flex items-center justify-center">
                   <Calendar className="w-6 h-6 text-[#6be2c9]" />
                 </div>
                 <div>
-                  <div className="text-sm text-[#b8c2d8]">Start Date</div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals.start_date')}</div>
                   <div className="text-[#e9edf7] font-semibold">
-                    {deal.startDate ? formatDate(deal.startDate) : 'TBA'}
+                    {deal.startDate ? formatDate(deal.startDate) : t('deals.tba')}
                   </div>
                 </div>
               </div>
@@ -435,9 +438,9 @@ export default function DealDetailsPage() {
                   <Clock className="w-6 h-6 text-[#6be2c9]" />
                 </div>
                 <div>
-                  <div className="text-sm text-[#b8c2d8]">End Date</div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals.end_date')}</div>
                   <div className="text-[#e9edf7] font-semibold">
-                    {deal.endDate ? formatDate(deal.endDate) : 'TBA'}
+                    {deal.endDate ? formatDate(deal.endDate) : t('deals.tba')}
                   </div>
                 </div>
               </div>
@@ -452,22 +455,22 @@ export default function DealDetailsPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">Risk Assessment</h2>
+            <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">{t('deals.risk_assessment')}</h2>
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/10 border border-[#f59e0b]/30 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Shield className="w-6 h-6 text-[#f59e0b]" />
               </div>
               <div>
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-[#e9edf7] font-semibold">Risk Level:</span>
+                  <span className="text-[#e9edf7] font-semibold">{t('deals.risk_level')}:</span>
                   <span className={`px-3 py-1 rounded-full text-sm font-bold border ${getRiskColor(deal.riskLevel)}`}>
                     {deal.riskLevel}
                   </span>
                 </div>
                 <p className="text-[#b8c2d8] leading-relaxed">
-                  {deal.riskLevel === 'Low' && 'This investment carries minimal risk with stable, predictable returns. Suitable for conservative investors seeking steady income.'}
-                  {deal.riskLevel === 'Medium' && 'This investment carries moderate risk with potential for good returns. Suitable for investors comfortable with some volatility.'}
-                  {deal.riskLevel === 'High' && 'This investment carries higher risk but offers potential for significant returns. Suitable for experienced investors seeking growth opportunities.'}
+                  {deal.riskLevel === 'Low' && t('deals.low_risk_desc')}
+                  {deal.riskLevel === 'Medium' && t('deals.medium_risk_desc')}
+                  {deal.riskLevel === 'High' && t('deals.high_risk_desc')}
                 </p>
               </div>
             </div>
@@ -482,7 +485,7 @@ export default function DealDetailsPage() {
               transition={{ duration: 0.6, delay: 0.3 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">About the Partner</h2>
+              <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">{t('deals.about_partner')}</h2>
               
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Partner Logo and Basic Info */}
@@ -509,7 +512,7 @@ export default function DealDetailsPage() {
                         {deal.partner.isVerified && (
                           <div className="flex items-center gap-1 px-3 py-1 bg-[#6be2c9]/20 border border-[#6be2c9]/30 rounded-full text-sm text-[#6be2c9]">
                             <CheckCircle className="w-4 h-4" />
-                            <span>Verified Partner</span>
+                            <span>{t('deals.verified_partner')}</span>
                           </div>
                         )}
                       </div>
@@ -533,7 +536,7 @@ export default function DealDetailsPage() {
                           <Calendar className="w-5 h-5 text-[#6be2c9]" />
                         </div>
                         <div>
-                          <div className="text-sm text-[#b8c2d8]">Founded</div>
+                          <div className="text-sm text-[#b8c2d8]">{t('deals.founded')}</div>
                           <div className="text-[#e9edf7] font-semibold">{deal.partner.foundedYear}</div>
                         </div>
                       </div>
@@ -545,8 +548,8 @@ export default function DealDetailsPage() {
                           <Users className="w-5 h-5 text-[#6be2c9]" />
                         </div>
                         <div>
-                          <div className="text-sm text-[#b8c2d8]">Team Size</div>
-                          <div className="text-[#e9edf7] font-semibold">{deal.partner.employeeCount} employees</div>
+                          <div className="text-sm text-[#b8c2d8]">{t('deals.team_size')}</div>
+                          <div className="text-[#e9edf7] font-semibold">{deal.partner.employeeCount} {t('deals.employees')}</div>
                         </div>
                       </div>
                     )}
@@ -557,7 +560,7 @@ export default function DealDetailsPage() {
                           <MapPin className="w-5 h-5 text-[#6be2c9]" />
                         </div>
                         <div>
-                          <div className="text-sm text-[#b8c2d8]">Location</div>
+                          <div className="text-sm text-[#b8c2d8]">{t('deals.location')}</div>
                           <div className="text-[#e9edf7] font-semibold">
                             {[deal.partner.city, deal.partner.country].filter(Boolean).join(', ')}
                           </div>
@@ -571,14 +574,14 @@ export default function DealDetailsPage() {
                           <ArrowRight className="w-5 h-5 text-[#6be2c9]" />
                         </div>
                         <div>
-                          <div className="text-sm text-[#b8c2d8]">Website</div>
+                          <div className="text-sm text-[#b8c2d8]">{t('deals.website')}</div>
                           <a 
                             href={deal.partner.website} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-[#6be2c9] font-semibold hover:text-[#79ffd6] transition-colors"
                           >
-                            Visit Website
+                            {t('deals.visit_website')}
                           </a>
                         </div>
                       </div>
@@ -589,11 +592,11 @@ export default function DealDetailsPage() {
                 {/* Partner Stats */}
                 <div className="space-y-6">
                   <div className="p-4 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-xl">
-                    <h4 className="text-lg font-bold text-[#e9edf7] mb-4">Investment Focus</h4>
+                    <h4 className="text-lg font-bold text-[#e9edf7] mb-4">{t('deals.investment_focus')}</h4>
                     <div className="space-y-3">
                       {deal.partner.minimumDealSize && (
                         <div>
-                          <div className="text-sm text-[#b8c2d8]">Min Deal Size</div>
+                          <div className="text-sm text-[#b8c2d8]">{t('deals.min_deal_size')}</div>
                           <div className="text-[#6be2c9] font-bold">
                             {formatCurrency(deal.partner.minimumDealSize)}
                           </div>
@@ -601,7 +604,7 @@ export default function DealDetailsPage() {
                       )}
                       {deal.partner.maximumDealSize && (
                         <div>
-                          <div className="text-sm text-[#b8c2d8]">Max Deal Size</div>
+                          <div className="text-sm text-[#b8c2d8]">{t('deals.max_deal_size')}</div>
                           <div className="text-[#6be2c9] font-bold">
                             {formatCurrency(deal.partner.maximumDealSize)}
                           </div>
@@ -609,7 +612,7 @@ export default function DealDetailsPage() {
                       )}
                       {deal.partner.investmentAreas && deal.partner.investmentAreas.length > 0 && (
                         <div>
-                          <div className="text-sm text-[#b8c2d8] mb-2">Investment Areas</div>
+                          <div className="text-sm text-[#b8c2d8] mb-2">{t('deals.investment_areas')}</div>
                           <div className="flex flex-wrap gap-2">
                             {deal.partner.investmentAreas.map((area, index) => (
                               <span 
@@ -630,7 +633,7 @@ export default function DealDetailsPage() {
                       href={`/partners/${deal.partner.id}`}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6be2c9]/10 to-[#23a1ff]/10 border border-[#6be2c9]/30 rounded-xl text-[#6be2c9] font-medium hover:from-[#6be2c9]/20 hover:to-[#23a1ff]/20 transition-all duration-300"
                     >
-                      View Partner Profile
+{t('deals.view_partner_profile')}
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
@@ -665,10 +668,10 @@ export default function DealDetailsPage() {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-6">
-            Start Your Investment Journey
+            {t('deals.start_investment_journey')}
           </h2>
           <p className="text-lg text-[#b8c2d8] mb-8 max-w-2xl mx-auto leading-relaxed">
-            Create your account now and join thousands of investors earning consistent returns through our platform.
+            {t('deals.create_account_description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/signin">
@@ -677,7 +680,7 @@ export default function DealDetailsPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Create Account & Invest
+                {t('deals.create_account_invest')}
                 <ArrowRight className="w-5 h-5" />
               </motion.button>
             </Link>
@@ -687,7 +690,7 @@ export default function DealDetailsPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                View More Deals
+                {t('deals.view_more_deals')}
               </motion.button>
             </Link>
           </div>
