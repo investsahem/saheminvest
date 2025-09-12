@@ -1619,8 +1619,7 @@
         "current_balance": "Current Balance",
         "total_invested": "Total Invested",
         "total_returns": "Total Returns",
-        "distributed_profits": "Distributed Profits",
-        "unrealized_gains": "Unrealized Gains"
+        "total_portfolio": "Total Portfolio & Investments"
       },
       "tabs": {
         "overview": "Overview",

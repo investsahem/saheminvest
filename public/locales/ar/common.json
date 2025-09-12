@@ -1699,8 +1699,7 @@
         "current_balance": "الرصيد الحالي",
         "total_invested": "إجمالي الاستثمار",
         "total_returns": "إجمالي العوائد",
-        "distributed_profits": "الأرباح الموزعة",
-        "unrealized_gains": "المكاسب غير المحققة"
+        "total_portfolio": "إجمالي المحفظة والاستثمارات"
       },
       "tabs": {
         "overview": "نظرة عامة",

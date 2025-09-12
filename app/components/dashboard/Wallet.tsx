@@ -276,33 +276,18 @@ export function Wallet({
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-orange-700">{t('portfolio_wallet.balance_summary.distributed_profits')}</p>
-                <p className="text-2xl font-bold text-orange-900">
-                  {showBalance ? `$${formatNumber(profitsSummary.distributedProfits)}` : '••••••'}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-orange-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700">{t('portfolio_wallet.balance_summary.unrealized_gains')}</p>
+                <p className="text-sm font-medium text-emerald-700">{t('portfolio_wallet.balance_summary.total_portfolio')}</p>
                 <p className="text-2xl font-bold text-emerald-900">
-                  {showBalance ? `$${formatNumber(profitsSummary.unrealizedGains)}` : '••••••'}
+                  {showBalance ? `$${formatNumber(balance + activeInvestmentValue)}` : '••••••'}
                 </p>
               </div>
               <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-emerald-600" />
+                <WalletIcon className="w-6 h-6 text-emerald-600" />
               </div>
             </div>
           </CardContent>
