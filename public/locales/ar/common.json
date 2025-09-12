@@ -491,7 +491,11 @@
     "total_returns": "إجمالي العوائد",
     "deposit": "إيداع",
     "withdraw": "سحب",
-    "transaction_history": "سجل المعاملات"
+    "transaction_history": "سجل المعاملات",
+    "join_investors": "انضم إلى",
+    "other_investors": "مستثمرين آخرين",
+    "earning_returns": "وابدأ بتحقيق عوائد تصل إلى",
+    "annually": "سنوياً"
   },
   "investment": {
     "amount": "مبلغ الاستثمار",

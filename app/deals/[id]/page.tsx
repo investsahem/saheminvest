@@ -367,7 +367,7 @@ export default function DealDetailsPage() {
               <div className="p-6 bg-gradient-to-br from-[#111a3f] to-[#0c1230] border border-[#2a3566] rounded-2xl backdrop-blur-sm">
                 <h3 className="text-xl font-bold text-[#e9edf7] mb-4">{t('deals.ready_to_invest')}</h3>
                 <p className="text-[#b8c2d8] mb-6">
-                  {t('deals.join_investors', { count: deal.investorCount, return: deal.expectedReturn })}
+                  {t('deals.join_investors')} {deal.investorCount} {t('deals.other_investors')} {t('deals.earning_returns')} {deal.expectedReturn}% {t('deals.annually')}.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link href="/auth/signin" className="flex-1">
