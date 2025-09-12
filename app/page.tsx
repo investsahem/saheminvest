@@ -48,7 +48,7 @@ export default function HomePage() {
   }
 
   const stats = [
-    { number: `${liveStats.activeInvestors.toLocaleString(locale === 'ar' ? 'ar-LB' : 'en-US')}+`, label: t('hero.stats.active_investors') },
+    { number: `${liveStats.activeInvestors.toLocaleString('en-US')}+`, label: t('hero.stats.active_investors') },
     { number: liveStats.successfulDeals.toString(), label: t('hero.stats.successful_deals') },
     { number: formatInvestmentAmount(liveStats.totalInvested), label: t('hero.stats.total_invested') },
     { number: `${liveStats.averageReturn.toFixed(1)}%`, label: t('hero.stats.average_return') }
