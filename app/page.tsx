@@ -37,10 +37,20 @@ export default function HomePage() {
   const [isMobile, setIsMobile] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  const formatInvestmentAmount = (amount: number) => {
+    if (amount >= 1000000) {
+      return `$${(amount / 1000000).toFixed(1)}M+`
+    } else if (amount >= 1000) {
+      return `$${(amount / 1000).toFixed(1)}K+`
+    } else {
+      return `$${amount.toFixed(0)}+`
+    }
+  }
+
   const stats = [
     { number: `${liveStats.activeInvestors.toLocaleString(locale === 'ar' ? 'ar-LB' : 'en-US')}+`, label: t('hero.stats.active_investors') },
     { number: liveStats.successfulDeals.toString(), label: t('hero.stats.successful_deals') },
-    { number: `$${(liveStats.totalInvested / 1000000).toFixed(1)}M+`, label: t('hero.stats.total_invested') },
+    { number: formatInvestmentAmount(liveStats.totalInvested), label: t('hero.stats.total_invested') },
     { number: `${liveStats.averageReturn.toFixed(1)}%`, label: t('hero.stats.average_return') }
   ]
 
@@ -417,7 +427,7 @@ export default function HomePage() {
                 {[
                   { value: `${liveStats.activeInvestors.toLocaleString()}+`, label: t('hero.stats.active_investors') },
                   { value: liveStats.successfulDeals.toString(), label: t('hero.stats.successful_deals') },
-                  { value: `$${(liveStats.totalInvested / 1000000).toFixed(1)}M+`, label: t('hero.stats.total_invested') },
+                  { value: formatInvestmentAmount(liveStats.totalInvested), label: t('hero.stats.total_invested') },
                   { value: `${liveStats.averageReturn.toFixed(1)}%`, label: t('hero.stats.average_return') }
                 ].map((stat, index) => (
                    <motion.div 
