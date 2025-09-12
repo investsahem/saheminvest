@@ -400,10 +400,10 @@ export default function HomePage() {
                 transition={{ delay: 1.0 }}
               >
                 {[
-                  { value: `${liveStats.activeInvestors.toLocaleString()}+`, label: 'Active Investors' },
-                  { value: liveStats.successfulDeals.toString(), label: 'Successful Deals' },
-                  { value: `$${(liveStats.totalInvested / 1000000).toFixed(1)}M+`, label: 'Total Invested' },
-                  { value: `${liveStats.averageReturn.toFixed(1)}%`, label: 'Average Return' }
+                  { value: `${liveStats.activeInvestors.toLocaleString()}+`, label: t('hero.stats.active_investors') },
+                  { value: liveStats.successfulDeals.toString(), label: t('hero.stats.successful_deals') },
+                  { value: `$${(liveStats.totalInvested / 1000000).toFixed(1)}M+`, label: t('hero.stats.total_invested') },
+                  { value: `${liveStats.averageReturn.toFixed(1)}%`, label: t('hero.stats.average_return') }
                 ].map((stat, index) => (
                    <motion.div 
                      key={index} 

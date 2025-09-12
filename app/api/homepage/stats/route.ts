@@ -5,12 +5,10 @@ const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
-    // Get total active deals
-    const activeDealsCount = await prisma.project.count({
+    // Get total successful/completed deals
+    const successfulDealsCount = await prisma.project.count({
       where: {
-        status: {
-          in: ['ACTIVE', 'FUNDED']
-        }
+        status: 'COMPLETED'
       }
     })
 
@@ -66,7 +64,7 @@ export async function GET(request: NextRequest) {
 
     const stats = {
       activeInvestors: totalInvestors,
-      successfulDeals: activeDealsCount,
+      successfulDeals: successfulDealsCount,
       totalInvested: Number(totalFundingResult._sum.currentFunding || 0),
       averageReturn: Number(avgReturnResult._avg.expectedReturn || 12.5),
       todayInvestments: Number(todayInvestments._sum.amount || 0)
