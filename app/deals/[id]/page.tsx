@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
 import { DealTimeline } from '../../components/project/DealTimeline'
+import PublicHeader from '../../components/layout/PublicHeader'
 import { 
   ArrowLeft, Calendar, MapPin, Users, TrendingUp, Shield, 
   Clock, CheckCircle, Star, BarChart3, Target, DollarSign,
@@ -141,36 +142,8 @@ export default function DealDetailsPage() {
   if (error || !deal) {
     return (
       <div className="min-h-screen bg-slate-900">
-        {/* Navigation Header */}
-        <header className="sticky top-0 z-50 backdrop-blur-lg bg-gradient-to-r from-[#0b1124ee] via-[#0b1124ee] to-[#0b112490] border-b border-[#233059]">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between py-3">
-              <Link href="/" className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-conic from-[#6be2c9] via-[#23a1ff] to-[#7ef1d9] p-0.5">
-                  <div className="w-full h-full rounded-xl bg-[#0b1020] flex items-center justify-center">
-                    <span className="text-[#6be2c9] font-bold text-lg">S</span>
-                  </div>
-                </div>
-                <span className="text-[#e9edf7] font-black text-xl tracking-wide">Sahem Invest</span>
-              </Link>
-              
-              <nav className="hidden md:flex items-center gap-2">
-                <Link href="/" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                  Home
-                </Link>
-                <Link href="/deals" className="text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold">
-                  Deals
-                </Link>
-                <Link href="/about" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                  About
-                </Link>
-                <Link href="/auth/signin" className="ml-2 px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all">
-                  Go to Panel
-                </Link>
-              </nav>
-            </div>
-          </div>
-        </header>
+        {/* Unified Public Header */}
+        <PublicHeader />
 
         <div className="flex items-center justify-center min-h-[80vh]">
           <div className="text-center">
@@ -204,36 +177,8 @@ export default function DealDetailsPage() {
 
   return (
     <div className="min-h-screen bg-slate-900">
-      {/* Navigation Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-lg bg-gradient-to-r from-[#0b1124ee] via-[#0b1124ee] to-[#0b112490] border-b border-[#233059]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-3">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-conic from-[#6be2c9] via-[#23a1ff] to-[#7ef1d9] p-0.5">
-                <div className="w-full h-full rounded-xl bg-[#0b1020] flex items-center justify-center">
-                  <span className="text-[#6be2c9] font-bold text-lg">S</span>
-                </div>
-              </div>
-              <span className="text-[#e9edf7] font-black text-xl tracking-wide">Sahem Invest</span>
-            </Link>
-            
-            <nav className="hidden md:flex items-center gap-2">
-              <Link href="/" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                Home
-              </Link>
-              <Link href="/deals" className="text-[#6be2c9] bg-[#1a2246] px-3 py-2 rounded-lg font-semibold">
-                Deals
-              </Link>
-              <Link href="/about" className="text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-semibold">
-                About
-              </Link>
-              <Link href="/auth/signin" className="ml-2 px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all">
-                Go to Panel
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      {/* Unified Public Header */}
+      <PublicHeader />
 
       {/* Back Button */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
