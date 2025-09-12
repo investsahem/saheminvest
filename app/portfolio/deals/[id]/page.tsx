@@ -514,29 +514,6 @@ export default function PortfolioDealDetailsPage() {
                     </div>
                   )}
 
-                  {deal.partner?.email && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="w-4 h-4 text-gray-400" />
-                      <a 
-                        href={`mailto:${deal.partner.email}`}
-                        className="text-green-600 hover:text-green-700"
-                      >
-                        {deal.partner.email}
-                      </a>
-                    </div>
-                  )}
-
-                  {deal.partner?.phone && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="w-4 h-4 text-gray-400" />
-                      <a 
-                        href={`tel:${deal.partner.phone}`}
-                        className="text-green-600 hover:text-green-700"
-                      >
-                        {deal.partner.phone}
-                      </a>
-                    </div>
-                  )}
                 </div>
 
                 {/* View Partner Profile Button */}

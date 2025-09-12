@@ -265,16 +265,6 @@ export default function PartnerDetailsPage() {
                     )}
                   </div>
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3 text-[#b8c2d8]">
-                      <Mail className="w-5 h-5 text-[#6be2c9]" />
-                      <span>{partner.contactEmail}</span>
-                    </div>
-                    {partner.contactPhone && (
-                      <div className="flex items-center gap-3 text-[#b8c2d8]">
-                        <Phone className="w-5 h-5 text-[#6be2c9]" />
-                        <span>{partner.contactPhone}</span>
-                      </div>
-                    )}
                     {partner.website && (
                       <div className="flex items-center gap-3 text-[#b8c2d8]">
                         <Globe className="w-5 h-5 text-[#6be2c9]" />
