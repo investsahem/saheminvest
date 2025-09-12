@@ -14,7 +14,7 @@
     "signin": "Sign In",
     "signup": "Sign Up",
     "signout": "Sign Out",
-    "go_to_panel": "Go to Panel",
+    "go_to_panel": "Create New Account",
     "panel": "Panel"
   },
   "auth": {
@@ -131,7 +131,7 @@
     },
     "video_title": "See How the Platform Works",
     "video_description": "3-minute explanatory video",
-    "guaranteed_return": "Guaranteed Return",
+    "guaranteed_return": "Promising Investment Opportunities",
     "up_to_return": "Up to 15% annually",
     "bank_security": "Bank-level Security",
     "full_protection": "Complete Protection"
@@ -1206,7 +1206,7 @@
     "company_description": "Brief description of your company..."
   },
   "guaranteed_return_card": {
-    "badge": "Guaranteed Return",
+    "badge": "Promising Investment Opportunities",
     "title": "Up to 15% annually",
     "security_badge": "Bank-level Security",
     "security_description": "Complete protection across transactions and custody."

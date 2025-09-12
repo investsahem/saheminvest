@@ -14,7 +14,7 @@
     "signin": "تسجيل الدخول",
     "signup": "إنشاء حساب",
     "signout": "تسجيل الخروج",
-    "go_to_panel": "الذهاب للوحة التحكم",
+    "go_to_panel": "انشئ حساب جديد",
     "panel": "اللوحة"
   },
   "hero": {
@@ -36,7 +36,7 @@
     },
     "video_title": "شاهد كيف تعمل المنصة",
     "video_description": "فيديو توضيحي مدته 3 دقائق",
-    "guaranteed_return": "عائد مضمون",
+    "guaranteed_return": "فرص إستثمارية واعدة",
     "up_to_return": "حتى 15% سنوياً",
     "bank_security": "أمان مصرفي",
     "full_protection": "حماية كاملة",
@@ -372,7 +372,7 @@
     },
     "sample_deals": {
       "phone_title": "تجارة الهواتف المستعملة",
-      "phone_description": "استثمار في تجارة الهواتف المحمولة المستعملة عالية الجودة مع عائد مضمون وآمن",
+      "phone_description": "استثمار في تجارة الهواتف المحمولة المستعملة عالية الجودة مع فرص إستثمارية واعدة وآمنة",
       "electronics_title": "تجارة الأجهزة الإلكترونية",
       "electronics_description": "فرصة استثمارية في تجارة الأجهزة الإلكترونية المستوردة من أوروبا",
       "construction_title": "مواد البناء والتشييد",
@@ -445,7 +445,10 @@
     "return_5_plus": "عائد 5%+",
     "return_10_plus": "عائد 10%+",
     "return_15_plus": "عائد 15%+",
-    "return_20_plus": "عائد 20%+"
+    "return_20_plus": "عائد 20%+",
+    "filters": {
+      "all_categories": "جميع الفئات"
+    }
   },
   "wallet": {
     "payment_methods": {
@@ -1283,7 +1286,7 @@
     "company_description": "وصف مختصر لشركتك..."
   },
   "guaranteed_return_card": {
-    "badge": "عائد مضمون",
+    "badge": "فرص إستثمارية واعدة",
     "title": "حتى 15% سنوياً",
     "security_badge": "أمان مصرفي المستوى",
     "security_description": "حماية كاملة عبر المعاملات والحفظ."
