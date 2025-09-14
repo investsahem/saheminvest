@@ -32,6 +32,14 @@ interface WalletProps {
     distributedProfits: number
     unrealizedGains: number
   }
+  transactionSummary?: {
+    totalDeposits: number
+    totalWithdrawals: number
+    totalInvestments: number
+    actualTotalInvested: number
+    totalReturns: number
+    calculatedBalance: number
+  }
   onDeposit?: (amount: number, method: string, cardDetails?: any) => Promise<{ success: boolean; message: string }>
   onWithdraw?: (amount: number, method: string) => Promise<{ success: boolean; message: string }>
 }
@@ -43,6 +51,7 @@ export function Wallet({
   transactions,
   activeInvestmentValue = 0,
   profitsSummary = { distributedProfits: 0, unrealizedGains: 0 },
+  transactionSummary = { totalDeposits: 0, totalWithdrawals: 0, totalInvestments: 0, actualTotalInvested: 0, totalReturns: 0, calculatedBalance: 0 },
   onDeposit,
   onWithdraw
 }: WalletProps) {
@@ -322,22 +331,26 @@ export function Wallet({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
-              <p className="text-2xl font-bold text-slate-800">${formatNumber(balance + totalInvested)}</p>
+              <p className="text-2xl font-bold text-slate-800">${formatNumber(transactionSummary.totalDeposits + actualReturns)}</p>
               <p className="text-sm text-slate-600">Total Value</p>
+              <p className="text-xs text-slate-500">Deposits + Profits</p>
             </div>
             <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
-              <p className="text-2xl font-bold text-emerald-600">${formatNumber(activeInvestmentValue)}</p>
+              <p className="text-2xl font-bold text-emerald-600">${formatNumber(totalInvested)}</p>
               <p className="text-sm text-slate-600">Active Investments</p>
+              <p className="text-xs text-slate-500">Currently deployed</p>
             </div>
             <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
               <p className="text-2xl font-bold text-amber-600">
-                {totalInvested > 0 ? `${((actualReturns / totalInvested) * 100).toFixed(1)}%` : '0.0%'}
+                {transactionSummary.totalDeposits > 0 ? `${((actualReturns / transactionSummary.totalDeposits) * 100).toFixed(1)}%` : '0.0%'}
               </p>
               <p className="text-sm text-slate-600">Return Rate</p>
+              <p className="text-xs text-slate-500">Profit / Deposits</p>
             </div>
             <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
               <p className="text-2xl font-bold text-blue-600">${formatNumber(profitsSummary.unrealizedGains)}</p>
               <p className="text-sm text-slate-600">Unrealized Gains</p>
+              <p className="text-xs text-slate-500">Future potential</p>
             </div>
           </div>
         </CardContent>

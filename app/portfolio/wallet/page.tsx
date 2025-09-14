@@ -30,6 +30,14 @@ const WalletPage = () => {
     profitsSummary: {
       distributedProfits: 0,
       unrealizedGains: 0
+    },
+    transactionSummary: {
+      totalDeposits: 0,
+      totalWithdrawals: 0,
+      totalInvestments: 0,
+      actualTotalInvested: 0,
+      totalReturns: 0,
+      calculatedBalance: 0
     }
   })
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -150,6 +158,7 @@ const WalletPage = () => {
         totalReturns={walletData.totalReturns}
         activeInvestmentValue={walletData.activeInvestmentValue}
         profitsSummary={walletData.profitsSummary}
+        transactionSummary={walletData.transactionSummary}
         transactions={transactions}
         onDeposit={handleDeposit}
         onWithdraw={handleWithdraw}
