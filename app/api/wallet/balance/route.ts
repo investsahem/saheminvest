@@ -85,8 +85,8 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Calculate accumulated profits from all investments (not just active)
-    const investmentProfits = await prisma.investment.findMany({
+    // Calculate accumulated profits and actual investments from investment records
+    const investmentRecords = await prisma.investment.findMany({
       where: {
         investorId: session.user.id
       },
@@ -102,18 +102,23 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Calculate total accumulated profits
+    // Calculate total accumulated profits and actual total invested
     let accumulatedProfits = 0
     let activeInvestmentValue = 0
+    let actualTotalInvested = 0
 
-    for (const investment of investmentProfits) {
+    for (const investment of investmentRecords) {
+      // Add to actual total invested from investment records (not transactions)
+      actualTotalInvested += Number(investment.amount)
+
       // Add distributed profits
       // Get distributed profits from transactions
       const profitTransactions = await prisma.transaction.findMany({
         where: {
           investmentId: investment.id,
           type: 'RETURN',
-          status: 'COMPLETED'
+          status: 'COMPLETED',
+          description: { not: { contains: 'Capital Return' } } // Only actual profits
         }
       })
       
@@ -124,9 +129,8 @@ export async function GET(request: NextRequest) {
 
       // Calculate current investment value based on project performance
       if (investment.project.status === 'COMPLETED') {
-        // For completed investments, the value is the original investment + profits
-        // But since we already account for profits separately, just track the original investment
-        activeInvestmentValue += Number(investment.amount)
+        // For completed investments, don't count towards active investments
+        // The capital should have been returned to wallet
       } else if (investment.project.status === 'ACTIVE' || investment.project.status === 'FUNDED') {
         // For active/funded investments, use the investment amount as current value
         activeInvestmentValue += Number(investment.amount)
@@ -136,7 +140,7 @@ export async function GET(request: NextRequest) {
     // For completed investments, we need to add back the original investment to the wallet
     // This simulates the capital being "returned" when the deal completes
     let completedInvestmentReturns = 0
-    for (const investment of investmentProfits) {
+    for (const investment of investmentRecords) {
       if (investment.project.status === 'COMPLETED') {
         // Check if we've already added this completed investment back to the wallet
         const hasCapitalReturn = await prisma.transaction.findFirst({
@@ -173,13 +177,13 @@ export async function GET(request: NextRequest) {
       // Don't add capital returns to profit returns - they're just returned capital
     }
 
-    // Update user's wallet balance (but keep totalReturns as actual profits only)
+    // Update user's wallet balance and investment totals
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        totalReturns: actualProfitReturns,
+        totalReturns: accumulatedProfits, // Use actual distributed profits
         walletBalance: calculatedBalance,
-        totalInvested: totalInvestments
+        totalInvested: actualTotalInvested // Use actual investments from records
       }
     })
 
@@ -191,19 +195,20 @@ export async function GET(request: NextRequest) {
         walletBalance: calculatedBalance
       },
       balance: calculatedBalance,
-      totalInvested: totalInvestments,
-      totalReturns: actualProfitReturns, // Now returns only actual profits, not wallet balance
+      totalInvested: actualTotalInvested, // Use actual investments from investment records
+      totalReturns: accumulatedProfits, // Use accumulated profits from investment records
       activeInvestmentValue: activeInvestmentValue,
       transactionSummary: {
         totalDeposits: totalDeposits,
         totalWithdrawals: totalWithdrawals,
-        totalInvestments: totalInvestments,
+        totalInvestments: totalInvestments, // From transactions
+        actualTotalInvested: actualTotalInvested, // From investment records
         totalReturns: actualProfitReturns,
         calculatedBalance: calculatedBalance
       },
       profitsSummary: {
-        distributedProfits: accumulatedProfits, // This should match actualProfitReturns
-        unrealizedGains: Math.max(0, activeInvestmentValue - totalInvestments)
+        distributedProfits: accumulatedProfits, // Actual distributed profits
+        unrealizedGains: 0 // For now, set to 0 - can be calculated based on expected returns later
       }
     })
 
