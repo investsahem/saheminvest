@@ -342,7 +342,6 @@ export function Wallet({
           </div>
         </CardContent>
       </Card>
-    </div>
 
       {/* Action Tabs */}
       <Card>
