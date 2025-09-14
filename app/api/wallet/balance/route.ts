@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
       data: {
         walletBalance: calculatedBalance,
         totalInvested: totalInvestments,
-        totalReturns: totalReturns
+        totalReturns: actualProfitReturns
       }
     })
 
@@ -178,7 +178,8 @@ export async function GET(request: NextRequest) {
       where: { id: session.user.id },
       data: {
         totalReturns: actualProfitReturns,
-        walletBalance: calculatedBalance
+        walletBalance: calculatedBalance,
+        totalInvested: totalInvestments
       }
     })
 
