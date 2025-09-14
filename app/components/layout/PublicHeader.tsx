@@ -158,7 +158,7 @@ export default function PublicHeader() {
               {locale === 'ar' ? 'English' : 'عربي'}
             </button>
             
-            {/* User Menu or Sign Up Button */}
+            {/* User Menu or Auth Buttons */}
             {session ? (
               <div className="relative ml-2 user-menu-container">
                 <button
@@ -200,9 +200,14 @@ export default function PublicHeader() {
                 )}
               </div>
             ) : (
-              <Link href="/auth/signup" className="ml-2 px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all">
-                {t('navigation.go_to_panel')}
-              </Link>
+              <div className="flex items-center gap-2 ml-2">
+                <Link href="/auth/signin" className="px-4 py-2 text-[#e9edf7] font-medium hover:bg-[#1a2246] rounded-xl transition-colors">
+                  {t('navigation.signin')}
+                </Link>
+                <Link href="/auth/signup" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all">
+                  {t('navigation.go_to_panel')}
+                </Link>
+              </div>
             )}
           </nav>
 
@@ -216,7 +221,7 @@ export default function PublicHeader() {
               {locale === 'ar' ? 'English' : 'عربي'}
             </button>
             
-            {/* User Avatar or Sign Up Button */}
+            {/* User Avatar or Auth Buttons */}
             {session ? (
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -228,9 +233,14 @@ export default function PublicHeader() {
                 <ChevronDown className="w-4 h-4" />
               </button>
             ) : (
-              <Link href="/auth/signup" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all text-sm">
-                {t('navigation.panel')}
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link href="/auth/signin" className="px-3 py-2 text-[#e9edf7] font-medium hover:bg-[#1a2246] rounded-lg transition-colors text-sm">
+                  {t('navigation.signin')}
+                </Link>
+                <Link href="/auth/signup" className="px-4 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all text-sm">
+                  {t('navigation.panel')}
+                </Link>
+              </div>
             )}
             
             {/* Mobile Menu Toggle */}
@@ -281,6 +291,26 @@ export default function PublicHeader() {
                 >
                   {t('navigation.about')}
                 </Link>
+
+                {/* Mobile Auth Buttons for non-authenticated users */}
+                {!session && (
+                  <div className="border-t border-[#233059] pt-4 mt-4 space-y-2">
+                    <Link 
+                      href="/auth/signin" 
+                      className="block text-[#e9edf7] hover:bg-[#1a2246] px-3 py-2 rounded-lg transition-colors font-medium"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {t('navigation.signin')}
+                    </Link>
+                    <Link 
+                      href="/auth/signup" 
+                      className="block px-3 py-2 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] rounded-xl text-[#e9edf7] font-bold hover:transform hover:-translate-y-0.5 transition-all text-center"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {t('navigation.go_to_panel')}
+                    </Link>
+                  </div>
+                )}
 
                 {/* Mobile User Menu */}
                 {session && (
