@@ -214,85 +214,135 @@ export function Wallet({
     return v
   }
 
+  // Calculate actual returns (distributed profits only, not wallet balance)
+  const actualReturns = profitsSummary.distributedProfits
+
   return (
-    <div className="space-y-6">
-      {/* Balance Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-700">{t('portfolio_wallet.balance_summary.current_balance')}</p>
-                <p className="text-2xl font-bold text-blue-900">
-                  {showBalance ? `$${formatNumber(balance)}` : '••••••'}
-                </p>
+    <div className="space-y-8">
+      {/* Enhanced Balance Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Current Balance Card - Enhanced */}
+        <Card className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <CardContent className="p-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <WalletIcon className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-600 uppercase tracking-wider">{t('portfolio_wallet.balance_summary.current_balance')}</p>
+                  <p className="text-xs text-slate-500">Available funds</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowBalance(!showBalance)}
-                  className="bg-white/50 border-blue-200 text-blue-700 hover:bg-white/80"
-                >
-                  {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                  <WalletIcon className="w-6 h-6 text-blue-600" />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowBalance(!showBalance)}
+                className="bg-white/70 border-slate-200 text-slate-600 hover:bg-white/90 shadow-sm"
+              >
+                {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </Button>
+            </div>
+            <div className="space-y-2">
+              <p className="text-3xl font-bold text-slate-800">
+                {showBalance ? `$${formatNumber(balance)}` : '••••••'}
+              </p>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-slate-600">Available for investment</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Total Invested Card - Enhanced */}
+        <Card className="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border-emerald-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <CardContent className="p-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <TrendingUp className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-emerald-700 uppercase tracking-wider">{t('portfolio_wallet.balance_summary.total_invested')}</p>
+                  <p className="text-xs text-emerald-600">Active investments</p>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-700">{t('portfolio_wallet.balance_summary.total_invested')}</p>
-                <p className="text-2xl font-bold text-green-900">
-                  {showBalance ? `$${formatNumber(totalInvested)}` : '••••••'}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-green-600" />
+            <div className="space-y-2">
+              <p className="text-3xl font-bold text-emerald-800">
+                {showBalance ? `$${formatNumber(totalInvested)}` : '••••••'}
+              </p>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                <span className="text-emerald-700">Currently deployed</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-purple-700">{t('portfolio_wallet.balance_summary.total_returns')}</p>
-                <p className="text-2xl font-bold text-purple-900">
-                  {showBalance ? `$${formatNumber(totalReturns)}` : '••••••'}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-purple-600" />
+        {/* Actual Returns Card - Fixed Calculation */}
+        <Card className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border-amber-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <CardContent className="p-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <DollarSign className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-amber-700 uppercase tracking-wider">{t('portfolio_wallet.balance_summary.total_returns')}</p>
+                  <p className="text-xs text-amber-600">Profits earned</p>
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-
-        <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-emerald-700">{t('portfolio_wallet.balance_summary.total_portfolio')}</p>
-                <p className="text-2xl font-bold text-emerald-900">
-                  {showBalance ? `$${formatNumber(balance + activeInvestmentValue)}` : '••••••'}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                <WalletIcon className="w-6 h-6 text-emerald-600" />
+            <div className="space-y-2">
+              <p className="text-3xl font-bold text-amber-800">
+                {showBalance ? `$${formatNumber(actualReturns)}` : '••••••'}
+              </p>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                <span className="text-amber-700">Distributed profits</span>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Performance Overview Card */}
+      <Card className="bg-gradient-to-r from-slate-50 to-slate-100 border-slate-200 shadow-lg">
+        <CardContent className="p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-slate-800">Portfolio Performance</h3>
+              <p className="text-slate-600">Overview of your investment performance</p>
+            </div>
+            <div className="w-12 h-12 bg-gradient-to-br from-slate-500 to-slate-600 rounded-xl flex items-center justify-center">
+              <Shield className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
+              <p className="text-2xl font-bold text-slate-800">${formatNumber(balance + totalInvested)}</p>
+              <p className="text-sm text-slate-600">Total Value</p>
+            </div>
+            <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
+              <p className="text-2xl font-bold text-emerald-600">${formatNumber(activeInvestmentValue)}</p>
+              <p className="text-sm text-slate-600">Active Investments</p>
+            </div>
+            <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
+              <p className="text-2xl font-bold text-amber-600">
+                {totalInvested > 0 ? `${((actualReturns / totalInvested) * 100).toFixed(1)}%` : '0.0%'}
+              </p>
+              <p className="text-sm text-slate-600">Return Rate</p>
+            </div>
+            <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
+              <p className="text-2xl font-bold text-blue-600">${formatNumber(profitsSummary.unrealizedGains)}</p>
+              <p className="text-sm text-slate-600">Unrealized Gains</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
 
       {/* Action Tabs */}
       <Card>

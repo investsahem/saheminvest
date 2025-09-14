@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     let totalDeposits = 0
     let totalWithdrawals = 0
     let totalInvestments = 0
-    let totalReturns = 0
+    let actualProfitReturns = 0
 
     transactions.forEach(transaction => {
       const amount = Number(transaction.amount)
@@ -67,7 +67,10 @@ export async function GET(request: NextRequest) {
           break
         case 'RETURN':
           calculatedBalance += amount
-          totalReturns += amount
+          // Only count actual profit returns, not capital returns
+          if (!transaction.description?.includes('Capital Return')) {
+            actualProfitReturns += amount
+          }
           break
       }
     })
@@ -167,14 +170,14 @@ export async function GET(request: NextRequest) {
     // Recalculate balance if we added capital returns
     if (completedInvestmentReturns > 0) {
       calculatedBalance += completedInvestmentReturns
-      totalReturns += completedInvestmentReturns
+      // Don't add capital returns to profit returns - they're just returned capital
     }
 
-    // Update user's totalReturns and wallet balance
+    // Update user's wallet balance (but keep totalReturns as actual profits only)
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        totalReturns: totalReturns,
+        totalReturns: actualProfitReturns,
         walletBalance: calculatedBalance
       }
     })
@@ -188,17 +191,17 @@ export async function GET(request: NextRequest) {
       },
       balance: calculatedBalance,
       totalInvested: totalInvestments,
-      totalReturns: totalReturns,
+      totalReturns: actualProfitReturns, // Now returns only actual profits, not wallet balance
       activeInvestmentValue: activeInvestmentValue,
       transactionSummary: {
         totalDeposits: totalDeposits,
         totalWithdrawals: totalWithdrawals,
         totalInvestments: totalInvestments,
-        totalReturns: totalReturns,
+        totalReturns: actualProfitReturns,
         calculatedBalance: calculatedBalance
       },
       profitsSummary: {
-        distributedProfits: accumulatedProfits,
+        distributedProfits: accumulatedProfits, // This should match actualProfitReturns
         unrealizedGains: Math.max(0, activeInvestmentValue - totalInvestments)
       }
     })
