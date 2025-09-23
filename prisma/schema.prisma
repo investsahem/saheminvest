@@ -799,12 +799,20 @@ model ProfitDistributionRequest {
   partnerId        String
   partner          User            @relation("ProfitDistributionRequests", fields: [partnerId], references: [id])
   
-  // Distribution details
+  // Partner-provided distribution details
   totalAmount      Decimal         @db.Decimal(15, 2)
-  totalInvestmentAmount Decimal    @db.Decimal(15, 2)
-  distributionType String          @default("FINAL") // PARTIAL, FINAL
-  distributionData Json            // Stores the distribution breakdown
+  estimatedGainPercent Decimal     @db.Decimal(5, 2)    // Partner estimated gain percentage
+  estimatedClosingPercent Decimal  @db.Decimal(5, 2)    // Partner estimated deal closing percentage
+  distributionType String          @default("PARTIAL")   // PARTIAL, FINAL
   description      String?         @db.Text
+  
+  // Calculated fields from partner data
+  estimatedProfit  Decimal         @db.Decimal(15, 2)   // totalAmount * estimatedGainPercent / 100
+  estimatedReturnCapital Decimal   @db.Decimal(15, 2)   // totalAmount - estimatedProfit
+  
+  // Admin-editable fields (global settings)
+  sahemInvestPercent Decimal?      @default(10) @db.Decimal(5, 2)  // Sahem invest percentage
+  reservedGainPercent Decimal?     @default(10) @db.Decimal(5, 2)  // Reserved gain percentage
   
   // Status and approval
   status           String          @default("PENDING") // PENDING, APPROVED, REJECTED
@@ -812,6 +820,10 @@ model ProfitDistributionRequest {
   reviewer         User?           @relation("ProfitDistributionReviews", fields: [reviewedBy], references: [id])
   reviewedAt       DateTime?
   rejectionReason  String?         @db.Text
+  
+  // Legacy field for backward compatibility (can be removed after migration)
+  totalInvestmentAmount Decimal?   @db.Decimal(15, 2)
+  distributionData Json?           // Legacy field
   
   // Timestamps
   requestedAt      DateTime        @default(now())

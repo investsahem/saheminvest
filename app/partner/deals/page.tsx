@@ -10,7 +10,6 @@ import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import DealForm from '../../components/forms/DealForm'
-import ProfitDistributionForm from '../../components/forms/ProfitDistributionForm'
 import { Deal } from '../../types/deals'
 import { dealsService } from '../../lib/deals-service'
 import { 
@@ -107,7 +106,13 @@ const PartnerDealsPage = () => {
     }
   }
 
-  const handleProfitDistribution = async (distributions: any[]) => {
+  const handleProfitDistribution = async (data: {
+    estimatedGainPercent: number
+    estimatedClosingPercent: number
+    totalAmount: number
+    distributionType: 'PARTIAL' | 'FINAL'
+    description: string
+  }) => {
     try {
       const response = await fetch('/api/partner/profit-distribution', {
         method: 'POST',
@@ -116,12 +121,17 @@ const PartnerDealsPage = () => {
         },
         body: JSON.stringify({
           dealId: distributingProfits?.id,
-          distributions
+          estimatedGainPercent: data.estimatedGainPercent,
+          estimatedClosingPercent: data.estimatedClosingPercent,
+          totalAmount: data.totalAmount,
+          distributionType: data.distributionType,
+          description: data.description
         }),
       })
 
       if (!response.ok) {
-        throw new Error('Failed to submit profit distribution')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to submit profit distribution')
       }
 
       alert('Profit distribution submitted for admin approval')
@@ -288,20 +298,118 @@ const PartnerDealsPage = () => {
         title="Distribute Profits"
         subtitle={`Profit Distribution for: ${distributingProfits.title}`}
       >
-                        <ProfitDistributionForm
-                          deal={{
-                            ...distributingProfits,
-                            investments: distributingProfits.investments?.map(inv => ({
-                              ...inv,
-                              investor: {
-                                ...inv.investor,
-                                email: (inv.investor as any).email || `${inv.investor.name}@example.com`
-                              }
-                            })) || []
-                          }}
-                          onSubmit={handleProfitDistribution}
-                          onCancel={() => setDistributingProfits(null)}
-                        />
+        <div className="max-w-2xl mx-auto">
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">توزيع أرباح جديد</h2>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setDistributingProfits(null)}
+              >
+                إغلاق
+              </Button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Total Amount */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Amount ($)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="e.g., 21400"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Estimated Gain % */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Estimated gain %
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  placeholder="e.g., 7"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Estimated Deal Closing % */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Estimated Deal Closing %
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  placeholder="e.g., 100"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Distribution Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">نوع التوزيع</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="distributionType"
+                      value="PARTIAL"
+                      defaultChecked
+                      className="mr-2"
+                    />
+                    توزيع جزئي
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="distributionType"
+                      value="FINAL"
+                      className="mr-2"
+                    />
+                    توزيع نهائي
+                  </label>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">وصف التوزيع</label>
+                <input
+                  type="text"
+                  placeholder="مثال: توزيع أرباح الربع الأول"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex gap-4 pt-4">
+                <Button
+                  className="bg-green-600 hover:bg-green-700 flex-1"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  إرسال للمراجعة الإدارية
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setDistributingProfits(null)}
+                >
+                  إلغاء
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
       </PartnerLayout>
     )
   }

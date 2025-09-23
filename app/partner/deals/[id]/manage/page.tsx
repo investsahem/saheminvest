@@ -7,8 +7,8 @@ import { useTranslation } from '../../../../components/providers/I18nProvider'
 import PartnerLayout from '../../../../components/layout/PartnerLayout'
 import { Card, CardContent } from '../../../../components/ui/Card'
 import { Button } from '../../../../components/ui/Button'
-import { Input } from '../../../../components/ui/Input'
 import { DealTimeline } from '../../../../components/project/DealTimeline'
+import ProfitDistributionForm from '../../../../components/forms/ProfitDistributionForm'
 import { 
   ArrowLeft, Users, DollarSign, TrendingUp, Calendar, 
   Plus, Send, AlertCircle, CheckCircle, Clock, Eye,
@@ -53,16 +53,12 @@ interface ProfitDistribution {
   status: string
 }
 
-interface ProfitDistributionForm {
+interface ProfitDistributionFormData {
+  estimatedGainPercent: number
+  estimatedClosingPercent: number
   totalAmount: number
-  description: string
   distributionType: 'PARTIAL' | 'FINAL'
-  distributionData: {
-    investorId: string
-    investorName: string
-    investmentAmount: number
-    profitAmount: number
-  }[]
+  description: string
 }
 
 const DealManagePage = () => {
@@ -77,11 +73,12 @@ const DealManagePage = () => {
   const [showProfitForm, setShowProfitForm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   
-  const [profitForm, setProfitForm] = useState<ProfitDistributionForm>({
+  const [profitForm, setProfitForm] = useState<ProfitDistributionFormData>({
+    estimatedGainPercent: 7,
+    estimatedClosingPercent: 100,
     totalAmount: 0,
-    description: '',
     distributionType: 'PARTIAL',
-    distributionData: []
+    description: ''
   })
 
   // Fetch deal details
@@ -96,32 +93,6 @@ const DealManagePage = () => {
         if (response.ok) {
           const dealData = await response.json()
           setDeal(dealData)
-          
-          // Initialize profit distribution form
-          console.log('Deal data loaded:', {
-            dealId: dealData.id,
-            title: dealData.title,
-            investmentsCount: dealData.investments?.length || 0,
-            investments: dealData.investments
-          })
-          
-          if (dealData.investments && dealData.investments.length > 0) {
-            const distributionData = dealData.investments.map((inv: Investment, index: number) => ({
-              investorId: inv.investor.id,
-              investorName: `مستثمر #${index + 1}`,
-              investmentAmount: Number(inv.amount),
-              profitAmount: 0
-            }))
-            
-            console.log('Setting profit form distribution data:', distributionData)
-            
-            setProfitForm(prev => ({
-              ...prev,
-              distributionData
-            }))
-          } else {
-            console.log('No investments found in deal')
-          }
         } else {
           console.error('Failed to fetch deal')
           router.push('/partner/deals')
@@ -154,26 +125,7 @@ const DealManagePage = () => {
     }).format(new Date(dateString))
   }
 
-  const handleProfitAmountChange = (investorId: string, amount: number) => {
-    setProfitForm(prev => {
-      const updatedData = prev.distributionData.map(data =>
-        data.investorId === investorId
-          ? { ...data, profitAmount: amount }
-          : data
-      )
-      
-      // Calculate new total
-      const newTotal = updatedData.reduce((sum, data) => sum + (data.profitAmount || 0), 0)
-      
-      return {
-        ...prev,
-        distributionData: updatedData,
-        totalAmount: newTotal
-      }
-    })
-  }
-
-  const handleSubmitProfitDistribution = async () => {
+  const handleSubmitProfitDistribution = async (data: ProfitDistributionFormData) => {
     try {
       setSubmitting(true)
 
@@ -184,14 +136,11 @@ const DealManagePage = () => {
         },
         body: JSON.stringify({
           dealId: dealId,
-          distributionType: profitForm.distributionType,
-          description: profitForm.description,
-          distributions: profitForm.distributionData.map(data => ({
-            investorId: data.investorId,
-            investorName: data.investorName,
-            investmentAmount: data.investmentAmount,
-            profitAmount: data.profitAmount || 0
-          }))
+          estimatedGainPercent: data.estimatedGainPercent,
+          estimatedClosingPercent: data.estimatedClosingPercent,
+          totalAmount: data.totalAmount,
+          distributionType: data.distributionType,
+          description: data.description
         })
       })
 
@@ -201,7 +150,8 @@ const DealManagePage = () => {
         // Refresh deal data
         window.location.reload()
       } else {
-        alert('حدث خطأ في إرسال الطلب')
+        const errorData = await response.json()
+        alert(errorData.error || 'حدث خطأ في إرسال الطلب')
       }
     } catch (error) {
       console.error('Error submitting profit distribution:', error)
@@ -503,7 +453,7 @@ const DealManagePage = () => {
         {/* Profit Distribution Form Modal - Only for non-completed deals */}
         {showProfitForm && deal.status !== 'COMPLETED' && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">توزيع أرباح جديد</h2>
@@ -517,6 +467,56 @@ const DealManagePage = () => {
                 </div>
 
                 <div className="space-y-6">
+                  {/* Total Amount */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Amount ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={profitForm.totalAmount || ''}
+                      onChange={(e) => setProfitForm(prev => ({ ...prev, totalAmount: Number(e.target.value) || 0 }))}
+                      placeholder="e.g., 21400"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Estimated Gain % */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Estimated gain %
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      value={profitForm.estimatedGainPercent || ''}
+                      onChange={(e) => setProfitForm(prev => ({ ...prev, estimatedGainPercent: Number(e.target.value) || 0 }))}
+                      placeholder="e.g., 7"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Estimated Deal Closing % */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Estimated Deal Closing %
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      value={profitForm.estimatedClosingPercent || ''}
+                      onChange={(e) => setProfitForm(prev => ({ ...prev, estimatedClosingPercent: Number(e.target.value) || 0 }))}
+                      placeholder="e.g., 100"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
                   {/* Distribution Type */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">نوع التوزيع</label>
@@ -549,64 +549,21 @@ const DealManagePage = () => {
                   {/* Description */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">وصف التوزيع</label>
-                    <Input
+                    <input
+                      type="text"
                       value={profitForm.description}
                       onChange={(e) => setProfitForm(prev => ({ ...prev, description: e.target.value }))}
                       placeholder="مثال: توزيع أرباح الربع الأول"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
-                  {/* Investor Profit Distribution */}
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">توزيع الأرباح على المستثمرين</h3>
-                    {profitForm.distributionData.length === 0 ? (
-                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <p className="text-yellow-800">لا توجد استثمارات في هذه الصفقة لتوزيع الأرباح عليها.</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {profitForm.distributionData.map((data, index) => (
-                        <div key={data.investorId} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                          <div>
-                            <p className="font-medium text-gray-900">{data.investorName}</p>
-                            <p className="text-sm text-gray-600">
-                              استثمر: {formatCurrency(data.investmentAmount)}
-                            </p>
-                          </div>
-                          <div className="w-32">
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={data.profitAmount || ''}
-                              onChange={(e) => handleProfitAmountChange(data.investorId, Number(e.target.value) || 0)}
-                              placeholder="0.00"
-                              className="text-right"
-                            />
-                            <label className="text-xs text-gray-500 mt-1 block">مبلغ الربح ($)</label>
-                          </div>
-                        </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Total Amount */}
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-lg font-medium text-gray-900">إجمالي الأرباح:</span>
-                      <span className="text-xl font-bold text-blue-600">
-                        {formatCurrency(profitForm.totalAmount)}
-                      </span>
-                    </div>
-                  </div>
-
                   {/* Submit Buttons */}
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 pt-4">
                     <Button
-                      onClick={handleSubmitProfitDistribution}
-                      disabled={submitting || profitForm.totalAmount <= 0 || !profitForm.description}
-                      className="bg-green-600 hover:bg-green-700"
+                      onClick={() => handleSubmitProfitDistribution(profitForm)}
+                      disabled={submitting || !profitForm.totalAmount || !profitForm.estimatedGainPercent || !profitForm.description}
+                      className="bg-green-600 hover:bg-green-700 flex-1"
                     >
                       <Send className="w-4 h-4 mr-2" />
                       {submitting ? 'جاري الإرسال...' : 'إرسال للمراجعة الإدارية'}

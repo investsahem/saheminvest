@@ -243,6 +243,28 @@ export default function InvestorDashboard() {
           </Card>
         </div>
 
+        {/* Profit Distribution Summary */}
+        {portfolio.distributedProfits > 0 && (
+          <Card className="bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-emerald-700">Total Profit Distributions</p>
+                  <p className="text-3xl font-bold text-emerald-900">
+                    {formatCurrency(portfolio.distributedProfits)}
+                  </p>
+                  <p className="text-sm text-emerald-600 mt-1">
+                    Profits distributed across {portfolio.activeInvestments} investments
+                  </p>
+                </div>
+                <div className="w-16 h-16 bg-emerald-100 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="w-8 h-8 text-emerald-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Portfolio Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
@@ -323,6 +345,7 @@ export default function InvestorDashboard() {
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-3 px-4 font-medium text-gray-600">{t('investor.project')}</th>
                       <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.amount_invested')}</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-600">Distributed</th>
                       <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.current_value')}</th>
                       <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.return')}</th>
                       <th className="text-center py-3 px-4 font-medium text-gray-600">{t('investor.progress')}</th>
@@ -359,6 +382,16 @@ export default function InvestorDashboard() {
                         </td>
                         <td className="py-4 px-4 text-right font-medium">
                           {formatCurrency(investment.investedAmount)}
+                        </td>
+                        <td className="py-4 px-4 text-right">
+                          <div className="font-medium text-blue-600">
+                            {formatCurrency(investment.distributedProfits || 0)}
+                          </div>
+                          {(investment.distributedProfits || 0) > 0 && (
+                            <div className="text-xs text-green-600">
+                              Received
+                            </div>
+                          )}
                         </td>
                         <td className="py-4 px-4 text-right font-medium">
                           {formatCurrency(investment.currentValue)}

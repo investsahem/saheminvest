@@ -24,11 +24,39 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { dealId, distributions } = await request.json()
+    const { 
+      dealId, 
+      estimatedGainPercent, 
+      estimatedClosingPercent, 
+      totalAmount, 
+      distributionType, 
+      description 
+    } = await request.json()
 
-    if (!dealId || !distributions || !Array.isArray(distributions)) {
+    if (!dealId || !totalAmount || !estimatedGainPercent || !estimatedClosingPercent || !distributionType || !description) {
       return NextResponse.json(
-        { error: 'Deal ID and distributions are required' },
+        { error: 'All required fields must be provided' },
+        { status: 400 }
+      )
+    }
+
+    if (estimatedGainPercent < 0 || estimatedGainPercent > 100) {
+      return NextResponse.json(
+        { error: 'Estimated gain percent must be between 0 and 100' },
+        { status: 400 }
+      )
+    }
+
+    if (estimatedClosingPercent < 0 || estimatedClosingPercent > 100) {
+      return NextResponse.json(
+        { error: 'Estimated closing percent must be between 0 and 100' },
+        { status: 400 }
+      )
+    }
+
+    if (!['PARTIAL', 'FINAL'].includes(distributionType)) {
+      return NextResponse.json(
+        { error: 'Distribution type must be either PARTIAL or FINAL' },
         { status: 400 }
       )
     }
@@ -61,32 +89,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate distributions match actual investments
-    const investorIds = new Set(deal.investments.map(inv => inv.investorId))
-    const distributionInvestorIds = new Set(distributions.map(dist => dist.investorId))
-    
-    if (distributions.some(dist => !investorIds.has(dist.investorId))) {
+    // Check if deal has any investments
+    if (!deal.investments || deal.investments.length === 0) {
       return NextResponse.json(
-        { error: 'Some distributions are for investors who did not invest in this deal' },
+        { error: 'This deal has no investments to distribute profits to' },
         { status: 400 }
       )
     }
 
-    // Calculate total distribution amount
-    const totalDistributionAmount = distributions.reduce((sum, dist) => sum + Number(dist.profitAmount), 0)
-    const totalInvestmentAmount = distributions.reduce((sum, dist) => sum + Number(dist.investmentAmount), 0)
+    // Calculate values
+    const estimatedProfit = (totalAmount * estimatedGainPercent) / 100
+    const estimatedReturnCapital = totalAmount - estimatedProfit
 
     // Create profit distribution request for admin approval
     const distributionRequest = await prisma.profitDistributionRequest.create({
       data: {
         projectId: dealId,
         partnerId: session.user.id,
-        description: `Profit distribution for ${deal.title}`,
-        totalAmount: totalDistributionAmount,
-        totalInvestmentAmount: totalInvestmentAmount,
-        distributionData: JSON.stringify(distributions),
-        status: 'PENDING',
-        requestedAt: new Date()
+        description: description,
+        totalAmount: totalAmount,
+        estimatedGainPercent: estimatedGainPercent,
+        estimatedClosingPercent: estimatedClosingPercent,
+        distributionType: distributionType,
+        estimatedProfit: estimatedProfit,
+        estimatedReturnCapital: estimatedReturnCapital,
+        status: 'PENDING'
       }
     })
 
@@ -94,8 +121,11 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Profit distribution request submitted for admin approval',
       requestId: distributionRequest.id,
-      totalAmount: totalDistributionAmount,
-      investorCount: distributions.length
+      totalAmount: totalAmount,
+      estimatedProfit: estimatedProfit,
+      estimatedReturnCapital: estimatedReturnCapital,
+      distributionType: distributionType,
+      investorCount: deal.investments.length
     })
 
   } catch (error) {

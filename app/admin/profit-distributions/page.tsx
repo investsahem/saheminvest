@@ -19,24 +19,35 @@ interface ProfitDistributionRequest {
     title: string
     fundingGoal: number
     currentFunding: number
+    investments: Array<{
+      id: string
+      amount: number
+      investor: {
+        id: string
+        name: string
+      }
+    }>
   }
   partner: {
     id: string
     name: string
     email: string
   }
+  // Partner-provided fields (read-only for admin)
   totalAmount: number
+  estimatedGainPercent: number
+  estimatedClosingPercent: number
   distributionType: 'PARTIAL' | 'FINAL'
   description: string
+  estimatedProfit: number
+  estimatedReturnCapital: number
+  
+  // Admin-editable fields
+  sahemInvestPercent: number
+  reservedGainPercent: number
+  
   status: 'PENDING' | 'APPROVED' | 'REJECTED'
   createdAt: string
-  distributionData: Array<{
-    investorId: string
-    investorName: string
-    investmentAmount: number
-    profitAmount: number
-    profitRate: number
-  }>
 }
 
 const AdminProfitDistributionsPage = () => {
@@ -47,6 +58,10 @@ const AdminProfitDistributionsPage = () => {
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedRequest, setSelectedRequest] = useState<ProfitDistributionRequest | null>(null)
   const [processing, setProcessing] = useState<string | null>(null)
+  const [editingFields, setEditingFields] = useState<{
+    sahemInvestPercent: number
+    reservedGainPercent: number
+  } | null>(null)
 
   useEffect(() => {
     fetchRequests()
@@ -71,18 +86,30 @@ const AdminProfitDistributionsPage = () => {
     }
   }
 
-  const handleApprove = async (requestId: string) => {
+  const handleApprove = async (requestId: string, editedFields?: {
+    sahemInvestPercent: number
+    reservedGainPercent: number
+  }) => {
     try {
       setProcessing(requestId)
+      
+      const requestBody: any = {}
+      if (editedFields) {
+        requestBody.sahemInvestPercent = editedFields.sahemInvestPercent
+        requestBody.reservedGainPercent = editedFields.reservedGainPercent
+      }
+
       const response = await fetch(`/api/admin/profit-distribution-requests/${requestId}/approve`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
       })
 
       if (response.ok) {
         alert('تم الموافقة على توزيع الأرباح وتم إضافتها لمحافظ المستثمرين')
         fetchRequests()
         setSelectedRequest(null)
+        setEditingFields(null)
       } else {
         const error = await response.json()
         alert(error.error || 'حدث خطأ في الموافقة')
@@ -312,8 +339,24 @@ const AdminProfitDistributionsPage = () => {
                           <p className="font-bold text-green-600">{formatCurrency(request.totalAmount)}</p>
                         </div>
                         <div>
+                          <p className="font-medium">الربح المقدر ({request.estimatedGainPercent}%)</p>
+                          <p className="font-bold text-blue-600">{formatCurrency(request.estimatedProfit)}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium">رأس المال المُسترد</p>
+                          <p className="font-bold text-purple-600">{formatCurrency(request.estimatedReturnCapital)}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium">إغلاق الصفقة</p>
+                          <p>{request.estimatedClosingPercent}%</p>
+                        </div>
+                        <div>
                           <p className="font-medium">عدد المستثمرين</p>
-                          <p>{request.distributionData.length}</p>
+                          <p>{request.project.investments?.length || 0}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium">نسبة صاحم ({request.sahemInvestPercent}%)</p>
+                          <p className="text-orange-600">{formatCurrency((request.estimatedProfit * request.sahemInvestPercent) / 100)}</p>
                         </div>
                       </div>
                       
@@ -387,75 +430,140 @@ const AdminProfitDistributionsPage = () => {
                 </div>
 
                 <div className="space-y-6">
-                  {/* Request Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-3">معلومات الطلب</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">الصفقة:</span>
-                          <span className="font-medium">{selectedRequest.project.title}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">الشريك:</span>
-                          <span className="font-medium">{selectedRequest.partner.name}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">نوع التوزيع:</span>
-                          <span className="font-medium">
-                            {selectedRequest.distributionType === 'PARTIAL' ? 'توزيع جزئي' : 'توزيع نهائي'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">إجمالي المبلغ:</span>
-                          <span className="font-bold text-green-600">{formatCurrency(selectedRequest.totalAmount)}</span>
-                        </div>
+                  {/* Partner Data - Read Only */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                      <DollarSign className="w-5 h-5 mr-2 text-blue-600" />
+                      بيانات الشريك (للقراءة فقط)
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">إجمالي المبلغ:</span>
+                        <span className="font-bold text-green-600">{formatCurrency(selectedRequest.totalAmount)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">الربح المقدر:</span>
+                        <span className="font-bold text-blue-600">{selectedRequest.estimatedGainPercent}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">إغلاق الصفقة:</span>
+                        <span className="font-bold text-purple-600">{selectedRequest.estimatedClosingPercent}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">مبلغ الربح:</span>
+                        <span className="font-bold text-green-600">{formatCurrency(selectedRequest.estimatedProfit)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">رأس المال:</span>
+                        <span className="font-bold text-gray-600">{formatCurrency(selectedRequest.estimatedReturnCapital)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">نوع التوزيع:</span>
+                        <span className="font-medium">{selectedRequest.distributionType === 'PARTIAL' ? 'جزئي' : 'نهائي'}</span>
                       </div>
                     </div>
+                    <div className="mt-3 pt-3 border-t border-blue-200">
+                      <p className="text-sm text-gray-700">
+                        <span className="font-medium">الوصف:</span> {selectedRequest.description}
+                      </p>
+                    </div>
+                  </div>
 
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-3">معلومات الصفقة</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">هدف التمويل:</span>
-                          <span className="font-medium">{formatCurrency(selectedRequest.project.fundingGoal)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">التمويل المحقق:</span>
-                          <span className="font-medium">{formatCurrency(selectedRequest.project.currentFunding)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">عدد المستثمرين:</span>
-                          <span className="font-medium">{selectedRequest.distributionData.length}</span>
-                        </div>
+                  {/* Admin Editable Fields */}
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                      <Target className="w-5 h-5 mr-2 text-orange-600" />
+                      إعدادات الإدارة (قابلة للتعديل)
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          نسبة صاحم انفست (%)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent}
+                          onChange={(e) => setEditingFields(prev => ({
+                            sahemInvestPercent: Number(e.target.value),
+                            reservedGainPercent: prev?.reservedGainPercent ?? selectedRequest.reservedGainPercent
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          نسبة الاحتياطي (%)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent}
+                          onChange={(e) => setEditingFields(prev => ({
+                            sahemInvestPercent: prev?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent,
+                            reservedGainPercent: Number(e.target.value)
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        />
                       </div>
                     </div>
                   </div>
 
-                  {/* Investor Distribution */}
+                  {/* Calculated Distribution Preview */}
+                  {editingFields && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <h3 className="text-lg font-medium text-gray-900 mb-3">معاينة التوزيع</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div className="text-center">
+                          <p className="text-gray-600">إجمالي الربح</p>
+                          <p className="font-bold text-green-600">{formatCurrency(selectedRequest.estimatedProfit)}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-gray-600">صاحم انفست ({editingFields.sahemInvestPercent}%)</p>
+                          <p className="font-bold text-orange-600">
+                            {formatCurrency((selectedRequest.estimatedProfit * editingFields.sahemInvestPercent) / 100)}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-gray-600">الاحتياطي ({editingFields.reservedGainPercent}%)</p>
+                          <p className="font-bold text-blue-600">
+                            {formatCurrency((selectedRequest.estimatedProfit * editingFields.reservedGainPercent) / 100)}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-gray-600">للمستثمرين</p>
+                          <p className="font-bold text-purple-600">
+                            {formatCurrency(selectedRequest.estimatedProfit * (100 - editingFields.sahemInvestPercent - editingFields.reservedGainPercent) / 100)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Deal Info */}
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">توزيع الأرباح على المستثمرين</h3>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border border-gray-200 rounded-lg">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="text-right py-3 px-4 font-medium text-gray-600">المستثمر</th>
-                            <th className="text-right py-3 px-4 font-medium text-gray-600">مبلغ الاستثمار</th>
-                            <th className="text-right py-3 px-4 font-medium text-gray-600">مبلغ الربح</th>
-                            <th className="text-right py-3 px-4 font-medium text-gray-600">معدل الربح</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedRequest.distributionData.map((distribution, index) => (
-                            <tr key={index} className="border-t border-gray-100">
-                              <td className="py-3 px-4 font-medium">{distribution.investorName}</td>
-                              <td className="py-3 px-4">{formatCurrency(distribution.investmentAmount)}</td>
-                              <td className="py-3 px-4 text-green-600 font-bold">{formatCurrency(distribution.profitAmount)}</td>
-                              <td className="py-3 px-4">{distribution.profitRate.toFixed(1)}%</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">معلومات الصفقة</h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">اسم الصفقة:</span>
+                        <span className="font-medium">{selectedRequest.project.title}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">الشريك:</span>
+                        <span className="font-medium">{selectedRequest.partner.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">عدد المستثمرين:</span>
+                        <span className="font-medium">{selectedRequest.project.investments?.length || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">هدف التمويل:</span>
+                        <span className="font-medium">{formatCurrency(selectedRequest.project.fundingGoal)}</span>
+                      </div>
                     </div>
                   </div>
 
@@ -463,7 +571,7 @@ const AdminProfitDistributionsPage = () => {
                   {selectedRequest.status === 'PENDING' && (
                     <div className="flex gap-4 pt-4 border-t">
                       <Button
-                        onClick={() => handleApprove(selectedRequest.id)}
+                        onClick={() => handleApprove(selectedRequest.id, editingFields || undefined)}
                         disabled={processing === selectedRequest.id}
                         className="bg-green-600 hover:bg-green-700 text-white flex-1"
                       >
