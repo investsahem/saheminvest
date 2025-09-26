@@ -93,7 +93,7 @@ export async function POST(
           await tx.transaction.create({
             data: {
               userId: investment.investorId,
-              type: 'CAPITAL_RETURN',
+              type: 'RETURN',
               amount: investmentAmount,
               status: 'COMPLETED',
               description: `Capital return from final distribution: ${distributionRequest.project.title}`
@@ -105,7 +105,7 @@ export async function POST(
             await tx.transaction.create({
               data: {
                 userId: investment.investorId,
-                type: 'PROFIT_RETURN',
+                type: 'PROFIT_DISTRIBUTION',
                 amount: investorProfitShare,
                 status: 'COMPLETED',
                 description: `Final profit distribution from ${distributionRequest.project.title}`
@@ -155,7 +155,7 @@ export async function POST(
             await tx.transaction.create({
               data: {
                 userId: investment.investorId,
-                type: 'PROFIT_RETURN',
+                type: 'PROFIT_DISTRIBUTION',
                 amount: investorProfitShare,
                 status: 'COMPLETED',
                 description: `Partial profit distribution from ${distributionRequest.project.title}`
