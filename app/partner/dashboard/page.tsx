@@ -148,7 +148,7 @@ const PartnerDashboard = () => {
     <PartnerLayout title={t('partner.dashboard')} subtitle={t('partner.welcome_message')}>
       <div className="space-y-6">
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Link href="/partner/deals/create">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
               <CardContent className="p-6">
@@ -191,6 +191,22 @@ const PartnerDashboard = () => {
                   <div>
                     <h3 className="font-semibold text-purple-900">{t('partner.analytics')}</h3>
                     <p className="text-sm text-purple-700">{partnerData.successRate}% {t('partner.success_rate')}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/partner/profit-distributions">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-emerald-900">Profit Distributions</h3>
+                    <p className="text-sm text-emerald-700">Distribute profits to investors</p>
                   </div>
                 </div>
               </CardContent>

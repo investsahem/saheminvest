@@ -15,7 +15,7 @@ import { dealsService } from '../../lib/deals-service'
 import { 
   Plus, Search, Filter, Eye, Edit, Trash2, Play, Pause, 
   TrendingUp, Users, Calendar, DollarSign, AlertCircle, CheckCircle,
-  BarChart3, Target, Building2, Briefcase, Clock, X
+  BarChart3, Target, Building2, Briefcase, Clock, X, Send
 } from 'lucide-react'
 import { useAdminNotifications } from '../../hooks/useAdminNotifications'
 
