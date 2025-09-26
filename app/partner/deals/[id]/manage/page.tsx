@@ -8,7 +8,6 @@ import PartnerLayout from '../../../../components/layout/PartnerLayout'
 import { Card, CardContent } from '../../../../components/ui/Card'
 import { Button } from '../../../../components/ui/Button'
 import { DealTimeline } from '../../../../components/project/DealTimeline'
-import ProfitDistributionForm from '../../../../components/forms/ProfitDistributionForm'
 import { 
   ArrowLeft, Users, DollarSign, TrendingUp, Calendar, 
   Plus, Send, AlertCircle, CheckCircle, Clock, Eye,
