@@ -134,11 +134,14 @@ export async function POST(
           })
 
           if (investor) {
+            const currentWalletBalance = Number(investor.walletBalance || 0)
+            const currentTotalReturns = Number(investor.totalReturns || 0)
+            
             await tx.user.update({
               where: { id: investment.investorId },
               data: {
-                walletBalance: (investor.walletBalance || 0) + investmentAmount + investorProfitShare,
-                totalReturns: (investor.totalReturns || 0) + investorProfitShare
+                walletBalance: currentWalletBalance + investmentAmount + investorProfitShare,
+                totalReturns: currentTotalReturns + investorProfitShare
               }
             })
           }
@@ -184,11 +187,14 @@ export async function POST(
           })
 
           if (investor) {
+            const currentWalletBalance = Number(investor.walletBalance || 0)
+            const currentTotalReturns = Number(investor.totalReturns || 0)
+            
             await tx.user.update({
               where: { id: investment.investorId },
               data: {
-                walletBalance: (investor.walletBalance || 0) + investorProfitShare,
-                totalReturns: (investor.totalReturns || 0) + investorProfitShare
+                walletBalance: currentWalletBalance + investorProfitShare,
+                totalReturns: currentTotalReturns + investorProfitShare
               }
             })
           }
