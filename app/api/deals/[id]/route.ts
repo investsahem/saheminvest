@@ -311,7 +311,7 @@ export async function PUT(
           return NextResponse.json(
             { 
               error: 'Failed to upload image. You can try again or proceed without changing the image.',
-              details: uploadError.message || 'Unknown upload error'
+              details: uploadError instanceof Error ? uploadError.message : 'Unknown upload error'
             },
             { status: 500 }
           )
