@@ -241,14 +241,15 @@ export async function PUT(
       })
       
       // Check Cloudinary configuration
+      console.log('Cloudinary configuration:', {
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'NOT_SET',
+        api_key: process.env.CLOUDINARY_API_KEY ? 'SET' : 'NOT_SET',
+        api_secret: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'NOT_SET'
+      })
+      
       if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-        console.error('Cloudinary configuration missing:', {
-          cloud_name: !!process.env.CLOUDINARY_CLOUD_NAME,
-          api_key: !!process.env.CLOUDINARY_API_KEY,
-          api_secret: !!process.env.CLOUDINARY_API_SECRET
-        })
+        console.error('Cloudinary configuration missing - proceeding without image upload')
         // Keep existing image and continue with update
-        console.log('Proceeding without image upload due to missing Cloudinary config')
         thumbnailImage = existingDeal.thumbnailImage
         images = [...existingDeal.images]
       } else {
@@ -308,23 +309,18 @@ export async function PUT(
         
       } catch (uploadError) {
         console.error('Image upload failed:', uploadError)
+        console.error('Upload error details:', {
+          message: uploadError instanceof Error ? uploadError.message : 'Unknown error',
+          stack: uploadError instanceof Error ? uploadError.stack : 'No stack trace'
+        })
         
-        // Check if user wants to proceed without image update
-        const skipImageUpload = formData.get('skipImageUpload') === 'true'
-        if (skipImageUpload) {
-          console.log('Proceeding with update without image change due to upload failure')
-          // Keep existing image
-          thumbnailImage = existingDeal.thumbnailImage
-          images = [...existingDeal.images]
-        } else {
-          return NextResponse.json(
-            { 
-              error: 'Failed to upload image. You can try again or proceed without changing the image.',
-              details: uploadError instanceof Error ? uploadError.message : 'Unknown upload error'
-            },
-            { status: 500 }
-          )
-        }
+        // ALWAYS proceed without image upload on error - don't fail the entire update
+        console.log('Proceeding with update without image change due to upload failure')
+        thumbnailImage = existingDeal.thumbnailImage
+        images = [...existingDeal.images]
+        
+        // Log the error but don't return 500 - let the deal update continue
+        console.log('Deal update will continue with existing image due to upload error')
       }
       }
     } else if (existingImageUrl) {
