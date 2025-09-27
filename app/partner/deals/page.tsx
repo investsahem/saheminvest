@@ -546,6 +546,13 @@ const PartnerDealsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedDeals.map((deal) => (
                 <div key={deal.id} className="relative">
+                  {/* Deal ID Badge - Top Left */}
+                  <div className="absolute top-4 left-4 z-10">
+                    <div className="px-2 py-1 bg-blue-600 text-white rounded text-xs font-mono font-bold shadow-lg">
+                      ID: {deal.id.slice(-8)}
+                    </div>
+                  </div>
+                  
                   <DealCard
                     id={deal.id}
                     title={deal.title}

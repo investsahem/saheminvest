@@ -234,26 +234,41 @@ export async function PUT(
 
     if (imageFile && imageFile.size > 0) {
       console.log('Processing image upload...')
-      const bytes = await imageFile.arrayBuffer()
-      const buffer = Buffer.from(bytes)
       
-      // Upload to Cloudinary
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          {
-            resource_type: 'image',
-            folder: 'sahaminvest/deals',
-            transformation: [
-              { width: 800, height: 600, crop: 'fill' },
-              { quality: 'auto' }
-            ]
-          },
-          (error, result) => {
-            if (error) reject(error)
-            else resolve(result)
-          }
-        ).end(buffer)
-      }) as any
+      // Check Cloudinary configuration
+      if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+        console.error('Cloudinary configuration missing')
+        return NextResponse.json(
+          { error: 'Image upload service not configured' },
+          { status: 500 }
+        )
+      }
+      
+      try {
+        const bytes = await imageFile.arrayBuffer()
+        const buffer = Buffer.from(bytes)
+        
+        // Upload to Cloudinary
+        const uploadResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              resource_type: 'image',
+              folder: 'sahaminvest/deals',
+              transformation: [
+                { width: 800, height: 600, crop: 'fill' },
+                { quality: 'auto' }
+              ]
+            },
+            (error, result) => {
+              if (error) {
+                console.error('Cloudinary upload error:', error)
+                reject(error)
+              } else {
+                resolve(result)
+              }
+            }
+          ).end(buffer)
+        }) as any
 
       // Delete old image from Cloudinary if exists
       if (existingDeal.thumbnailImage && existingDeal.thumbnailImage.includes('cloudinary.com')) {
@@ -278,9 +293,30 @@ export async function PUT(
         }
       }
 
-      thumbnailImage = uploadResult.secure_url
-      images = [uploadResult.secure_url, ...images.filter(img => img !== existingDeal.thumbnailImage)]
-      console.log('New image uploaded successfully:', thumbnailImage)
+        thumbnailImage = uploadResult.secure_url
+        images = [uploadResult.secure_url, ...images.filter(img => img !== existingDeal.thumbnailImage)]
+        console.log('New image uploaded successfully:', thumbnailImage)
+        
+      } catch (uploadError) {
+        console.error('Image upload failed:', uploadError)
+        
+        // Check if user wants to proceed without image update
+        const skipImageUpload = formData.get('skipImageUpload') === 'true'
+        if (skipImageUpload) {
+          console.log('Proceeding with update without image change due to upload failure')
+          // Keep existing image
+          thumbnailImage = existingDeal.thumbnailImage
+          images = [...existingDeal.images]
+        } else {
+          return NextResponse.json(
+            { 
+              error: 'Failed to upload image. You can try again or proceed without changing the image.',
+              details: uploadError.message || 'Unknown upload error'
+            },
+            { status: 500 }
+          )
+        }
+      }
     } else if (existingImageUrl) {
       // Keep existing image URL (no changes needed)
       console.log('Keeping existing image URL:', existingImageUrl)
