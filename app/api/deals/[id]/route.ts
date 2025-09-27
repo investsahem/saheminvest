@@ -240,16 +240,15 @@ export async function PUT(
         api_secret: !!process.env.CLOUDINARY_API_SECRET
       })
       
-      // TEMPORARY: Skip image upload entirely until Vercel env vars are fixed
-      console.log('TEMPORARY: Skipping image upload - keeping existing image')
-      thumbnailImage = existingDeal.thumbnailImage
-      images = [...existingDeal.images]
-      
-      /* 
       // Check Cloudinary configuration
       if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-        console.error('Cloudinary configuration missing - proceeding without image upload')
+        console.error('Cloudinary configuration missing:', {
+          cloud_name: !!process.env.CLOUDINARY_CLOUD_NAME,
+          api_key: !!process.env.CLOUDINARY_API_KEY,
+          api_secret: !!process.env.CLOUDINARY_API_SECRET
+        })
         // Keep existing image and continue with update
+        console.log('Proceeding without image upload due to missing Cloudinary config')
         thumbnailImage = existingDeal.thumbnailImage
         images = [...existingDeal.images]
       } else {
@@ -328,7 +327,6 @@ export async function PUT(
         }
       }
       }
-      */
     } else if (existingImageUrl) {
       // Keep existing image URL (no changes needed)
       console.log('Keeping existing image URL:', existingImageUrl)
