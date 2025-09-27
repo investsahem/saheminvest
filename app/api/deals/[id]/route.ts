@@ -237,12 +237,11 @@ export async function PUT(
       
       // Check Cloudinary configuration
       if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-        console.error('Cloudinary configuration missing')
-        return NextResponse.json(
-          { error: 'Image upload service not configured' },
-          { status: 500 }
-        )
-      }
+        console.error('Cloudinary configuration missing - proceeding without image upload')
+        // Keep existing image and continue with update
+        thumbnailImage = existingDeal.thumbnailImage
+        images = [...existingDeal.images]
+      } else {
       
       try {
         const bytes = await imageFile.arrayBuffer()
@@ -316,6 +315,7 @@ export async function PUT(
             { status: 500 }
           )
         }
+      }
       }
     } else if (existingImageUrl) {
       // Keep existing image URL (no changes needed)
