@@ -18,6 +18,7 @@ import {
   BarChart3, Target, Building2, Briefcase, Clock, X, Send
 } from 'lucide-react'
 import { useAdminNotifications } from '../../hooks/useAdminNotifications'
+import { useToast, ToastContainer } from '../../components/ui/Toast'
 
 
 
@@ -26,6 +27,7 @@ const PartnerDealsPage = () => {
   const { data: session } = useSession()
   const router = useRouter()
   const { sendDealNotification } = useAdminNotifications()
+  const { toasts, removeToast, showSuccess, showError, showWarning } = useToast()
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -49,13 +51,16 @@ const PartnerDealsPage = () => {
         search: searchTerm || undefined,
         status: filterStatus !== 'all' ? filterStatus : undefined,
         limit: 50,
-        partner: true // Filter for partner's own deals
+        partner: true, // Filter for partner's own deals
+        _t: Date.now() // Cache busting parameter
       }
 
       const response = await dealsService.fetchDeals(params)
       setDeals(response.deals)
+      console.log('✅ Deals fetched successfully:', response.deals.length, 'deals')
     } catch (error) {
       console.error('Error fetching deals:', error)
+      showError('Failed to Load Deals', 'Please refresh the page and try again')
       setDeals([])
     } finally {
       setLoading(false)
@@ -95,14 +100,14 @@ const PartnerDealsPage = () => {
 
       if (response.ok) {
         await fetchDeals()
-        alert('Deal deleted successfully!')
+        showSuccess('Deal Deleted Successfully!', 'The deal has been permanently removed.')
       } else {
         const errorData = await response.json()
-        alert(errorData.error || 'Failed to delete deal')
+        showError('Failed to Delete Deal', errorData.error || 'An unexpected error occurred')
       }
     } catch (error) {
       console.error('Error deleting deal:', error)
-      alert('Error deleting deal')
+      showError('Error Deleting Deal', 'Please check your connection and try again')
     }
   }
 
@@ -207,15 +212,18 @@ const PartnerDealsPage = () => {
                 await sendDealNotification(newDeal.id, 'created')
                 
                 setShowAddDeal(false)
-                fetchDeals()
-                alert('Deal created successfully! It will be reviewed by admin before being published.')
+                await fetchDeals()
+                showSuccess(
+                  'Deal Created Successfully!', 
+                  'Your deal has been submitted and will be reviewed by admin before being published.'
+                )
               } else {
                 const errorData = await response.json()
-                alert(errorData.error || 'Failed to create deal')
+                showError('Failed to Create Deal', errorData.error || 'An unexpected error occurred')
               }
             } catch (error) {
               console.error('Error creating deal:', error)
-              alert('Error creating deal')
+              showError('Error Creating Deal', 'Please check your connection and try again')
             }
           }}
           onCancel={() => setShowAddDeal(false)}
@@ -267,23 +275,30 @@ const PartnerDealsPage = () => {
                 
                 // Force a hard refresh of the deals data
                 console.log('🔄 Force refreshing deals data...')
+                setLoading(true) // Show loading state
                 setDeals([]) // Clear current deals first
                 await fetchDeals() // Wait for deals to refresh
                 console.log('🔄 Deals refreshed after update')
                 
                 if (editingDeal.status === 'ACTIVE' || editingDeal.status === 'PUBLISHED') {
-                  alert('Deal updated successfully! It will be reviewed by admin before being published again.')
+                  showSuccess(
+                    'Deal Updated Successfully!', 
+                    'Your changes have been saved and will be reviewed by admin before being published again.'
+                  )
                 } else {
-                  alert('Deal updated successfully!')
+                  showSuccess(
+                    'Deal Updated Successfully!', 
+                    'All your changes have been saved and are now live.'
+                  )
                 }
               } else {
                 const errorData = await response.json()
                 console.error('❌ API Error:', errorData)
-                alert(errorData.error || 'Failed to update deal')
+                showError('Failed to Update Deal', errorData.error || 'An unexpected error occurred')
               }
             } catch (error) {
               console.error('Error updating deal:', error)
-              alert('Error updating deal')
+              showError('Error Updating Deal', 'Please check your connection and try again')
             }
           }}
           onCancel={() => setEditingDeal(null)}
@@ -419,6 +434,7 @@ const PartnerDealsPage = () => {
       title={t('partner.my_deals')}
       subtitle={t('partner.my_deals_subtitle')}
     >
+      <ToastContainer toasts={toasts} onClose={removeToast} />
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
