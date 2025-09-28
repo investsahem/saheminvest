@@ -573,7 +573,7 @@ const PartnerDealsPage = () => {
                     id={deal.id}
                     title={deal.title}
                     description={deal.description || ''}
-                    image={deal.thumbnailImage ? `${deal.thumbnailImage}?t=${Date.now()}` : '/images/default-deal.jpg'}
+                    image={deal.thumbnailImage ? `${deal.thumbnailImage}?v=${deal.updatedAt || Date.now()}&t=${Date.now()}` : '/images/default-deal.jpg'}
                     fundingGoal={deal.fundingGoal}
                     currentFunding={deal.currentFunding}
                     expectedReturn={{
