@@ -252,7 +252,8 @@ export async function PUT(
       console.log('📝 Image file received:', imageFile.name, imageFile.size, 'bytes')
       
       // Create a placeholder image URL that includes the filename for identification
-      const placeholderUrl = `https://via.placeholder.com/800x600/4F46E5/FFFFFF?text=${encodeURIComponent(imageFile.name.replace(/\.[^/.]+$/, ''))}`
+      const fileName = imageFile.name.replace(/\.[^/.]+$/, '').substring(0, 20) // Limit length
+      const placeholderUrl = `https://via.placeholder.com/800x600/4F46E5/FFFFFF.png?text=${encodeURIComponent(fileName)}`
       thumbnailImage = placeholderUrl
       images = [placeholderUrl]
       

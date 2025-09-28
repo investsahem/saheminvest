@@ -573,7 +573,11 @@ const PartnerDealsPage = () => {
                     id={deal.id}
                     title={deal.title}
                     description={deal.description || ''}
-                    image={deal.thumbnailImage ? `${deal.thumbnailImage}?v=${deal.updatedAt || Date.now()}&t=${Date.now()}` : '/images/default-deal.jpg'}
+                    image={deal.thumbnailImage ? (
+                    deal.thumbnailImage.includes('via.placeholder.com') 
+                      ? deal.thumbnailImage // Don't add cache params to placeholder URLs
+                      : `${deal.thumbnailImage}?v=${deal.updatedAt || Date.now()}&t=${Date.now()}`
+                  ) : '/images/default-deal.jpg'}
                     fundingGoal={deal.fundingGoal}
                     currentFunding={deal.currentFunding}
                     expectedReturn={{
