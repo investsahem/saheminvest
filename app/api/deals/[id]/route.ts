@@ -247,19 +247,7 @@ export async function PUT(
         api_secret: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'NOT_SET'
       })
       
-      // TEMPORARY FIX: Always skip Cloudinary until we fix the configuration issue
-      console.log('⚠️ TEMPORARY: Skipping Cloudinary upload due to production issues')
-      console.log('📝 Image file received:', imageFile.name, imageFile.size, 'bytes')
-      
-      // Create a local placeholder image URL that includes the filename for identification
-      const fileName = imageFile.name.replace(/\.[^/.]+$/, '').substring(0, 15) // Limit length
-      const placeholderUrl = `/api/placeholder-image?text=${encodeURIComponent(fileName)}&w=800&h=600`
-      thumbnailImage = placeholderUrl
-      images = [placeholderUrl]
-      
-      console.log('✅ Using placeholder image:', placeholderUrl)
-      
-      /* ORIGINAL CLOUDINARY CODE - COMMENTED OUT TEMPORARILY
+      // Cloudinary upload - RESTORED
       if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
         console.error('Cloudinary configuration missing - proceeding without image upload')
         // Keep existing image and continue with update
@@ -268,30 +256,25 @@ export async function PUT(
       } else {
       
       try {
+        console.log('🚀 Starting Cloudinary upload with Data URI method...')
         const bytes = await imageFile.arrayBuffer()
         const buffer = Buffer.from(bytes)
         
-        // Upload to Cloudinary
-        const uploadResult = await new Promise((resolve, reject) => {
-          cloudinary.uploader.upload_stream(
-            {
-              resource_type: 'image',
-              folder: 'sahaminvest/deals',
-              transformation: [
-                { width: 800, height: 600, crop: 'fill' },
-                { quality: 'auto' }
-              ]
-            },
-            (error, result) => {
-              if (error) {
-                console.error('Cloudinary upload error:', error)
-                reject(error)
-              } else {
-                resolve(result)
-              }
-            }
-          ).end(buffer)
-        }) as any
+        // Convert to Data URI (better for serverless)
+        const base64 = buffer.toString('base64')
+        const dataUri = `data:${imageFile.type};base64,${base64}`
+        
+        // Upload to Cloudinary using upload method (not upload_stream)
+        const uploadResult = await cloudinary.uploader.upload(dataUri, {
+          resource_type: 'image',
+          folder: 'sahaminvest/deals',
+          transformation: [
+            { width: 800, height: 600, crop: 'fill' },
+            { quality: 'auto' }
+          ]
+        })
+        
+        console.log('✅ Cloudinary upload successful:', uploadResult.secure_url)
 
       // Delete old image from Cloudinary if exists
       if (existingDeal.thumbnailImage && existingDeal.thumbnailImage.includes('cloudinary.com')) {
@@ -338,7 +321,6 @@ export async function PUT(
         console.log('Deal update will continue with existing image due to upload error')
       }
       }
-      END OF COMMENTED CLOUDINARY CODE */
     } else if (existingImageUrl) {
       // Keep existing image URL (no changes needed)
       console.log('Keeping existing image URL:', existingImageUrl)
