@@ -251,9 +251,9 @@ export async function PUT(
       console.log('⚠️ TEMPORARY: Skipping Cloudinary upload due to production issues')
       console.log('📝 Image file received:', imageFile.name, imageFile.size, 'bytes')
       
-      // Create a placeholder image URL that includes the filename for identification
-      const fileName = imageFile.name.replace(/\.[^/.]+$/, '').substring(0, 20) // Limit length
-      const placeholderUrl = `https://via.placeholder.com/800x600/4F46E5/FFFFFF.png?text=${encodeURIComponent(fileName)}`
+      // Create a local placeholder image URL that includes the filename for identification
+      const fileName = imageFile.name.replace(/\.[^/.]+$/, '').substring(0, 15) // Limit length
+      const placeholderUrl = `/api/placeholder-image?text=${encodeURIComponent(fileName)}&w=800&h=600`
       thumbnailImage = placeholderUrl
       images = [placeholderUrl]
       

@@ -574,8 +574,8 @@ const PartnerDealsPage = () => {
                     title={deal.title}
                     description={deal.description || ''}
                     image={deal.thumbnailImage ? (
-                    deal.thumbnailImage.includes('via.placeholder.com') 
-                      ? deal.thumbnailImage // Don't add cache params to placeholder URLs
+                    deal.thumbnailImage.includes('/api/placeholder-image') 
+                      ? `${deal.thumbnailImage}&t=${Date.now()}` // Add timestamp to local placeholders
                       : `${deal.thumbnailImage}?v=${deal.updatedAt || Date.now()}&t=${Date.now()}`
                   ) : '/images/default-deal.jpg'}
                     fundingGoal={deal.fundingGoal}
