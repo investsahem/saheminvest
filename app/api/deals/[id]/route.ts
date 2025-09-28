@@ -306,6 +306,8 @@ export async function PUT(
         thumbnailImage = uploadResult.secure_url
         images = [uploadResult.secure_url, ...images.filter(img => img !== existingDeal.thumbnailImage)]
         console.log('New image uploaded successfully:', thumbnailImage)
+        console.log('✅ CLOUDINARY UPLOAD SUCCESS - Image URL:', uploadResult.secure_url)
+        console.log('✅ CLOUDINARY UPLOAD SUCCESS - Public ID:', uploadResult.public_id)
         
       } catch (uploadError) {
         console.error('Image upload failed:', uploadError)
@@ -377,6 +379,12 @@ export async function PUT(
 
     // Update the deal
     console.log('Updating deal in database with thumbnailImage:', updateData.thumbnailImage)
+    console.log('📊 UPDATE DATA BEING SAVED:', {
+      thumbnailImage: updateData.thumbnailImage,
+      images: updateData.images,
+      title: updateData.title
+    })
+    
     const deal = await prisma.project.update({
       where: { id },
       data: updateData,
@@ -392,6 +400,12 @@ export async function PUT(
     })
 
     console.log('Deal updated successfully, returning with thumbnailImage:', deal.thumbnailImage)
+    console.log('📊 FINAL DEAL DATA:', {
+      id: deal.id,
+      title: deal.title,
+      thumbnailImage: deal.thumbnailImage,
+      images: deal.images
+    })
     return NextResponse.json(deal)
   } catch (error) {
     console.error('Error updating deal:', error)
