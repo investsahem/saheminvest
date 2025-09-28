@@ -247,6 +247,18 @@ export async function PUT(
         api_secret: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'NOT_SET'
       })
       
+      // TEMPORARY FIX: Always skip Cloudinary until we fix the configuration issue
+      console.log('⚠️ TEMPORARY: Skipping Cloudinary upload due to production issues')
+      console.log('📝 Image file received:', imageFile.name, imageFile.size, 'bytes')
+      
+      // Create a placeholder image URL that includes the filename for identification
+      const placeholderUrl = `https://via.placeholder.com/800x600/4F46E5/FFFFFF?text=${encodeURIComponent(imageFile.name.replace(/\.[^/.]+$/, ''))}`
+      thumbnailImage = placeholderUrl
+      images = [placeholderUrl]
+      
+      console.log('✅ Using placeholder image:', placeholderUrl)
+      
+      /* ORIGINAL CLOUDINARY CODE - COMMENTED OUT TEMPORARILY
       if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
         console.error('Cloudinary configuration missing - proceeding without image upload')
         // Keep existing image and continue with update
@@ -325,6 +337,7 @@ export async function PUT(
         console.log('Deal update will continue with existing image due to upload error')
       }
       }
+      END OF COMMENTED CLOUDINARY CODE */
     } else if (existingImageUrl) {
       // Keep existing image URL (no changes needed)
       console.log('Keeping existing image URL:', existingImageUrl)
