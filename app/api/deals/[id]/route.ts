@@ -198,6 +198,7 @@ export async function PUT(
     const isOwner = existingDeal.ownerId === session.user.id
     const isAdmin = user?.role === 'ADMIN'
     const isDealManager = user?.role === 'DEAL_MANAGER'
+    const isPartner = user?.role === 'PARTNER'
     const hasWritePermission = user?.permissions.some(up => up.permission === 'WRITE_DEALS')
 
     if (!isOwner && !isAdmin && !isDealManager && !hasWritePermission) {
@@ -206,6 +207,9 @@ export async function PUT(
         { status: 403 }
       )
     }
+    
+    // If the user is a partner (not admin/deal manager), create an update request instead of updating directly
+    const requiresApproval = isPartner && !isAdmin && !isDealManager
 
     const formData = await request.formData()
     const title = formData.get('title') as string
@@ -373,7 +377,65 @@ export async function PUT(
       }
     }
 
-    // Update the deal
+    // If partner requires approval, create an update request instead of updating directly
+    if (requiresApproval) {
+      console.log('Partner update detected - creating update request for admin approval')
+      
+      // Generate changes summary
+      const changes: string[] = []
+      if (title !== existingDeal.title) changes.push(`Title: "${existingDeal.title}" → "${title}"`)
+      if (description !== existingDeal.description) changes.push(`Description updated`)
+      if (fundingGoal !== Number(existingDeal.fundingGoal)) changes.push(`Funding Goal: $${existingDeal.fundingGoal} → $${fundingGoal}`)
+      if (minInvestment !== Number(existingDeal.minInvestment)) changes.push(`Min Investment: $${existingDeal.minInvestment} → $${minInvestment}`)
+      if (expectedReturn !== Number(existingDeal.expectedReturn)) changes.push(`Expected Return: ${existingDeal.expectedReturn}% → ${expectedReturn}%`)
+      if (duration !== existingDeal.duration) changes.push(`Duration: ${existingDeal.duration} → ${duration} days`)
+      if (status !== existingDeal.status) changes.push(`Status: ${existingDeal.status} → ${status}`)
+      if (thumbnailImage !== existingDeal.thumbnailImage) changes.push(`Image updated`)
+      
+      const changesSummary = changes.length > 0 ? changes.join('\n') : 'General updates'
+      
+      // Create the update request
+      const updateRequest = await prisma.dealUpdateRequest.create({
+        data: {
+          projectId: id,
+          requestedBy: session.user.id,
+          proposedChanges: updateData,
+          changesSummary,
+          status: 'PENDING'
+        },
+        include: {
+          project: {
+            select: {
+              id: true,
+              title: true
+            }
+          },
+          requester: {
+            select: {
+              id: true,
+              name: true,
+              email: true
+            }
+          }
+        }
+      })
+      
+      console.log('Update request created successfully:', updateRequest.id)
+      
+      return NextResponse.json({
+        message: 'Update request submitted successfully. Waiting for admin approval.',
+        updateRequest: {
+          id: updateRequest.id,
+          status: updateRequest.status,
+          changesSummary: updateRequest.changesSummary,
+          createdAt: updateRequest.createdAt
+        },
+        requiresApproval: true
+      })
+    }
+    
+    // Admin/Deal Manager can update directly
+    console.log('Admin/Deal Manager update - updating deal directly')
     console.log('Updating deal in database with thumbnailImage:', updateData.thumbnailImage)
     console.log('📊 UPDATE DATA BEING SAVED:', {
       thumbnailImage: updateData.thumbnailImage,

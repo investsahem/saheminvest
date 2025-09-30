@@ -140,6 +140,10 @@ model User {
   profitDistributionRequests ProfitDistributionRequest[] @relation("ProfitDistributionRequests")
   reviewedProfitDistributions ProfitDistributionRequest[] @relation("ProfitDistributionReviews")
   
+  // Deal update requests
+  dealUpdateRequests DealUpdateRequest[]
+  reviewedUpdateRequests DealUpdateRequest[] @relation("ReviewedUpdateRequests")
+  
   // Financial relationships
   budgets           Budget[]
   requestedBudgets  BudgetRequest[] @relation("BudgetRequestedBy")
@@ -356,7 +360,46 @@ model Project {
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   
+  // Update requests relationship
+  updateRequests   DealUpdateRequest[]
+  
   @@map("projects")
+}
+
+enum UpdateRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model DealUpdateRequest {
+  id               String              @id @default(cuid())
+  
+  // Deal being updated
+  projectId        String
+  project          Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  // Partner who requested the update
+  requestedBy      String
+  requester        User                @relation(fields: [requestedBy], references: [id])
+  
+  // Update data (JSON containing the proposed changes)
+  proposedChanges  Json                // Contains all the fields to be updated
+  changesSummary   String              @db.Text // Human-readable summary of changes
+  
+  // Status and approval
+  status           UpdateRequestStatus @default(PENDING)
+  
+  // Admin who reviewed
+  reviewedBy       String?
+  reviewer         User?               @relation("ReviewedUpdateRequests", fields: [reviewedBy], references: [id])
+  reviewedAt       DateTime?
+  rejectionReason  String?             @db.Text
+  
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  
+  @@map("deal_update_requests")
 }
 
 model Investment {
