@@ -582,6 +582,7 @@ const PartnerDealsPage = () => {
                     }}
                     duration={deal.duration || 12}
                     endDate={deal.endDate || ''}
+                    startDate={deal.startDate || ''}
                     contributorsCount={deal._count?.investments || deal.investorCount || 0}
                     partnerName={deal.owner?.partnerProfile?.companyName || deal.partner?.companyName || deal.owner.name || 'Partner'}
                     partnerProfile={deal.owner?.partnerProfile}

@@ -21,6 +21,7 @@ interface DealCardProps {
   }
   duration: number // in months
   endDate: string
+  startDate?: string
   contributorsCount: number
   partnerName: string
   partnerDealsCount: number
@@ -56,6 +57,7 @@ export function DealCard({
   expectedReturn,
   duration,
   endDate,
+  startDate,
   contributorsCount,
   partnerName,
   partnerDealsCount,
@@ -274,6 +276,53 @@ export function DealCard({
                   day: 'numeric'
                 })}
               </span>
+            </div>
+          )}
+
+          {/* Deal Duration */}
+          {(startDate || endDate) && (
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="flex items-center gap-2 text-sm mb-1">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-blue-700 font-medium">
+                  {t('deal_card.duration_period') || 'Deal Duration'}:
+                </span>
+              </div>
+              <div className="text-sm text-blue-800">
+                {startDate && endDate ? (
+                  <>
+                    {new Date(startDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                    {' → '}
+                    {new Date(endDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </>
+                ) : startDate ? (
+                  <>
+                    {t('deal_card.starts') || 'Starts'}: {new Date(startDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </>
+                ) : endDate ? (
+                  <>
+                    {t('deal_card.ends') || 'Ends'}: {new Date(endDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </>
+                ) : null}
+              </div>
             </div>
           )}
 

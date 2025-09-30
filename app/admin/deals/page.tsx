@@ -607,6 +607,51 @@ export default function AdminDealsPage() {
                               </div>
                             </div>
                             
+                            {/* Deal Duration */}
+                            {(deal.startDate || deal.endDate) && (
+                              <div className={`mt-3 p-3 bg-blue-50 rounded-lg ${locale === 'ar' ? 'text-right' : 'text-left'}`}>
+                                <div className="flex items-center gap-2 text-sm">
+                                  <Calendar className="w-4 h-4 text-blue-600" />
+                                  <span className="text-blue-700 font-medium">
+                                    {locale === 'ar' ? 'مدة المشروع' : 'Deal Duration'}:
+                                  </span>
+                                </div>
+                                <div className="text-sm text-blue-800 mt-1">
+                                  {deal.startDate && deal.endDate ? (
+                                    <>
+                                      {new Date(deal.startDate).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                      })}
+                                      {' → '}
+                                      {new Date(deal.endDate).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                      })}
+                                    </>
+                                  ) : deal.startDate ? (
+                                    <>
+                                      {locale === 'ar' ? 'يبدأ في' : 'Starts'}: {new Date(deal.startDate).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                      })}
+                                    </>
+                                  ) : deal.endDate ? (
+                                    <>
+                                      {locale === 'ar' ? 'ينتهي في' : 'Ends'}: {new Date(deal.endDate).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                      })}
+                                    </>
+                                  ) : null}
+                                </div>
+                              </div>
+                            )}
+                            
                             {/* Progress Bar */}
                             <div className="mt-3">
                               <div className={`flex justify-between text-xs mb-1 ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
