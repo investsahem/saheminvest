@@ -111,13 +111,9 @@ export async function GET(
       const fundingRatio = investedAmount / Number(project.fundingGoal)
       currentValue = projectCurrentValue * fundingRatio
     } else if (project.status === 'ACTIVE') {
-      const fundingProgress = Number(project.currentFunding) / Number(project.fundingGoal)
-      const timeProgress = project.endDate ? 
-        Math.min(1, (Date.now() - new Date(project.createdAt).getTime()) / 
-        (new Date(project.endDate).getTime() - new Date(project.createdAt).getTime())) : 0
-      
-      const estimatedReturn = investedAmount * (Number(project.expectedReturn) / 100) * timeProgress * 0.5
-      currentValue = investedAmount + estimatedReturn
+      // For active projects, current value is just the invested amount
+      // Profits are only added when actually distributed by partner and approved by admin
+      currentValue = investedAmount
     }
 
     // Calculate returns

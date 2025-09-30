@@ -93,16 +93,9 @@ export async function GET(request: NextRequest) {
         // For funded projects, current value = investment only (profits already distributed to wallet)
         currentValue = investedAmount
       } else if (project.status === 'ACTIVE') {
-        // For active projects, estimate based on expected return and progress
-        // Don't include distributed profits as they're already in wallet
-        const fundingProgress = Number(project.currentFunding) / Number(project.fundingGoal)
-        const timeProgress = project.endDate ? 
-          Math.min(1, (Date.now() - new Date(project.createdAt).getTime()) / 
-          (new Date(project.endDate).getTime() - new Date(project.createdAt).getTime())) : 0
-        
-        // Conservative estimation: partial expected return based on time progress
-        const estimatedReturn = investedAmount * (Number(project.expectedReturn) / 100) * timeProgress * 0.5
-        currentValue = investedAmount + estimatedReturn
+        // For active projects, current value is just the invested amount
+        // Profits are only added when actually distributed by partner and approved by admin
+        currentValue = investedAmount
       } else {
         // For other statuses, just the invested amount (profits already in wallet)
         currentValue = investedAmount
