@@ -233,6 +233,28 @@ export default function AdminDealDetailsPage() {
   const totalInvested = deal.investments?.reduce((sum, inv) => sum + Number(inv.amount), 0) || 0
   const totalDistributed = deal.profitDistributions?.reduce((sum, dist) => sum + Number(dist.amount), 0) || 0
   const uniqueInvestors = new Set(deal.investments?.map(inv => inv.investor.id) || []).size
+  
+  // Group investments by investor
+  const groupedInvestments = deal.investments?.reduce((acc, investment) => {
+    const investorId = investment.investor.id
+    if (!acc[investorId]) {
+      acc[investorId] = {
+        investor: investment.investor,
+        investments: [],
+        totalAmount: 0,
+        latestDate: investment.createdAt
+      }
+    }
+    acc[investorId].investments.push(investment)
+    acc[investorId].totalAmount += Number(investment.amount)
+    // Keep the latest investment date
+    if (new Date(investment.createdAt) > new Date(acc[investorId].latestDate)) {
+      acc[investorId].latestDate = investment.createdAt
+    }
+    return acc
+  }, {} as Record<string, { investor: { id: string; name: string; email: string }; investments: Investment[]; totalAmount: number; latestDate: string }>)
+  
+  const uniqueInvestorList = groupedInvestments ? Object.values(groupedInvestments) : []
 
   return (
     <AdminLayout
@@ -516,23 +538,28 @@ export default function AdminDealDetailsPage() {
                 <h2 className={`text-xl font-bold text-gray-900 mb-4 ${locale === 'ar' ? 'font-arabic text-right' : ''}`}>
                   {locale === 'ar' ? 'المستثمرون' : 'Investors'} ({uniqueInvestors})
                 </h2>
-                {deal.investments && deal.investments.length > 0 ? (
+                {uniqueInvestorList && uniqueInvestorList.length > 0 ? (
                   <div className="space-y-3 max-h-96 overflow-y-auto">
-                    {deal.investments.map((investment) => (
-                      <div key={investment.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    {uniqueInvestorList.map((investorData) => (
+                      <div key={investorData.investor.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                         <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} justify-between items-start`}>
-                          <div>
-                            <p className="font-semibold text-gray-900">{investment.investor.name}</p>
-                            <p className="text-sm text-gray-600" dir="ltr">{investment.investor.email}</p>
-                            <p className="text-xs text-gray-500 mt-1" dir="ltr">{formatDate(investment.createdAt)}</p>
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-900">{investorData.investor.name}</p>
+                            <p className="text-sm text-gray-600" dir="ltr">{investorData.investor.email}</p>
+                            <p className="text-xs text-gray-500 mt-1" dir="ltr">
+                              {locale === 'ar' ? 'آخر استثمار' : 'Latest investment'}: {formatDate(investorData.latestDate)}
+                            </p>
+                            {investorData.investments.length > 1 && (
+                              <p className="text-xs text-blue-600 mt-1" dir="ltr">
+                                {investorData.investments.length} {locale === 'ar' ? 'استثمارات' : 'investments'}
+                              </p>
+                            )}
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-green-600" dir="ltr">{formatCurrency(Number(investment.amount))}</p>
-                            <span className={`text-xs px-2 py-1 rounded-full ${
-                              investment.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {investment.status}
-                            </span>
+                            <p className="font-bold text-green-600" dir="ltr">{formatCurrency(investorData.totalAmount)}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {locale === 'ar' ? 'إجمالي' : 'Total'}
+                            </p>
                           </div>
                         </div>
                       </div>
