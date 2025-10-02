@@ -1259,7 +1259,15 @@
     "start_investing_message": "ابدأ الاستثمار لرؤية أداء محفظتك.",
     "browse_investment_opportunities": "تصفح الفرص الاستثمارية",
     "no_investments_yet": "لا توجد استثمارات بعد",
-    "start_building_portfolio": "ابدأ ببناء محفظتك عبر الاستثمار في مشاريع مثيرة."
+    "start_building_portfolio": "ابدأ ببناء محفظتك عبر الاستثمار في مشاريع مثيرة.",
+    "table": {
+      "status": "الحالة"
+    },
+    "status": {
+      "active": "نشط",
+      "completed": "مكتمل",
+      "funded": "ممول"
+    }
   },
   "dealManager": {
     "dashboard": "لوحة تحكم مدير الصفقات",

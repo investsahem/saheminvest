@@ -666,7 +666,15 @@
     "start_investing_message": "Start investing to see your portfolio performance.",
     "browse_investment_opportunities": "Browse Investment Opportunities",
     "no_investments_yet": "No Investments Yet",
-    "start_building_portfolio": "Start building your portfolio by investing in exciting projects."
+    "start_building_portfolio": "Start building your portfolio by investing in exciting projects.",
+    "table": {
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "completed": "Completed",
+      "funded": "Funded"
+    }
   },
   "wallet": {
     "payment_methods": {
