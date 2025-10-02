@@ -16,7 +16,9 @@
     "signout": "Sign Out",
     "go_to_panel": "Create New Account",
     "panel": "Panel",
-    "logout": "Logout"
+    "logout": "Logout",
+    "menu": "Menu",
+    "create_account": "Create New Account"
   },
   "auth": {
     "signin": {

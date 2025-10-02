@@ -270,7 +270,7 @@ export default function AdminDealDetailsPage() {
 
         {/* Deal Header */}
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-6" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
             <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} gap-6`}>
               {/* Deal Image */}
               {deal.thumbnailImage && (
@@ -284,9 +284,9 @@ export default function AdminDealDetailsPage() {
               )}
               
               {/* Deal Info */}
-              <div className="flex-1">
+              <div className={`flex-1 ${locale === 'ar' ? 'text-right' : 'text-left'}`}>
                 <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} items-start justify-between mb-4`}>
-                  <div>
+                  <div className={locale === 'ar' ? 'text-right' : 'text-left'}>
                     <h1 className={`text-3xl font-bold text-gray-900 mb-2 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                       {deal.title}
                     </h1>
@@ -299,15 +299,15 @@ export default function AdminDealDetailsPage() {
                       {deal.status}
                     </div>
                     {deal.featured && (
-                      <div className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
-                        <Star className="w-4 h-4 inline mr-1" />
+                      <div className={`px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-200 ${locale === 'ar' ? 'flex-row-reverse' : ''}`}>
+                        <Star className={`w-4 h-4 inline ${locale === 'ar' ? 'ml-1' : 'mr-1'}`} />
                         {locale === 'ar' ? 'مميز' : 'Featured'}
                       </div>
                     )}
                   </div>
                 </div>
                 
-                <p className={`text-gray-700 mb-4 ${locale === 'ar' ? 'font-arabic text-right' : ''}`}>
+                <p className={`text-gray-700 mb-4 leading-relaxed ${locale === 'ar' ? 'font-arabic text-right' : ''}`}>
                   {deal.description}
                 </p>
                 
@@ -318,7 +318,7 @@ export default function AdminDealDetailsPage() {
                     onClick={() => setShowStatusModal(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    <Edit className="w-4 h-4 mr-1" />
+                    <Edit className={`w-4 h-4 ${locale === 'ar' ? 'ml-1' : 'mr-1'}`} />
                     {locale === 'ar' ? 'تغيير الحالة' : 'Change Status'}
                   </Button>
                   <Button
@@ -326,7 +326,7 @@ export default function AdminDealDetailsPage() {
                     variant="outline"
                     onClick={() => router.push(`/deals/${deal.id}`)}
                   >
-                    <Eye className="w-4 h-4 mr-1" />
+                    <Eye className={`w-4 h-4 ${locale === 'ar' ? 'ml-1' : 'mr-1'}`} />
                     {locale === 'ar' ? 'معاينة عامة' : 'Public Preview'}
                   </Button>
                 </div>
