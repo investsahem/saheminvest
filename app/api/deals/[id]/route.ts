@@ -127,7 +127,7 @@ export async function GET(
 
     // Hide partner information from investors (unless explicitly requested)
     if (isInvestor && !includePartner) {
-      filteredDeal.owner = {
+      (filteredDeal as any).owner = {
         ...deal.owner,
         name: 'Partner',
         email: '',
