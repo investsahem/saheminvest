@@ -7,10 +7,11 @@ import { useTranslation, useI18n } from '../providers/I18nProvider'
 import { useAdminStats } from '../../hooks/useAdminStats'
 import { useAdminNotifications } from '../../hooks/useAdminNotifications'
 import { useProfitDistributions } from '../../hooks/useProfitDistributions'
+import { useAdminDealUpdates } from '../../hooks/useAdminDealUpdates'
 import { 
   LayoutDashboard, Users, DollarSign, Target, BarChart3, 
   Settings, FileText, Clock, UserCheck, Building2,
-  LogOut, User, ChevronDown, Bell, Wallet, X, TrendingUp, Mail
+  LogOut, User, ChevronDown, Bell, Wallet, X, TrendingUp, Mail, Edit
 } from 'lucide-react'
 import { Button } from '../ui/Button'
 
@@ -27,6 +28,7 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
   const { pendingApplications, pendingPartnerApplications, isLoading } = useAdminStats()
   const { notifications } = useAdminNotifications()
   const { pendingCount: pendingProfitDistributions } = useProfitDistributions()
+  const { pendingCount: pendingDealUpdates, totalDealsCount, isLoading: dealUpdatesLoading } = useAdminDealUpdates()
 
   const handleLogout = async () => {
     try {
@@ -77,7 +79,14 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
       href: '/admin/deals',
       icon: Target,
       current: pathname === '/admin/deals',
-      badge: notifications.pendingDealsCount
+      badge: dealUpdatesLoading ? '...' : totalDealsCount
+    },
+    {
+      name: locale === 'ar' ? 'طلبات تحديث الصفقات' : 'Deal Update Requests',
+      href: '/admin/deal-updates',
+      icon: Edit,
+      current: pathname === '/admin/deal-updates',
+      badge: dealUpdatesLoading ? '...' : (pendingDealUpdates > 0 ? pendingDealUpdates : undefined)
     },
     {
       name: t('admin.financial_transactions'),
