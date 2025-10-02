@@ -430,7 +430,7 @@ export default function InvestorDashboard() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => router.push(`/deals/${investment.projectId}`)}
+                              onClick={() => router.push(`/portfolio/deals/${investment.projectId}`)}
                             >
                               <Eye className="w-4 h-4 mr-1" />
                               {t('investor.view_details')}
