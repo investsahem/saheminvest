@@ -345,11 +345,11 @@ export default function InvestorDashboard() {
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-3 px-4 font-medium text-gray-600">{t('investor.project')}</th>
                       <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.amount_invested')}</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-600">Distributed</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.modal.distributed')}</th>
                       <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.current_value')}</th>
                       <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.return')}</th>
                       <th className="text-center py-3 px-4 font-medium text-gray-600">{t('investor.progress')}</th>
-                      <th className="text-center py-3 px-4 font-medium text-gray-600">{t('investor.status')}</th>
+                      <th className="text-center py-3 px-4 font-medium text-gray-600">{t('investor.table.status')}</th>
                       <th className="text-center py-3 px-4 font-medium text-gray-600">{t('investor.actions')}</th>
                     </tr>
                   </thead>
@@ -389,7 +389,7 @@ export default function InvestorDashboard() {
                           </div>
                           {(investment.distributedProfits || 0) > 0 && (
                             <div className="text-xs text-green-600">
-                              Received
+                              {t('common.received') || 'Received'}
                             </div>
                           )}
                         </td>
@@ -421,7 +421,7 @@ export default function InvestorDashboard() {
                           <div className="flex items-center justify-center">
                             <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(investment.status)}`}>
                               {getStatusIcon(investment.status)}
-                              <span className="ml-1 capitalize">{investment.status}</span>
+                              <span className="ml-1 capitalize">{t(`investor.status.${investment.status}`) || investment.status}</span>
                             </span>
                           </div>
                         </td>
