@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import AdminLayout from '../../components/layout/AdminLayout'
 import { useTranslation, useI18n } from '../../components/providers/I18nProvider'
 import { Card, CardContent } from '../../components/ui/Card'
@@ -24,6 +25,7 @@ export default function AdminDealsPage() {
   const { t } = useTranslation()
   const { locale } = useI18n()
   const { data: session } = useSession()
+  const router = useRouter()
   
   const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
