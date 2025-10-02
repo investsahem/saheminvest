@@ -124,7 +124,7 @@ const PartnerProfitDistributionsPage = () => {
       })
 
       if (response.ok) {
-        alert('تم إرسال طلب توزيع الأرباح للمراجعة الإدارية')
+        alert(t('partner.profit_distribution_submitted'))
         setShowForm(false)
         setSelectedDeal(null)
         setFormData({
@@ -190,7 +190,7 @@ const PartnerProfitDistributionsPage = () => {
 
   if (loading) {
     return (
-      <PartnerLayout title="Profit Distributions" subtitle="Manage profit distributions for your deals">
+      <PartnerLayout title={t('partner.profit_distributions_page_title')} subtitle={t('partner.profit_distributions_page_subtitle')}>
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -199,16 +199,16 @@ const PartnerProfitDistributionsPage = () => {
   }
 
   return (
-    <PartnerLayout title="Profit Distributions" subtitle="Manage profit distributions for your deals">
+    <PartnerLayout title={t('partner.profit_distributions_page_title')} subtitle={t('partner.profit_distributions_page_subtitle')}>
       <div className="space-y-6">
         {/* Active Deals - Available for Distribution */}
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Active Deals - Ready for Distribution</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('partner.active_deals_ready_for_distribution')}</h3>
               <div className="flex items-center gap-2">
                 <Target className="w-5 h-5 text-blue-600" />
-                <span className="text-sm text-blue-600">{activeDeals.length} Active Deals</span>
+                <span className="text-sm text-blue-600">{activeDeals.length} {t('partner.active_deals_count')}</span>
               </div>
             </div>
 
@@ -226,15 +226,15 @@ const PartnerProfitDistributionsPage = () => {
                     
                     <div className="space-y-2 text-sm text-gray-600 mb-4">
                       <div className="flex justify-between">
-                        <span>Current Funding:</span>
+                        <span>{t('partner.current_funding')}:</span>
                         <span className="font-medium">{formatCurrency(deal.currentFunding)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Expected Return:</span>
+                        <span>{t('deals.expected_return')}:</span>
                         <span className="font-medium">{deal.expectedReturn}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Investors:</span>
+                        <span>{t('deals.investors')}:</span>
                         <span className="font-medium">{deal.investorsCount}</span>
                       </div>
                     </div>
@@ -248,7 +248,7 @@ const PartnerProfitDistributionsPage = () => {
                       size="sm"
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Distribute Profits
+                      {t('partner.distribute_profits')}
                     </Button>
                   </div>
                 ))}
@@ -256,8 +256,8 @@ const PartnerProfitDistributionsPage = () => {
             ) : (
               <div className="text-center py-8">
                 <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Deals</h3>
-                <p className="text-gray-600">You don't have any active deals available for profit distribution.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('partner.no_active_deals')}</h3>
+                <p className="text-gray-600">{t('partner.no_active_deals_message')}</p>
               </div>
             )}
           </CardContent>
@@ -267,10 +267,10 @@ const PartnerProfitDistributionsPage = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Distribution Requests</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('partner.distribution_requests')}</h3>
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-purple-600" />
-                <span className="text-sm text-purple-600">{distributionRequests.length} Requests</span>
+                <span className="text-sm text-purple-600">{distributionRequests.length} {t('partner.distribution_requests_count')}</span>
               </div>
             </div>
 
@@ -291,25 +291,25 @@ const PartnerProfitDistributionsPage = () => {
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-600">Amount:</span>
+                        <span className="text-gray-600">{t('partner.amount')}:</span>
                         <div className="font-semibold text-gray-900">{formatCurrency(request.totalAmount)}</div>
                       </div>
                       <div>
-                        <span className="text-gray-600">Estimated Gain:</span>
+                        <span className="text-gray-600">{t('partner.estimated_gain')}:</span>
                         <div className="font-semibold text-green-600">{request.estimatedGainPercent}%</div>
                       </div>
                       <div>
-                        <span className="text-gray-600">Deal Closing:</span>
+                        <span className="text-gray-600">{t('partner.estimated_deal_closing')}:</span>
                         <div className="font-semibold text-blue-600">{request.estimatedClosingPercent}%</div>
                       </div>
                       <div>
-                        <span className="text-gray-600">Type:</span>
+                        <span className="text-gray-600">{t('partner.type')}:</span>
                         <div className="font-semibold text-purple-600">{request.distributionType}</div>
                       </div>
                     </div>
                     
                     <div className="mt-3 pt-3 border-t border-gray-100">
-                      <span className="text-xs text-gray-500">Requested on {formatDate(request.requestedAt)}</span>
+                      <span className="text-xs text-gray-500">{t('partner.requested_on')} {formatDate(request.requestedAt)}</span>
                     </div>
                   </div>
                 ))}
@@ -317,8 +317,8 @@ const PartnerProfitDistributionsPage = () => {
             ) : (
               <div className="text-center py-8">
                 <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Distribution Requests</h3>
-                <p className="text-gray-600">You haven't submitted any profit distribution requests yet.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('partner.no_distribution_requests')}</h3>
+                <p className="text-gray-600">{t('partner.no_distribution_requests_message')}</p>
               </div>
             )}
           </CardContent>
@@ -330,7 +330,7 @@ const PartnerProfitDistributionsPage = () => {
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">توزيع أرباح جديد</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{t('partner.new_profit_distribution')}</h2>
                   <Button 
                     variant="outline" 
                     size="sm"
@@ -339,7 +339,7 @@ const PartnerProfitDistributionsPage = () => {
                       setSelectedDeal(null)
                     }}
                   >
-                    إغلاق
+                    {t('partner.close')}
                   </Button>
                 </div>
 
@@ -347,11 +347,11 @@ const PartnerProfitDistributionsPage = () => {
                   <h3 className="font-medium text-blue-900 mb-2">{selectedDeal.title}</h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-blue-600">Current Funding:</span>
+                      <span className="text-blue-600">{t('partner.current_funding')}:</span>
                       <div className="font-semibold text-blue-900">{formatCurrency(selectedDeal.currentFunding)}</div>
                     </div>
                     <div>
-                      <span className="text-blue-600">Investors:</span>
+                      <span className="text-blue-600">{t('deals.investors')}:</span>
                       <div className="font-semibold text-blue-900">{selectedDeal.investorsCount}</div>
                     </div>
                   </div>
@@ -361,7 +361,7 @@ const PartnerProfitDistributionsPage = () => {
                   {/* Amount */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Amount ($) *
+                      {t('partner.amount')} ($) *
                     </label>
                     <input
                       type="number"
@@ -377,7 +377,7 @@ const PartnerProfitDistributionsPage = () => {
                   {/* Estimated Gain % */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Estimated Gain % *
+                      {t('partner.estimated_gain')} % *
                     </label>
                     <input
                       type="number"
@@ -394,7 +394,7 @@ const PartnerProfitDistributionsPage = () => {
                   {/* Estimated Deal Closing % */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Estimated Deal Closing % *
+                      {t('partner.estimated_deal_closing')} % *
                     </label>
                     <input
                       type="number"
@@ -410,7 +410,7 @@ const PartnerProfitDistributionsPage = () => {
 
                   {/* Distribution Type */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">نوع التوزيع *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner.distribution_type')} *</label>
                     <div className="flex gap-4">
                       <label className="flex items-center">
                         <input
@@ -421,7 +421,7 @@ const PartnerProfitDistributionsPage = () => {
                           onChange={(e) => setFormData(prev => ({ ...prev, distributionType: e.target.value as 'PARTIAL' | 'FINAL' }))}
                           className="mr-2"
                         />
-                        توزيع جزئي
+                        {t('partner.partial_distribution')}
                       </label>
                       <label className="flex items-center">
                         <input
@@ -432,19 +432,19 @@ const PartnerProfitDistributionsPage = () => {
                           onChange={(e) => setFormData(prev => ({ ...prev, distributionType: e.target.value as 'PARTIAL' | 'FINAL' }))}
                           className="mr-2"
                         />
-                        توزيع نهائي
+                        {t('partner.final_distribution')}
                       </label>
                     </div>
                   </div>
 
                   {/* Description */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">وصف التوزيع *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner.distribution_description')} *</label>
                     <input
                       type="text"
                       value={formData.description}
                       onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="مثال: توزيع أرباح الربع الأول"
+                      placeholder={t('partner.distribution_description_placeholder')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -457,7 +457,7 @@ const PartnerProfitDistributionsPage = () => {
                       className="bg-green-600 hover:bg-green-700 flex-1"
                     >
                       <Send className="w-4 h-4 mr-2" />
-                      {submitting ? 'جاري الإرسال...' : 'إرسال للمراجعة الإدارية'}
+                      {submitting ? t('partner.submitting') : t('partner.submit_for_admin_review')}
                     </Button>
                     <Button
                       variant="outline"
@@ -467,7 +467,7 @@ const PartnerProfitDistributionsPage = () => {
                       }}
                       disabled={submitting}
                     >
-                      إلغاء
+                      {t('common.cancel')}
                     </Button>
                   </div>
                 </div>

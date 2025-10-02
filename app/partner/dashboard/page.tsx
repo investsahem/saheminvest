@@ -205,8 +205,8 @@ const PartnerDashboard = () => {
                     <DollarSign className="w-6 h-6 text-emerald-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-emerald-900">Profit Distributions</h3>
-                    <p className="text-sm text-emerald-700">Distribute profits to investors</p>
+                    <h3 className="font-semibold text-emerald-900">{t('partner.profit_distributions')}</h3>
+                    <p className="text-sm text-emerald-700">{t('partner.profit_distributions_subtitle')}</p>
                   </div>
                 </div>
               </CardContent>

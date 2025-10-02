@@ -65,7 +65,7 @@ const PartnerSidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: PartnerSideba
       current: pathname === '/partner/performance'
     },
     {
-      name: 'Profit Distributions',
+      name: t('partner.profit_distributions'),
       href: '/partner/profit-distributions',
       icon: DollarSign,
       current: pathname === '/partner/profit-distributions'
