@@ -619,13 +619,13 @@ export default function AdminDealsPage() {
                                 <div className="text-sm text-blue-800 mt-1">
                                   {deal.startDate && deal.endDate ? (
                                     <>
-                                      {new Date(deal.startDate).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+                                      {new Date(deal.startDate).toLocaleDateString('en-US', {
                                         year: 'numeric',
                                         month: 'short',
                                         day: 'numeric'
                                       })}
                                       {' → '}
-                                      {new Date(deal.endDate).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+                                      {new Date(deal.endDate).toLocaleDateString('en-US', {
                                         year: 'numeric',
                                         month: 'short',
                                         day: 'numeric'
@@ -633,7 +633,7 @@ export default function AdminDealsPage() {
                                     </>
                                   ) : deal.startDate ? (
                                     <>
-                                      {locale === 'ar' ? 'يبدأ في' : 'Starts'}: {new Date(deal.startDate).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+                                      {locale === 'ar' ? 'يبدأ في' : 'Starts'}: {new Date(deal.startDate).toLocaleDateString('en-US', {
                                         year: 'numeric',
                                         month: 'short',
                                         day: 'numeric'
@@ -641,7 +641,7 @@ export default function AdminDealsPage() {
                                     </>
                                   ) : deal.endDate ? (
                                     <>
-                                      {locale === 'ar' ? 'ينتهي في' : 'Ends'}: {new Date(deal.endDate).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+                                      {locale === 'ar' ? 'ينتهي في' : 'Ends'}: {new Date(deal.endDate).toLocaleDateString('en-US', {
                                         year: 'numeric',
                                         month: 'short',
                                         day: 'numeric'
