@@ -194,7 +194,7 @@ export default function ApplicationsPage() {
 
   if (loading) {
     return (
-      <AdminLayout title="Manage Applications" subtitle="Review and manage investor applications">
+      <AdminLayout title={t('applications.title')} subtitle={t('applications.subtitle')}>
         <div className="flex items-center justify-center min-h-96">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -205,12 +205,12 @@ export default function ApplicationsPage() {
   // Debug: Show session status in development or if there are issues
   if (!session?.user) {
     return (
-      <AdminLayout title="Authentication Required" subtitle="Please sign in to continue">
+      <AdminLayout title={t('applications.authentication_required')} subtitle={t('applications.auth_required_message')}>
         <div className="flex items-center justify-center min-h-96">
           <div className="text-center">
             <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Authentication Required</h3>
-            <p className="text-gray-600 mb-6">You need to be signed in as an admin to access this page.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('applications.authentication_required')}</h3>
+            <p className="text-gray-600 mb-6">{t('applications.auth_required_message')}</p>
             <div className="bg-gray-100 p-4 rounded-lg mb-4 text-left">
               <p className="text-sm text-gray-600">
                 Debug Info:<br/>
@@ -221,7 +221,7 @@ export default function ApplicationsPage() {
               </p>
             </div>
             <Button onClick={() => window.location.href = '/auth/signin'} className="bg-blue-600 hover:bg-blue-700">
-              Sign In
+              {t('applications.sign_in')}
             </Button>
           </div>
         </div>
@@ -232,12 +232,12 @@ export default function ApplicationsPage() {
   // Debug: Show role mismatch
   if (session.user.role !== 'ADMIN') {
     return (
-      <AdminLayout title="Access Denied" subtitle="Insufficient permissions">
+      <AdminLayout title={t('applications.access_denied')} subtitle={t('applications.access_denied_message')}>
         <div className="flex items-center justify-center min-h-96">
           <div className="text-center">
             <XCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
-            <p className="text-gray-600 mb-6">You need ADMIN role to access this page.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('applications.access_denied')}</h3>
+            <p className="text-gray-600 mb-6">{t('applications.access_denied_message')}</p>
             <div className="bg-gray-100 p-4 rounded-lg mb-4 text-left">
               <p className="text-sm text-gray-600">
                 Your Role: {session.user.role}<br/>
@@ -254,8 +254,8 @@ export default function ApplicationsPage() {
 
   return (
     <AdminLayout 
-      title="Manage Applications"
-      subtitle="Review and manage investor applications"
+      title={t('applications.title')}
+      subtitle={t('applications.subtitle')}
     >
       <div className="space-y-6">
         {/* Header Actions */}
@@ -265,7 +265,7 @@ export default function ApplicationsPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 type="text"
-                placeholder="Search applications..."
+                placeholder={t('applications.search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 w-64"
@@ -276,10 +276,10 @@ export default function ApplicationsPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
+              <option value="all">{t('applications.all_status')}</option>
+              <option value="pending">{t('applications.pending')}</option>
+              <option value="approved">{t('applications.approved')}</option>
+              <option value="rejected">{t('applications.rejected')}</option>
             </select>
           </div>
         </div>
@@ -293,7 +293,7 @@ export default function ApplicationsPage() {
                   <FileText className="w-6 h-6 text-blue-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-blue-700">Total Applications</p>
+                  <p className="text-sm font-medium text-blue-700">{t('applications.total_applications')}</p>
                   <p className="text-2xl font-bold text-blue-900">{stats.total}</p>
                 </div>
               </div>
@@ -307,7 +307,7 @@ export default function ApplicationsPage() {
                   <Clock className="w-6 h-6 text-yellow-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-yellow-700">Pending Review</p>
+                  <p className="text-sm font-medium text-yellow-700">{t('applications.pending_review')}</p>
                   <p className="text-2xl font-bold text-yellow-900">{stats.pending}</p>
                 </div>
               </div>
@@ -321,7 +321,7 @@ export default function ApplicationsPage() {
                   <CheckCircle className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-green-700">Approved</p>
+                  <p className="text-sm font-medium text-green-700">{t('applications.approved')}</p>
                   <p className="text-2xl font-bold text-green-900">{stats.approved}</p>
                 </div>
               </div>
@@ -335,7 +335,7 @@ export default function ApplicationsPage() {
                   <XCircle className="w-6 h-6 text-red-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-red-700">Rejected</p>
+                  <p className="text-sm font-medium text-red-700">{t('applications.rejected')}</p>
                   <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
                 </div>
               </div>
@@ -351,25 +351,25 @@ export default function ApplicationsPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Applicant
+                      {t('applications.applicant')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contact
+                      {t('applications.contact')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Income
+                      {t('applications.income')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Experience
+                      {t('applications.experience')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      {t('applications.status')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Submitted
+                      {t('applications.submitted')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
+                      {t('applications.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -398,7 +398,7 @@ export default function ApplicationsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900 capitalize">{application.investmentExperience || 'N/A'}</div>
-                        <div className="text-sm text-gray-500 capitalize">Risk: {application.riskTolerance || 'N/A'}</div>
+                        <div className="text-sm text-gray-500 capitalize">{t('applications.risk')}: {application.riskTolerance || 'N/A'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.status || '')}`}>
@@ -454,11 +454,11 @@ export default function ApplicationsPage() {
             {filteredApplications.length === 0 && (
               <div className="text-center py-12">
                 <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No applications found</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('applications.no_applications_found')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
                   {searchTerm || statusFilter !== 'all' 
-                    ? 'Try adjusting your search or filter criteria.'
-                    : 'No investor applications have been submitted yet.'}
+                    ? t('applications.adjust_search')
+                    : t('applications.no_submissions')}
                 </p>
             </div>
             )}
@@ -471,7 +471,7 @@ export default function ApplicationsPage() {
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Application Details</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('applications.application_details')}</h3>
                   <button
                     onClick={() => setSelectedApplication(null)}
                     className="text-gray-400 hover:text-gray-600"
@@ -483,28 +483,28 @@ export default function ApplicationsPage() {
                 <div className="space-y-6">
                   {/* Personal Information */}
                   <div>
-                    <h4 className="text-md font-medium text-gray-900 mb-3">Personal Information</h4>
+                    <h4 className="text-md font-medium text-gray-900 mb-3">{t('applications.personal_information')}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm font-medium text-gray-700">Full Name</label>
+                        <label className="text-sm font-medium text-gray-700">{t('applications.full_name')}</label>
                         <p className="text-sm text-gray-900">{selectedApplication.fullName || 'N/A'}</p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700">Email</label>
+                        <label className="text-sm font-medium text-gray-700">{t('applications.email')}</label>
                         <p className="text-sm text-gray-900">{selectedApplication.email || 'N/A'}</p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700">Phone</label>
+                        <label className="text-sm font-medium text-gray-700">{t('applications.phone')}</label>
                         <p className="text-sm text-gray-900">{selectedApplication.phone || 'N/A'}</p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700">Date of Birth</label>
+                        <label className="text-sm font-medium text-gray-700">{t('applications.date_of_birth')}</label>
                         <p className="text-sm text-gray-900">
                           {selectedApplication.dateOfBirth ? new Date(selectedApplication.dateOfBirth).toLocaleDateString() : 'N/A'}
                         </p>
                       </div>
                       <div className="md:col-span-2">
-                        <label className="text-sm font-medium text-gray-700">Address</label>
+                        <label className="text-sm font-medium text-gray-700">{t('applications.address')}</label>
                         <p className="text-sm text-gray-900">
                           {[selectedApplication.address, selectedApplication.city, selectedApplication.country]
                             .filter(Boolean)
@@ -516,14 +516,14 @@ export default function ApplicationsPage() {
 
                   {/* Financial Information */}
                   <div>
-                    <h4 className="text-md font-medium text-gray-900 mb-3">Financial Information</h4>
+                    <h4 className="text-md font-medium text-gray-900 mb-3">{t('applications.financial_information')}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm font-medium text-gray-700">Occupation</label>
+                        <label className="text-sm font-medium text-gray-700">{t('applications.occupation')}</label>
                         <p className="text-sm text-gray-900">{selectedApplication.occupation || 'N/A'}</p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700">Annual Income</label>
+                        <label className="text-sm font-medium text-gray-700">{t('applications.annual_income')}</label>
                         <p className="text-sm text-gray-900">{formatCurrency(selectedApplication.annualIncome || 0)}</p>
                       </div>
                     </div>
@@ -531,18 +531,18 @@ export default function ApplicationsPage() {
 
                   {/* Investment Profile */}
                   <div>
-                    <h4 className="text-md font-medium text-gray-900 mb-3">Investment Profile</h4>
+                    <h4 className="text-md font-medium text-gray-900 mb-3">{t('applications.investment_profile')}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm font-medium text-gray-700">Investment Experience</label>
+                        <label className="text-sm font-medium text-gray-700">{t('applications.investment_experience')}</label>
                         <p className="text-sm text-gray-900 capitalize">{selectedApplication.investmentExperience || 'N/A'}</p>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700">Risk Tolerance</label>
+                        <label className="text-sm font-medium text-gray-700">{t('applications.risk_tolerance')}</label>
                         <p className="text-sm text-gray-900 capitalize">{selectedApplication.riskTolerance || 'N/A'}</p>
                       </div>
                       <div className="md:col-span-2">
-                        <label className="text-sm font-medium text-gray-700">Investment Goals</label>
+                        <label className="text-sm font-medium text-gray-700">{t('applications.investment_goals')}</label>
                         <p className="text-sm text-gray-900">{selectedApplication.investmentGoals || 'N/A'}</p>
                       </div>
                     </div>
@@ -558,7 +558,7 @@ export default function ApplicationsPage() {
                         className="border-red-300 text-red-600 hover:bg-red-50"
                       >
                         <XCircle className="w-4 h-4 mr-2" />
-                        Reject
+                        {t('applications.reject')}
                       </Button>
                       <Button
                         onClick={() => handleApplicationAction(selectedApplication.id, 'approve')}
@@ -570,7 +570,7 @@ export default function ApplicationsPage() {
                         ) : (
                           <CheckCircle className="w-4 h-4 mr-2" />
                         )}
-                        Approve
+                        {t('applications.approve')}
                       </Button>
                     </div>
                   )}
