@@ -207,12 +207,14 @@ export async function GET(request: NextRequest) {
       }
 
       // Hide partner information from investors
-      if (isInvestor) {
-        filteredDeal.partner = null
-        filteredDeal.owner = {
-          ...deal.owner,
+      if (isInvestor && deal.owner) {
+        (filteredDeal as any).partner = null;
+        (filteredDeal as any).owner = {
+          id: deal.owner.id,
           name: 'Partner',
-          email: ''
+          email: '',
+          image: deal.owner.image,
+          partnerProfile: null
         }
       }
 
