@@ -56,13 +56,13 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
       badge: isLoading ? '...' : pendingApplications
     },
     {
-      name: 'Advisor Applications',
+      name: t('admin.advisor_applications'),
       href: '/admin/advisor-applications',
       icon: UserCheck,
       current: pathname === '/admin/advisor-applications'
     },
     {
-      name: 'Partner Applications',
+      name: t('admin.partner_applications'),
       href: '/admin/partner-applications',
       icon: Building2,
       current: pathname === '/admin/partner-applications',
@@ -82,7 +82,7 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
       badge: dealUpdatesLoading ? '...' : totalDealsCount
     },
     {
-      name: locale === 'ar' ? 'طلبات تحديث الصفقات' : 'Deal Update Requests',
+      name: t('admin.deal_update_requests'),
       href: '/admin/deal-updates',
       icon: Edit,
       current: pathname === '/admin/deal-updates',
@@ -95,7 +95,7 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
       current: pathname === '/admin/finances'
     },
     {
-      name: 'Manage Deposits',
+      name: t('admin.manage_deposits'),
       href: '/admin/deposits',
       icon: Wallet,
       current: pathname === '/admin/deposits'
@@ -120,7 +120,7 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
       current: pathname === '/admin/analytics'
     },
     {
-      name: 'Email Management',
+      name: t('admin.email_management'),
       href: '/admin/emails',
       icon: Mail,
       current: pathname === '/admin/emails'
@@ -231,7 +231,7 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
                 className="flex-1 text-xs border-gray-300 hover:bg-white"
               >
                 <User className={`w-3 h-3 ${locale === 'ar' ? 'ml-1' : 'mr-1'}`} />
-                Profile
+                {t('admin.profile')}
               </Button>
               <Button 
                 variant="outline" 
@@ -240,7 +240,7 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
                 onClick={handleLogout}
               >
                 <LogOut className={`w-3 h-3 ${locale === 'ar' ? 'ml-1' : 'mr-1'}`} />
-                Logout
+                {t('admin.logout')}
               </Button>
             </div>
           </div>
