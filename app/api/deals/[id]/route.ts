@@ -23,6 +23,12 @@ export async function GET(
     const session = await getServerSession(authOptions)
     const { searchParams } = new URL(request.url)
     const includePartner = searchParams.get('includePartner') === 'true'
+    const includeInvestments = searchParams.get('includeInvestments') === 'true'
+    const includeDistributions = searchParams.get('includeDistributions') === 'true'
+    
+    // For admin/deal manager, always include full details
+    const userRole = session?.user?.role
+    const isAdmin = userRole === 'ADMIN' || userRole === 'DEAL_MANAGER'
     
     const deal = await prisma.project.findUnique({
       where: { id },
@@ -65,7 +71,7 @@ export async function GET(
             }
           }
         },
-        investments: {
+        investments: (isAdmin || includeInvestments) ? {
           include: {
             investor: {
               select: {
@@ -79,12 +85,19 @@ export async function GET(
           orderBy: {
             createdAt: 'desc'
           }
-        },
-        profitDistributions: {
+        } : false,
+        profitDistributions: (isAdmin || includeDistributions) ? {
+          include: {
+            approvedBy: {
+              select: {
+                name: true
+              }
+            }
+          },
           orderBy: {
             distributionDate: 'desc'
           }
-        },
+        } : false,
         _count: {
           select: {
             investments: true
@@ -101,11 +114,9 @@ export async function GET(
     }
 
     // Apply privacy controls based on user role
-    const userRole = session?.user?.role
-    const isAdmin = userRole === 'ADMIN'
-    const isDealManager = userRole === 'DEAL_MANAGER'
+    const isAdminRole = userRole === 'ADMIN' || userRole === 'DEAL_MANAGER'
     const isPartner = userRole === 'PARTNER'
-    const isInvestor = !isAdmin && !isDealManager && !isPartner
+    const isInvestor = !isAdminRole && !isPartner
 
     // Filter sensitive information based on role
       const filteredDeal = { ...deal }
@@ -121,7 +132,7 @@ export async function GET(
     }
 
     // Hide investor personal details from partners (except admins)
-    if (isPartner && !isAdmin && !isDealManager) {
+    if (isPartner && !isAdminRole && deal.investments) {
       filteredDeal.investments = deal.investments.map(investment => ({
         ...investment,
         investor: {
@@ -134,7 +145,7 @@ export async function GET(
     }
 
     // Calculate unique investor count
-    const uniqueInvestorIds = new Set(deal.investments.map(inv => inv.investorId))
+    const uniqueInvestorIds = new Set((deal.investments || []).map(inv => inv.investorId))
     const uniqueInvestorCount = uniqueInvestorIds.size
 
     // Map partnerProfile to partner for consistency with frontend expectations
