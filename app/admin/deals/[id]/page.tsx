@@ -378,7 +378,9 @@ export default function AdminDealDetailsPage() {
                     {locale === 'ar' ? 'المستثمرون' : 'Investors'}
                   </p>
                   <p className="text-2xl font-bold text-gray-900" dir="ltr">{uniqueInvestors}</p>
-                  <p className="text-xs text-gray-500" dir="ltr">{deal.investments?.length || 0} {locale === 'ar' ? 'استثمارات' : 'investments'}</p>
+                  <p className="text-xs text-gray-500" dir="ltr">
+                    {uniqueInvestors} {locale === 'ar' ? 'مستثمر' : uniqueInvestors === 1 ? 'investor' : 'investors'}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                   <Users className="w-6 h-6 text-purple-600" />
