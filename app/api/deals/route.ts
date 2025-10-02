@@ -150,6 +150,11 @@ export async function GET(request: NextRequest) {
               distributionDate: 'desc'
             }
           },
+          investments: {
+            select: {
+              investorId: true
+            }
+          },
           _count: {
             select: {
               investments: true
@@ -192,9 +197,13 @@ export async function GET(request: NextRequest) {
 
     // Transform deals to match unified interface and apply privacy filters
     const transformedDeals = deals.map(deal => {
-              const filteredDeal = {
+      // Calculate unique investor count from investments
+      const uniqueInvestorIds = new Set((deal as any).investments?.map((inv: any) => inv.investorId) || [])
+      const uniqueInvestorCount = uniqueInvestorIds.size
+      
+      const filteredDeal = {
         ...deal,
-        investorCount: deal._count.investments, // Add backward compatibility
+        investorCount: uniqueInvestorCount, // Use unique investor count instead of total investments
         fundingGoal: Number(deal.fundingGoal),
         currentFunding: Number(deal.currentFunding),
         minInvestment: Number(deal.minInvestment),

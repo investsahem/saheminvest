@@ -133,10 +133,15 @@ export async function GET(
       }))
     }
 
+    // Calculate unique investor count
+    const uniqueInvestorIds = new Set(deal.investments.map(inv => inv.investorId))
+    const uniqueInvestorCount = uniqueInvestorIds.size
+
     // Map partnerProfile to partner for consistency with frontend expectations
     const responseData = {
       ...filteredDeal,
-      partner: filteredDeal.owner?.partnerProfile || null
+      partner: filteredDeal.owner?.partnerProfile || null,
+      investorCount: uniqueInvestorCount // Use unique investor count instead of total investments
     }
 
     return NextResponse.json(responseData)
