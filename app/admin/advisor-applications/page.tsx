@@ -189,7 +189,7 @@ const AdvisorApplicationsPage = () => {
   }
 
   return (
-    <AdminLayout title="Portfolio Advisor Applications">
+    <AdminLayout title={t('advisor_applications.title')}>
       <div className="space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -197,7 +197,7 @@ const AdvisorApplicationsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Applications</p>
+                  <p className="text-sm font-medium text-gray-600">{t('advisor_applications.total_applications')}</p>
                   <p className="text-2xl font-bold text-gray-900">{applications.length}</p>
                 </div>
                 <UserCheck className="w-8 h-8 text-blue-600" />
@@ -209,7 +209,7 @@ const AdvisorApplicationsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Pending Review</p>
+                  <p className="text-sm font-medium text-gray-600">{t('advisor_applications.pending_review')}</p>
                   <p className="text-2xl font-bold text-yellow-600">
                     {applications.filter(app => app.status === 'PENDING').length}
                   </p>
@@ -223,7 +223,7 @@ const AdvisorApplicationsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Approved</p>
+                  <p className="text-sm font-medium text-gray-600">{t('advisor_applications.approved')}</p>
                   <p className="text-2xl font-bold text-green-600">
                     {applications.filter(app => app.status === 'APPROVED').length}
                   </p>
@@ -237,7 +237,7 @@ const AdvisorApplicationsPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Available Advisors</p>
+                  <p className="text-sm font-medium text-gray-600">{t('advisor_applications.available_advisors')}</p>
                   <p className="text-2xl font-bold text-purple-600">{advisors.length}</p>
                 </div>
                 <User className="w-8 h-8 text-purple-600" />
@@ -255,7 +255,7 @@ const AdvisorApplicationsPage = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <input
                     type="text"
-                    placeholder="Search applications..."
+                    placeholder={t('advisor_applications.search_placeholder')}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -269,11 +269,11 @@ const AdvisorApplicationsPage = () => {
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
+                  <option value="all">{t('advisor_applications.all_status')}</option>
+                  <option value="pending">{t('advisor_applications.pending')}</option>
+                  <option value="in_progress">{t('advisor_applications.in_progress')}</option>
+                  <option value="approved">{t('advisor_applications.approved')}</option>
+                  <option value="rejected">{t('advisor_applications.rejected')}</option>
                 </select>
               </div>
             </div>
@@ -287,12 +287,12 @@ const AdvisorApplicationsPage = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Applicant</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Experience</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Risk Tolerance</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Applied</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">{t('advisor_applications.applicant')}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">{t('advisor_applications.experience')}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">{t('advisor_applications.risk_tolerance')}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">{t('advisor_applications.status')}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">{t('advisor_applications.applied')}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900">{t('advisor_applications.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -356,7 +356,7 @@ const AdvisorApplicationsPage = () => {
               {filteredApplications.length === 0 && (
                 <div className="text-center py-8">
                   <UserCheck className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No applications found</p>
+                  <p className="text-gray-600">{t('advisor_applications.no_applications_found')}</p>
                 </div>
               )}
             </div>
@@ -365,7 +365,7 @@ const AdvisorApplicationsPage = () => {
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-6">
                 <p className="text-sm text-gray-700">
-                  Page {currentPage} of {totalPages}
+                  {t('advisor_applications.page_of').replace('{current}', currentPage.toString()).replace('{total}', totalPages.toString())}
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
@@ -375,7 +375,7 @@ const AdvisorApplicationsPage = () => {
                     disabled={currentPage === 1}
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    Previous
+                    {t('advisor_applications.previous')}
                   </Button>
                   <Button
                     variant="outline"
@@ -383,7 +383,7 @@ const AdvisorApplicationsPage = () => {
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
                   >
-                    Next
+                    {t('advisor_applications.next')}
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -397,14 +397,14 @@ const AdvisorApplicationsPage = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                {actionType === 'approve' ? 'Approve Application' : 'Reject Application'}
+                {actionType === 'approve' ? t('advisor_applications.approve_application') : t('advisor_applications.reject_application')}
               </h3>
               
               <div className="mb-4">
                 <p className="text-gray-600">
                   {actionType === 'approve' 
-                    ? `Approve application for ${selectedApplication.firstName} ${selectedApplication.lastName}?`
-                    : `Reject application for ${selectedApplication.firstName} ${selectedApplication.lastName}?`
+                    ? `${t('advisor_applications.approve_application')} for ${selectedApplication.firstName} ${selectedApplication.lastName}?`
+                    : `${t('advisor_applications.reject_application')} for ${selectedApplication.firstName} ${selectedApplication.lastName}?`
                   }
                 </p>
               </div>
@@ -412,14 +412,14 @@ const AdvisorApplicationsPage = () => {
               {actionType === 'approve' && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Assign Portfolio Advisor
+                    {t('advisor_applications.assign_portfolio_advisor')}
                   </label>
                   <select
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     value={selectedAdvisor}
                     onChange={(e) => setSelectedAdvisor(e.target.value)}
                   >
-                    <option value="">Select an advisor</option>
+                    <option value="">{t('advisor_applications.select_advisor')}</option>
                     {advisors.map((advisor) => (
                       <option key={advisor.id} value={advisor.id}>
                         {advisor.name} ({advisor.clientCount} clients)
@@ -432,28 +432,28 @@ const AdvisorApplicationsPage = () => {
               {actionType === 'reject' && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Rejection Reason
+                    {t('advisor_applications.rejection_reason')}
                   </label>
                   <textarea
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     rows={3}
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
-                    placeholder="Please provide a reason for rejection..."
+                    placeholder={t('advisor_applications.rejection_placeholder')}
                   />
                 </div>
               )}
 
               <div className="flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setShowModal(false)}>
-                  Cancel
+                  {t('advisor_applications.cancel')}
                 </Button>
                 <Button 
                   variant={actionType === 'approve' ? 'primary' : 'outline'}
                   onClick={handleApplicationAction}
                   disabled={actionType === 'reject' && !rejectionReason}
                 >
-                  {actionType === 'approve' ? 'Approve' : 'Reject'}
+                  {actionType === 'approve' ? t('advisor_applications.approve') : t('advisor_applications.reject')}
                 </Button>
               </div>
             </div>
