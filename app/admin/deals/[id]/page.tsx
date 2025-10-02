@@ -131,7 +131,7 @@ export default function AdminDealDetailsPage() {
   }, [dealId])
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
@@ -145,6 +145,10 @@ export default function AdminDealDetailsPage() {
       month: 'short',
       day: 'numeric'
     })
+  }
+  
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat('en-US').format(num)
   }
 
   const getProgressPercentage = (current: number, goal: number) => {
@@ -318,7 +322,7 @@ export default function AdminDealDetailsPage() {
                   <p className={`text-sm text-gray-600 mb-1 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                     {locale === 'ar' ? 'هدف التمويل' : 'Funding Goal'}
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(deal.fundingGoal)}</p>
+                  <p className="text-2xl font-bold text-gray-900" dir="ltr">{formatCurrency(deal.fundingGoal)}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Target className="w-6 h-6 text-blue-600" />
@@ -334,8 +338,8 @@ export default function AdminDealDetailsPage() {
                   <p className={`text-sm text-gray-600 mb-1 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                     {locale === 'ar' ? 'التمويل الحالي' : 'Current Funding'}
                   </p>
-                  <p className="text-2xl font-bold text-green-600">{formatCurrency(deal.currentFunding)}</p>
-                  <p className="text-xs text-gray-500">{getProgressPercentage(deal.currentFunding, deal.fundingGoal).toFixed(1)}%</p>
+                  <p className="text-2xl font-bold text-green-600" dir="ltr">{formatCurrency(deal.currentFunding)}</p>
+                  <p className="text-xs text-gray-500" dir="ltr">{getProgressPercentage(deal.currentFunding, deal.fundingGoal).toFixed(1)}%</p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                   <DollarSign className="w-6 h-6 text-green-600" />
@@ -351,8 +355,8 @@ export default function AdminDealDetailsPage() {
                   <p className={`text-sm text-gray-600 mb-1 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                     {locale === 'ar' ? 'المستثمرون' : 'Investors'}
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">{uniqueInvestors}</p>
-                  <p className="text-xs text-gray-500">{deal.investments?.length || 0} {locale === 'ar' ? 'استثمارات' : 'investments'}</p>
+                  <p className="text-2xl font-bold text-gray-900" dir="ltr">{uniqueInvestors}</p>
+                  <p className="text-xs text-gray-500" dir="ltr">{deal.investments?.length || 0} {locale === 'ar' ? 'استثمارات' : 'investments'}</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                   <Users className="w-6 h-6 text-purple-600" />
@@ -368,8 +372,8 @@ export default function AdminDealDetailsPage() {
                   <p className={`text-sm text-gray-600 mb-1 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                     {locale === 'ar' ? 'الأرباح الموزعة' : 'Profits Distributed'}
                   </p>
-                  <p className="text-2xl font-bold text-emerald-600">{formatCurrency(totalDistributed)}</p>
-                  <p className="text-xs text-gray-500">{deal.profitDistributions?.length || 0} {locale === 'ar' ? 'توزيعات' : 'distributions'}</p>
+                  <p className="text-2xl font-bold text-emerald-600" dir="ltr">{formatCurrency(totalDistributed)}</p>
+                  <p className="text-xs text-gray-500" dir="ltr">{deal.profitDistributions?.length || 0} {locale === 'ar' ? 'توزيعات' : 'distributions'}</p>
                 </div>
                 <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
                   <TrendingUp className="w-6 h-6 text-emerald-600" />
@@ -400,13 +404,13 @@ export default function AdminDealDetailsPage() {
                     <span className={`text-gray-600 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                       {locale === 'ar' ? 'العائد المتوقع' : 'Expected Return'}:
                     </span>
-                    <span className="font-semibold text-green-600">{deal.expectedReturn}%</span>
+                    <span className="font-semibold text-green-600" dir="ltr">{deal.expectedReturn}%</span>
                   </div>
                   <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} justify-between`}>
                     <span className={`text-gray-600 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                       {locale === 'ar' ? 'المدة' : 'Duration'}:
                     </span>
-                    <span className="font-semibold">{deal.duration} {locale === 'ar' ? 'شهر' : 'months'}</span>
+                    <span className="font-semibold" dir="ltr">{deal.duration} {locale === 'ar' ? 'شهر' : 'months'}</span>
                   </div>
                   <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} justify-between`}>
                     <span className={`text-gray-600 ${locale === 'ar' ? 'font-arabic' : ''}`}>
@@ -418,31 +422,31 @@ export default function AdminDealDetailsPage() {
                     <span className={`text-gray-600 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                       {locale === 'ar' ? 'الحد الأدنى للاستثمار' : 'Min Investment'}:
                     </span>
-                    <span className="font-semibold">{formatCurrency(deal.minInvestment)}</span>
+                    <span className="font-semibold" dir="ltr">{formatCurrency(deal.minInvestment)}</span>
                   </div>
                   <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} justify-between`}>
                     <span className={`text-gray-600 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                       {locale === 'ar' ? 'تاريخ البداية' : 'Start Date'}:
                     </span>
-                    <span className="font-semibold">{deal.startDate ? formatDate(deal.startDate) : 'N/A'}</span>
+                    <span className="font-semibold" dir="ltr">{deal.startDate ? formatDate(deal.startDate) : 'N/A'}</span>
                   </div>
                   <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} justify-between`}>
                     <span className={`text-gray-600 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                       {locale === 'ar' ? 'تاريخ النهاية' : 'End Date'}:
                     </span>
-                    <span className="font-semibold">{deal.endDate ? formatDate(deal.endDate) : 'N/A'}</span>
+                    <span className="font-semibold" dir="ltr">{deal.endDate ? formatDate(deal.endDate) : 'N/A'}</span>
                   </div>
                   <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} justify-between`}>
                     <span className={`text-gray-600 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                       {locale === 'ar' ? 'تاريخ الإنشاء' : 'Created'}:
                     </span>
-                    <span className="font-semibold">{formatDate(deal.createdAt)}</span>
+                    <span className="font-semibold" dir="ltr">{formatDate(deal.createdAt)}</span>
                   </div>
                   <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} justify-between`}>
                     <span className={`text-gray-600 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                       {locale === 'ar' ? 'آخر تحديث' : 'Last Updated'}:
                     </span>
-                    <span className="font-semibold">{formatDate(deal.updatedAt)}</span>
+                    <span className="font-semibold" dir="ltr">{formatDate(deal.updatedAt)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -519,11 +523,11 @@ export default function AdminDealDetailsPage() {
                         <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} justify-between items-start`}>
                           <div>
                             <p className="font-semibold text-gray-900">{investment.investor.name}</p>
-                            <p className="text-sm text-gray-600">{investment.investor.email}</p>
-                            <p className="text-xs text-gray-500 mt-1">{formatDate(investment.createdAt)}</p>
+                            <p className="text-sm text-gray-600" dir="ltr">{investment.investor.email}</p>
+                            <p className="text-xs text-gray-500 mt-1" dir="ltr">{formatDate(investment.createdAt)}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-green-600">{formatCurrency(Number(investment.amount))}</p>
+                            <p className="font-bold text-green-600" dir="ltr">{formatCurrency(Number(investment.amount))}</p>
                             <span className={`text-xs px-2 py-1 rounded-full ${
                               investment.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                             }`}>
@@ -554,8 +558,8 @@ export default function AdminDealDetailsPage() {
                       <div key={distribution.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
                         <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} justify-between items-start mb-2`}>
                           <div>
-                            <p className="font-bold text-emerald-600">{formatCurrency(Number(distribution.amount))}</p>
-                            <p className="text-sm text-gray-600">{distribution.profitRate}% {locale === 'ar' ? 'ربح' : 'profit'}</p>
+                            <p className="font-bold text-emerald-600" dir="ltr">{formatCurrency(Number(distribution.amount))}</p>
+                            <p className="text-sm text-gray-600" dir="ltr">{distribution.profitRate}% {locale === 'ar' ? 'ربح' : 'profit'}</p>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded-full ${
                             distribution.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
@@ -568,11 +572,11 @@ export default function AdminDealDetailsPage() {
                         <p className={`text-xs text-gray-500 ${locale === 'ar' ? 'font-arabic' : ''}`}>
                           {distribution.description}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-gray-400 mt-1" dir="ltr">
                           {formatDate(distribution.distributionDate)}
                         </p>
                         {distribution.approvedAt && (
-                          <p className="text-xs text-green-600 mt-1">
+                          <p className="text-xs text-green-600 mt-1" dir="ltr">
                             {locale === 'ar' ? 'تمت الموافقة في' : 'Approved on'}: {formatDate(distribution.approvedAt)}
                           </p>
                         )}
