@@ -1,4 +1,5 @@
 {
+  "_cache_bust": "2025-01-02T10:30:00Z",
   "platform": {
     "name": "ساهم إنفست",
     "slogan": "استثمر في مستقبل النمو"
@@ -1107,39 +1108,6 @@
       "VIEW_ANALYTICS": "عرض التحليلات والتقارير",
       "SYSTEM_SETTINGS": "إعدادات النظام"
     }
-  },
-  "applications": {
-    "title": "طلبات تسجيل المستثمرين",
-    "application_id": "رقم الطلب",
-    "applicant_name": "اسم المتقدم",
-    "submission_date": "تاريخ الإرسال",
-    "review_date": "تاريخ المراجعة",
-    "reviewed_by": "تمت المراجعة بواسطة",
-    "investment_experience": "الخبرة الاستثمارية",
-    "risk_tolerance": "تحمل المخاطر",
-    "initial_investment": "الاستثمار الأولي",
-    "personal_details": "البيانات الشخصية",
-    "contact_details": "بيانات الاتصال",
-    "investment_profile": "الملف الاستثماري",
-    "application_notes": "ملاحظات الطلب",
-    "approve_application": "قبول الطلب",
-    "reject_application": "رفض الطلب",
-    "set_in_progress": "تعيين قيد المراجعة",
-    "rejection_reason": "سبب الرفض",
-    "provide_reason": "يرجى تقديم سبب الرفض",
-    "application_approved": "تم قبول الطلب بنجاح",
-    "application_rejected": "تم رفض الطلب بنجاح",
-    "status_updated": "تم تحديث حالة الطلب بنجاح",
-    "view_details": "عرض التفاصيل",
-    "total_applications": "إجمالي الطلبات",
-    "pending_applications": "الطلبات المعلقة",
-    "approved_applications": "الطلبات المقبولة",
-    "rejected_applications": "الطلبات المرفوضة",
-    "filter_all": "جميع الطلبات",
-    "filter_pending": "معلقة",
-    "filter_in_progress": "قيد المراجعة",
-    "filter_approved": "مقبولة",
-    "filter_rejected": "مرفوضة"
   },
   "user_management": {
     "title": "إدارة المستخدمين",
