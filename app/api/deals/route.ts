@@ -174,12 +174,8 @@ export async function GET(request: NextRequest) {
       
       console.log('Full query successful!')
       
-      // Add partner as null since we're not including it for now
-      deals = dealsWithCount.map(deal => ({
-        ...deal,
-        partner: null,
-        investments: [] // Empty for now
-      }))
+      // Keep investments for now to calculate unique investor count
+      deals = dealsWithCount
       total = totalCount
       
     } catch (queryError) {
@@ -229,6 +225,9 @@ export async function GET(request: NextRequest) {
             name: 'Anonymous Investor'
           }
         }))
+      } else {
+        // For investors and public, hide investments array completely for privacy
+        (filteredDeal as any).investments = []
       }
 
       return filteredDeal
