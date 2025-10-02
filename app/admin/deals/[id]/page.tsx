@@ -38,10 +38,9 @@ interface ProfitDistribution {
   description: string
   status: string
   createdAt: string
+  distributionDate: string
   approvedAt?: string
-  approvedBy?: {
-    name: string
-  }
+  approvedBy?: string
 }
 
 interface Deal {
@@ -570,11 +569,11 @@ export default function AdminDealDetailsPage() {
                           {distribution.description}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
-                          {formatDate(distribution.createdAt)}
+                          {formatDate(distribution.distributionDate)}
                         </p>
-                        {distribution.approvedBy && (
+                        {distribution.approvedAt && (
                           <p className="text-xs text-green-600 mt-1">
-                            {locale === 'ar' ? 'تمت الموافقة بواسطة' : 'Approved by'}: {distribution.approvedBy.name}
+                            {locale === 'ar' ? 'تمت الموافقة في' : 'Approved on'}: {formatDate(distribution.approvedAt)}
                           </p>
                         )}
                       </div>

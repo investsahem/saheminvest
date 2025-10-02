@@ -99,13 +99,6 @@ export async function GET(
     // Add profit distributions if needed
     if (isAdmin || includeDistributions) {
       includeClause.profitDistributions = {
-        include: {
-          approvedBy: {
-            select: {
-              name: true
-            }
-          }
-        },
         orderBy: {
           distributionDate: 'desc'
         }
