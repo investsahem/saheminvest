@@ -1755,7 +1755,8 @@
         "active": "Active",
         "completed": "Completed",
         "funded": "Funded"
-      }
+      },
+      "profits_distributed_across": "Profits distributed across {count} investments"
     },
     "partner_documents": {
       "title": "Documents",

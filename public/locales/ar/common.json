@@ -1835,7 +1835,8 @@
         "active": "نشط",
         "completed": "مكتمل",
         "funded": "ممول"
-      }
+      },
+      "profits_distributed_across": "تم توزيع الأرباح على {count} استثمار"
     },
     "partner_documents": {
       "title": "المستندات",

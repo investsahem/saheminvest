@@ -249,12 +249,12 @@ export default function InvestorDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-emerald-700">Total Profit Distributions</p>
+                  <p className="text-sm font-medium text-emerald-700">{t('investor.modal.profits_distributed')}</p>
                   <p className="text-3xl font-bold text-emerald-900">
                     {formatCurrency(portfolio.distributedProfits)}
                   </p>
                   <p className="text-sm text-emerald-600 mt-1">
-                    Profits distributed across {portfolio.activeInvestments} investments
+                    {t('investor.profits_distributed_across').replace('{count}', portfolio.activeInvestments.toString()) || `Profits distributed across ${portfolio.activeInvestments} investments`}
                   </p>
                 </div>
                 <div className="w-16 h-16 bg-emerald-100 rounded-xl flex items-center justify-center">
