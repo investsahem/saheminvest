@@ -1282,6 +1282,7 @@
     "last_chance": "Last Chance",
     "deals_count": "deals",
     "duration": "Duration",
+    "duration_period": "Deal Duration",
     "expected_return": "Expected Return",
     "funding_goal": "Goal",
     "contributors": "Contributors",
