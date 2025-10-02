@@ -345,7 +345,7 @@ export default function InvestorDashboard() {
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-3 px-4 font-medium text-gray-600">{t('investor.project')}</th>
                       <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.amount_invested')}</th>
-                      <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.modal.distributed_profits')}</th>
+                      <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.distributed')}</th>
                       <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.current_value')}</th>
                       <th className="text-right py-3 px-4 font-medium text-gray-600">{t('investor.return')}</th>
                       <th className="text-center py-3 px-4 font-medium text-gray-600">{t('investor.progress')}</th>

@@ -654,6 +654,7 @@
     "total_return": "Total Return",
     "project": "Project",
     "amount_invested": "Amount Invested",
+    "distributed": "Distributed",
     "return": "Return",
     "progress": "Progress",
     "actions": "Actions",
