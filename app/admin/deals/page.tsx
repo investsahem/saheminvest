@@ -886,7 +886,7 @@ export default function AdminDealsPage() {
                     {/* View Deal */}
                     <button
                       onClick={() => {
-                        window.open(`/deals/${deal.id}`, '_blank')
+                        window.open(`/portfolio/deals/${deal.id}`, '_blank')
                         setActionMenuOpen(null)
                         setDropdownPosition(null)
                       }}
