@@ -30,80 +30,91 @@ export async function GET(
     const userRole = session?.user?.role
     const isAdmin = userRole === 'ADMIN' || userRole === 'DEAL_MANAGER'
     
-    const deal = await prisma.project.findUnique({
-      where: { id },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-            partnerProfile: {
-              select: {
-                id: true,
-                companyName: true,
-                displayName: true,
-                tagline: true,
-                description: true,
-                logo: true,
-                brandColor: true,
-                isVerified: true,
-                isPublic: true,
-                website: true,
-                email: true,
-                phone: true,
-                address: true,
-                city: true,
-                country: true,
-                industry: true,
-                foundedYear: true,
-                employeeCount: true,
-                linkedin: true,
-                twitter: true,
-                facebook: true,
-                investmentAreas: true,
-                minimumDealSize: true,
-                maximumDealSize: true,
-                businessType: true,
-                registrationNumber: true
-              }
+    // Build include object conditionally
+    const includeClause: any = {
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          partnerProfile: {
+            select: {
+              id: true,
+              companyName: true,
+              displayName: true,
+              tagline: true,
+              description: true,
+              logo: true,
+              brandColor: true,
+              isVerified: true,
+              isPublic: true,
+              website: true,
+              email: true,
+              phone: true,
+              address: true,
+              city: true,
+              country: true,
+              industry: true,
+              foundedYear: true,
+              employeeCount: true,
+              linkedin: true,
+              twitter: true,
+              facebook: true,
+              investmentAreas: true,
+              minimumDealSize: true,
+              maximumDealSize: true,
+              businessType: true,
+              registrationNumber: true
+            }
+          }
+        }
+      },
+      _count: {
+        select: {
+          investments: true
+        }
+      }
+    }
+    
+    // Add investments if needed
+    if (isAdmin || includeInvestments) {
+      includeClause.investments = {
+        include: {
+          investor: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              email: true
             }
           }
         },
-        investments: (isAdmin || includeInvestments) ? {
-          include: {
-            investor: {
-              select: {
-                id: true,
-                name: true,
-                image: true,
-                email: true
-              }
-            }
-          },
-          orderBy: {
-            createdAt: 'desc'
-          }
-        } : false,
-        profitDistributions: (isAdmin || includeDistributions) ? {
-          include: {
-            approvedBy: {
-              select: {
-                name: true
-              }
-            }
-          },
-          orderBy: {
-            distributionDate: 'desc'
-          }
-        } : false,
-        _count: {
-          select: {
-            investments: true
-          }
+        orderBy: {
+          createdAt: 'desc'
         }
       }
+    }
+    
+    // Add profit distributions if needed
+    if (isAdmin || includeDistributions) {
+      includeClause.profitDistributions = {
+        include: {
+          approvedBy: {
+            select: {
+              name: true
+            }
+          }
+        },
+        orderBy: {
+          distributionDate: 'desc'
+        }
+      }
+    }
+    
+    const deal = await prisma.project.findUnique({
+      where: { id },
+      include: includeClause
     })
 
     if (!deal) {
