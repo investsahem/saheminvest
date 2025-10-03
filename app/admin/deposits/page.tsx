@@ -6,6 +6,7 @@ import AdminLayout from '../../components/layout/AdminLayout'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Card, CardContent } from '../../components/ui/Card'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import { 
   DollarSign, 
   Plus, 
@@ -45,6 +46,7 @@ interface User {
 }
 
 export default function AdminDepositsPage() {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const [pendingDeposits, setPendingDeposits] = useState<PendingDeposit[]>([])
   const [users, setUsers] = useState<User[]>([])
@@ -101,13 +103,13 @@ export default function AdminDepositsPage() {
       
       if (response.ok) {
         await fetchPendingDeposits()
-        alert('Deposit approved successfully!')
+        alert(t('deposits.deposit_approved'))
       } else {
-        alert('Failed to approve deposit')
+        alert(t('deposits.approve_failed'))
       }
     } catch (error) {
       console.error('Error approving deposit:', error)
-      alert('Error approving deposit')
+      alert(t('deposits.approve_error'))
     } finally {
       setProcessing(null)
     }
@@ -123,13 +125,13 @@ export default function AdminDepositsPage() {
       
       if (response.ok) {
         await fetchPendingDeposits()
-        alert('Deposit rejected successfully!')
+        alert(t('deposits.deposit_rejected'))
       } else {
-        alert('Failed to reject deposit')
+        alert(t('deposits.reject_failed'))
       }
     } catch (error) {
       console.error('Error rejecting deposit:', error)
-      alert('Error rejecting deposit')
+      alert(t('deposits.reject_error'))
     } finally {
       setProcessing(null)
     }
@@ -138,7 +140,7 @@ export default function AdminDepositsPage() {
   const handleManualDeposit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!manualDeposit.userId || !manualDeposit.amount) {
-      alert('Please fill in all required fields')
+      alert(t('deposits.required_fields'))
       return
     }
 
@@ -151,7 +153,7 @@ export default function AdminDepositsPage() {
           userId: manualDeposit.userId,
           amount: parseFloat(manualDeposit.amount),
           method: manualDeposit.method,
-          description: manualDeposit.description || `Manual ${manualDeposit.method} deposit by admin`
+          description: manualDeposit.description || t('deposits.manual_deposit_description').replace('{method}', manualDeposit.method)
         })
       })
       
@@ -159,14 +161,14 @@ export default function AdminDepositsPage() {
         await fetchPendingDeposits()
         setShowManualDepositModal(false)
         setManualDeposit({ userId: '', amount: '', method: 'cash', description: '' })
-        alert('Manual deposit added successfully!')
+        alert(t('deposits.manual_deposit_success'))
       } else {
         const errorData = await response.json()
-        alert(`Failed to add deposit: ${errorData.error}`)
+        alert(t('deposits.manual_deposit_failed').replace('{error}', errorData.error))
       }
     } catch (error) {
       console.error('Error adding manual deposit:', error)
-      alert('Error adding manual deposit')
+      alert(t('deposits.manual_deposit_error'))
     } finally {
       setProcessing(null)
     }
@@ -226,7 +228,7 @@ export default function AdminDepositsPage() {
 
   if (loading) {
     return (
-      <AdminLayout title="Manage Deposits" subtitle="Process investor deposits and manage wallet funding">
+      <AdminLayout title={t('deposits.title')} subtitle={t('deposits.subtitle')}>
         <div className="flex items-center justify-center min-h-96">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -235,7 +237,7 @@ export default function AdminDepositsPage() {
   }
 
   return (
-    <AdminLayout title="Manage Deposits" subtitle="Process investor deposits and manage wallet funding">
+    <AdminLayout title={t('deposits.title')} subtitle={t('deposits.subtitle')}>
       <div className="space-y-6">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
@@ -244,7 +246,7 @@ export default function AdminDepositsPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 type="text"
-                placeholder="Search deposits..."
+                placeholder={t('deposits.search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 w-64"
@@ -255,10 +257,10 @@ export default function AdminDepositsPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="rejected">Rejected</option>
+              <option value="all">{t('deposits.all_status')}</option>
+              <option value="pending">{t('deposits.pending')}</option>
+              <option value="completed">{t('deposits.completed')}</option>
+              <option value="rejected">{t('deposits.rejected')}</option>
             </select>
           </div>
           
@@ -267,7 +269,7 @@ export default function AdminDepositsPage() {
             className="bg-green-600 hover:bg-green-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Manual Deposit
+            {t('deposits.add_manual_deposit')}
           </Button>
         </div>
 
@@ -280,7 +282,7 @@ export default function AdminDepositsPage() {
                   <Clock className="w-6 h-6 text-blue-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-blue-700">Pending Deposits</p>
+                  <p className="text-sm font-medium text-blue-700">{t('deposits.pending_deposits')}</p>
                   <p className="text-2xl font-bold text-blue-900">
                     {pendingDeposits.filter(d => d.status === 'PENDING').length}
                   </p>
@@ -296,7 +298,7 @@ export default function AdminDepositsPage() {
                   <CheckCircle className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-green-700">Completed Today</p>
+                  <p className="text-sm font-medium text-green-700">{t('deposits.completed_today')}</p>
                   <p className="text-2xl font-bold text-green-900">
                     {pendingDeposits.filter(d => 
                       d.status === 'COMPLETED' && 
@@ -315,7 +317,7 @@ export default function AdminDepositsPage() {
                   <DollarSign className="w-6 h-6 text-yellow-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-yellow-700">Pending Amount</p>
+                  <p className="text-sm font-medium text-yellow-700">{t('deposits.pending_amount')}</p>
                   <p className="text-2xl font-bold text-yellow-900">
                     {formatCurrency(pendingDeposits
                       .filter(d => d.status === 'PENDING')
@@ -334,7 +336,7 @@ export default function AdminDepositsPage() {
                   <Wallet className="w-6 h-6 text-purple-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-purple-700">Total Processed</p>
+                  <p className="text-sm font-medium text-purple-700">{t('deposits.total_processed')}</p>
                   <p className="text-2xl font-bold text-purple-900">
                     {formatCurrency(pendingDeposits
                       .filter(d => d.status === 'COMPLETED')
@@ -355,25 +357,25 @@ export default function AdminDepositsPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Investor
+                      {t('deposits.investor')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
+                      {t('deposits.amount')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Method
+                      {t('deposits.method')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      {t('deposits.status')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
+                      {t('deposits.date')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Reference
+                      {t('deposits.reference')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
+                      {t('deposits.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -452,11 +454,11 @@ export default function AdminDepositsPage() {
             {filteredDeposits.length === 0 && (
               <div className="text-center py-12">
                 <DollarSign className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No deposits found</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('deposits.no_deposits_found')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
                   {searchTerm || statusFilter !== 'all' 
-                    ? 'Try adjusting your search or filter criteria.'
-                    : 'No deposit requests have been submitted yet.'}
+                    ? t('deposits.adjust_search')
+                    : t('deposits.no_submissions')}
                 </p>
               </div>
             )}
@@ -467,12 +469,12 @@ export default function AdminDepositsPage() {
         {showManualDepositModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Manual Deposit</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('deposits.add_manual_deposit_title')}</h3>
               
               <form onSubmit={handleManualDeposit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Select Investor *
+                    {t('deposits.select_investor')} *
                   </label>
                   <select
                     value={manualDeposit.userId}
@@ -480,10 +482,10 @@ export default function AdminDepositsPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    <option value="">Choose an investor...</option>
+                    <option value="">{t('deposits.choose_investor')}</option>
                     {users.filter(user => user.id !== session?.user?.id).map(user => (
                       <option key={user.id} value={user.id}>
-                        {user.name} ({user.email}) - Balance: {formatCurrency(user.walletBalance)}
+                        {user.name} ({user.email}) - {t('deposits.balance')}: {formatCurrency(user.walletBalance)}
                       </option>
                     ))}
                   </select>
@@ -491,7 +493,7 @@ export default function AdminDepositsPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Amount *
+                    {t('deposits.amount_required')} *
                   </label>
                   <Input
                     type="number"
@@ -506,28 +508,28 @@ export default function AdminDepositsPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Method
+                    {t('deposits.method_label')}
                   </label>
                   <select
                     value={manualDeposit.method}
                     onChange={(e) => setManualDeposit(prev => ({ ...prev, method: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="cash">Cash</option>
-                    <option value="bank">Bank Transfer</option>
-                    <option value="check">Check</option>
+                    <option value="cash">{t('deposits.cash')}</option>
+                    <option value="bank">{t('deposits.bank_transfer')}</option>
+                    <option value="check">{t('deposits.check')}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
+                    {t('deposits.description')}
                   </label>
                   <Input
                     type="text"
                     value={manualDeposit.description}
                     onChange={(e) => setManualDeposit(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Optional description..."
+                    placeholder={t('deposits.description_placeholder')}
                   />
                 </div>
 
@@ -538,7 +540,7 @@ export default function AdminDepositsPage() {
                     onClick={() => setShowManualDepositModal(false)}
                     disabled={processing === 'manual'}
                   >
-                    Cancel
+                    {t('deposits.cancel')}
                   </Button>
                   <Button
                     type="submit"
@@ -550,7 +552,7 @@ export default function AdminDepositsPage() {
                     ) : (
                       <>
                         <Plus className="w-4 h-4 mr-2" />
-                        Add Deposit
+                        {t('deposits.add_deposit')}
                       </>
                     )}
                   </Button>
