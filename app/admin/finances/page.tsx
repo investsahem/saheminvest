@@ -6,6 +6,7 @@ import AdminLayout from '../../components/layout/AdminLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import { 
   DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownLeft,
   Search, Filter, Download, Eye, Plus, Calendar, CreditCard,
@@ -51,6 +52,7 @@ interface Statistics {
 }
 
 const FinancesPage = () => {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [statistics, setStatistics] = useState<Statistics>({
@@ -132,11 +134,11 @@ const FinancesPage = () => {
         setSelectedTransaction(transaction)
         setShowTransactionModal(true)
       } else {
-        alert('Error fetching transaction details')
+        alert(t('finances.fetch_error'))
       }
     } catch (error) {
       console.error('Error fetching transaction:', error)
-      alert('Error fetching transaction details')
+      alert(t('finances.fetch_error'))
     }
   }
 
@@ -152,7 +154,7 @@ const FinancesPage = () => {
       })
       
       if (response.ok) {
-        alert(`Transaction ${status.toLowerCase()} successfully!`)
+        alert(t('finances.transaction_approved').replace('{status}', status.toLowerCase()))
         fetchTransactions() // Refresh the list
         setShowTransactionModal(false)
       } else {
@@ -161,7 +163,7 @@ const FinancesPage = () => {
       }
     } catch (error) {
       console.error('Error updating transaction:', error)
-      alert('Error updating transaction')
+      alert(t('finances.transaction_error'))
     }
   }
 
@@ -254,8 +256,8 @@ const FinancesPage = () => {
   if (loading) {
     return (
       <AdminLayout
-        title="Financial Transactions"
-        subtitle="Monitor and manage all financial activities"
+        title={t('finances.title')}
+        subtitle={t('finances.subtitle')}
       >
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -266,8 +268,8 @@ const FinancesPage = () => {
 
   return (
     <AdminLayout
-      title="Financial Transactions"
-      subtitle="Monitor and manage all financial activities"
+      title={t('finances.title')}
+      subtitle={t('finances.subtitle')}
     >
       <div className="space-y-6">
         {/* Summary Cards */}
@@ -276,7 +278,7 @@ const FinancesPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700">Total Deposits</p>
+                  <p className="text-sm font-medium text-green-700">{t('finances.total_deposits')}</p>
                   <p className="text-2xl font-bold text-green-900">{formatCurrency(statistics.totalDeposits)}</p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -290,7 +292,7 @@ const FinancesPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-red-700">Total Withdrawals</p>
+                  <p className="text-sm font-medium text-red-700">{t('finances.total_withdrawals')}</p>
                   <p className="text-2xl font-bold text-red-900">{formatCurrency(statistics.totalWithdrawals)}</p>
                 </div>
                 <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
@@ -304,7 +306,7 @@ const FinancesPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700">Total Investments</p>
+                  <p className="text-sm font-medium text-blue-700">{t('finances.total_investments')}</p>
                   <p className="text-2xl font-bold text-blue-900">{formatCurrency(statistics.totalInvestments)}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -318,7 +320,7 @@ const FinancesPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-700">Total Returns</p>
+                  <p className="text-sm font-medium text-purple-700">{t('finances.total_returns')}</p>
                   <p className="text-2xl font-bold text-purple-900">{formatCurrency(statistics.totalReturns)}</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -332,7 +334,7 @@ const FinancesPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-orange-700">Pending</p>
+                  <p className="text-sm font-medium text-orange-700">{t('finances.pending')}</p>
                   <p className="text-2xl font-bold text-orange-900">{statistics.pendingCount}</p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
@@ -352,7 +354,7 @@ const FinancesPage = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     type="text"
-                    placeholder="Search transactions..."
+                    placeholder={t('finances.search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -364,11 +366,11 @@ const FinancesPage = () => {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Status</option>
-                  <option value="completed">Completed</option>
-                  <option value="pending">Pending</option>
-                  <option value="failed">Failed</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="all">{t('finances.all_status')}</option>
+                  <option value="completed">{t('finances.completed')}</option>
+                  <option value="pending">{t('finances.pending')}</option>
+                  <option value="failed">{t('finances.failed')}</option>
+                  <option value="cancelled">{t('finances.cancelled')}</option>
                 </select>
 
                 <select
@@ -376,24 +378,24 @@ const FinancesPage = () => {
                   onChange={(e) => setTypeFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Types</option>
-                  <option value="deposit">Deposits</option>
-                  <option value="withdrawal">Withdrawals</option>
-                  <option value="investment">Investments</option>
-                  <option value="return">Returns</option>
-                  <option value="fee">Fees</option>
-                  <option value="commission">Commissions</option>
+                  <option value="all">{t('finances.all_types')}</option>
+                  <option value="deposit">{t('finances.deposits')}</option>
+                  <option value="withdrawal">{t('finances.withdrawals')}</option>
+                  <option value="investment">{t('finances.investments')}</option>
+                  <option value="return">{t('finances.returns')}</option>
+                  <option value="fee">{t('finances.fees')}</option>
+                  <option value="commission">{t('finances.commissions')}</option>
                 </select>
               </div>
 
               <div className="flex gap-2">
                 <Button variant="outline" className="flex items-center gap-2">
                   <Download className="w-4 h-4" />
-                  Export
+                  {t('finances.export')}
                 </Button>
                 <Button className="flex items-center gap-2">
                   <Plus className="w-4 h-4" />
-                  Add Transaction
+                  {t('finances.add_transaction')}
                 </Button>
               </div>
             </div>
@@ -408,22 +410,22 @@ const FinancesPage = () => {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Transaction
+                      {t('finances.transaction')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      User
+                      {t('finances.user')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
+                      {t('finances.amount')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      {t('finances.status')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
+                      {t('finances.date')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
+                      {t('finances.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -444,7 +446,7 @@ const FinancesPage = () => {
                             </div>
                             {transaction.deal && (
                               <div className="text-xs text-blue-600 mt-1">
-                                Deal: {transaction.deal.title}
+                                {t('finances.deal')}: {transaction.deal.title}
                               </div>
                             )}
                           </div>
@@ -475,7 +477,7 @@ const FinancesPage = () => {
                         </div>
                         {transaction.method && (
                           <div className="text-xs text-gray-500 capitalize">
-                            via {transaction.method}
+                            {t('finances.via')} {transaction.method}
                           </div>
                         )}
                       </td>
@@ -530,9 +532,9 @@ const FinancesPage = () => {
             {filteredTransactions.length === 0 && (
               <div className="text-center py-12">
                 <DollarSign className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No transactions</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('finances.no_transactions')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  No transactions match your current filters.
+                  {t('finances.no_transactions_message')}
                 </p>
               </div>
             )}
@@ -545,7 +547,7 @@ const FinancesPage = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-500">
-                  Showing {filteredTransactions.length} transactions
+                  {t('finances.showing_transactions').replace('{count}', filteredTransactions.length.toString())}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button 
@@ -554,10 +556,10 @@ const FinancesPage = () => {
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   >
-                    Previous
+                    {t('finances.previous')}
                   </Button>
                   <span className="text-sm text-gray-500">
-                    Page {currentPage} of {totalPages}
+                    {t('finances.page_of').replace('{current}', currentPage.toString()).replace('{total}', totalPages.toString())}
                   </span>
                   <Button 
                     variant="outline" 
@@ -565,7 +567,7 @@ const FinancesPage = () => {
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   >
-                    Next
+                    {t('finances.next')}
                   </Button>
                 </div>
               </div>
@@ -579,7 +581,7 @@ const FinancesPage = () => {
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Transaction Details</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('finances.transaction_details')}</h3>
                   <Button 
                     variant="outline" 
                     size="sm"
@@ -593,24 +595,24 @@ const FinancesPage = () => {
                   {/* Transaction Info */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Reference</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.reference')}</label>
                       <p className="text-sm text-gray-900 font-mono">{selectedTransaction.reference}</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.status')}</label>
                       <span className={getStatusBadge(selectedTransaction.status)}>
                         {selectedTransaction.status.charAt(0).toUpperCase() + selectedTransaction.status.slice(1)}
                       </span>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.type')}</label>
                       <div className="flex items-center gap-2">
                         {getTransactionIcon(selectedTransaction.type)}
                         <span className="text-sm text-gray-900 capitalize">{selectedTransaction.type}</span>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.amount')}</label>
                       <p className={`text-lg font-medium ${getTypeColor(selectedTransaction.type)}`}>
                         {['deposit', 'return', 'commission'].includes(selectedTransaction.type) ? '+' : '-'}
                         {formatCurrency(selectedTransaction.amount)}
@@ -618,35 +620,35 @@ const FinancesPage = () => {
                     </div>
                     {selectedTransaction.method && (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Method</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.method')}</label>
                         <p className="text-sm text-gray-900 capitalize">{selectedTransaction.method}</p>
                       </div>
                     )}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Created</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.created')}</label>
                       <p className="text-sm text-gray-900">{formatDate(selectedTransaction.createdAt)}</p>
                     </div>
                   </div>
 
                   {/* User Info */}
                   <div className="border-t pt-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4">User Information</h4>
+                    <h4 className="text-md font-medium text-gray-900 mb-4">{t('finances.user_information')}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.name')}</label>
                         <p className="text-sm text-gray-900">{selectedTransaction.user.name}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.email')}</label>
                         <p className="text-sm text-gray-900">{selectedTransaction.user.email}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.role')}</label>
                         <p className="text-sm text-gray-900">{selectedTransaction.user.role}</p>
                       </div>
                       {selectedTransaction.user.walletBalance !== undefined && (
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Wallet Balance</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.wallet_balance')}</label>
                           <p className="text-sm text-gray-900">{formatCurrency(selectedTransaction.user.walletBalance)}</p>
                         </div>
                       )}
@@ -656,15 +658,15 @@ const FinancesPage = () => {
                   {/* Deal Info */}
                   {selectedTransaction.deal && (
                     <div className="border-t pt-6">
-                      <h4 className="text-md font-medium text-gray-900 mb-4">Related Deal</h4>
+                      <h4 className="text-md font-medium text-gray-900 mb-4">{t('finances.related_deal')}</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Deal Title</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.deal_title')}</label>
                           <p className="text-sm text-gray-900">{selectedTransaction.deal.title}</p>
                         </div>
                         {selectedTransaction.deal.category && (
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('finances.category')}</label>
                             <p className="text-sm text-gray-900">{selectedTransaction.deal.category}</p>
                           </div>
                         )}
@@ -675,7 +677,7 @@ const FinancesPage = () => {
                   {/* Description */}
                   {selectedTransaction.description && (
                     <div className="border-t pt-6">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{t('finances.description')}</label>
                       <p className="text-sm text-gray-900">{selectedTransaction.description}</p>
                     </div>
                   )}
@@ -689,7 +691,7 @@ const FinancesPage = () => {
                           className="bg-green-600 hover:bg-green-700 text-white"
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
-                          Approve Transaction
+                          {t('finances.approve_transaction')}
                         </Button>
                         <Button 
                           variant="outline"
@@ -697,7 +699,7 @@ const FinancesPage = () => {
                           className="text-red-600 border-red-300 hover:bg-red-50"
                         >
                           <X className="w-4 h-4 mr-2" />
-                          Reject Transaction
+                          {t('finances.reject_transaction')}
                         </Button>
                       </div>
                     </div>
