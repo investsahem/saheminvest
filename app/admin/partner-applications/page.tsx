@@ -135,7 +135,7 @@ export default function PartnerApplicationsPage() {
   }
 
   const formatCurrency = (amount?: number) => {
-    if (!amount) return 'Not specified'
+    if (!amount) return t('partner_applications.not_specified')
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -183,7 +183,7 @@ export default function PartnerApplicationsPage() {
 
   if (loading) {
     return (
-      <AdminLayout title="Partner Applications" subtitle="Review and manage partner applications">
+      <AdminLayout title={t('partner_applications.title')} subtitle={t('partner_applications.subtitle')}>
         <div className="flex items-center justify-center min-h-96">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -193,8 +193,8 @@ export default function PartnerApplicationsPage() {
 
   return (
     <AdminLayout 
-      title="Partner Applications"
-      subtitle="Review and manage partner applications"
+      title={t('partner_applications.title')}
+      subtitle={t('partner_applications.subtitle')}
     >
       <div className="space-y-6">
         {/* Header Actions */}
@@ -204,7 +204,7 @@ export default function PartnerApplicationsPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 type="text"
-                placeholder="Search partner applications..."
+                placeholder={t('partner_applications.search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 w-64"
@@ -215,10 +215,10 @@ export default function PartnerApplicationsPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
+              <option value="all">{t('partner_applications.all_status')}</option>
+              <option value="pending">{t('partner_applications.pending')}</option>
+              <option value="approved">{t('partner_applications.approved')}</option>
+              <option value="rejected">{t('partner_applications.rejected')}</option>
             </select>
           </div>
         </div>
@@ -232,7 +232,7 @@ export default function PartnerApplicationsPage() {
                   <Building2 className="w-6 h-6 text-purple-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-purple-700">Total Applications</p>
+                  <p className="text-sm font-medium text-purple-700">{t('partner_applications.total_applications')}</p>
                   <p className="text-2xl font-bold text-purple-900">{stats.total}</p>
                 </div>
               </div>
@@ -246,7 +246,7 @@ export default function PartnerApplicationsPage() {
                   <Clock className="w-6 h-6 text-yellow-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-yellow-700">Pending Review</p>
+                  <p className="text-sm font-medium text-yellow-700">{t('partner_applications.pending_review')}</p>
                   <p className="text-2xl font-bold text-yellow-900">{stats.pending}</p>
                 </div>
               </div>
@@ -260,7 +260,7 @@ export default function PartnerApplicationsPage() {
                   <CheckCircle className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-green-700">Approved</p>
+                  <p className="text-sm font-medium text-green-700">{t('partner_applications.approved')}</p>
                   <p className="text-2xl font-bold text-green-900">{stats.approved}</p>
                 </div>
               </div>
@@ -274,7 +274,7 @@ export default function PartnerApplicationsPage() {
                   <XCircle className="w-6 h-6 text-red-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-red-700">Rejected</p>
+                  <p className="text-sm font-medium text-red-700">{t('partner_applications.rejected')}</p>
                   <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
                 </div>
               </div>
@@ -290,25 +290,25 @@ export default function PartnerApplicationsPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Company
+                      {t('partner_applications.company')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contact
+                      {t('partner_applications.contact')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Industry
+                      {t('partner_applications.industry')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Experience
+                      {t('partner_applications.experience')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      {t('partner_applications.status')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Submitted
+                      {t('partner_applications.submitted')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
+                      {t('partner_applications.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -335,8 +335,8 @@ export default function PartnerApplicationsPage() {
                         <div className="text-sm text-gray-500">{application.city}, {application.country}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{application.yearsExperience || 0} years</div>
-                        <div className="text-sm text-gray-500">{application.previousDeals || 0} deals</div>
+                        <div className="text-sm text-gray-900">{application.yearsExperience || 0} {t('partner_applications.years')}</div>
+                        <div className="text-sm text-gray-500">{application.previousDeals || 0} {t('partner_applications.deals')}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.status || '')}`}>
@@ -392,11 +392,11 @@ export default function PartnerApplicationsPage() {
             {filteredApplications.length === 0 && (
               <div className="text-center py-12">
                 <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No partner applications found</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('partner_applications.no_applications_found')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
                   {searchTerm || statusFilter !== 'all' 
-                    ? 'Try adjusting your search or filter criteria.'
-                    : 'No partner applications have been submitted yet.'}
+                    ? t('partner_applications.adjust_search')
+                    : t('partner_applications.no_submissions')}
                 </p>
               </div>
             )}
@@ -409,7 +409,7 @@ export default function PartnerApplicationsPage() {
             <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Partner Application Details</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('partner_applications.application_details')}</h3>
                   <button
                     onClick={() => setSelectedApplication(null)}
                     className="text-gray-400 hover:text-gray-600"
@@ -425,28 +425,28 @@ export default function PartnerApplicationsPage() {
                     <div>
                       <h4 className="text-md font-medium text-gray-900 mb-3 flex items-center">
                         <Building2 className="w-5 h-5 mr-2" />
-                        Company Information
+                        {t('partner_applications.company_information')}
                       </h4>
                       <div className="space-y-3">
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Company Name</label>
+                          <label className="text-sm font-medium text-gray-700">{t('partner_applications.company_name')}</label>
                           <p className="text-sm text-gray-900">{selectedApplication.companyName || 'N/A'}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Contact Person</label>
+                          <label className="text-sm font-medium text-gray-700">{t('partner_applications.contact_person')}</label>
                           <p className="text-sm text-gray-900">{selectedApplication.contactName || 'N/A'}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Email</label>
+                          <label className="text-sm font-medium text-gray-700">{t('partner_applications.email')}</label>
                           <p className="text-sm text-gray-900">{selectedApplication.email || 'N/A'}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Phone</label>
+                          <label className="text-sm font-medium text-gray-700">{t('partner_applications.phone')}</label>
                           <p className="text-sm text-gray-900">{selectedApplication.phone || 'N/A'}</p>
                         </div>
                         {selectedApplication.website && (
                           <div>
-                            <label className="text-sm font-medium text-gray-700">Website</label>
+                            <label className="text-sm font-medium text-gray-700">{t('partner_applications.website')}</label>
                             <p className="text-sm text-blue-600">
                               <a href={selectedApplication.website} target="_blank" rel="noopener noreferrer">
                                 {selectedApplication.website}
@@ -461,7 +461,7 @@ export default function PartnerApplicationsPage() {
                     <div>
                       <h4 className="text-md font-medium text-gray-900 mb-3 flex items-center">
                         <MapPin className="w-5 h-5 mr-2" />
-                        Address
+                        {t('partner_applications.address')}
                       </h4>
                       <p className="text-sm text-gray-900">
                         {[selectedApplication.address, selectedApplication.city, selectedApplication.country]
@@ -474,24 +474,24 @@ export default function PartnerApplicationsPage() {
                     <div>
                       <h4 className="text-md font-medium text-gray-900 mb-3 flex items-center">
                         <Briefcase className="w-5 h-5 mr-2" />
-                        Business Information
+                        {t('partner_applications.business_information')}
                       </h4>
                       <div className="space-y-3">
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Industry</label>
+                          <label className="text-sm font-medium text-gray-700">{t('partner_applications.industry')}</label>
                           <p className="text-sm text-gray-900">{selectedApplication.industry || 'N/A'}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Business Type</label>
+                          <label className="text-sm font-medium text-gray-700">{t('partner_applications.business_type')}</label>
                           <p className="text-sm text-gray-900">{selectedApplication.businessType || 'N/A'}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Years of Experience</label>
-                          <p className="text-sm text-gray-900">{selectedApplication.yearsExperience || 0} years</p>
+                          <label className="text-sm font-medium text-gray-700">{t('partner_applications.years_experience')}</label>
+                          <p className="text-sm text-gray-900">{selectedApplication.yearsExperience || 0} {t('partner_applications.years')}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Previous Deals</label>
-                          <p className="text-sm text-gray-900">{selectedApplication.previousDeals || 0} deals</p>
+                          <label className="text-sm font-medium text-gray-700">{t('partner_applications.previous_deals')}</label>
+                          <p className="text-sm text-gray-900">{selectedApplication.previousDeals || 0} {t('partner_applications.deals')}</p>
                         </div>
                       </div>
                     </div>
@@ -503,11 +503,11 @@ export default function PartnerApplicationsPage() {
                     <div>
                       <h4 className="text-md font-medium text-gray-900 mb-3 flex items-center">
                         <TrendingUp className="w-5 h-5 mr-2" />
-                        Investment Focus
+                        {t('partner_applications.investment_focus')}
                       </h4>
                       <div className="space-y-3">
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Investment Areas</label>
+                          <label className="text-sm font-medium text-gray-700">{t('partner_applications.investment_areas')}</label>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {selectedApplication.investmentAreas.map(area => (
                               <span key={area} className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
@@ -517,7 +517,7 @@ export default function PartnerApplicationsPage() {
                           </div>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-700">Deal Size Range</label>
+                          <label className="text-sm font-medium text-gray-700">{t('partner_applications.deal_size_range')}</label>
                           <p className="text-sm text-gray-900">
                             {formatCurrency(selectedApplication.minimumDealSize)} - {formatCurrency(selectedApplication.maximumDealSize)}
                           </p>
@@ -529,7 +529,7 @@ export default function PartnerApplicationsPage() {
                     <div>
                       <h4 className="text-md font-medium text-gray-900 mb-3 flex items-center">
                         <FileText className="w-5 h-5 mr-2" />
-                        Company Description
+                        {t('partner_applications.company_description')}
                       </h4>
                       <p className="text-sm text-gray-900 whitespace-pre-wrap">
                         {selectedApplication.description || 'N/A'}
@@ -538,7 +538,7 @@ export default function PartnerApplicationsPage() {
 
                     {/* Application Status */}
                     <div>
-                      <h4 className="text-md font-medium text-gray-900 mb-3">Application Status</h4>
+                      <h4 className="text-md font-medium text-gray-900 mb-3">{t('partner_applications.application_status')}</h4>
                       <div className="space-y-2">
                         <div className="flex items-center">
                           <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedApplication.status || '')}`}>
@@ -548,13 +548,13 @@ export default function PartnerApplicationsPage() {
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">
-                            Submitted: {formatDate(selectedApplication.createdAt)}
+                            {t('partner_applications.submitted')}: {formatDate(selectedApplication.createdAt)}
                           </p>
                         </div>
                         {selectedApplication.reviewedAt && selectedApplication.reviewer && (
                           <div>
                             <p className="text-sm text-gray-600">
-                              Reviewed by: {selectedApplication.reviewer.name} on {formatDate(selectedApplication.reviewedAt)}
+                              {t('partner_applications.reviewed_by')}: {selectedApplication.reviewer.name} {t('partner_applications.on')} {formatDate(selectedApplication.reviewedAt)}
                             </p>
                           </div>
                         )}
@@ -573,7 +573,7 @@ export default function PartnerApplicationsPage() {
                       className="border-red-300 text-red-600 hover:bg-red-50"
                     >
                       <XCircle className="w-4 h-4 mr-2" />
-                      Reject
+                      {t('partner_applications.reject')}
                     </Button>
                     <Button
                       onClick={() => handleApplicationAction(selectedApplication.id, 'approve')}
@@ -585,7 +585,7 @@ export default function PartnerApplicationsPage() {
                       ) : (
                         <CheckCircle className="w-4 h-4 mr-2" />
                       )}
-                      Approve & Create Partner Account
+                      {t('partner_applications.approve_create_account')}
                     </Button>
                   </div>
                 )}
