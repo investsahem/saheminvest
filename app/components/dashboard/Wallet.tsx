@@ -90,6 +90,15 @@ export function Wallet({
     reference: ''
   })
   
+  // Confirmation modal state
+  const [confirmationModal, setConfirmationModal] = useState({
+    isOpen: false,
+    amount: 0,
+    method: '' as 'cash' | 'bank',
+    onConfirm: () => {},
+    onCancel: () => {}
+  })
+  
   // Card payment form states
   const [cardDetails, setCardDetails] = useState({
     number: '',
@@ -153,11 +162,13 @@ export function Wallet({
       setShowPaymentForm(true)
     } else {
       setShowPaymentForm(false)
-      // For cash and bank, process immediately with confirmation
-      if (confirm(`${t('wallet.deposit.confirm_deposit')} $${formatNumber(parseFloat(depositAmount))} ${method === 'cash' ? t('wallet.payment_methods.cash') : t('wallet.payment_methods.bank_transfer')}?`)) {
-        const amount = parseFloat(depositAmount)
-        if (amount > 0 && onDeposit) {
+      // For cash and bank, show confirmation modal
+      const amount = parseFloat(depositAmount)
+      if (amount > 0 && onDeposit) {
+        showConfirmationModal(amount, method as 'cash' | 'bank', async () => {
           setIsProcessing(true)
+          closeConfirmationModal()
+          
           const result = await onDeposit(amount, method)
           setIsProcessing(false)
           
@@ -171,10 +182,7 @@ export function Wallet({
           } else {
             showModal('error', 'Deposit Failed', result.message, amount, method)
           }
-        }
-      } else {
-        // Reset payment method if user cancels
-        setPaymentMethod('')
+        })
       }
     }
   }
@@ -271,6 +279,23 @@ export function Wallet({
 
   const closeModal = () => {
     setModalState(prev => ({ ...prev, isOpen: false }))
+  }
+
+  const showConfirmationModal = (amount: number, method: 'cash' | 'bank', onConfirm: () => void) => {
+    setConfirmationModal({
+      isOpen: true,
+      amount,
+      method,
+      onConfirm,
+      onCancel: () => {
+        setConfirmationModal(prev => ({ ...prev, isOpen: false }))
+        setPaymentMethod('')
+      }
+    })
+  }
+
+  const closeConfirmationModal = () => {
+    setConfirmationModal(prev => ({ ...prev, isOpen: false }))
   }
 
   // Calculate actual returns (distributed profits only, not wallet balance)
@@ -875,6 +900,77 @@ export function Wallet({
         method={modalState.method as 'cash' | 'card' | 'bank'}
         reference={modalState.reference}
       />
+
+      {/* Confirmation Modal */}
+      {confirmationModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <DollarSign className="w-8 h-8 text-blue-600" />
+              </div>
+              
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {t('wallet.deposit.confirm_title')}
+              </h3>
+              
+              <p className="text-gray-600 mb-6">
+                {t('wallet.deposit.confirm_deposit')
+                  .replace('{{amount}}', formatNumber(confirmationModal.amount))
+                  .replace('{{method}}', confirmationModal.method === 'cash' ? t('wallet.payment_methods.cash') : t('wallet.payment_methods.bank_transfer'))
+                }
+              </p>
+              
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-600">{t('common.amount')}</span>
+                  <span className="text-lg font-bold text-gray-900">
+                    ${formatNumber(confirmationModal.amount)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-600">{t('common.payment_method')}</span>
+                  <div className="flex items-center gap-2">
+                    {confirmationModal.method === 'cash' ? (
+                      <WalletIcon className="w-4 h-4 text-gray-600" />
+                    ) : (
+                      <Landmark className="w-4 h-4 text-gray-600" />
+                    )}
+                    <span className="text-sm font-medium text-gray-900">
+                      {confirmationModal.method === 'cash' ? t('wallet.payment_methods.cash') : t('wallet.payment_methods.bank_transfer')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={confirmationModal.onCancel}
+                  className="flex-1"
+                  disabled={isProcessing}
+                >
+                  {t('common.cancel')}
+                </Button>
+                <Button
+                  onClick={confirmationModal.onConfirm}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <>
+                      <Clock className="w-4 h-4 mr-2 animate-spin" />
+                      {t('common.processing')}
+                    </>
+                  ) : (
+                    t('wallet.deposit.confirm_button')
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

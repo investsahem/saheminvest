@@ -701,7 +701,9 @@
       "fill_all_fields": "Please fill in all card details"
     },
     "deposit": {
-      "confirm_deposit": "Are you sure you want to deposit ${{amount}} via {{method}}?"
+      "confirm_deposit": "Are you sure you want to deposit ${{amount}} via {{method}}?",
+      "confirm_title": "Confirm Deposit",
+      "confirm_button": "Confirm Deposit"
     },
     "withdraw": {
       "maximum": "Maximum",

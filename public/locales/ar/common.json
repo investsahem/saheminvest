@@ -552,7 +552,9 @@
       "fill_all_fields": "يرجى ملء جميع بيانات البطاقة"
     },
     "deposit": {
-      "confirm_deposit": "هل أنت متأكد من إيداع ${{amount}} عبر {{method}}؟"
+      "confirm_deposit": "هل أنت متأكد من إيداع ${{amount}} عبر {{method}}؟",
+      "confirm_title": "تأكيد الإيداع",
+      "confirm_button": "تأكيد الإيداع"
     },
     "withdraw": {
       "maximum": "الحد الأقصى",
