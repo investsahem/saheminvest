@@ -98,7 +98,11 @@ const WalletPage = () => {
       if (response.ok) {
         // Refresh wallet data
         refreshWalletData()
-        return { success: true, message: result.transaction.message }
+        return { 
+          success: true, 
+          message: result.transaction.message,
+          transaction: result.transaction
+        }
       } else {
         return { success: false, message: result.error }
       }
@@ -127,7 +131,11 @@ const WalletPage = () => {
       if (response.ok) {
         // Refresh wallet data
         refreshWalletData()
-        return { success: true, message: result.transaction.message }
+        return { 
+          success: true, 
+          message: result.transaction.message,
+          transaction: result.transaction
+        }
       } else {
         return { success: false, message: result.error }
       }

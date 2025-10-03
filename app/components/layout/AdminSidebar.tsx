@@ -8,6 +8,7 @@ import { useAdminStats } from '../../hooks/useAdminStats'
 import { useAdminNotifications } from '../../hooks/useAdminNotifications'
 import { useProfitDistributions } from '../../hooks/useProfitDistributions'
 import { useAdminDealUpdates } from '../../hooks/useAdminDealUpdates'
+import { useAdminDeposits } from '../../hooks/useAdminDeposits'
 import { 
   LayoutDashboard, Users, DollarSign, Target, BarChart3, 
   Settings, FileText, Clock, UserCheck, Building2,
@@ -29,6 +30,7 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
   const { notifications } = useAdminNotifications()
   const { pendingCount: pendingProfitDistributions } = useProfitDistributions()
   const { pendingCount: pendingDealUpdates, totalDealsCount, isLoading: dealUpdatesLoading } = useAdminDealUpdates()
+  const { pendingCount: pendingDeposits, isLoading: depositsLoading } = useAdminDeposits()
 
   const handleLogout = async () => {
     try {
@@ -98,7 +100,8 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
       name: t('admin.manage_deposits'),
       href: '/admin/deposits',
       icon: Wallet,
-      current: pathname === '/admin/deposits'
+      current: pathname === '/admin/deposits',
+      badge: depositsLoading ? '...' : (pendingDeposits > 0 ? pendingDeposits : undefined)
     },
     {
       name: t('admin.profit_distributions'),
@@ -199,7 +202,11 @@ const AdminSidebar = ({ isMobileOpen = false, onMobileClose }: AdminSidebarProps
                   {item.name}
                 </div>
                 {item.badge && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                    item.href === '/admin/deposits' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
                     {item.badge}
                   </span>
                 )}

@@ -11,6 +11,7 @@ import {
   TrendingUp, CreditCard, Landmark, Plus, Minus, Eye, EyeOff,
   CheckCircle, Clock, AlertCircle, Shield, Lock
 } from 'lucide-react'
+import { SuccessModal } from '../ui/SuccessModal'
 
 interface Transaction {
   id: string
@@ -20,6 +21,19 @@ interface Transaction {
   status: 'pending' | 'completed' | 'failed'
   createdAt: string
   reference?: string
+}
+
+interface TransactionResult {
+  success: boolean
+  message: string
+  transaction?: {
+    id: string
+    amount: number
+    method: string
+    status: string
+    reference: string
+    message: string
+  }
 }
 
 interface WalletProps {
@@ -40,8 +54,8 @@ interface WalletProps {
     totalReturns: number
     calculatedBalance: number
   }
-  onDeposit?: (amount: number, method: string, cardDetails?: any) => Promise<{ success: boolean; message: string }>
-  onWithdraw?: (amount: number, method: string) => Promise<{ success: boolean; message: string }>
+  onDeposit?: (amount: number, method: string, cardDetails?: any) => Promise<TransactionResult>
+  onWithdraw?: (amount: number, method: string) => Promise<TransactionResult>
 }
 
 export function Wallet({
@@ -64,6 +78,17 @@ export function Wallet({
   const [showPaymentForm, setShowPaymentForm] = useState(false)
   const [showBalance, setShowBalance] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
+  
+  // Modal states
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    type: 'success' as 'success' | 'pending' | 'error',
+    title: '',
+    message: '',
+    amount: 0,
+    method: '' as 'cash' | 'card' | 'bank' | '',
+    reference: ''
+  })
   
   // Card payment form states
   const [cardDetails, setCardDetails] = useState({
@@ -140,9 +165,11 @@ export function Wallet({
             setDepositAmount('')
             setPaymentMethod('')
             setActiveTab('overview')
-            alert(result.message)
+            
+            // Show appropriate modal - cash and bank are always pending
+            showModal('pending', 'Deposit Submitted!', result.message, amount, method, result.transaction?.reference)
           } else {
-            alert(`Error: ${result.message}`)
+            showModal('error', 'Deposit Failed', result.message, amount, method)
           }
         }
       } else {
@@ -171,13 +198,13 @@ export function Wallet({
           setShowPaymentForm(false)
           setCardDetails({ number: '', expiry: '', cvv: '', name: '' })
           setActiveTab('overview')
-          alert(result.message)
+          showModal('success', 'Payment Successful!', result.message, amount, 'card', result.transaction?.reference)
         } else {
-          alert(`Error: ${result.message}`)
+          showModal('error', 'Payment Failed', result.message, amount, 'card')
         }
       }
     } catch (error) {
-      alert(t('wallet.errors.payment_failed'))
+      showModal('error', 'Payment Error', t('wallet.errors.payment_failed'), parseFloat(depositAmount), 'card')
     } finally {
       setIsProcessing(false)
     }
@@ -193,9 +220,9 @@ export function Wallet({
       if (result.success) {
         setWithdrawAmount('')
         setActiveTab('overview')
-        alert(result.message)
+        showModal('pending', 'Withdrawal Requested!', result.message, amount, withdrawMethod as 'cash' | 'bank')
       } else {
-        alert(`Error: ${result.message}`)
+        showModal('error', 'Withdrawal Failed', result.message, amount, withdrawMethod as 'cash' | 'bank')
       }
     }
   }
@@ -221,6 +248,29 @@ export function Wallet({
       return v.substring(0, 2) + '/' + v.substring(2, 4)
     }
     return v
+  }
+
+  const showModal = (
+    type: 'success' | 'pending' | 'error',
+    title: string,
+    message: string,
+    amount?: number,
+    method?: 'cash' | 'card' | 'bank',
+    reference?: string
+  ) => {
+    setModalState({
+      isOpen: true,
+      type,
+      title,
+      message,
+      amount: amount || 0,
+      method: method || '',
+      reference: reference || ''
+    })
+  }
+
+  const closeModal = () => {
+    setModalState(prev => ({ ...prev, isOpen: false }))
   }
 
   // Calculate actual returns (distributed profits only, not wallet balance)
@@ -813,6 +863,18 @@ export function Wallet({
           )}
         </CardContent>
       </Card>
+
+      {/* Success/Status Modal */}
+      <SuccessModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        type={modalState.type}
+        title={modalState.title}
+        message={modalState.message}
+        amount={modalState.amount}
+        method={modalState.method as 'cash' | 'card' | 'bank'}
+        reference={modalState.reference}
+      />
     </div>
   )
 } 
