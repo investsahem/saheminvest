@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import AdminLayout from '../../components/layout/AdminLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import { CheckCircle, XCircle, Clock, Eye, TrendingUp, TrendingDown, DollarSign, Calendar } from 'lucide-react'
 
 interface UpdateRequest {
@@ -41,6 +42,7 @@ interface UpdateRequest {
 }
 
 export default function DealUpdatesPage() {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const router = useRouter()
   const [updateRequests, setUpdateRequests] = useState<UpdateRequest[]>([])
@@ -70,7 +72,7 @@ export default function DealUpdatesPage() {
   }
 
   const handleApprove = async (requestId: string) => {
-    if (!confirm('Are you sure you want to approve this update? The changes will be applied to the deal immediately.')) {
+    if (!confirm(t('deal_updates.approve_confirmation'))) {
       return
     }
 
@@ -85,16 +87,16 @@ export default function DealUpdatesPage() {
       })
 
       if (response.ok) {
-        alert('Update request approved successfully!')
+        alert(t('deal_updates.approved_success'))
         fetchUpdateRequests()
         setShowModal(false)
         setSelectedRequest(null)
       } else {
-        alert('Failed to approve update request')
+        alert(t('deal_updates.approval_failed'))
       }
     } catch (error) {
       console.error('Error approving update request:', error)
-      alert('Error approving update request')
+      alert(t('deal_updates.approval_error'))
     } finally {
       setProcessing(false)
     }
@@ -102,7 +104,7 @@ export default function DealUpdatesPage() {
 
   const handleReject = async (requestId: string) => {
     if (!rejectionReason.trim()) {
-      alert('Please provide a reason for rejection')
+      alert(t('deal_updates.rejection_reason_required'))
       return
     }
 
@@ -120,17 +122,17 @@ export default function DealUpdatesPage() {
       })
 
       if (response.ok) {
-        alert('Update request rejected')
+        alert(t('deal_updates.rejected_success'))
         fetchUpdateRequests()
         setShowModal(false)
         setSelectedRequest(null)
         setRejectionReason('')
       } else {
-        alert('Failed to reject update request')
+        alert(t('deal_updates.rejection_failed'))
       }
     } catch (error) {
       console.error('Error rejecting update request:', error)
-      alert('Error rejecting update request')
+      alert(t('deal_updates.rejection_error'))
     } finally {
       setProcessing(false)
     }
@@ -174,8 +176,8 @@ export default function DealUpdatesPage() {
 
   return (
     <AdminLayout
-      title="Deal Update Requests"
-      subtitle="Review and approve partner deal updates"
+      title={t('deal_updates.title')}
+      subtitle={t('deal_updates.subtitle')}
     >
       <div className="space-y-6">
         {/* Filter tabs */}
@@ -188,7 +190,7 @@ export default function DealUpdatesPage() {
                 : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
-            Pending ({updateRequests.filter(r => r.status === 'PENDING').length})
+            {t('deal_updates.pending')} ({updateRequests.filter(r => r.status === 'PENDING').length})
           </button>
           <button
             onClick={() => setFilter('APPROVED')}
@@ -198,7 +200,7 @@ export default function DealUpdatesPage() {
                 : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
-            Approved
+            {t('deal_updates.approved')}
           </button>
           <button
             onClick={() => setFilter('REJECTED')}
@@ -208,7 +210,7 @@ export default function DealUpdatesPage() {
                 : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
           >
-            Rejected
+            {t('deal_updates.rejected')}
           </button>
         </div>
 
@@ -220,7 +222,7 @@ export default function DealUpdatesPage() {
         ) : updateRequests.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <p className="text-gray-500">No {filter.toLowerCase()} update requests found</p>
+              <p className="text-gray-500">{t('deal_updates.no_requests_found').replace('{status}', filter.toLowerCase())}</p>
             </CardContent>
           </Card>
         ) : (
@@ -245,7 +247,7 @@ export default function DealUpdatesPage() {
                       </h3>
 
                       <div className="flex items-center space-x-2 mb-3">
-                        <span className="text-sm text-gray-600">Requested by:</span>
+                        <span className="text-sm text-gray-600">{t('deal_updates.requested_by')}:</span>
                         <span className="text-sm font-medium text-gray-900">
                           {request.requester.partnerProfile?.companyName || request.requester.name}
                         </span>
@@ -253,7 +255,7 @@ export default function DealUpdatesPage() {
                       </div>
 
                       <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Proposed Changes:</h4>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">{t('deal_updates.proposed_changes')}:</h4>
                         <pre className="text-sm text-gray-600 whitespace-pre-wrap">
                           {request.changesSummary}
                         </pre>
@@ -261,14 +263,14 @@ export default function DealUpdatesPage() {
 
                       {request.reviewer && (
                         <div className="text-sm text-gray-500">
-                          Reviewed by {request.reviewer.name} on {formatDate(request.reviewedAt!)}
+                          {t('deal_updates.reviewed_by')} {request.reviewer.name} {t('deal_updates.on')} {formatDate(request.reviewedAt!)}
                         </div>
                       )}
 
                       {request.rejectionReason && (
                         <div className="bg-red-50 p-3 rounded-lg mt-2">
                           <p className="text-sm text-red-800">
-                            <strong>Rejection Reason:</strong> {request.rejectionReason}
+                            <strong>{t('deal_updates.rejection_reason')}:</strong> {request.rejectionReason}
                           </p>
                         </div>
                       )}
@@ -284,7 +286,7 @@ export default function DealUpdatesPage() {
                         size="sm"
                       >
                         <Eye className="w-4 h-4 mr-2" />
-                        View Details
+                        {t('deal_updates.view_details')}
                       </Button>
 
                       {request.status === 'PENDING' && (
@@ -296,7 +298,7 @@ export default function DealUpdatesPage() {
                             size="sm"
                           >
                             <CheckCircle className="w-4 h-4 mr-2" />
-                            Approve
+                            {t('deal_updates.approve')}
                           </Button>
                           <Button
                             onClick={() => {
@@ -309,7 +311,7 @@ export default function DealUpdatesPage() {
                             size="sm"
                           >
                             <XCircle className="w-4 h-4 mr-2" />
-                            Reject
+                            {t('deal_updates.reject')}
                           </Button>
                         </>
                       )}
@@ -327,25 +329,25 @@ export default function DealUpdatesPage() {
             <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Update Request Details
+                  {t('deal_updates.update_request_details')}
                 </h2>
               </div>
 
               <div className="p-6 space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Deal: {selectedRequest.project.title}
+                    {t('deal_updates.deal')}: {selectedRequest.project.title}
                   </h3>
                   
                   <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                    <h4 className="font-medium text-gray-700 mb-2">Changes Summary:</h4>
+                    <h4 className="font-medium text-gray-700 mb-2">{t('deal_updates.changes_summary')}:</h4>
                     <pre className="text-sm text-gray-600 whitespace-pre-wrap">
                       {selectedRequest.changesSummary}
                     </pre>
                   </div>
 
                   <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-gray-700 mb-2">Detailed Changes:</h4>
+                    <h4 className="font-medium text-gray-700 mb-2">{t('deal_updates.detailed_changes')}:</h4>
                     <pre className="text-xs text-gray-600 overflow-x-auto">
                       {JSON.stringify(selectedRequest.proposedChanges, null, 2)}
                     </pre>
@@ -355,14 +357,14 @@ export default function DealUpdatesPage() {
                 {selectedRequest.status === 'PENDING' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Rejection Reason (if rejecting):
+                      {t('deal_updates.rejection_reason_label')}:
                     </label>
                     <textarea
                       value={rejectionReason}
                       onChange={(e) => setRejectionReason(e.target.value)}
                       rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Provide a reason for rejection..."
+                      placeholder={t('deal_updates.rejection_placeholder')}
                     />
                   </div>
                 )}
@@ -378,7 +380,7 @@ export default function DealUpdatesPage() {
                   variant="outline"
                   disabled={processing}
                 >
-                  Close
+                  {t('deal_updates.close')}
                 </Button>
 
                 {selectedRequest.status === 'PENDING' && (
@@ -389,7 +391,7 @@ export default function DealUpdatesPage() {
                       className="bg-red-600 hover:bg-red-700"
                     >
                       <XCircle className="w-4 h-4 mr-2" />
-                      {processing ? 'Processing...' : 'Reject'}
+                      {processing ? t('deal_updates.processing') : t('deal_updates.reject')}
                     </Button>
                     <Button
                       onClick={() => handleApprove(selectedRequest.id)}
@@ -397,7 +399,7 @@ export default function DealUpdatesPage() {
                       className="bg-green-600 hover:bg-green-700"
                     >
                       <CheckCircle className="w-4 h-4 mr-2" />
-                      {processing ? 'Processing...' : 'Approve'}
+                      {processing ? t('deal_updates.processing') : t('deal_updates.approve')}
                     </Button>
                   </>
                 )}
