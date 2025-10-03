@@ -568,6 +568,34 @@
     "errors": {
       "payment_failed": "فشل في معالجة الدفع. يرجى المحاولة مرة أخرى."
     },
+    "status": {
+      "completed": "مكتمل",
+      "under_review": "قيد المراجعة",
+      "failed": "فشل"
+    },
+    "success": {
+      "card_description": "تم معالجة إيداعك بنجاح وإضافته إلى محفظتك.",
+      "funds_available": "الأموال متاحة الآن للاستثمار",
+      "view_history": "يمكنك عرض هذه المعاملة في سجلك",
+      "explore_opportunities": "ابدأ في استكشاف فرص الاستثمار"
+    },
+    "pending": {
+      "description": "تم تقديم طلب الإيداع الخاص بك وهو قيد المراجعة من قبل فريقنا.",
+      "verify_24h": "سنتحقق من دفعتك خلال 24 ساعة",
+      "notification_approval": "ستتلقى إشعاراً بمجرد الموافقة",
+      "funds_after_verification": "ستتم إضافة الأموال إلى محفظتك بعد التحقق"
+    },
+    "error": {
+      "description": "حدثت مشكلة في معالجة إيداعك. يرجى المحاولة مرة أخرى.",
+      "check_details": "تحقق من تفاصيل الدفع الخاصة بك",
+      "ensure_funds": "تأكد من توفر أموال كافية",
+      "contact_support": "اتصل بالدعم إذا استمرت المشكلة"
+    },
+    "what_happens_next": "ماذا يحدث بعد ذلك؟",
+    "secure_processing": "معالجة آمنة",
+    "secure_processing_description": "يتم معالجة معاملتك بشكل آمن. سنقوم بإشعارك عبر البريد الإلكتروني والإشعار داخل التطبيق بمجرد اكتمالها.",
+    "continue_investing": "متابعة الاستثمار",
+    "view_history": "عرض السجل",
     "balance": "الرصيد الحالي",
     "total_invested": "إجمالي الاستثمارات",
     "total_returns": "إجمالي العوائد",
@@ -1554,7 +1582,11 @@
     "next": "التالي",
     "select": "اختر...",
     "brand_name": "ساهم إنفست",
-    "partner": "شريك"
+    "partner": "شريك",
+    "status": "الحالة",
+    "reference": "المرجع",
+    "payment": "الدفع",
+    "got_it": "فهمت"
   },
   "investor": {
     "dashboard": "نظرة عامة على المحفظة",

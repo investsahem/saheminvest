@@ -14,6 +14,7 @@ import {
   Shield
 } from 'lucide-react'
 import { Button } from './Button'
+import { useTranslation } from '../providers/I18nProvider'
 
 interface SuccessModalProps {
   isOpen: boolean
@@ -38,6 +39,7 @@ export function SuccessModal({
   reference,
   details = []
 }: SuccessModalProps) {
+  const { t } = useTranslation()
   const getIcon = () => {
     switch (type) {
       case 'success':
@@ -67,13 +69,13 @@ export function SuccessModal({
   const getMethodName = () => {
     switch (method) {
       case 'cash':
-        return 'Cash Deposit'
+        return t('wallet.payment_methods.cash')
       case 'card':
-        return 'Credit Card'
+        return t('wallet.payment_methods.credit_card')
       case 'bank':
-        return 'Bank Transfer'
+        return t('wallet.payment_methods.bank_transfer')
       default:
-        return 'Payment'
+        return t('common.payment')
     }
   }
 
@@ -93,37 +95,37 @@ export function SuccessModal({
   const getStatusMessage = () => {
     if (type === 'success' && method === 'card') {
       return {
-        status: 'Completed',
-        description: 'Your deposit has been processed successfully and added to your wallet.',
+        status: t('wallet.status.completed'),
+        description: t('wallet.success.card_description'),
         nextSteps: [
-          'Funds are now available for investment',
-          'You can view this transaction in your history',
-          'Start exploring investment opportunities'
+          t('wallet.success.funds_available'),
+          t('wallet.success.view_history'),
+          t('wallet.success.explore_opportunities')
         ]
       }
     } else if (type === 'pending' && (method === 'cash' || method === 'bank')) {
       return {
-        status: 'Under Review',
-        description: 'Your deposit request has been submitted and is being reviewed by our team.',
+        status: t('wallet.status.under_review'),
+        description: t('wallet.pending.description'),
         nextSteps: [
-          'We will verify your payment within 24 hours',
-          'You will receive a notification once approved',
-          'Funds will be added to your wallet after verification'
+          t('wallet.pending.verify_24h'),
+          t('wallet.pending.notification_approval'),
+          t('wallet.pending.funds_after_verification')
         ]
       }
     } else if (type === 'error') {
       return {
-        status: 'Failed',
-        description: 'There was an issue processing your deposit. Please try again.',
+        status: t('wallet.status.failed'),
+        description: t('wallet.error.description'),
         nextSteps: [
-          'Check your payment details',
-          'Ensure sufficient funds are available',
-          'Contact support if the issue persists'
+          t('wallet.error.check_details'),
+          t('wallet.error.ensure_funds'),
+          t('wallet.error.contact_support')
         ]
       }
     }
     return {
-      status: 'Completed',
+      status: t('wallet.status.completed'),
       description: message,
       nextSteps: []
     }
@@ -186,7 +188,7 @@ export function SuccessModal({
                   {amount && (
                     <div className="bg-gray-50 rounded-xl p-4 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-600">Amount</span>
+                        <span className="text-sm font-medium text-gray-600">{t('common.amount')}</span>
                         <span className="text-lg font-bold text-gray-900">
                           ${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </span>
@@ -194,7 +196,7 @@ export function SuccessModal({
                       
                       {method && (
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-600">Payment Method</span>
+                          <span className="text-sm font-medium text-gray-600">{t('common.payment_method')}</span>
                           <div className="flex items-center gap-2">
                             {getMethodIcon()}
                             <span className="text-sm font-medium text-gray-900">{getMethodName()}</span>
@@ -203,7 +205,7 @@ export function SuccessModal({
                       )}
                       
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-600">Status</span>
+                        <span className="text-sm font-medium text-gray-600">{t('common.status')}</span>
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full ${
                             type === 'success' ? 'bg-green-500' : 
@@ -220,7 +222,7 @@ export function SuccessModal({
                       
                       {reference && (
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-600">Reference</span>
+                          <span className="text-sm font-medium text-gray-600">{t('common.reference')}</span>
                           <span className="text-sm font-mono text-gray-900 bg-white px-2 py-1 rounded">
                             {reference}
                           </span>
@@ -234,7 +236,7 @@ export function SuccessModal({
                     <div>
                       <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
                         <ArrowRight className="w-4 h-4" />
-                        What happens next?
+                        {t('wallet.what_happens_next')}
                       </h4>
                       <div className="space-y-2">
                         {statusInfo.nextSteps.map((step, index) => (
@@ -255,9 +257,9 @@ export function SuccessModal({
                       <div className="flex items-start gap-3">
                         <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <h5 className="text-sm font-medium text-blue-900 mb-1">Secure Processing</h5>
+                          <h5 className="text-sm font-medium text-blue-900 mb-1">{t('wallet.secure_processing')}</h5>
                           <p className="text-xs text-blue-800">
-                            Your transaction is being processed securely. We'll notify you via email and in-app notification once it's completed.
+                            {t('wallet.secure_processing_description')}
                           </p>
                         </div>
                       </div>
@@ -271,7 +273,7 @@ export function SuccessModal({
                     onClick={onClose}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    {type === 'success' ? 'Continue Investing' : 'Got it'}
+                    {type === 'success' ? t('wallet.continue_investing') : t('common.got_it')}
                   </Button>
                   {type === 'pending' && (
                     <Button
@@ -279,7 +281,7 @@ export function SuccessModal({
                       onClick={onClose}
                       className="flex-1"
                     >
-                      View History
+                      {t('wallet.view_history')}
                     </Button>
                   )}
                 </div>

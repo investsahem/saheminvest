@@ -717,6 +717,34 @@
     "errors": {
       "payment_failed": "Payment processing failed. Please try again."
     },
+    "status": {
+      "completed": "Completed",
+      "under_review": "Under Review",
+      "failed": "Failed"
+    },
+    "success": {
+      "card_description": "Your deposit has been processed successfully and added to your wallet.",
+      "funds_available": "Funds are now available for investment",
+      "view_history": "You can view this transaction in your history",
+      "explore_opportunities": "Start exploring investment opportunities"
+    },
+    "pending": {
+      "description": "Your deposit request has been submitted and is being reviewed by our team.",
+      "verify_24h": "We will verify your payment within 24 hours",
+      "notification_approval": "You will receive a notification once approved",
+      "funds_after_verification": "Funds will be added to your wallet after verification"
+    },
+    "error": {
+      "description": "There was an issue processing your deposit. Please try again.",
+      "check_details": "Check your payment details",
+      "ensure_funds": "Ensure sufficient funds are available",
+      "contact_support": "Contact support if the issue persists"
+    },
+    "what_happens_next": "What happens next?",
+    "secure_processing": "Secure Processing",
+    "secure_processing_description": "Your transaction is being processed securely. We'll notify you via email and in-app notification once it's completed.",
+    "continue_investing": "Continue Investing",
+    "view_history": "View History",
     "balance": "Current Balance",
     "total_invested": "Total Invested",
     "total_returns": "Total Returns",
@@ -1668,7 +1696,11 @@
     "close": "Close",
     "save_changes": "Save Changes",
     "brand_name": "Sahem Invest",
-    "partner": "Partner"
+    "partner": "Partner",
+    "status": "Status",
+    "reference": "Reference",
+    "payment": "Payment",
+    "got_it": "Got it"
   },
   "deal_card": {
     "funding_completed": "Funding Completed",
