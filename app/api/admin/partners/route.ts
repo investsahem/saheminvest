@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    // Get partners with user details
+    // Get partners with user details and their latest deals
     const [partners, total] = await Promise.all([
       prisma.partner.findMany({
         where,
@@ -74,12 +74,70 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               email: true,
-              role: true
+              role: true,
+              partnerProfile: {
+                select: {
+                  companyName: true,
+                  displayName: true,
+                  tagline: true,
+                  description: true,
+                  logo: true,
+                  coverImage: true,
+                  brandColor: true,
+                  website: true,
+                  email: true,
+                  phone: true,
+                  address: true,
+                  city: true,
+                  country: true,
+                  industry: true,
+                  foundedYear: true,
+                  employeeCount: true,
+                  businessType: true,
+                  registrationNumber: true,
+                  linkedin: true,
+                  twitter: true,
+                  facebook: true,
+                  instagram: true,
+                  investmentAreas: true,
+                  minimumDealSize: true,
+                  maximumDealSize: true,
+                  preferredDuration: true,
+                  yearsExperience: true,
+                  isPublic: true,
+                  allowInvestorContact: true,
+                  showSuccessMetrics: true
+                }
+              }
             }
+          },
+          projects: {
+            select: {
+              id: true,
+              title: true,
+              category: true,
+              status: true,
+              createdAt: true
+            },
+            where: {
+              status: {
+                in: ['ACTIVE', 'COMPLETED', 'FUNDED']
+              }
+            },
+            orderBy: {
+              createdAt: 'desc'
+            },
+            take: 1 // Get the latest deal to extract company info
           },
           _count: {
             select: {
-              projects: true,
+              projects: {
+                where: {
+                  status: {
+                    in: ['ACTIVE', 'PENDING', 'PUBLISHED']
+                  }
+                }
+              },
               reviews: true
             }
           }
@@ -96,34 +154,66 @@ export async function GET(request: NextRequest) {
     ])
 
     // Transform partners to match frontend interface
-    const transformedPartners = partners.map(partner => ({
-      id: partner.id,
-      companyName: partner.companyName,
-      contactName: partner.contactName || partner.user.name || '',
-      email: partner.user.email,
-      phone: partner.phone,
-      address: partner.address,
-      website: partner.website,
-      industry: partner.industry || 'Other',
-      status: partner.status.toLowerCase(),
-      tier: partner.tier.toLowerCase(),
-      joinedAt: partner.joinedAt.toISOString(),
-      lastActive: partner.lastActive?.toISOString() || partner.updatedAt.toISOString(),
-      stats: {
-        totalDeals: partner.totalDeals,
-        totalCommission: Number(partner.totalCommission),
-        successRate: Number(partner.successRate),
-        activeDeals: partner._count.projects
-      },
-      documents: {
-        businessLicense: partner.businessLicense,
-        taxCertificate: partner.taxCertificate,
-        bankDetails: partner.bankDetails,
-        partnership: partner.partnershipAgreement
+    const transformedPartners = partners.map(partner => {
+      // Prioritize PartnerProfile info, then latest deal, then static partner data
+      const profile = partner.user?.partnerProfile
+      const latestDeal = partner.projects?.[0]
+      const dynamicCompanyName = profile?.companyName || latestDeal?.title || partner.companyName || 'No Company Name'
+      const dynamicIndustry = profile?.industry || latestDeal?.category || partner.industry || 'Other'
+      
+      return {
+        id: partner.id,
+        companyName: dynamicCompanyName,
+        contactName: profile?.displayName || partner.contactName || partner.user.name || '',
+        email: profile?.email || partner.user.email,
+        phone: profile?.phone || partner.phone,
+        address: profile?.address || partner.address,
+        website: profile?.website || partner.website,
+        industry: dynamicIndustry,
+        status: partner.status.toLowerCase(),
+        tier: partner.tier.toLowerCase(),
+        joinedAt: partner.joinedAt.toISOString(),
+        lastActive: partner.lastActive?.toISOString() || partner.updatedAt.toISOString(),
+        stats: {
+          totalDeals: partner.totalDeals,
+          totalInvested: Number(partner.totalFunding), // Use totalFunding as total invested amount
+          successRate: Number(partner.successRate),
+          activeDeals: partner._count.projects
+        },
+        documents: {
+          businessLicense: partner.businessLicense,
+          taxCertificate: partner.taxCertificate,
+          bankDetails: partner.bankDetails,
+          partnership: partner.partnershipAgreement
+        },
+        // Additional profile information
+        logoUrl: profile?.logo || '',
+        description: profile?.description || partner.description || '',
+        tagline: profile?.tagline || '',
+        brandColor: profile?.brandColor || '',
+        coverImage: profile?.coverImage || '',
+        businessType: profile?.businessType || '',
+        registrationNumber: profile?.registrationNumber || '',
+        foundedYear: profile?.foundedYear || null,
+        employeeCount: profile?.employeeCount || '',
+        yearsExperience: profile?.yearsExperience || 0,
+        socialLinks: {
+          linkedin: profile?.linkedin || '',
+          twitter: profile?.twitter || '',
+          facebook: profile?.facebook || '',
+          instagram: profile?.instagram || ''
+        },
+        investmentAreas: profile?.investmentAreas || [],
+        minimumDealSize: profile?.minimumDealSize || null,
+        maximumDealSize: profile?.maximumDealSize || null,
+        preferredDuration: profile?.preferredDuration || null,
+        isPublic: profile?.isPublic !== false,
+        allowInvestorContact: profile?.allowInvestorContact !== false,
+        showSuccessMetrics: profile?.showSuccessMetrics !== false
       }
-    }))
+    })
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       partners: transformedPartners,
       pagination: {
         page,
@@ -132,6 +222,11 @@ export async function GET(request: NextRequest) {
         pages: Math.ceil(total / limit)
       }
     })
+
+    // Add cache headers for better performance
+    response.headers.set('Cache-Control', 'private, max-age=60, stale-while-revalidate=300')
+    
+    return response
 
   } catch (error) {
     console.error('Error fetching partners:', error)

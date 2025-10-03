@@ -267,8 +267,18 @@ export default function PartnersPage() {
                     {/* Header */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-xl flex items-center justify-center text-xl backdrop-blur-sm">
-                          {getIndustryIcon(partner.industry)}
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center text-xl overflow-hidden" style={{ backgroundColor: '#f2f2f2' }}>
+                          {partner.logoUrl ? (
+                            <img 
+                              src={partner.logoUrl} 
+                              alt={`${partner.companyName} logo`}
+                              className="w-full h-full object-cover rounded-xl"
+                            />
+                          ) : (
+                            <div className="text-gray-600">
+                              {getIndustryIcon(partner.industry)}
+                            </div>
+                          )}
                         </div>
                         <div className="min-w-0 flex-1">
                           <h3 className="text-lg font-bold text-[#ffffff] truncate">{partner.companyName}</h3>

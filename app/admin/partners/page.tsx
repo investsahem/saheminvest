@@ -6,6 +6,7 @@ import AdminLayout from '../../components/layout/AdminLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
+import { useTranslation } from '../../components/providers/I18nProvider'
 import { 
   Building2, Users, DollarSign, TrendingUp, Search, Filter, 
   Plus, Eye, Edit, Trash2, Mail, Phone, MapPin, Calendar,
@@ -25,9 +26,10 @@ interface Partner {
   tier: 'bronze' | 'silver' | 'gold' | 'platinum'
   joinedAt: string
   lastActive: string
+  logoUrl?: string
   stats: {
     totalDeals: number
-    totalCommission: number
+    totalInvested: number
     successRate: number
     activeDeals: number
   }
@@ -40,6 +42,7 @@ interface Partner {
 }
 
 const PartnersPage = () => {
+  const { t } = useTranslation()
   const { data: session } = useSession()
   const [partners, setPartners] = useState<Partner[]>([])
   const [loading, setLoading] = useState(true)
@@ -51,11 +54,13 @@ const PartnersPage = () => {
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null)
   const [showViewModal, setShowViewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Fetch real partners from API
   const fetchPartners = async () => {
     try {
       setLoading(true)
+      setError(null)
       const params = new URLSearchParams({
         page: '1',
         limit: '50'
@@ -83,13 +88,21 @@ const PartnersPage = () => {
       
       if (response.ok) {
         const data = await response.json()
-        setPartners(data.partners)
+        setPartners(data.partners || [])
+      } else if (response.status === 401) {
+        setError('Authentication required. Please sign in as an admin.')
+        setPartners([])
+      } else if (response.status === 403) {
+        setError('Access denied. Admin privileges required.')
+        setPartners([])
       } else {
-        console.error('Error fetching partners:', response.statusText)
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        setError(errorData.error || 'Failed to fetch partners')
         setPartners([])
       }
     } catch (error) {
       console.error('Error fetching partners:', error)
+      setError('Network error. Please check your connection.')
       setPartners([])
     } finally {
       setLoading(false)
@@ -111,11 +124,11 @@ const PartnersPage = () => {
         setSelectedPartner(partner)
         setShowViewModal(true)
       } else {
-        alert('Error fetching partner details')
+        alert(t('partners.fetch_error'))
       }
     } catch (error) {
       console.error('Error fetching partner:', error)
-      alert('Error fetching partner details')
+      alert(t('partners.fetch_error'))
     }
   }
 
@@ -130,11 +143,11 @@ const PartnersPage = () => {
         setSelectedPartner(partner)
         setShowEditModal(true)
       } else {
-        alert('Error fetching partner details')
+        alert(t('partners.fetch_error'))
       }
     } catch (error) {
       console.error('Error fetching partner:', error)
-      alert('Error fetching partner details')
+      alert(t('partners.fetch_error'))
     }
   }
 
@@ -150,7 +163,7 @@ const PartnersPage = () => {
       })
       
       if (response.ok) {
-        alert(`Partner ${status.toLowerCase()} successfully!`)
+        alert(t('partners.partner_updated').replace('{status}', status.toLowerCase()))
         fetchPartners() // Refresh the list
       } else {
         const error = await response.json()
@@ -158,12 +171,12 @@ const PartnersPage = () => {
       }
     } catch (error) {
       console.error('Error updating partner:', error)
-      alert('Error updating partner')
+      alert(t('partners.update_error'))
     }
   }
 
   const handleDeletePartner = async (partnerId: string) => {
-    if (!confirm('Are you sure you want to delete this partner? This action cannot be undone.')) {
+    if (!confirm(t('partners.delete_confirmation'))) {
       return
     }
 
@@ -174,7 +187,7 @@ const PartnersPage = () => {
       })
       
       if (response.ok) {
-        alert('Partner deleted successfully!')
+        alert(t('partners.partner_deleted'))
         fetchPartners() // Refresh the list
       } else {
         const error = await response.json()
@@ -182,7 +195,7 @@ const PartnersPage = () => {
       }
     } catch (error) {
       console.error('Error deleting partner:', error)
-      alert('Error deleting partner')
+      alert(t('partners.delete_error'))
     }
   }
 
@@ -253,7 +266,7 @@ const PartnersPage = () => {
   // Calculate summary statistics
   const activePartners = partners.filter(p => p.status === 'active').length
   const pendingPartners = partners.filter(p => p.status === 'pending').length
-  const totalCommissions = partners.reduce((sum, p) => sum + p.stats.totalCommission, 0)
+  const totalInvested = partners.reduce((sum, p) => sum + p.stats.totalInvested, 0)
   const totalDeals = partners.reduce((sum, p) => sum + p.stats.totalDeals, 0)
   const avgSuccessRate = partners.length > 0 
     ? partners.reduce((sum, p) => sum + p.stats.successRate, 0) / partners.length 
@@ -280,8 +293,8 @@ const PartnersPage = () => {
   if (loading) {
     return (
       <AdminLayout
-        title="Partner Management"
-        subtitle="Manage business partnerships and collaborations"
+        title={t('partners.title')}
+        subtitle={t('partners.subtitle')}
       >
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -290,10 +303,32 @@ const PartnersPage = () => {
     )
   }
 
+  if (error) {
+    return (
+      <AdminLayout
+        title={t('partners.title')}
+        subtitle={t('partners.subtitle')}
+      >
+        <div className="flex justify-center items-center py-12">
+          <Card className="max-w-md">
+            <CardContent className="p-6 text-center">
+              <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Partners</h3>
+              <p className="text-gray-600 mb-4">{error}</p>
+              <Button onClick={fetchPartners} className="w-full">
+                Try Again
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </AdminLayout>
+    )
+  }
+
   return (
     <AdminLayout
-      title="Partner Management"
-      subtitle="Manage business partnerships and collaborations"
+      title={t('partners.title')}
+      subtitle={t('partners.subtitle')}
     >
       <div className="space-y-6">
         {/* Summary Cards */}
@@ -302,7 +337,7 @@ const PartnersPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-700">Active Partners</p>
+                  <p className="text-sm font-medium text-blue-700">{t('partners.active_partners')}</p>
                   <p className="text-2xl font-bold text-blue-900">{activePartners}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -316,7 +351,7 @@ const PartnersPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-yellow-700">Pending</p>
+                  <p className="text-sm font-medium text-yellow-700">{t('partners.pending')}</p>
                   <p className="text-2xl font-bold text-yellow-900">{pendingPartners}</p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
@@ -330,8 +365,8 @@ const PartnersPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700">Total Commissions</p>
-                  <p className="text-2xl font-bold text-green-900">{formatCurrency(totalCommissions)}</p>
+                  <p className="text-sm font-medium text-green-700">{t('partners.total_invested')}</p>
+                  <p className="text-2xl font-bold text-green-900">{formatCurrency(totalInvested)}</p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                   <DollarSign className="w-6 h-6 text-green-600" />
@@ -344,7 +379,7 @@ const PartnersPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-700">Total Deals</p>
+                  <p className="text-sm font-medium text-purple-700">{t('partners.total_deals')}</p>
                   <p className="text-2xl font-bold text-purple-900">{totalDeals}</p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -358,7 +393,7 @@ const PartnersPage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-indigo-700">Avg Success Rate</p>
+                  <p className="text-sm font-medium text-indigo-700">{t('partners.avg_success_rate')}</p>
                   <p className="text-2xl font-bold text-indigo-900">{avgSuccessRate.toFixed(1)}%</p>
                 </div>
                 <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
@@ -378,7 +413,7 @@ const PartnersPage = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     type="text"
-                    placeholder="Search partners..."
+                    placeholder={t('partners.search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -390,11 +425,11 @@ const PartnersPage = () => {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="pending">Pending</option>
-                  <option value="suspended">Suspended</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="all">{t('partners.all_status')}</option>
+                  <option value="active">{t('partners.active')}</option>
+                  <option value="pending">{t('partners.pending')}</option>
+                  <option value="suspended">{t('partners.suspended')}</option>
+                  <option value="inactive">{t('partners.inactive')}</option>
                 </select>
 
                 <select
@@ -402,11 +437,11 @@ const PartnersPage = () => {
                   onChange={(e) => setTierFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Tiers</option>
-                  <option value="platinum">Platinum</option>
-                  <option value="gold">Gold</option>
-                  <option value="silver">Silver</option>
-                  <option value="bronze">Bronze</option>
+                  <option value="all">{t('partners.all_tiers')}</option>
+                  <option value="platinum">{t('partners.platinum')}</option>
+                  <option value="gold">{t('partners.gold')}</option>
+                  <option value="silver">{t('partners.silver')}</option>
+                  <option value="bronze">{t('partners.bronze')}</option>
                 </select>
 
                 <select
@@ -414,7 +449,7 @@ const PartnersPage = () => {
                   onChange={(e) => setIndustryFilter(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="all">All Industries</option>
+                  <option value="all">{t('partners.all_industries')}</option>
                   {industries.map(industry => (
                     <option key={industry} value={industry}>{industry}</option>
                   ))}
@@ -424,14 +459,14 @@ const PartnersPage = () => {
               <div className="flex gap-2">
                 <Button variant="outline" className="flex items-center gap-2">
                   <Filter className="w-4 h-4" />
-                  Export
+                  {t('partners.export')}
                 </Button>
                 <Button 
                   className="flex items-center gap-2"
                   onClick={() => setShowAddModal(true)}
                 >
                   <Plus className="w-4 h-4" />
-                  Add Partner
+                  {t('partners.add_partner')}
                 </Button>
               </div>
             </div>
@@ -445,8 +480,16 @@ const PartnersPage = () => {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                      <Building2 className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center mr-3 overflow-hidden" style={{ backgroundColor: '#f2f2f2' }}>
+                      {partner.logoUrl ? (
+                        <img 
+                          src={partner.logoUrl} 
+                          alt={`${partner.companyName} logo`}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : (
+                        <Building2 className="w-6 h-6 text-gray-600" />
+                      )}
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
@@ -480,26 +523,26 @@ const PartnersPage = () => {
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2" />
-                    <span>Joined {formatDate(partner.joinedAt)}</span>
+                    <span>{t('partners.joined')} {formatDate(partner.joinedAt)}</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
                     <div className="text-lg font-bold text-gray-900">{partner.stats.totalDeals}</div>
-                    <div className="text-xs text-gray-600">Total Deals</div>
+                    <div className="text-xs text-gray-600">{t('partners.total_deals_label')}</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-lg font-bold text-green-600">{formatCurrency(partner.stats.totalCommission)}</div>
-                    <div className="text-xs text-gray-600">Commission</div>
+                    <div className="text-lg font-bold text-green-600">{formatCurrency(partner.stats.totalInvested)}</div>
+                    <div className="text-xs text-gray-600">{t('partners.total_invested_label')}</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
                     <div className="text-lg font-bold text-blue-600">{partner.stats.successRate}%</div>
-                    <div className="text-xs text-gray-600">Success Rate</div>
+                    <div className="text-xs text-gray-600">{t('partners.success_rate')}</div>
                   </div>
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
                     <div className="text-lg font-bold text-purple-600">{partner.stats.activeDeals}</div>
-                    <div className="text-xs text-gray-600">Active</div>
+                    <div className="text-xs text-gray-600">{t('partners.active_label')}</div>
                   </div>
                 </div>
 
@@ -508,13 +551,13 @@ const PartnersPage = () => {
                     {partner.status.charAt(0).toUpperCase() + partner.status.slice(1)}
                   </span>
                   <div className="text-xs text-gray-500">
-                    Last active: {formatDate(partner.lastActive)}
+                    {t('partners.last_active')}: {formatDate(partner.lastActive)}
                   </div>
                 </div>
 
                 {/* Document Status */}
                 <div className="mb-4">
-                  <div className="text-xs text-gray-600 mb-2">Documents:</div>
+                  <div className="text-xs text-gray-600 mb-2">{t('partners.documents')}:</div>
                   <div className="flex items-center gap-1">
                     {Object.entries(partner.documents).map(([doc, completed]) => (
                       <div
@@ -534,16 +577,16 @@ const PartnersPage = () => {
                     size="sm" 
                     className="flex-1"
                     onClick={() => handleViewPartner(partner.id)}
-                    title="View Details"
+                    title={t('partners.view_details')}
                   >
                     <Eye className="w-4 h-4 mr-2" />
-                    View
+                    {t('partners.view')}
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => handleEditPartner(partner.id)}
-                    title="Edit Partner"
+                    title={t('partners.edit_partner')}
                   >
                     <Edit className="w-4 h-4" />
                   </Button>
@@ -553,7 +596,7 @@ const PartnersPage = () => {
                       size="sm" 
                       className="text-green-600 border-green-300 hover:bg-green-50"
                       onClick={() => handleUpdatePartnerStatus(partner.id, 'active')}
-                      title="Approve Partner"
+                      title={t('partners.approve_partner')}
                     >
                       <CheckCircle className="w-4 h-4" />
                     </Button>
@@ -564,7 +607,7 @@ const PartnersPage = () => {
                       size="sm" 
                       className="text-red-600 border-red-300 hover:bg-red-50"
                       onClick={() => handleUpdatePartnerStatus(partner.id, 'suspended')}
-                      title="Suspend Partner"
+                      title={t('partners.suspend_partner')}
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -574,7 +617,7 @@ const PartnersPage = () => {
                     size="sm" 
                     className="text-red-600 border-red-300 hover:bg-red-50"
                     onClick={() => handleDeletePartner(partner.id)}
-                    title="Delete Partner"
+                    title={t('partners.delete_partner')}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -589,14 +632,14 @@ const PartnersPage = () => {
             <CardContent className="p-12">
               <div className="text-center">
                 <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No partners found</h3>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">{t('partners.no_partners_found')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  No partners match your current filters.
+                  {t('partners.no_partners_message')}
                 </p>
                 <div className="mt-6">
                   <Button onClick={() => setShowAddModal(true)}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Partner
+                    {t('partners.add_partner')}
                   </Button>
                 </div>
               </div>

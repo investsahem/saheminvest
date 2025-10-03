@@ -70,6 +70,7 @@ export async function GET(
           select: {
             id: true,
             title: true,
+            category: true,
             description: true,
             thumbnailImage: true,
             status: true,
@@ -79,6 +80,7 @@ export async function GET(
             duration: true,
             endDate: true,
             minInvestment: true,
+            createdAt: true,
             _count: {
               select: {
                 investments: true
@@ -123,13 +125,17 @@ export async function GET(
       ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
       : null
 
-    // Use PartnerProfile data as the primary source
+    // Prioritize PartnerProfile info, then latest deal, then static data
+    const latestDeal = partnerWithDetails?.projects?.[0]
+    const dynamicCompanyName = partnerProfile.companyName || latestDeal?.title || 'No Company Name'
+    const dynamicIndustry = partnerProfile.industry || latestDeal?.category || 'Other'
+
     const result = {
       id: partner?.id || partnerProfile.id,
-      companyName: partnerProfile.companyName,
+      companyName: dynamicCompanyName,
       contactEmail: partnerProfile.email,
       contactPhone: partnerProfile.phone,
-      industry: partnerProfile.industry,
+      industry: dynamicIndustry,
       description: partnerProfile.description,
       website: partnerProfile.website,
       foundedYear: partnerProfile.foundedYear,
@@ -148,7 +154,28 @@ export async function GET(
       reviews: partnerWithDetails?.reviews?.map(review => ({
         ...review,
         deal: review.project // Map project to deal for backward compatibility
-      })) || []
+      })) || [],
+      // Additional profile information
+      contactName: partnerProfile.displayName || partnerProfile.companyName || '',
+      tagline: partnerProfile.tagline || '',
+      brandColor: partnerProfile.brandColor || '',
+      coverImage: partnerProfile.coverImage || '',
+      businessType: partnerProfile.businessType || '',
+      registrationNumber: partnerProfile.registrationNumber || '',
+      yearsExperience: partnerProfile.yearsExperience || 0,
+      socialLinks: {
+        linkedin: partnerProfile.linkedin || '',
+        twitter: partnerProfile.twitter || '',
+        facebook: partnerProfile.facebook || '',
+        instagram: partnerProfile.instagram || ''
+      },
+      investmentAreas: partnerProfile.investmentAreas || [],
+      minimumDealSize: partnerProfile.minimumDealSize || null,
+      maximumDealSize: partnerProfile.maximumDealSize || null,
+      preferredDuration: partnerProfile.preferredDuration || null,
+      isPublic: partnerProfile.isPublic !== false,
+      allowInvestorContact: partnerProfile.allowInvestorContact !== false,
+      showSuccessMetrics: partnerProfile.showSuccessMetrics !== false
     }
 
     return NextResponse.json(result)

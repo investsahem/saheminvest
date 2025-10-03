@@ -44,7 +44,41 @@ export async function GET(
             email: true,
             role: true,
             isActive: true,
-            walletBalance: true
+            walletBalance: true,
+              partnerProfile: {
+                select: {
+                  companyName: true,
+                  displayName: true,
+                  tagline: true,
+                  description: true,
+                  logo: true,
+                  coverImage: true,
+                  brandColor: true,
+                  website: true,
+                  email: true,
+                  phone: true,
+                  address: true,
+                  city: true,
+                  country: true,
+                  industry: true,
+                  foundedYear: true,
+                  employeeCount: true,
+                  businessType: true,
+                  registrationNumber: true,
+                  linkedin: true,
+                  twitter: true,
+                  facebook: true,
+                  instagram: true,
+                  investmentAreas: true,
+                  minimumDealSize: true,
+                  maximumDealSize: true,
+                  preferredDuration: true,
+                  yearsExperience: true,
+                  isPublic: true,
+                  allowInvestorContact: true,
+                  showSuccessMetrics: true
+                }
+              }
           }
         },
         projects: {
@@ -93,15 +127,21 @@ export async function GET(
       )
     }
 
+    // Prioritize PartnerProfile info, then latest deal, then static partner data
+    const profile = partner.user?.partnerProfile
+    const latestDeal = partner.projects?.[0]
+    const dynamicCompanyName = profile?.companyName || latestDeal?.title || partner.companyName || 'No Company Name'
+    const dynamicIndustry = profile?.industry || latestDeal?.category || partner.industry || 'Other'
+
     return NextResponse.json({
       id: partner.id,
-      companyName: partner.companyName,
+      companyName: dynamicCompanyName,
       contactName: partner.contactName,
       email: partner.user.email,
       phone: partner.phone,
       address: partner.address,
       website: partner.website,
-      industry: partner.industry,
+      industry: dynamicIndustry,
       description: partner.description,
       status: partner.status.toLowerCase(),
       tier: partner.tier.toLowerCase(),
