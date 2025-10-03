@@ -187,8 +187,8 @@ const DealManagePage = () => {
     )
   }
 
-  const totalInvested = deal.investments.reduce((sum, inv) => sum + Number(inv.amount), 0)
-  const totalDistributed = deal.profitDistributions.reduce((sum, dist) => sum + Number(dist.amount), 0)
+  const totalInvested = (deal.investments || []).reduce((sum, inv) => sum + Number(inv.amount), 0)
+  const totalDistributed = (deal.profitDistributions || []).reduce((sum, dist) => sum + Number(dist.amount), 0)
   const fundingProgress = (deal.currentFunding / deal.fundingGoal) * 100
 
   return (
@@ -248,7 +248,7 @@ const DealManagePage = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">عدد المستثمرين</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {deal._count.investments}
+                    {deal._count?.investments || 0}
                   </p>
                 </div>
                 <Users className="w-8 h-8 text-green-600" />
@@ -328,12 +328,12 @@ const DealManagePage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {deal.investments.map((investment, index) => {
-                    const investorProfits = deal.profitDistributions
+                  {(deal.investments || []).map((investment, index) => {
+                    const investorProfits = (deal.profitDistributions || [])
                       .filter(dist => dist.status === 'COMPLETED')
                       .reduce((sum, dist) => {
                         // Calculate this investor's share based on investment ratio
-                        const investorShare = (Number(investment.amount) / totalInvested) * Number(dist.amount)
+                        const investorShare = totalInvested > 0 ? (Number(investment.amount) / totalInvested) * Number(dist.amount) : 0
                         return sum + investorShare
                       }, 0)
 
@@ -354,6 +354,13 @@ const DealManagePage = () => {
                       </tr>
                     )
                   })}
+                  {(deal.investments || []).length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center text-gray-500">
+                        لا توجد استثمارات في هذه الصفقة حالياً
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -372,7 +379,7 @@ const DealManagePage = () => {
               )}
             </div>
             
-            {deal.profitDistributions.length > 0 ? (
+            {(deal.profitDistributions || []).length > 0 ? (
               <div className="space-y-4">
                 {/* Summary for completed deals */}
                 {deal.status === 'COMPLETED' && (
@@ -385,12 +392,12 @@ const DealManagePage = () => {
                       </div>
                       <div>
                         <p className="text-green-600">عدد التوزيعات</p>
-                        <p className="font-bold text-green-900">{deal.profitDistributions.length}</p>
+                        <p className="font-bold text-green-900">{(deal.profitDistributions || []).length}</p>
                       </div>
                       <div>
                         <p className="text-green-600">معدل العائد</p>
                         <p className="font-bold text-green-900">
-                          {((totalDistributed / totalInvested) * 100).toFixed(1)}%
+                          {totalInvested > 0 ? ((totalDistributed / totalInvested) * 100).toFixed(1) : '0.0'}%
                         </p>
                       </div>
                       <div>
@@ -401,7 +408,7 @@ const DealManagePage = () => {
                   </div>
                 )}
                 
-                {deal.profitDistributions.map((distribution) => (
+                {(deal.profitDistributions || []).map((distribution) => (
                   <div key={distribution.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                     <div>
                       <p className="font-medium text-gray-900">{distribution.description || 'توزيع أرباح'}</p>
