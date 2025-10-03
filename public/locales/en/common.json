@@ -2038,8 +2038,14 @@
       "loading": "Loading...",
       "balance_summary": {
         "current_balance": "Current Balance",
+        "available_funds": "Available Funds",
+        "available_for_investment": "Available for investment",
         "total_invested": "Total Invested",
+        "active_investments": "Active Investments",
+        "currently_deployed": "Currently deployed",
         "total_returns": "Total Returns",
+        "profits_earned": "Profits earned",
+        "distributed_profits": "Distributed profits",
         "total_portfolio": "Total Portfolio & Investments"
       },
       "tabs": {
@@ -2076,6 +2082,18 @@
         "deposit_funds": "Deposit Funds",
         "withdraw_funds": "Withdraw Funds",
         "view_transaction": "View Transaction"
+      },
+      "portfolio_performance": {
+        "title": "Portfolio Performance",
+        "subtitle": "Overview of your investment performance",
+        "total_value": "Total Value",
+        "total_value_desc": "Deposits + Profits",
+        "active_investments_value": "Active Investments",
+        "active_investments_desc": "Currently deployed",
+        "return_rate": "Return Rate",
+        "return_rate_desc": "Profit / Deposits",
+        "unrealized_gains": "Unrealized Gains",
+        "unrealized_gains_desc": "Future potential"
       }
     },
     "portfolio_investments": {

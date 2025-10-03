@@ -2086,8 +2086,14 @@
       "loading": "جارٍ التحميل...",
       "balance_summary": {
         "current_balance": "الرصيد الحالي",
+        "available_funds": "الأموال المتاحة",
+        "available_for_investment": "متاح للاستثمار",
         "total_invested": "إجمالي الاستثمار",
+        "active_investments": "الاستثمارات النشطة",
+        "currently_deployed": "مستثمر حالياً",
         "total_returns": "إجمالي العوائد",
+        "profits_earned": "الأرباح المحققة",
+        "distributed_profits": "الأرباح الموزعة",
         "total_portfolio": "إجمالي المحفظة والاستثمارات"
       },
       "tabs": {
@@ -2124,6 +2130,18 @@
         "deposit_funds": "إيداع أموال",
         "withdraw_funds": "سحب أموال",
         "view_transaction": "عرض المعاملة"
+      },
+      "portfolio_performance": {
+        "title": "أداء المحفظة",
+        "subtitle": "نظرة عامة على أداء استثماراتك",
+        "total_value": "القيمة الإجمالية",
+        "total_value_desc": "الودائع + الأرباح",
+        "active_investments_value": "الاستثمارات النشطة",
+        "active_investments_desc": "مستثمر حالياً",
+        "return_rate": "معدل العائد",
+        "return_rate_desc": "الربح / الودائع",
+        "unrealized_gains": "المكاسب غير المحققة",
+        "unrealized_gains_desc": "الإمكانات المستقبلية"
       }
     },
     "portfolio_investments": {
