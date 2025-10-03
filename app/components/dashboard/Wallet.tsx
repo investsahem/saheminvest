@@ -240,7 +240,7 @@ export function Wallet({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-600 uppercase tracking-wider">{t('portfolio_wallet.balance_summary.current_balance')}</p>
-                  <p className="text-xs text-slate-500">Available funds</p>
+                  <p className="text-xs text-slate-500">{t('portfolio_wallet.balance_summary.available_funds')}</p>
                 </div>
               </div>
               <Button
@@ -258,7 +258,7 @@ export function Wallet({
               </p>
               <div className="flex items-center gap-2 text-sm">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-slate-600">Available for investment</span>
+                <span className="text-slate-600">{t('portfolio_wallet.balance_summary.available_for_investment')}</span>
               </div>
             </div>
           </CardContent>
@@ -274,7 +274,7 @@ export function Wallet({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-emerald-700 uppercase tracking-wider">{t('portfolio_wallet.balance_summary.total_invested')}</p>
-                  <p className="text-xs text-emerald-600">Active investments</p>
+                  <p className="text-xs text-emerald-600">{t('portfolio_wallet.balance_summary.active_investments')}</p>
                 </div>
               </div>
             </div>
@@ -284,7 +284,7 @@ export function Wallet({
               </p>
               <div className="flex items-center gap-2 text-sm">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                <span className="text-emerald-700">Currently deployed</span>
+                <span className="text-emerald-700">{t('portfolio_wallet.balance_summary.currently_deployed')}</span>
               </div>
             </div>
           </CardContent>
@@ -300,7 +300,7 @@ export function Wallet({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-amber-700 uppercase tracking-wider">{t('portfolio_wallet.balance_summary.total_returns')}</p>
-                  <p className="text-xs text-amber-600">Profits earned</p>
+                  <p className="text-xs text-amber-600">{t('portfolio_wallet.balance_summary.profits_earned')}</p>
                 </div>
               </div>
             </div>
@@ -310,7 +310,7 @@ export function Wallet({
               </p>
               <div className="flex items-center gap-2 text-sm">
                 <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-                <span className="text-amber-700">Distributed profits</span>
+                <span className="text-amber-700">{t('portfolio_wallet.balance_summary.distributed_profits')}</span>
               </div>
             </div>
           </CardContent>
@@ -322,8 +322,8 @@ export function Wallet({
         <CardContent className="p-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-xl font-bold text-slate-800">Portfolio Performance</h3>
-              <p className="text-slate-600">Overview of your investment performance</p>
+              <h3 className="text-xl font-bold text-slate-800">{t('portfolio_wallet.portfolio_performance.title')}</h3>
+              <p className="text-slate-600">{t('portfolio_wallet.portfolio_performance.subtitle')}</p>
             </div>
             <div className="w-12 h-12 bg-gradient-to-br from-slate-500 to-slate-600 rounded-xl flex items-center justify-center">
               <Shield className="w-6 h-6 text-white" />
@@ -332,25 +332,25 @@ export function Wallet({
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
               <p className="text-2xl font-bold text-slate-800">${formatNumber(transactionSummary.totalDeposits + actualReturns)}</p>
-              <p className="text-sm text-slate-600">Total Value</p>
-              <p className="text-xs text-slate-500">Deposits + Profits</p>
+              <p className="text-sm text-slate-600">{t('portfolio_wallet.portfolio_performance.total_value')}</p>
+              <p className="text-xs text-slate-500">{t('portfolio_wallet.portfolio_performance.total_value_desc')}</p>
             </div>
             <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
               <p className="text-2xl font-bold text-emerald-600">${formatNumber(totalInvested)}</p>
-              <p className="text-sm text-slate-600">Active Investments</p>
-              <p className="text-xs text-slate-500">Currently deployed</p>
+              <p className="text-sm text-slate-600">{t('portfolio_wallet.portfolio_performance.active_investments_value')}</p>
+              <p className="text-xs text-slate-500">{t('portfolio_wallet.portfolio_performance.active_investments_desc')}</p>
             </div>
             <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
               <p className="text-2xl font-bold text-amber-600">
                 {transactionSummary.totalDeposits > 0 ? `${((actualReturns / transactionSummary.totalDeposits) * 100).toFixed(1)}%` : '0.0%'}
               </p>
-              <p className="text-sm text-slate-600">Return Rate</p>
-              <p className="text-xs text-slate-500">Profit / Deposits</p>
+              <p className="text-sm text-slate-600">{t('portfolio_wallet.portfolio_performance.return_rate')}</p>
+              <p className="text-xs text-slate-500">{t('portfolio_wallet.portfolio_performance.return_rate_desc')}</p>
             </div>
             <div className="text-center p-4 bg-white rounded-xl border border-slate-200">
               <p className="text-2xl font-bold text-blue-600">${formatNumber(profitsSummary.unrealizedGains)}</p>
-              <p className="text-sm text-slate-600">Unrealized Gains</p>
-              <p className="text-xs text-slate-500">Future potential</p>
+              <p className="text-sm text-slate-600">{t('portfolio_wallet.portfolio_performance.unrealized_gains')}</p>
+              <p className="text-xs text-slate-500">{t('portfolio_wallet.portfolio_performance.unrealized_gains_desc')}</p>
             </div>
           </div>
         </CardContent>
