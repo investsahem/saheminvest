@@ -6,6 +6,7 @@ import AdminLayout from '../../components/layout/AdminLayout'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Card, CardContent } from '../../components/ui/Card'
+import { AdminModal } from '../../components/ui/AdminModal'
 import { useTranslation } from '../../components/providers/I18nProvider'
 import { 
   DollarSign, 
@@ -61,11 +62,39 @@ export default function AdminDepositsPage() {
     method: 'cash',
     description: ''
   })
+  
+  // Modal state
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    type: 'success' as 'success' | 'error' | 'warning' | 'info',
+    title: '',
+    message: '',
+    details: [] as string[]
+  })
 
   useEffect(() => {
     fetchPendingDeposits()
     fetchUsers()
   }, [])
+
+  const showModal = (
+    type: 'success' | 'error' | 'warning' | 'info',
+    title: string,
+    message: string,
+    details: string[] = []
+  ) => {
+    setModalState({
+      isOpen: true,
+      type,
+      title,
+      message,
+      details
+    })
+  }
+
+  const closeModal = () => {
+    setModalState(prev => ({ ...prev, isOpen: false }))
+  }
 
   const fetchPendingDeposits = async () => {
     try {
@@ -103,13 +132,17 @@ export default function AdminDepositsPage() {
       
       if (response.ok) {
         await fetchPendingDeposits()
-        alert(t('deposits.deposit_approved'))
+        showModal('success', t('deposits.deposit_approved_title'), t('deposits.deposit_approved'), [
+          t('deposits.funds_added_to_wallet'),
+          t('deposits.user_notified'),
+          t('deposits.transaction_recorded')
+        ])
       } else {
-        alert(t('deposits.approve_failed'))
+        showModal('error', t('deposits.approve_failed_title'), t('deposits.approve_failed'))
       }
     } catch (error) {
       console.error('Error approving deposit:', error)
-      alert(t('deposits.approve_error'))
+      showModal('error', t('deposits.approve_error_title'), t('deposits.approve_error'))
     } finally {
       setProcessing(null)
     }
@@ -125,13 +158,17 @@ export default function AdminDepositsPage() {
       
       if (response.ok) {
         await fetchPendingDeposits()
-        alert(t('deposits.deposit_rejected'))
+        showModal('warning', t('deposits.deposit_rejected_title'), t('deposits.deposit_rejected'), [
+          t('deposits.deposit_marked_rejected'),
+          t('deposits.user_notified_rejection'),
+          t('deposits.no_funds_added')
+        ])
       } else {
-        alert(t('deposits.reject_failed'))
+        showModal('error', t('deposits.reject_failed_title'), t('deposits.reject_failed'))
       }
     } catch (error) {
       console.error('Error rejecting deposit:', error)
-      alert(t('deposits.reject_error'))
+      showModal('error', t('deposits.reject_error_title'), t('deposits.reject_error'))
     } finally {
       setProcessing(null)
     }
@@ -140,7 +177,7 @@ export default function AdminDepositsPage() {
   const handleManualDeposit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!manualDeposit.userId || !manualDeposit.amount) {
-      alert(t('deposits.required_fields'))
+      showModal('warning', t('deposits.required_fields_title'), t('deposits.required_fields'))
       return
     }
 
@@ -161,14 +198,18 @@ export default function AdminDepositsPage() {
         await fetchPendingDeposits()
         setShowManualDepositModal(false)
         setManualDeposit({ userId: '', amount: '', method: 'cash', description: '' })
-        alert(t('deposits.manual_deposit_success'))
+        showModal('success', t('deposits.manual_deposit_success_title'), t('deposits.manual_deposit_success'), [
+          t('deposits.deposit_added_immediately'),
+          t('deposits.wallet_balance_updated'),
+          t('deposits.user_notified_deposit')
+        ])
       } else {
         const errorData = await response.json()
-        alert(t('deposits.manual_deposit_failed').replace('{error}', errorData.error))
+        showModal('error', t('deposits.manual_deposit_failed_title'), t('deposits.manual_deposit_failed').replace('{error}', errorData.error))
       }
     } catch (error) {
       console.error('Error adding manual deposit:', error)
-      alert(t('deposits.manual_deposit_error'))
+      showModal('error', t('deposits.manual_deposit_error_title'), t('deposits.manual_deposit_error'))
     } finally {
       setProcessing(null)
     }
@@ -561,6 +602,16 @@ export default function AdminDepositsPage() {
             </div>
           </div>
         )}
+
+        {/* Admin Modal */}
+        <AdminModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          type={modalState.type}
+          title={modalState.title}
+          message={modalState.message}
+          details={modalState.details}
+        />
       </div>
     </AdminLayout>
   )

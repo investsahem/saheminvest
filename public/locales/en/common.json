@@ -1461,7 +1461,26 @@
     "manual_deposit_failed": "Failed to add deposit: {error}",
     "manual_deposit_error": "Error adding manual deposit",
     "required_fields": "Please fill in all required fields",
-    "manual_deposit_description": "Manual {method} deposit by admin"
+    "manual_deposit_description": "Manual {method} deposit by admin",
+    "deposit_approved_title": "Deposit Approved!",
+    "funds_added_to_wallet": "Funds have been added to the user's wallet",
+    "user_notified": "User has been notified via email and in-app notification",
+    "transaction_recorded": "Transaction has been recorded in the system",
+    "approve_failed_title": "Approval Failed",
+    "approve_error_title": "Approval Error",
+    "deposit_rejected_title": "Deposit Rejected",
+    "deposit_marked_rejected": "Deposit has been marked as rejected",
+    "user_notified_rejection": "User has been notified of the rejection",
+    "no_funds_added": "No funds were added to the wallet",
+    "reject_failed_title": "Rejection Failed",
+    "reject_error_title": "Rejection Error",
+    "required_fields_title": "Required Fields Missing",
+    "manual_deposit_success_title": "Manual Deposit Added!",
+    "deposit_added_immediately": "Deposit has been added immediately to the user's wallet",
+    "wallet_balance_updated": "User's wallet balance has been updated",
+    "user_notified_deposit": "User has been notified of the deposit",
+    "manual_deposit_failed_title": "Manual Deposit Failed",
+    "manual_deposit_error_title": "Manual Deposit Error"
   },
   "partners": {
     "title": "Partner Management",
@@ -1707,7 +1726,9 @@
     "status": "Status",
     "reference": "Reference",
     "payment": "Payment",
-    "got_it": "Got it"
+    "got_it": "Got it",
+    "details": "Details",
+    "confirm": "Confirm"
   },
   "deal_card": {
     "funding_completed": "Funding Completed",

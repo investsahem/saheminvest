@@ -1312,7 +1312,26 @@
     "manual_deposit_failed": "فشل في إضافة الإيداع: {error}",
     "manual_deposit_error": "خطأ في إضافة الإيداع اليدوي",
     "required_fields": "يرجى ملء جميع الحقول المطلوبة",
-    "manual_deposit_description": "إيداع {method} يدوي من قبل المدير"
+    "manual_deposit_description": "إيداع {method} يدوي من قبل المدير",
+    "deposit_approved_title": "تم الموافقة على الإيداع!",
+    "funds_added_to_wallet": "تم إضافة الأموال إلى محفظة المستخدم",
+    "user_notified": "تم إشعار المستخدم عبر البريد الإلكتروني والإشعار داخل التطبيق",
+    "transaction_recorded": "تم تسجيل المعاملة في النظام",
+    "approve_failed_title": "فشلت الموافقة",
+    "approve_error_title": "خطأ في الموافقة",
+    "deposit_rejected_title": "تم رفض الإيداع",
+    "deposit_marked_rejected": "تم وضع علامة على الإيداع كمرفوض",
+    "user_notified_rejection": "تم إشعار المستخدم بالرفض",
+    "no_funds_added": "لم تتم إضافة أي أموال إلى المحفظة",
+    "reject_failed_title": "فشل الرفض",
+    "reject_error_title": "خطأ في الرفض",
+    "required_fields_title": "الحقول المطلوبة مفقودة",
+    "manual_deposit_success_title": "تم إضافة الإيداع اليدوي!",
+    "deposit_added_immediately": "تم إضافة الإيداع فوراً إلى محفظة المستخدم",
+    "wallet_balance_updated": "تم تحديث رصيد محفظة المستخدم",
+    "user_notified_deposit": "تم إشعار المستخدم بالإيداع",
+    "manual_deposit_failed_title": "فشل الإيداع اليدوي",
+    "manual_deposit_error_title": "خطأ في الإيداع اليدوي"
   },
   "partners": {
     "title": "إدارة الشركاء",
@@ -1593,7 +1612,9 @@
     "status": "الحالة",
     "reference": "المرجع",
     "payment": "الدفع",
-    "got_it": "فهمت"
+    "got_it": "فهمت",
+    "details": "التفاصيل",
+    "confirm": "تأكيد"
   },
   "investor": {
     "dashboard": "نظرة عامة على المحفظة",
