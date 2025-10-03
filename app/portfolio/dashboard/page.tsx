@@ -163,7 +163,7 @@ export default function InvestorDashboard() {
             <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('investor.no_portfolio_data')}</h2>
             <p className="text-gray-600 mb-4">{t('investor.start_investing_message')}</p>
-            <Button onClick={() => router.push('/deals')}>
+            <Button onClick={() => router.push('/portfolio/deals')}>
               {t('investor.browse_investment_opportunities')}
             </Button>
           </CardContent>
@@ -330,7 +330,7 @@ export default function InvestorDashboard() {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">{t('investor.my_investments')}</h3>
               <Button 
-                onClick={() => router.push('/deals')}
+                onClick={() => router.push('/portfolio/deals')}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -456,7 +456,7 @@ export default function InvestorDashboard() {
                 <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">{t('investor.no_investments_yet')}</h3>
                 <p className="text-gray-600 mb-4">{t('investor.start_building_portfolio')}</p>
-                <Button onClick={() => router.push('/deals')}>
+                <Button onClick={() => router.push('/portfolio/deals')}>
                   {t('investor.browse_investment_opportunities')}
                 </Button>
               </div>
