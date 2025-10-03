@@ -178,9 +178,9 @@ export function Wallet({
             setActiveTab('overview')
             
             // Show appropriate modal - cash and bank are always pending
-            showModal('pending', 'Deposit Submitted!', result.message, amount, method, result.transaction?.reference)
+            showModal('pending', t('wallet.deposit_submitted'), result.message, amount, method, result.transaction?.reference)
           } else {
-            showModal('error', 'Deposit Failed', result.message, amount, method)
+            showModal('error', t('wallet.deposit_failed'), result.message, amount, method)
           }
         })
       }
@@ -206,13 +206,13 @@ export function Wallet({
           setShowPaymentForm(false)
           setCardDetails({ number: '', expiry: '', cvv: '', name: '' })
           setActiveTab('overview')
-          showModal('success', 'Payment Successful!', result.message, amount, 'card', result.transaction?.reference)
+          showModal('success', t('wallet.payment_successful'), result.message, amount, 'card', result.transaction?.reference)
         } else {
-          showModal('error', 'Payment Failed', result.message, amount, 'card')
+          showModal('error', t('wallet.payment_failed'), result.message, amount, 'card')
         }
       }
     } catch (error) {
-      showModal('error', 'Payment Error', t('wallet.errors.payment_failed'), parseFloat(depositAmount), 'card')
+      showModal('error', t('wallet.payment_error'), t('wallet.errors.payment_failed'), parseFloat(depositAmount), 'card')
     } finally {
       setIsProcessing(false)
     }
@@ -228,9 +228,9 @@ export function Wallet({
       if (result.success) {
         setWithdrawAmount('')
         setActiveTab('overview')
-        showModal('pending', 'Withdrawal Requested!', result.message, amount, withdrawMethod as 'cash' | 'bank')
+        showModal('pending', t('wallet.withdrawal_requested'), result.message, amount, withdrawMethod as 'cash' | 'bank')
       } else {
-        showModal('error', 'Withdrawal Failed', result.message, amount, withdrawMethod as 'cash' | 'bank')
+        showModal('error', t('wallet.withdrawal_failed'), result.message, amount, withdrawMethod as 'cash' | 'bank')
       }
     }
   }
