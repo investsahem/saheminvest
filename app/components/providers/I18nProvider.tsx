@@ -6,7 +6,7 @@ import { getTranslations, type Language } from '../../lib/translations'
 interface I18nContextType {
   locale: Language
   setLocale: (locale: Language) => void
-  t: (key: string) => string
+  t: (key: string, variables?: Record<string, string | number>) => string
   isRTL: boolean
 }
 
@@ -44,7 +44,7 @@ export function I18nProvider({ children, initialLocale = 'ar' }: I18nProviderPro
     localStorage.setItem('preferred-locale', newLocale)
   }
 
-  const t = (key: string): string => {
+  const t = (key: string, variables?: Record<string, string | number>): string => {
     const keys = key.split('.')
     let value: any = translations
     
@@ -52,7 +52,16 @@ export function I18nProvider({ children, initialLocale = 'ar' }: I18nProviderPro
       value = value?.[k]
     }
     
-    return typeof value === 'string' ? value : key
+    let result = typeof value === 'string' ? value : key
+    
+    // Replace variables in the format {{variableName}}
+    if (variables && typeof result === 'string') {
+      Object.entries(variables).forEach(([key, val]) => {
+        result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), String(val))
+      })
+    }
+    
+    return result
   }
 
   const value = {

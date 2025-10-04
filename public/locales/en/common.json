@@ -1,5 +1,5 @@
 {
-  "_cache_bust": "2025-01-03T15:45:00Z",
+  "_cache_bust": "2025-01-04T10:30:00Z",
   "platform": {
     "name": "Sahem Invest",
     "slogan": "Invest in the Future of Growth"
@@ -755,7 +755,7 @@
     "balance": "Current Balance",
     "total_invested": "Total Invested",
     "total_returns": "Total Returns",
-    "deposit": "Deposit",
+    "deposit_action": "Deposit",
     "withdraw": "Withdraw",
     "transaction_history": "Transaction History"
   },

@@ -174,6 +174,38 @@ export default function InvestorDashboard() {
 
   const { portfolio, dailyChange, investments, summary } = portfolioData
 
+  // Group investments by projectId and aggregate amounts
+  const groupedInvestments = investments.reduce((acc: Record<string, Investment>, investment: Investment) => {
+    const projectId = investment.projectId
+    
+    if (!acc[projectId]) {
+      // First investment in this project - use it as base
+      acc[projectId] = { ...investment }
+    } else {
+      // Accumulate amounts for subsequent investments in the same project
+      acc[projectId].investedAmount += investment.investedAmount
+      acc[projectId].currentValue += investment.currentValue
+      acc[projectId].totalReturn += investment.totalReturn
+      acc[projectId].distributedProfits += investment.distributedProfits
+      acc[projectId].unrealizedGains += investment.unrealizedGains
+      
+      // Recalculate return percentage based on accumulated amounts
+      if (acc[projectId].investedAmount > 0) {
+        acc[projectId].returnPercentage = (acc[projectId].totalReturn / acc[projectId].investedAmount) * 100
+      }
+      
+      // Keep the earliest investment date
+      if (new Date(investment.investmentDate) < new Date(acc[projectId].investmentDate)) {
+        acc[projectId].investmentDate = investment.investmentDate
+      }
+    }
+    
+    return acc
+  }, {})
+
+  // Convert grouped investments back to array
+  const consolidatedInvestments = Object.values(groupedInvestments)
+
   return (
     <InvestorLayout title={t('investor.portfolio_dashboard')} subtitle={t('investor.track_investment_performance')}>
       <div className="space-y-6">
@@ -254,7 +286,7 @@ export default function InvestorDashboard() {
                     {formatCurrency(portfolio.distributedProfits)}
                   </p>
                   <p className="text-sm text-emerald-600 mt-1">
-                    {t('investor.profits_distributed_across').replace('{count}', portfolio.activeInvestments.toString()) || `Profits distributed across ${portfolio.activeInvestments} investments`}
+                    {t('investor.profits_distributed_across').replace('{count}', consolidatedInvestments.length.toString()) || `Profits distributed across ${consolidatedInvestments.length} investments`}
                   </p>
                 </div>
                 <div className="w-16 h-16 bg-emerald-100 rounded-xl flex items-center justify-center">
@@ -315,7 +347,7 @@ export default function InvestorDashboard() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">{t('investor.active_investments')}</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {portfolio.activeInvestments}
+                    {consolidatedInvestments.filter(inv => ['active', 'funded'].includes(inv.status)).length}
                   </p>
                 </div>
                 <Target className="w-8 h-8 text-orange-600" />
@@ -338,7 +370,7 @@ export default function InvestorDashboard() {
               </Button>
             </div>
 
-            {investments.length > 0 ? (
+            {consolidatedInvestments.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -354,7 +386,7 @@ export default function InvestorDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {investments.map((investment) => (
+                    {consolidatedInvestments.map((investment) => (
                       <tr key={investment.id} className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="py-4 px-4">
                           <div className="flex items-center space-x-3">

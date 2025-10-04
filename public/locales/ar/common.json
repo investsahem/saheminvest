@@ -1,5 +1,5 @@
 {
-  "_cache_bust": "2025-01-03T15:45:00Z",
+  "_cache_bust": "2025-01-04T10:30:00Z",
   "platform": {
     "name": "ساهم إنفست",
     "slogan": "استثمر في مستقبل النمو"
@@ -606,7 +606,7 @@
     "balance": "الرصيد الحالي",
     "total_invested": "إجمالي الاستثمارات",
     "total_returns": "إجمالي العوائد",
-    "deposit": "إيداع",
+    "deposit_action": "إيداع",
     "withdraw": "سحب",
     "transaction_history": "سجل المعاملات"
   },

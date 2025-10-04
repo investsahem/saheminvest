@@ -915,10 +915,10 @@ export function Wallet({
               </h3>
               
               <p className="text-gray-600 mb-6">
-                {t('wallet.deposit.confirm_deposit')
-                  .replace('{{amount}}', formatNumber(confirmationModal.amount))
-                  .replace('{{method}}', confirmationModal.method === 'cash' ? t('wallet.payment_methods.cash') : t('wallet.payment_methods.bank_transfer'))
-                }
+                {t('wallet.deposit.confirm_deposit', {
+                  amount: formatNumber(confirmationModal.amount),
+                  method: confirmationModal.method === 'cash' ? t('wallet.payment_methods.cash') : t('wallet.payment_methods.bank_transfer')
+                })}
               </p>
               
               <div className="bg-gray-50 rounded-lg p-4 mb-6">

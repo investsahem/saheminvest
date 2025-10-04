@@ -96,6 +96,9 @@ interface InvestmentDetails {
   }
   profitHistory: ProfitTransaction[]
   pendingProfitDistributions: ProfitTransaction[]
+  // Additional properties for consolidated investments
+  investmentCount?: number
+  investmentDates?: string[]
 }
 
 interface PortfolioData {
@@ -144,10 +147,12 @@ export default function InvestmentsPage() {
     fetchPortfolioData()
   }, [session])
 
-  const fetchInvestmentDetails = async (investmentId: string) => {
+  const fetchInvestmentDetails = async (projectId: string) => {
     setDetailsLoading(true)
     try {
-      const response = await fetch(`/api/investments/${investmentId}/details`)
+      // Since we're now grouping by project, we need to fetch details by projectId
+      // We'll need to modify the API endpoint or create a new one for project-based details
+      const response = await fetch(`/api/investments/project/${projectId}/details`)
       if (response.ok) {
         const details = await response.json()
         setSelectedInvestment(details)
@@ -281,6 +286,38 @@ export default function InvestmentsPage() {
 
   const { portfolio, investments } = portfolioData
 
+  // Group investments by projectId and aggregate amounts
+  const groupedInvestments = investments.reduce((acc: Record<string, Investment>, investment: Investment) => {
+    const projectId = investment.projectId
+    
+    if (!acc[projectId]) {
+      // First investment in this project - use it as base
+      acc[projectId] = { ...investment }
+    } else {
+      // Accumulate amounts for subsequent investments in the same project
+      acc[projectId].investedAmount += investment.investedAmount
+      acc[projectId].currentFunding += investment.currentFunding
+      acc[projectId].totalReturn += investment.totalReturn
+      acc[projectId].distributedProfits += investment.distributedProfits
+      acc[projectId].unrealizedGains += investment.unrealizedGains
+      
+      // Recalculate return percentage based on accumulated amounts
+      if (acc[projectId].investedAmount > 0) {
+        acc[projectId].returnPercentage = (acc[projectId].totalReturn / acc[projectId].investedAmount) * 100
+      }
+      
+      // Keep the earliest investment date (or latest, depending on preference)
+      if (new Date(investment.investmentDate) < new Date(acc[projectId].investmentDate)) {
+        acc[projectId].investmentDate = investment.investmentDate
+      }
+    }
+    
+    return acc
+  }, {})
+
+  // Convert grouped investments back to array
+  const consolidatedInvestments = Object.values(groupedInvestments)
+
   return (
     <InvestorLayout>
       <div className="space-y-6">
@@ -307,7 +344,7 @@ export default function InvestmentsPage() {
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="text-sm font-medium text-gray-500">{t('portfolio_investments.summary_cards.active_investments')}</div>
             <div className="text-2xl font-bold text-gray-900">
-              {portfolio.activeInvestments}
+              {consolidatedInvestments.filter(inv => ['active', 'funded'].includes(inv.status)).length}
             </div>
           </div>
         </div>
@@ -342,7 +379,7 @@ export default function InvestmentsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {investments.map((investment) => (
+                {consolidatedInvestments.map((investment) => (
                   <tr key={investment.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-3">
@@ -406,7 +443,7 @@ export default function InvestmentsPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => fetchInvestmentDetails(investment.id)}
+                          onClick={() => fetchInvestmentDetails(investment.projectId)}
                           disabled={detailsLoading}
                         >
                           <Eye className="w-4 h-4 mr-1" />
@@ -497,6 +534,11 @@ export default function InvestmentsPage() {
                           <p className="text-lg font-bold text-gray-900">
                             {formatCurrency(selectedInvestment.investedAmount)}
                           </p>
+                          {selectedInvestment.investmentCount && selectedInvestment.investmentCount > 1 && (
+                            <p className="text-xs text-gray-500">
+                              {selectedInvestment.investmentCount} investments combined
+                            </p>
+                          )}
                         </div>
                         <DollarSign className="w-6 h-6 text-blue-600" />
                       </div>
