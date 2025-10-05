@@ -48,7 +48,7 @@ export async function GET(
               select: {
                 id: true,
                 companyName: true,
-                name: true
+                contactName: true
               }
             }
           }
@@ -178,7 +178,7 @@ export async function GET(
         partner: project.partner ? {
           id: project.partner.id,
           companyName: project.partner.companyName,
-          name: project.partner.companyName || project.partner.name || 'Unknown Partner'
+          name: project.partner.companyName || project.partner.contactName || 'Unknown Partner'
         } : null
       },
       investor: investor,

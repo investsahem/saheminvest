@@ -60,7 +60,7 @@ export async function GET(
     // Remove sensitive information
     const sanitizedPartner = {
       id: partner.id,
-      name: partner.name,
+      name: partner.name || 'Unknown Partner',
       email: partner.email,
       role: partner.role,
       createdAt: partner.createdAt,

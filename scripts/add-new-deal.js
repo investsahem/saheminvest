@@ -35,7 +35,7 @@ async function addNewDeal() {
 
     console.log('✅ Partner found:', {
       id: partner.id,
-      name: partner.name,
+      name: partner.name || partner.companyName || 'Unknown Partner',
       email: partner.email,
       role: partner.role
     })

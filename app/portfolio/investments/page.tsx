@@ -505,7 +505,7 @@ export default function InvestmentsPage() {
                         <h3 className="text-xl font-semibold text-gray-900">{selectedInvestment.project.title}</h3>
                         <p className="text-gray-600">{selectedInvestment.project.category}</p>
                         <p className="text-sm text-gray-500">
-                          {t('portfolio_investments.modal.partner')}: {selectedInvestment.project.partner.companyName || selectedInvestment.project.partner.name}
+                          {t('portfolio_investments.modal.partner')}: {selectedInvestment.project.partner.companyName || selectedInvestment.project.partner.name || 'Unknown Partner'}
                         </p>
                       </div>
                       <div className="text-right">
