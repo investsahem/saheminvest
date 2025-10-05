@@ -216,7 +216,19 @@ const PortfolioDealsPage = () => {
   // Get deal stats from all investable deals (not just paginated)
   const totalFunding = allInvestableDeals.reduce((sum, deal) => sum + deal.currentFunding, 0)
   const avgReturn = allInvestableDeals.length > 0 ? allInvestableDeals.reduce((sum, deal) => sum + deal.expectedReturn, 0) / allInvestableDeals.length : 0
-  const totalInvestors = allInvestableDeals.reduce((sum, deal) => sum + (deal._count?.investments || 0), 0)
+  
+  // Calculate unique investors across all deals
+  const uniqueInvestorIds = new Set<string>()
+  allInvestableDeals.forEach(deal => {
+    if (deal.investments) {
+      deal.investments.forEach((investment: any) => {
+        if (investment.investorId) {
+          uniqueInvestorIds.add(investment.investorId)
+        }
+      })
+    }
+  })
+  const totalInvestors = uniqueInvestorIds.size
 
   const categories = [
     'Technology', 'Real Estate', 'Healthcare', 'Energy', 
