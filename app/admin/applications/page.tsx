@@ -68,6 +68,9 @@ export default function ApplicationsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null)
+  const [showRejectModal, setShowRejectModal] = useState(false)
+  const [rejectingApplication, setRejectingApplication] = useState<Application | null>(null)
+  const [rejectionReason, setRejectionReason] = useState('')
 
   useEffect(() => {
     fetchApplications()
@@ -109,13 +112,22 @@ export default function ApplicationsPage() {
         session: session?.user
       })
       
+      // For rejection, we need to provide a rejection reason
+      const requestBody = action === 'approve' 
+        ? { 
+            status: 'APPROVED', 
+            reviewNotes: notes || 'Application approved by admin'
+          }
+        : { 
+            status: 'REJECTED', 
+            rejectionReason: notes || 'Application rejected by admin - no specific reason provided',
+            reviewNotes: notes || 'Application rejected by admin'
+          }
+      
       const response = await fetch(`/api/admin/applications/${applicationId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          status: action === 'approve' ? 'APPROVED' : 'REJECTED', 
-          reviewNotes: notes || `Application ${action}d by admin`
-        })
+        body: JSON.stringify(requestBody)
       })
       
       console.log(`📡 API Response:`, {
@@ -145,6 +157,24 @@ export default function ApplicationsPage() {
     } finally {
       setProcessing(null)
     }
+  }
+
+  const handleRejectClick = (application: Application) => {
+    setRejectingApplication(application)
+    setRejectionReason('')
+    setShowRejectModal(true)
+  }
+
+  const handleRejectConfirm = async () => {
+    if (!rejectingApplication || !rejectionReason.trim()) {
+      alert('Please provide a rejection reason')
+      return
+    }
+
+    await handleApplicationAction(rejectingApplication.id, 'reject', rejectionReason)
+    setShowRejectModal(false)
+    setRejectingApplication(null)
+    setRejectionReason('')
   }
 
   const formatCurrency = (amount: number) => {
@@ -435,7 +465,7 @@ export default function ApplicationsPage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleApplicationAction(application.id, 'reject')}
+                                onClick={() => handleRejectClick(application)}
                                 disabled={processing === application.id}
                                 className="border-red-300 text-red-600 hover:bg-red-50"
                               >
@@ -553,7 +583,7 @@ export default function ApplicationsPage() {
                     <div className="flex justify-end space-x-3 pt-4 border-t">
                       <Button
                         variant="outline"
-                        onClick={() => handleApplicationAction(selectedApplication.id, 'reject')}
+                        onClick={() => handleRejectClick(selectedApplication)}
                         disabled={processing === selectedApplication.id}
                         className="border-red-300 text-red-600 hover:bg-red-50"
                       >
@@ -574,6 +604,65 @@ export default function ApplicationsPage() {
                       </Button>
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Rejection Reason Modal */}
+        {showRejectModal && rejectingApplication && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Reject Application</h3>
+                  <button
+                    onClick={() => setShowRejectModal(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <XCircle className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600 mb-2">
+                    You are about to reject the application from <strong>{rejectingApplication.fullName}</strong>.
+                  </p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Please provide a reason for rejection:
+                  </p>
+                  
+                  <textarea
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder="Enter rejection reason..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    rows={4}
+                    required
+                  />
+                </div>
+
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowRejectModal(false)}
+                    disabled={processing === rejectingApplication.id}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleRejectConfirm}
+                    disabled={processing === rejectingApplication.id || !rejectionReason.trim()}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    {processing === rejectingApplication.id ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <XCircle className="w-4 h-4 mr-2" />
+                    )}
+                    Reject Application
+                  </Button>
                 </div>
               </div>
             </div>
