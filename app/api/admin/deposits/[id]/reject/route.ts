@@ -22,7 +22,16 @@ export async function POST(
     }
 
     const { id: depositId } = await params
-    const { reason } = await request.json()
+    
+    // Parse request body safely - reason is optional
+    let reason = ''
+    try {
+      const body = await request.json()
+      reason = body.reason || ''
+    } catch (error) {
+      // No body or invalid JSON - that's fine, reason is optional
+      reason = ''
+    }
 
     // Find the pending deposit transaction
     const transaction = await prisma.transaction.findUnique({
