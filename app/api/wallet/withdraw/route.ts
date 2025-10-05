@@ -87,6 +87,13 @@ export async function POST(request: NextRequest) {
           reference: transaction.reference
         }
       )
+
+      // Notify admins about the new withdrawal request
+      await notificationService.notifyNewWithdrawal(
+        Number(amount),
+        session.user.email!,
+        transaction.reference || `WTH-${Date.now()}`
+      )
     } catch (notificationError) {
       console.error('Failed to send withdrawal notification:', notificationError)
     }

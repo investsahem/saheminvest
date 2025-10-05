@@ -130,6 +130,13 @@ export async function POST(request: NextRequest) {
             reference: result.reference
           }
         )
+
+        // Notify admins about the new deposit request
+        await notificationService.notifyNewDeposit(
+          Number(amount),
+          session.user.email!,
+          result.reference || `DEP-${Date.now()}`
+        )
       } catch (notificationError) {
         console.error('Failed to send deposit notification:', notificationError)
       }

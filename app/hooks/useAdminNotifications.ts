@@ -15,16 +15,30 @@ interface DealNotification {
   }
 }
 
+interface GeneralNotification {
+  id: string
+  title: string
+  message: string
+  type: string
+  read: boolean
+  createdAt: string
+  metadata: any
+}
+
 interface AdminNotifications {
   pendingDealsCount: number
   notifications: DealNotification[]
+  generalNotifications: GeneralNotification[]
+  unreadCount: number
 }
 
 export const useAdminNotifications = () => {
   const { data: session } = useSession()
   const [notifications, setNotifications] = useState<AdminNotifications>({
     pendingDealsCount: 0,
-    notifications: []
+    notifications: [],
+    generalNotifications: [],
+    unreadCount: 0
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -35,16 +49,42 @@ export const useAdminNotifications = () => {
     }
 
     try {
-      const response = await fetch('/api/admin/notifications/deals', {
-        credentials: 'include'
-      })
+      // Fetch both deal notifications and general notifications
+      const [dealResponse, generalResponse] = await Promise.all([
+        fetch('/api/admin/notifications/deals', {
+          credentials: 'include'
+        }),
+        fetch('/api/admin/notifications', {
+          credentials: 'include'
+        })
+      ])
 
-      if (response.ok) {
-        const data = await response.json()
-        setNotifications(data)
-      } else {
-        console.error('Error fetching notifications:', response.statusText)
+      const results: Partial<AdminNotifications> = {
+        pendingDealsCount: 0,
+        notifications: [],
+        generalNotifications: [],
+        unreadCount: 0
       }
+
+      // Handle deal notifications
+      if (dealResponse.ok) {
+        const dealData = await dealResponse.json()
+        results.pendingDealsCount = dealData.pendingDealsCount || 0
+        results.notifications = dealData.notifications || []
+      } else {
+        console.error('Error fetching deal notifications:', dealResponse.statusText)
+      }
+
+      // Handle general notifications
+      if (generalResponse.ok) {
+        const generalData = await generalResponse.json()
+        results.generalNotifications = generalData.notifications || []
+        results.unreadCount = generalData.unreadCount || 0
+      } else {
+        console.error('Error fetching general notifications:', generalResponse.statusText)
+      }
+
+      setNotifications(results as AdminNotifications)
     } catch (error) {
       console.error('Error fetching notifications:', error)
     } finally {
@@ -91,11 +131,41 @@ export const useAdminNotifications = () => {
     return () => clearInterval(interval)
   }, [session])
 
+  // Mark notifications as read
+  const markNotificationsAsRead = async (notificationIds?: string[], markAll = false) => {
+    try {
+      const response = await fetch('/api/admin/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          notificationIds,
+          markAll
+        })
+      })
+
+      if (response.ok) {
+        // Refresh notifications after marking as read
+        await fetchNotifications()
+        return true
+      } else {
+        console.error('Error marking notifications as read:', response.statusText)
+        return false
+      }
+    } catch (error) {
+      console.error('Error marking notifications as read:', error)
+      return false
+    }
+  }
+
   return {
     notifications,
     isLoading,
     sendDealNotification,
-    refreshNotifications: fetchNotifications
+    refreshNotifications: fetchNotifications,
+    markAsRead: markNotificationsAsRead
   }
 }
 

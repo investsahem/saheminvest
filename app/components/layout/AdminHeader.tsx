@@ -22,7 +22,8 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
   const { 
     notifications: adminNotifications, 
     isLoading: notificationsLoading,
-    refreshNotifications 
+    refreshNotifications,
+    markAsRead
   } = useAdminNotifications()
   const [showUserDropdown, setShowUserDropdown] = useState(false)
   const userDropdownRef = useRef<HTMLDivElement>(null)
@@ -108,23 +109,35 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
 
           {/* Notifications */}
           <NotificationDropdown
-            notifications={adminNotifications.notifications.map(n => ({
-              id: n.id,
-              title: n.title,
-              message: n.message,
-              type: n.data.type || 'info',
-              read: false, // Admin notifications are always unread in the current implementation
-              createdAt: n.createdAt,
-              metadata: n.data
-            }))}
+            notifications={[
+              // Combine deal notifications and general notifications
+              ...adminNotifications.notifications.map(n => ({
+                id: n.id,
+                title: n.title,
+                message: n.message,
+                type: n.data.type || 'info',
+                read: false, // Deal notifications are always unread in the current implementation
+                createdAt: n.createdAt,
+                metadata: n.data
+              })),
+              ...adminNotifications.generalNotifications.map(n => ({
+                id: n.id,
+                title: n.title,
+                message: n.message,
+                type: n.type || 'info',
+                read: n.read,
+                createdAt: n.createdAt,
+                metadata: n.metadata
+              }))
+            ]}
             stats={{
-              total: adminNotifications.notifications.length,
-              unread: adminNotifications.pendingDealsCount + adminNotifications.notifications.length,
+              total: adminNotifications.notifications.length + adminNotifications.generalNotifications.length,
+              unread: adminNotifications.unreadCount + adminNotifications.notifications.length,
               pendingDeals: adminNotifications.pendingDealsCount
             }}
             isLoading={notificationsLoading}
-            onMarkAsRead={async () => true} // Admin notifications don't support mark as read yet
-            onMarkAllAsRead={async () => true}
+            onMarkAsRead={async (id) => await markAsRead([id])}
+            onMarkAllAsRead={async () => await markAsRead([], true)}
             onRefresh={refreshNotifications}
             userRole="ADMIN"
           />
