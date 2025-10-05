@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
+import { toSafeMoney, toSafeDecimal } from '../../../lib/decimal-utils'
 import { v2 as cloudinary } from 'cloudinary'
 
 const prisma = new PrismaClient()
@@ -240,9 +241,9 @@ export async function PUT(
     const description = formData.get('description') as string
     const category = formData.get('category') as string
     const location = formData.get('location') as string
-    const fundingGoal = parseFloat(formData.get('fundingGoal') as string)
-    const minInvestment = parseFloat(formData.get('minInvestment') as string)
-    const expectedReturn = parseFloat(formData.get('expectedReturn') as string)
+    const fundingGoal = toSafeMoney(formData.get('fundingGoal') as string)
+    const minInvestment = toSafeMoney(formData.get('minInvestment') as string)
+    const expectedReturn = toSafeDecimal(formData.get('expectedReturn') as string)
     const duration = parseInt(formData.get('duration') as string)
     const riskLevel = formData.get('riskLevel') as string
     const highlights = JSON.parse(formData.get('highlights') as string || '[]')

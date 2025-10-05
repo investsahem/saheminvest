@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../lib/auth'
+import { toSafeMoney } from '../../../lib/decimal-utils'
 import { PrismaClient } from '@prisma/client'
 import notificationService from '../../../lib/notifications'
 
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         type: 'WITHDRAWAL',
-        amount: parseFloat(amount),
+        amount: toSafeMoney(amount),
         description: `Withdrawal via ${method === 'cash' ? 'cash from office' : 'bank transfer'}`,
         method: method.toUpperCase(),
         status: 'PENDING',

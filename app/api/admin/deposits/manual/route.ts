@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../../../lib/auth'
 import { prisma } from '../../../../lib/db'
+import { toSafeMoney } from '../../../../lib/decimal-utils'
 import { emailService } from '../../../../lib/email'
 import notificationService from '../../../../lib/notifications'
 
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
     const transaction = await prisma.transaction.create({
       data: {
         userId: userId,
-        amount: parseFloat(amount.toString()),
+        amount: toSafeMoney(amount), // Ensure proper decimal precision
         type: 'DEPOSIT',
         method: method.toUpperCase(),
         status: 'COMPLETED', // Manual deposits are immediately completed
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
       where: { id: userId },
       data: {
         walletBalance: {
-          increment: parseFloat(amount.toString())
+          increment: toSafeMoney(amount) // Ensure proper decimal precision
         }
       }
     })
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
         `Your ${method} deposit of $${amount} has been processed and added to your wallet.`,
         'DEPOSIT_COMPLETED',
         {
-          amount: parseFloat(amount.toString()),
+          amount: toSafeMoney(amount),
           method: method,
           transactionId: transaction.id,
           reference: transaction.reference
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
         amount: parseFloat(amount.toString()),
         method: method,
         reference: transaction.reference || '',
-        newBalance: Number(user.walletBalance) + parseFloat(amount.toString())
+        newBalance: Number(user.walletBalance) + toSafeMoney(amount)
       })
     } catch (notificationError) {
       console.error('Error sending notifications:', notificationError)
@@ -118,7 +119,7 @@ export async function POST(request: NextRequest) {
         id: user.id,
         name: user.name,
         email: user.email,
-        newBalance: Number(user.walletBalance) + parseFloat(amount.toString())
+        newBalance: Number(user.walletBalance) + toSafeMoney(amount)
       }
     }, { status: 201 })
 

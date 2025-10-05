@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
+import { toSafeMoney } from '../../../lib/decimal-utils'
 import { emailService } from '../../../lib/email'
 import notificationService from '../../../lib/notifications'
 
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
         data: {
           userId: session.user.id,
           type: 'DEPOSIT',
-          amount: parseFloat(amount),
+          amount: toSafeMoney(amount), // Ensure proper decimal precision
           description: `Deposit via ${method === 'cash' ? 'cash at office' : method === 'card' ? 'credit/debit card' : 'bank transfer'}`,
           method: method.toUpperCase(),
           status: status,
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
           where: { id: session.user.id },
           data: {
             walletBalance: {
-              increment: parseFloat(amount)
+              increment: toSafeMoney(amount) // Ensure proper decimal precision
             }
           }
         })
