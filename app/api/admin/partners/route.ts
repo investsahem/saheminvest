@@ -153,6 +153,31 @@ export async function GET(request: NextRequest) {
       prisma.partner.count({ where })
     ])
 
+    // Get all partners' projects for dynamic statistics calculation
+    const partnerIds = partners.map(p => p.userId)
+    const allPartnersProjects = await prisma.project.findMany({
+      where: { 
+        ownerId: { in: partnerIds }
+      },
+      include: {
+        investments: {
+          select: {
+            amount: true,
+            investorId: true
+          }
+        }
+      }
+    })
+
+    // Group projects by partner userId for efficient lookup
+    const projectsByPartner = allPartnersProjects.reduce((acc, project) => {
+      if (!acc[project.ownerId]) {
+        acc[project.ownerId] = []
+      }
+      acc[project.ownerId].push(project)
+      return acc
+    }, {} as Record<string, typeof allPartnersProjects>)
+
     // Transform partners to match frontend interface
     const transformedPartners = partners.map(partner => {
       // Prioritize PartnerProfile info, then latest deal, then static partner data
@@ -160,6 +185,14 @@ export async function GET(request: NextRequest) {
       const latestDeal = partner.projects?.[0]
       const dynamicCompanyName = profile?.companyName || latestDeal?.title || partner.companyName || 'No Company Name'
       const dynamicIndustry = profile?.industry || latestDeal?.category || partner.industry || 'Other'
+      
+      // Calculate real statistics from projects data
+      const partnerProjects = projectsByPartner[partner.userId] || []
+      const totalDeals = partnerProjects.length
+      const activeDeals = partnerProjects.filter(p => p.status === 'ACTIVE' || p.status === 'PUBLISHED').length
+      const completedDeals = partnerProjects.filter(p => p.status === 'COMPLETED').length
+      const totalInvestment = partnerProjects.reduce((sum, project) => sum + (Number(project.currentFunding) || 0), 0)
+      const successRate = totalDeals > 0 ? Math.round((completedDeals / totalDeals) * 100 * 100) / 100 : 0
       
       return {
         id: partner.id,
@@ -175,10 +208,10 @@ export async function GET(request: NextRequest) {
         joinedAt: partner.joinedAt.toISOString(),
         lastActive: partner.lastActive?.toISOString() || partner.updatedAt.toISOString(),
         stats: {
-          totalDeals: partner.totalDeals,
-          totalInvested: Number(partner.totalFunding), // Use totalFunding as total invested amount
-          successRate: Number(partner.successRate),
-          activeDeals: partner._count.projects
+          totalDeals,
+          totalInvested: totalInvestment,
+          successRate,
+          activeDeals
         },
         documents: {
           businessLicense: partner.businessLicense,

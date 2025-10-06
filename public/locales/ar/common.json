@@ -1,5 +1,5 @@
 {
-  "_cache_bust": "2025-01-05T16:25:00Z",
+  "_cache_bust": "2025-01-05T16:45:00Z",
   "platform": {
     "name": "ساهم إنفست",
     "slogan": "استثمر في مستقبل النمو"
@@ -1364,6 +1364,9 @@
     "last_active": "آخر نشاط",
     "documents": "الوثائق",
     "view": "عرض",
+    "edit": "تعديل",
+    "suspend": "تعليق",
+    "active_deals": "الصفقات النشطة",
     "view_details": "عرض التفاصيل",
     "edit_partner": "تعديل الشريك",
     "approve_partner": "الموافقة على الشريك",
@@ -1752,6 +1755,7 @@
     "reject": "رفض",
     "suspend": "تعليق",
     "activate": "تفعيل",
+    "active_deals": "الصفقات النشطة",
     "refresh": "تحديث",
     "search": "بحث",
     "filter": "تصفية",

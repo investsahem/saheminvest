@@ -289,7 +289,7 @@ export default function PartnerDetailPage({ params }: { params: Promise<{ id: st
               disabled={actionLoading}
             >
               <Edit className="w-4 h-4 mr-2" />
-              {t('partners.edit')}
+              {t('common.edit')}
             </Button>
             
             {partner.status === 'pending' && (
@@ -311,7 +311,7 @@ export default function PartnerDetailPage({ params }: { params: Promise<{ id: st
                 className="text-red-600 border-red-300 hover:bg-red-50"
               >
                 <X className="w-4 h-4 mr-2" />
-                {t('partners.suspend')}
+                {t('common.suspend')}
               </Button>
             )}
           </div>
@@ -378,7 +378,7 @@ export default function PartnerDetailPage({ params }: { params: Promise<{ id: st
                   <div className="text-center p-3 bg-orange-50 rounded-lg">
                     <Eye className="w-6 h-6 text-orange-600 mx-auto mb-1" />
                     <div className="text-lg font-bold text-orange-900">{partner.stats.activeDeals}</div>
-                    <div className="text-xs text-orange-700">{t('partners.active_deals')}</div>
+                    <div className="text-xs text-orange-700">{t('common.active_deals')}</div>
                   </div>
                 </div>
               </div>
