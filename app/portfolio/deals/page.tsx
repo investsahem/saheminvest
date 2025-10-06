@@ -556,8 +556,18 @@ const PortfolioDealsPage = () => {
                     }, 0)
                   : undefined
 
+                // Use the investorCount from API (already calculated as unique investors)
+                const uniqueInvestorsCount = deal.investorCount || 0
+
                 return (
                   <div key={deal.id} className="relative group">
+                    {/* Deal ID Badge - Top Left */}
+                    <div className="absolute top-4 left-4 z-10">
+                      <div className="px-2 py-1 bg-indigo-600 text-white rounded text-xs font-mono font-bold shadow-lg">
+                        ID: {deal.id.slice(-8)}
+                      </div>
+                    </div>
+
                     <DealCard
                       id={deal.id}
                       title={deal.title}
@@ -572,7 +582,7 @@ const PortfolioDealsPage = () => {
                       duration={deal.duration || 12}
                       endDate={deal.endDate || ''}
                       startDate={deal.startDate || ''}
-                      contributorsCount={deal.investorCount || deal._count?.investments || 0}
+                      contributorsCount={uniqueInvestorsCount}
                       partnerName={deal.owner?.partnerProfile?.companyName || deal.partner?.companyName || deal.owner.name || 'Partner'}
                       partnerDealsCount={5}
                       minInvestment={deal.minInvestment || 1000}
@@ -590,7 +600,7 @@ const PortfolioDealsPage = () => {
                     {/* Save/Bookmark Button */}
                     <button
                       onClick={() => toggleSavedDeal(deal.id)}
-                      className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 ${
+                      className={`absolute top-4 right-4 z-10 p-2 rounded-full transition-all duration-200 ${
                         savedDeals.includes(deal.id)
                           ? 'bg-red-500 text-white shadow-lg'
                           : 'bg-white/90 text-gray-600 hover:bg-white hover:text-red-500 shadow-md'
@@ -605,7 +615,7 @@ const PortfolioDealsPage = () => {
 
                     {/* Featured Badge */}
                     {deal.featured && (
-                      <div className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+                      <div className="absolute top-16 left-4 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
                         <Star className="w-3 h-3 fill-current" />
                         Featured
                       </div>

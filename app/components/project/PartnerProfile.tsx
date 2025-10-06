@@ -136,7 +136,7 @@ export function PartnerProfile({
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600">
-              {formatNumber(totalFunding)} {t('common.currency')}
+              ${formatNumber(totalFunding)}
             </div>
             <div className="text-sm text-gray-600">{t('partner.total_funding')}</div>
           </div>

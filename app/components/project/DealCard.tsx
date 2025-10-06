@@ -238,7 +238,7 @@ export function DealCard({
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">{t('deal_card.funding_goal')}</span>
             <span className="font-bold text-gray-900">
-              {formatNumber(fundingGoal)} {t('common.currency')}
+              ${formatNumber(fundingGoal)}
             </span>
           </div>
 
@@ -339,7 +339,7 @@ export function DealCard({
               />
             </div>
             <div className="text-xs text-gray-500 text-center">
-              {formatNumber(currentFunding)} / {formatNumber(fundingGoal)} {t('common.currency')}
+              ${formatNumber(currentFunding)} / ${formatNumber(fundingGoal)}
             </div>
           </div>
 

@@ -568,9 +568,16 @@ export default function AdminDealsPage() {
                           {/* Deal Details */}
                           <div className="flex-1 min-w-0">
                             <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} items-start justify-between mb-2`}>
-                              <h3 className={`text-lg font-semibold text-gray-900 ${locale === 'ar' ? 'font-arabic' : ''}`}>
-                                {deal.title}
-                              </h3>
+                              <div className="flex-1">
+                                <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} items-center gap-2 mb-1`}>
+                                  <h3 className={`text-lg font-semibold text-gray-900 ${locale === 'ar' ? 'font-arabic' : ''}`}>
+                                    {deal.title}
+                                  </h3>
+                                  <div className="px-2 py-1 bg-gray-600 text-white rounded text-xs font-mono font-bold">
+                                    ID: {deal.id.slice(-8)}
+                                  </div>
+                                </div>
+                              </div>
                               <div className={`flex ${locale === 'ar' ? 'flex-row-reverse' : 'flex-row'} items-center gap-2 ${locale === 'ar' ? 'mr-4' : 'ml-4'}`}>
                                 <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
                                   <StatusIcon className="w-3 h-3 mr-1" />
