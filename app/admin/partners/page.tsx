@@ -10,7 +10,7 @@ import { Input } from '../../components/ui/Input'
 import { useTranslation } from '../../components/providers/I18nProvider'
 import { 
   Building2, Users, DollarSign, TrendingUp, Search, Filter, 
-  Plus, Eye, Edit, Trash2, Mail, Phone, MapPin, Calendar,
+  Eye, Edit, Trash2, Mail, Phone, MapPin, Calendar,
   CheckCircle, Clock, AlertCircle, X, Star, Award
 } from 'lucide-react'
 
@@ -429,13 +429,6 @@ const PartnersPage = () => {
                   <Filter className="w-4 h-4" />
                   {t('partners.export')}
                 </Button>
-                <Button 
-                  className="flex items-center gap-2"
-                  onClick={() => setShowAddModal(true)}
-                >
-                  <Plus className="w-4 h-4" />
-                  {t('partners.add_partner')}
-                </Button>
               </div>
             </div>
           </CardContent>
@@ -604,12 +597,6 @@ const PartnersPage = () => {
                 <p className="mt-1 text-sm text-gray-500">
                   {t('partners.no_partners_message')}
                 </p>
-                <div className="mt-6">
-                  <Button onClick={() => setShowAddModal(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    {t('partners.add_partner')}
-                  </Button>
-                </div>
               </div>
             </CardContent>
           </Card>
