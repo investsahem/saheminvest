@@ -80,10 +80,16 @@ export default function PortfolioDealDetailsPage() {
     const fetchDeal = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/deals/${dealId}?includePartner=true`)
+        const response = await fetch(`/api/deals/${dealId}?includePartner=true&_t=${Date.now()}`, {
+          cache: 'no-store'
+        })
         
         if (response.ok) {
           const data = await response.json()
+          console.log('🔍 Full API Response:', data)
+          console.log('🔍 investorCount:', data.investorCount)
+          console.log('🔍 _count:', data._count)
+          console.log('🔍 investments length:', data.investments?.length)
           setDeal(data)
         } else if (response.status === 404) {
           setError('Deal not found')
@@ -309,7 +315,13 @@ export default function PortfolioDealDetailsPage() {
               </Card>
               <Card>
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600 mb-1">{deal._count?.investments || deal.investorCount}</div>
+                  <div className="text-2xl font-bold text-blue-600 mb-1">
+                    {(() => {
+                      const count = deal.investorCount || deal._count?.investments || 0
+                      console.log('🔍 Display count:', count, 'from investorCount:', deal.investorCount, '_count:', deal._count?.investments)
+                      return count
+                    })()}
+                  </div>
                   <div className="text-sm text-gray-600">{t('deals.investors')}</div>
                 </CardContent>
               </Card>
@@ -332,10 +344,13 @@ export default function PortfolioDealDetailsPage() {
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{locale === 'ar' ? 'هل أنت مستعد للاستثمار؟' : 'Ready to Invest?'}</h3>
                 <p className="text-gray-600 mb-4">
-                  {locale === 'ar' ? 
-                    `انضم إلى ${deal._count?.investments || deal.investorCount} مستثمر آخر وابدأ في كسب عوائد تصل إلى ${deal.expectedReturn}% سنوياً.` :
-                    `Join ${deal._count?.investments || deal.investorCount} other investors and start earning returns of up to ${deal.expectedReturn}% annually.`
-                  }
+                  {(() => {
+                    const count = deal.investorCount || deal._count?.investments || 0
+                    console.log('🔍 CTA count:', count, 'from investorCount:', deal.investorCount, '_count:', deal._count?.investments)
+                    return locale === 'ar' ? 
+                      `انضم إلى ${count} مستثمر آخر وابدأ في كسب عوائد تصل إلى ${deal.expectedReturn}% سنوياً.` :
+                      `Join ${count} other investors and start earning returns of up to ${deal.expectedReturn}% annually.`
+                  })()}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link href={`/deals/${deal.id}/invest`} className="flex-1">

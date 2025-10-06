@@ -78,7 +78,8 @@ export async function GET(
       }
     }
     
-    // Add investments if needed
+    // Add investments - we need this for investor count calculation
+    // For non-admin users, we'll include minimal investment data just for counting
     if (isAdmin || includeInvestments) {
       includeClause.investments = {
         include: {
@@ -93,6 +94,13 @@ export async function GET(
         },
         orderBy: {
           createdAt: 'desc'
+        }
+      }
+    } else {
+      // For regular users, include minimal investment data just for counting unique investors
+      includeClause.investments = {
+        select: {
+          investorId: true
         }
       }
     }
@@ -156,6 +164,14 @@ export async function GET(
         .map((inv: any) => inv.investorId)
     )
     const uniqueInvestorCount = uniqueInvestorIds.size
+    
+    console.log('🔍 Deal API Debug:', {
+      dealId: deal.id,
+      totalInvestments: deal.investments?.length || 0,
+      uniqueInvestorIds: Array.from(uniqueInvestorIds),
+      uniqueInvestorCount,
+      _countInvestments: deal._count?.investments
+    })
 
     // Map partnerProfile to partner for consistency with frontend expectations
     const responseData = {
