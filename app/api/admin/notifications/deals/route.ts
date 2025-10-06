@@ -75,12 +75,11 @@ export async function POST(request: NextRequest) {
         dealTitle: deal.title,
         partnerName: deal.owner?.name || 'Unknown Partner'
       },
-      'DEAL_APPROVAL',
       {
+        type: 'DEAL_APPROVAL',
         dealId: deal.id,
         dealTitle: deal.title,
         partnerName: deal.owner?.name,
-        type,
         changes: changes || []
       }
     )
