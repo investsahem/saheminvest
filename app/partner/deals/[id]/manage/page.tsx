@@ -144,17 +144,17 @@ const DealManagePage = () => {
       })
 
       if (response.ok) {
-        alert('تم إرسال طلب توزيع الأرباح للمراجعة الإدارية')
+        alert(t('deal_management.profit_distribution_submitted'))
         setShowProfitForm(false)
         // Refresh deal data
         window.location.reload()
       } else {
         const errorData = await response.json()
-        alert(errorData.error || 'حدث خطأ في إرسال الطلب')
+        alert(errorData.error || t('deal_management.profit_distribution_error'))
       }
     } catch (error) {
       console.error('Error submitting profit distribution:', error)
-      alert('حدث خطأ في إرسال الطلب')
+      alert(t('deal_management.profit_distribution_error'))
     } finally {
       setSubmitting(false)
     }
@@ -162,7 +162,7 @@ const DealManagePage = () => {
 
   if (loading) {
     return (
-      <PartnerLayout title="إدارة الصفقة" subtitle="إدارة وتوزيع الأرباح">
+      <PartnerLayout title={t('deal_management.title')} subtitle={t('deal_management.subtitle')}>
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -172,14 +172,14 @@ const DealManagePage = () => {
 
   if (!deal) {
     return (
-      <PartnerLayout title="إدارة الصفقة" subtitle="الصفقة غير موجودة">
+      <PartnerLayout title={t('deal_management.title')} subtitle={t('deal_management.deal_not_found')}>
         <Card>
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">الصفقة غير موجودة</h2>
-            <p className="text-gray-600 mb-4">لا يمكن العثور على الصفقة المطلوبة.</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('deal_management.deal_not_found')}</h2>
+            <p className="text-gray-600 mb-4">{t('deal_management.deal_not_found_message')}</p>
             <Button onClick={() => router.push('/partner/deals')}>
-              العودة إلى الصفقات
+              {t('deal_management.back_to_deals')}
             </Button>
           </CardContent>
         </Card>
@@ -192,7 +192,7 @@ const DealManagePage = () => {
   const fundingProgress = (deal.currentFunding / deal.fundingGoal) * 100
 
   return (
-    <PartnerLayout title="إدارة الصفقة" subtitle={deal.title}>
+    <PartnerLayout title={t('deal_management.title')} subtitle={deal.title}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -202,7 +202,7 @@ const DealManagePage = () => {
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            العودة إلى الصفقات
+            {t('deal_management.back_to_deals')}
           </Button>
           
           <div className="flex gap-2">
@@ -210,7 +210,7 @@ const DealManagePage = () => {
               <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-blue-600" />
-                  <span className="text-blue-800 font-medium">صفقة مكتملة - عرض سجل الأرباح</span>
+                  <span className="text-blue-800 font-medium">{t('deal_management.completed_deal_view_profits')}</span>
                 </div>
               </div>
             ) : (
@@ -220,7 +220,7 @@ const DealManagePage = () => {
                 disabled={deal.status !== 'ACTIVE' && deal.status !== 'FUNDED'}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                توزيع أرباح
+                {t('deal_management.distribute_profits')}
               </Button>
             )}
           </div>
@@ -232,7 +232,7 @@ const DealManagePage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">إجمالي الاستثمارات</p>
+                  <p className="text-sm font-medium text-gray-600">{t('deal_management.total_investments')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {formatCurrency(totalInvested)}
                   </p>
@@ -246,7 +246,7 @@ const DealManagePage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">عدد المستثمرين</p>
+                  <p className="text-sm font-medium text-gray-600">{t('deal_management.investors_count')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {deal._count?.investments || 0}
                   </p>
@@ -260,7 +260,7 @@ const DealManagePage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">الأرباح الموزعة</p>
+                  <p className="text-sm font-medium text-gray-600">{t('deal_management.distributed_profits')}</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {formatCurrency(totalDistributed)}
                   </p>
@@ -274,12 +274,12 @@ const DealManagePage = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">حالة الصفقة</p>
+                  <p className="text-sm font-medium text-gray-600">{t('deal_management.deal_status')}</p>
                   <p className="text-lg font-bold text-gray-900">
-                    {deal.status === 'ACTIVE' && 'نشطة'}
-                    {deal.status === 'FUNDED' && 'مموّلة'}
-                    {deal.status === 'COMPLETED' && 'مكتملة'}
-                    {deal.status === 'DRAFT' && 'مسودة'}
+                    {deal.status === 'ACTIVE' && t('deal_management.deal_statuses.active')}
+                    {deal.status === 'FUNDED' && t('deal_management.deal_statuses.funded')}
+                    {deal.status === 'COMPLETED' && t('deal_management.deal_statuses.completed')}
+                    {deal.status === 'DRAFT' && t('deal_management.deal_statuses.draft')}
                   </p>
                 </div>
                 <Activity className="w-8 h-8 text-orange-600" />
@@ -291,11 +291,11 @@ const DealManagePage = () => {
         {/* Deal Progress */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">تقدم الصفقة</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('deal_management.deal_progress')}</h3>
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm text-gray-600 mb-2">
-                  <span>التمويل المحقق</span>
+                  <span>{t('deal_management.funding_achieved')}</span>
                   <span>{fundingProgress.toFixed(1)}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
@@ -316,15 +316,15 @@ const DealManagePage = () => {
         {/* Investors List */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">قائمة المستثمرين</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('deal_management.investors_list')}</h3>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-right py-3 px-4 font-medium text-gray-600">المستثمر</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-600">مبلغ الاستثمار</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-600">تاريخ الاستثمار</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-600">الأرباح المستلمة</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-600">{t('deal_management.investor')}</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-600">{t('deal_management.investment_amount')}</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-600">{t('deal_management.investment_date')}</th>
+                    <th className="text-right py-3 px-4 font-medium text-gray-600">{t('deal_management.profits_received')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -340,7 +340,7 @@ const DealManagePage = () => {
                     return (
                       <tr key={investment.id} className="border-b border-gray-100">
                         <td className="py-4 px-4 font-medium">
-                          مستثمر #{index + 1}
+                          {t('deal_management.investor')} #{index + 1}
                         </td>
                         <td className="py-4 px-4">
                           {formatCurrency(Number(investment.amount))}
@@ -357,7 +357,7 @@ const DealManagePage = () => {
                   {(deal.investments || []).length === 0 && (
                     <tr>
                       <td colSpan={4} className="py-8 text-center text-gray-500">
-                        لا توجد استثمارات في هذه الصفقة حالياً
+                        {t('deal_management.no_investments')}
                       </td>
                     </tr>
                   )}
@@ -371,10 +371,10 @@ const DealManagePage = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">سجل توزيع الأرباح</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('deal_management.profit_distribution_history')}</h3>
               {deal.status === 'COMPLETED' && (
                 <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                  صفقة مكتملة
+                  {t('deal_management.completed_deal')}
                 </div>
               )}
             </div>
@@ -384,25 +384,25 @@ const DealManagePage = () => {
                 {/* Summary for completed deals */}
                 {deal.status === 'COMPLETED' && (
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 mb-6">
-                    <h4 className="font-medium text-green-900 mb-2">ملخص الأرباح النهائي</h4>
+                    <h4 className="font-medium text-green-900 mb-2">{t('deal_management.final_profit_summary')}</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <p className="text-green-600">إجمالي الأرباح الموزعة</p>
+                        <p className="text-green-600">{t('deal_management.total_distributed_profits')}</p>
                         <p className="font-bold text-green-900">{formatCurrency(totalDistributed)}</p>
                       </div>
                       <div>
-                        <p className="text-green-600">عدد التوزيعات</p>
+                        <p className="text-green-600">{t('deal_management.distributions_count')}</p>
                         <p className="font-bold text-green-900">{(deal.profitDistributions || []).length}</p>
                       </div>
                       <div>
-                        <p className="text-green-600">معدل العائد</p>
+                        <p className="text-green-600">{t('deal_management.return_rate')}</p>
                         <p className="font-bold text-green-900">
                           {totalInvested > 0 ? ((totalDistributed / totalInvested) * 100).toFixed(1) : '0.0'}%
                         </p>
                       </div>
                       <div>
-                        <p className="text-green-600">حالة الصفقة</p>
-                        <p className="font-bold text-green-900">مكتملة بنجاح</p>
+                        <p className="text-green-600">{t('deal_management.deal_status')}</p>
+                        <p className="font-bold text-green-900">{t('deal_management.deal_status_completed')}</p>
                       </div>
                     </div>
                   </div>
@@ -411,9 +411,9 @@ const DealManagePage = () => {
                 {(deal.profitDistributions || []).map((distribution) => (
                   <div key={distribution.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                     <div>
-                      <p className="font-medium text-gray-900">{distribution.description || 'توزيع أرباح'}</p>
+                      <p className="font-medium text-gray-900">{distribution.description || t('deal_management.profit_distribution')}</p>
                       <p className="text-sm text-gray-600">
-                        {formatDate(distribution.distributionDate)} • معدل الربح: {Number(distribution.profitRate).toFixed(1)}%
+                        {formatDate(distribution.distributionDate)} • {t('deal_management.profit_rate')}: {Number(distribution.profitRate).toFixed(1)}%
                       </p>
                     </div>
                     <div className="text-left">
@@ -424,8 +424,8 @@ const DealManagePage = () => {
                         {distribution.status === 'COMPLETED' && <CheckCircle className="w-4 h-4 text-green-600" />}
                         {distribution.status === 'PENDING' && <Clock className="w-4 h-4 text-yellow-600" />}
                         <span className="text-sm text-gray-600">
-                          {distribution.status === 'COMPLETED' && 'مكتمل'}
-                          {distribution.status === 'PENDING' && 'قيد المراجعة'}
+                          {distribution.status === 'COMPLETED' && t('deal_management.completed')}
+                          {distribution.status === 'PENDING' && t('deal_management.under_review')}
                         </span>
                       </div>
                     </div>
@@ -437,12 +437,12 @@ const DealManagePage = () => {
                 {deal.status === 'COMPLETED' ? (
                   <div>
                     <CheckCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">صفقة مكتملة بدون توزيع أرباح مسجل</p>
+                    <p className="text-gray-500">{t('deal_management.completed_deal_no_profits')}</p>
                   </div>
                 ) : (
                   <div>
                     <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">لم يتم توزيع أرباح بعد</p>
+                    <p className="text-gray-500">{t('deal_management.no_profits_distributed')}</p>
                   </div>
                 )}
               </div>
@@ -462,13 +462,13 @@ const DealManagePage = () => {
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">توزيع أرباح جديد</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{t('deal_management.new_profit_distribution')}</h2>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => setShowProfitForm(false)}
                   >
-                    إغلاق
+                    {t('deal_management.close')}
                   </Button>
                 </div>
 
@@ -476,7 +476,7 @@ const DealManagePage = () => {
                   {/* Total Amount */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Amount ($)
+                      {t('deal_management.amount_usd')}
                     </label>
                     <input
                       type="number"
@@ -492,7 +492,7 @@ const DealManagePage = () => {
                   {/* Estimated Gain % */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Estimated gain %
+                      {t('deal_management.estimated_gain_percent')}
                     </label>
                     <input
                       type="number"
@@ -509,7 +509,7 @@ const DealManagePage = () => {
                   {/* Estimated Deal Closing % */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Estimated Deal Closing %
+                      {t('deal_management.estimated_deal_closing_percent')}
                     </label>
                     <input
                       type="number"
@@ -525,7 +525,7 @@ const DealManagePage = () => {
 
                   {/* Distribution Type */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">نوع التوزيع</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('deal_management.distribution_type')}</label>
                     <div className="flex gap-4">
                       <label className="flex items-center">
                         <input
@@ -536,7 +536,7 @@ const DealManagePage = () => {
                           onChange={(e) => setProfitForm(prev => ({ ...prev, distributionType: e.target.value as 'PARTIAL' | 'FINAL' }))}
                           className="mr-2"
                         />
-                        توزيع جزئي
+                        {t('deal_management.partial_distribution')}
                       </label>
                       <label className="flex items-center">
                         <input
@@ -547,19 +547,19 @@ const DealManagePage = () => {
                           onChange={(e) => setProfitForm(prev => ({ ...prev, distributionType: e.target.value as 'PARTIAL' | 'FINAL' }))}
                           className="mr-2"
                         />
-                        توزيع نهائي
+                        {t('deal_management.final_distribution')}
                       </label>
                     </div>
                   </div>
 
                   {/* Description */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">وصف التوزيع</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('deal_management.distribution_description')}</label>
                     <input
                       type="text"
                       value={profitForm.description}
                       onChange={(e) => setProfitForm(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="مثال: توزيع أرباح الربع الأول"
+                      placeholder={t('deal_management.distribution_description_placeholder')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -572,14 +572,14 @@ const DealManagePage = () => {
                       className="bg-green-600 hover:bg-green-700 flex-1"
                     >
                       <Send className="w-4 h-4 mr-2" />
-                      {submitting ? 'جاري الإرسال...' : 'إرسال للمراجعة الإدارية'}
+                      {submitting ? t('deal_management.sending') : t('deal_management.submit_for_admin_review')}
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => setShowProfitForm(false)}
                       disabled={submitting}
                     >
-                      إلغاء
+                      {t('deal_management.cancel')}
                     </Button>
                   </div>
                 </div>
