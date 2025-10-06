@@ -48,17 +48,15 @@ const PartnerNotificationsPage = () => {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'deal_funded':
-      case 'new_investment':
+      case 'deal_completed':
         return <DollarSign className="w-5 h-5 text-green-600" />
-      case 'deal_approved':
-      case 'deal_rejected':
+      case 'distribution_request':
         return <Target className="w-5 h-5 text-blue-600" />
       case 'investor_joined':
         return <TrendingUp className="w-5 h-5 text-purple-600" />
-      case 'deal_completed':
-        return <CheckCircle className="w-5 h-5 text-green-600" />
       case 'system':
         return <MessageSquare className="w-5 h-5 text-gray-600" />
+      case 'info':
       default:
         return <Clock className="w-5 h-5 text-gray-600" />
     }
@@ -68,18 +66,15 @@ const PartnerNotificationsPage = () => {
     const baseClasses = "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
     switch (type) {
       case 'deal_funded':
-      case 'new_investment':
+      case 'deal_completed':
         return `${baseClasses} bg-green-100 text-green-800`
-      case 'deal_approved':
+      case 'distribution_request':
         return `${baseClasses} bg-blue-100 text-blue-800`
-      case 'deal_rejected':
-        return `${baseClasses} bg-red-100 text-red-800`
       case 'investor_joined':
         return `${baseClasses} bg-purple-100 text-purple-800`
-      case 'deal_completed':
-        return `${baseClasses} bg-emerald-100 text-emerald-800`
       case 'system':
         return `${baseClasses} bg-gray-100 text-gray-800`
+      case 'info':
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`
     }
@@ -104,11 +99,11 @@ const PartnerNotificationsPage = () => {
   const unreadNotifications = notifications.filter(n => !n.read).length
   const notificationsByType = {
     deal_funded: notifications.filter(n => n.type === 'deal_funded').length,
-    new_investment: notifications.filter(n => n.type === 'new_investment').length,
-    deal_approved: notifications.filter(n => n.type === 'deal_approved').length,
-    deal_rejected: notifications.filter(n => n.type === 'deal_rejected').length,
     investor_joined: notifications.filter(n => n.type === 'investor_joined').length,
-    system: notifications.filter(n => n.type === 'system').length
+    distribution_request: notifications.filter(n => n.type === 'distribution_request').length,
+    deal_completed: notifications.filter(n => n.type === 'deal_completed').length,
+    system: notifications.filter(n => n.type === 'system').length,
+    info: notifications.filter(n => n.type === 'info').length
   }
 
   const handleMarkAllAsRead = async () => {
@@ -190,7 +185,7 @@ const PartnerNotificationsPage = () => {
                     {t('notifications.investments')}
                   </p>
                   <p className="text-2xl font-bold text-green-900">
-                    {notificationsByType.deal_funded + notificationsByType.new_investment}
+                    {notificationsByType.deal_funded + notificationsByType.deal_completed}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -208,7 +203,7 @@ const PartnerNotificationsPage = () => {
                     {t('notifications.deal_updates')}
                   </p>
                   <p className="text-2xl font-bold text-purple-900">
-                    {notificationsByType.deal_approved + notificationsByType.deal_rejected}
+                    {notificationsByType.distribution_request + notificationsByType.investor_joined}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -242,11 +237,11 @@ const PartnerNotificationsPage = () => {
                 >
                   <option value="all">{t('notifications.all_types')}</option>
                   <option value="deal_funded">{t('notifications.deal_funded')}</option>
-                  <option value="new_investment">{t('notifications.new_investments')}</option>
-                  <option value="deal_approved">{t('notifications.deal_approved')}</option>
-                  <option value="deal_rejected">{t('notifications.deal_rejected')}</option>
+                  <option value="deal_completed">{t('notifications.deal_completed')}</option>
+                  <option value="distribution_request">{t('notifications.distribution_request')}</option>
                   <option value="investor_joined">{t('notifications.investor_joined')}</option>
                   <option value="system">{t('notifications.system')}</option>
+                  <option value="info">{t('notifications.info')}</option>
                 </select>
               </div>
 
