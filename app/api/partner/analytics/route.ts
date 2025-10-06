@@ -58,17 +58,20 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Calculate key metrics
+    // Calculate key metrics - Fix NaN issues
     const totalDeals = deals.length
     const activeDeals = deals.filter(d => d.status === 'ACTIVE' || d.status === 'PUBLISHED').length
     const completedDeals = deals.filter(d => d.status === 'COMPLETED').length
     const pendingDeals = deals.filter(d => d.status === 'PENDING').length
     const draftDeals = deals.filter(d => d.status === 'DRAFT').length
 
-    const totalValue = deals.reduce((sum, deal) => sum + Number(deal.fundingGoal), 0)
-    const totalRaised = deals.reduce((sum, deal) => sum + Number(deal.currentFunding), 0)
-    const averageReturn = deals.length > 0 
-      ? Math.round((deals.reduce((sum, deal) => sum + Number(deal.expectedReturn), 0) / deals.length) * 100) / 100
+    const totalValue = deals.reduce((sum, deal) => sum + (Number(deal.fundingGoal) || 0), 0)
+    const totalRaised = deals.reduce((sum, deal) => sum + (Number(deal.currentFunding) || 0), 0)
+    
+    // Fix average return calculation
+    const dealsWithReturns = deals.filter(deal => deal.expectedReturn && Number(deal.expectedReturn) > 0)
+    const averageReturn = dealsWithReturns.length > 0 
+      ? Math.round((dealsWithReturns.reduce((sum, deal) => sum + Number(deal.expectedReturn), 0) / dealsWithReturns.length) * 100) / 100
       : 0
 
     const successRate = totalDeals > 0 
@@ -99,13 +102,13 @@ export async function GET(request: NextRequest) {
         d.createdAt >= monthStart && d.createdAt <= monthEnd
       )
 
-      const monthValue = monthDeals.reduce((sum, deal) => sum + Number(deal.currentFunding), 0)
+      const monthValue = monthDeals.reduce((sum, deal) => sum + (Number(deal.currentFunding) || 0), 0)
       const monthInvestors = new Set(
         monthDeals.flatMap(deal => deal.investments.map(inv => inv.investorId))
       ).size
 
       const monthReturn = monthDeals.length > 0
-        ? monthDeals.reduce((sum, deal) => sum + Number(deal.expectedReturn), 0) / monthDeals.length
+        ? Math.round((monthDeals.reduce((sum, deal) => sum + (Number(deal.expectedReturn) || 0), 0) / monthDeals.length) * 100) / 100
         : 0
 
       monthlyData.push({
@@ -131,7 +134,7 @@ export async function GET(request: NextRequest) {
       }
       const stats = categoryStats.get(category)
       stats.deals += 1
-      stats.amount += Number(deal.currentFunding)
+      stats.amount += (Number(deal.currentFunding) || 0)
     })
 
     // Calculate percentages for categories
@@ -148,12 +151,12 @@ export async function GET(request: NextRequest) {
         id: deal.id,
         title: deal.title,
         category: deal.category,
-        raised: Number(deal.currentFunding),
-        goal: Number(deal.fundingGoal),
-        return: Number(deal.expectedReturn),
+        raised: Number(deal.currentFunding) || 0,
+        goal: Number(deal.fundingGoal) || 0,
+        return: Number(deal.expectedReturn) || 0,
         investors: deal.investments.length,
         status: deal.status,
-        duration: Math.ceil(deal.duration / 30) // Convert days to months
+        duration: Math.ceil((deal.duration || 180) / 30) // Convert days to months, default 6 months
       }))
       .sort((a, b) => b.return - a.return)
       .slice(0, 5)
@@ -165,7 +168,7 @@ export async function GET(request: NextRequest) {
         return dealMonth === month.month
       })
       
-      const target = monthDeals.reduce((sum, deal) => sum + Number(deal.fundingGoal), 0)
+      const target = monthDeals.reduce((sum, deal) => sum + (Number(deal.fundingGoal) || 0), 0)
       return {
         month: month.month,
         target,
@@ -214,7 +217,7 @@ export async function GET(request: NextRequest) {
         newInvestors: totalInvestors - repeatInvestors,
         repeatInvestors,
         averageInvestment: allInvestments.length > 0 
-          ? Math.round(allInvestments.reduce((sum, inv) => sum + Number(inv.amount), 0) / allInvestments.length)
+          ? Math.round(allInvestments.reduce((sum, inv) => sum + (Number(inv.amount) || 0), 0) / allInvestments.length)
           : 0,
         investorRetention: totalInvestors > 0 
           ? Math.round((repeatInvestors / totalInvestors) * 100 * 100) / 100

@@ -79,10 +79,14 @@ export async function POST(request: NextRequest) {
 
     // Send notification to the user
     try {
-      await notificationService.createNotification(
+      await notificationService.createTranslatableNotification(
         userId,
-        'Deposit Successful',
-        `Your ${method} deposit of $${amount} has been processed and added to your wallet.`,
+        'notifications.deposit_approved_title',
+        'notifications.deposit_approved_message',
+        {
+          amount: toSafeMoney(amount),
+          reference: transaction.reference || ''
+        },
         'DEPOSIT_COMPLETED',
         {
           amount: toSafeMoney(amount),

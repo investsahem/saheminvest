@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import AdminLayout from '../../components/layout/AdminLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
@@ -44,16 +45,13 @@ interface Partner {
 const PartnersPage = () => {
   const { t } = useTranslation()
   const { data: session } = useSession()
+  const router = useRouter()
   const [partners, setPartners] = useState<Partner[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [tierFilter, setTierFilter] = useState<string>('all')
   const [industryFilter, setIndustryFilter] = useState<string>('all')
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null)
-  const [showViewModal, setShowViewModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Fetch real partners from API
@@ -113,42 +111,12 @@ const PartnersPage = () => {
     fetchPartners()
   }, [statusFilter, tierFilter, industryFilter, searchTerm])
 
-  const handleViewPartner = async (partnerId: string) => {
-    try {
-      const response = await fetch(`/api/admin/partners/${partnerId}`, {
-        credentials: 'include'
-      })
-      
-      if (response.ok) {
-        const partner = await response.json()
-        setSelectedPartner(partner)
-        setShowViewModal(true)
-      } else {
-        alert(t('partners.fetch_error'))
-      }
-    } catch (error) {
-      console.error('Error fetching partner:', error)
-      alert(t('partners.fetch_error'))
-    }
+  const handleViewPartner = (partnerId: string) => {
+    router.push(`/admin/partners/${partnerId}`)
   }
 
-  const handleEditPartner = async (partnerId: string) => {
-    try {
-      const response = await fetch(`/api/admin/partners/${partnerId}`, {
-        credentials: 'include'
-      })
-      
-      if (response.ok) {
-        const partner = await response.json()
-        setSelectedPartner(partner)
-        setShowEditModal(true)
-      } else {
-        alert(t('partners.fetch_error'))
-      }
-    } catch (error) {
-      console.error('Error fetching partner:', error)
-      alert(t('partners.fetch_error'))
-    }
+  const handleEditPartner = (partnerId: string) => {
+    router.push(`/admin/partners/${partnerId}/edit`)
   }
 
   const handleUpdatePartnerStatus = async (partnerId: string, status: string) => {

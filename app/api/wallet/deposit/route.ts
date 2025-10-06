@@ -100,10 +100,14 @@ export async function POST(request: NextRequest) {
     if (method === 'card') {
       // Send immediate confirmation for card payments
       try {
-        await notificationService.createNotification(
+        await notificationService.createTranslatableNotification(
           session.user.id,
-          'Deposit Successful',
-          `Your deposit of $${Number(amount).toLocaleString()} has been processed successfully.`,
+          'notifications.deposit_approved_title',
+          'notifications.deposit_approved_message',
+          {
+            amount: Number(amount),
+            reference: result.reference
+          },
           'success',
           {
             type: 'deposit_completed',
@@ -118,10 +122,15 @@ export async function POST(request: NextRequest) {
     } else {
       // Send pending notification for cash/bank transfers
       try {
-        await notificationService.createNotification(
+        const methodText = method === 'cash' ? 'cash' : 'bank transfer'
+        await notificationService.createTranslatableNotification(
           session.user.id,
-          'Deposit Request Submitted',
-          `Your deposit request of $${Number(amount).toLocaleString()} via ${method === 'cash' ? 'cash' : 'bank transfer'} has been submitted and is pending approval.`,
+          'notifications.deposit_pending_title',
+          'notifications.deposit_pending_message',
+          {
+            amount: Number(amount),
+            method: methodText
+          },
           'info',
           {
             type: 'deposit_pending',

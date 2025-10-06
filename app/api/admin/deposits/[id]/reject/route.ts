@@ -80,10 +80,14 @@ export async function POST(
 
     // Send notification to the user
     try {
-      await notificationService.createNotification(
+      await notificationService.createTranslatableNotification(
         transaction.userId,
-        'Deposit Rejected',
-        `Your ${transaction.method?.toLowerCase() || 'deposit'} of $${Number(transaction.amount)} has been rejected. ${reason ? `Reason: ${reason}` : 'Please contact support for more information.'}`,
+        'notifications.deposit_rejected_title',
+        'notifications.deposit_rejected_message',
+        {
+          amount: Number(transaction.amount),
+          reason: reason || 'Please contact support for more information.'
+        },
         'DEPOSIT_REJECTED',
         {
           amount: Number(transaction.amount),

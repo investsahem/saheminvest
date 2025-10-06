@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
 import { emailService } from '../../../../lib/email'
+import { notificationService } from '../../../../lib/notifications'
 
 const prisma = new PrismaClient()
 
@@ -62,26 +63,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create notification record
-    const notification = await prisma.notification.create({
-      data: {
-        userId: admins[0].id, // We'll create one notification for the first admin, but email all
-        title: type === 'created' 
-          ? `New Deal: ${deal.title}` 
-          : `Deal Updated: ${deal.title}`,
-        message: type === 'created'
-          ? `${deal.owner?.name} has created a new deal "${deal.title}" that requires approval.`
-          : `${deal.owner?.name} has updated the deal "${deal.title}" and it requires re-approval.`,
-        type: 'DEAL_APPROVAL',
-        metadata: JSON.stringify({
-          dealId: deal.id,
-          dealTitle: deal.title,
-          partnerName: deal.owner?.name,
-          type,
-          changes: changes || []
-        })
+    // Create translatable notification for admins using the notification service
+    const titleKey = type === 'created' ? 'notifications.new_deal_title' : 'notifications.deal_updated_title'
+    const messageKey = type === 'created' ? 'notifications.new_deal_message' : 'notifications.deal_updated_message'
+    
+    // Send notification to all admins
+    await notificationService.notifyAdminsTranslatable(
+      titleKey,
+      messageKey,
+      {
+        dealTitle: deal.title,
+        partnerName: deal.owner?.name || 'Unknown Partner'
+      },
+      'DEAL_APPROVAL',
+      {
+        dealId: deal.id,
+        dealTitle: deal.title,
+        partnerName: deal.owner?.name,
+        type,
+        changes: changes || []
       }
-    })
+    )
 
     // Send email notifications to all admins
     try {
@@ -108,11 +110,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      notification: {
-        id: notification.id,
-        title: notification.title,
-        message: notification.message
-      },
+      message: 'Deal notifications sent to all admins',
       emailsSent: adminEmails.length
     })
 

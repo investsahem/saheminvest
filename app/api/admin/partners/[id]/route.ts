@@ -133,6 +133,32 @@ export async function GET(
     const dynamicCompanyName = profile?.companyName || latestDeal?.title || partner.companyName || 'No Company Name'
     const dynamicIndustry = profile?.industry || latestDeal?.category || partner.industry || 'Other'
 
+    // Get all projects for statistics calculation
+    const allProjects = await prisma.project.findMany({
+      where: { ownerId: partner.userId },
+      include: {
+        investments: {
+          select: {
+            amount: true,
+            investorId: true
+          }
+        }
+      }
+    })
+
+    // Calculate real statistics from projects data
+    const totalDeals = allProjects.length
+    const activeDeals = allProjects.filter(p => p.status === 'ACTIVE' || p.status === 'PUBLISHED').length
+    const completedDeals = allProjects.filter(p => p.status === 'COMPLETED').length
+    const totalInvestment = allProjects.reduce((sum, project) => sum + (Number(project.currentFunding) || 0), 0)
+    const successRate = totalDeals > 0 ? Math.round((completedDeals / totalDeals) * 100 * 100) / 100 : 0
+
+    // Calculate average rating from reviews
+    const ratings = partner.reviews?.map(r => r.rating) || []
+    const averageRating = ratings.length > 0 
+      ? Math.round((ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length) * 100) / 100
+      : 0
+
     return NextResponse.json({
       id: partner.id,
       companyName: dynamicCompanyName,
@@ -156,12 +182,16 @@ export async function GET(
         walletBalance: Number(partner.user.walletBalance)
       },
       stats: {
-        totalDeals: partner.totalDeals,
-        totalCommission: Number(partner.totalCommission),
-        successRate: Number(partner.successRate),
-        activeDeals: partner._count.projects,
-        rating: Number(partner.rating),
-        totalRatings: partner.totalRatings
+        totalDeals,
+        totalInvested: totalInvestment,
+        successRate,
+        activeDeals,
+        rating: averageRating,
+        totalRatings: ratings.length,
+        completedDeals,
+        // Additional calculated stats
+        totalFundingGoal: allProjects.reduce((sum, project) => sum + (Number(project.fundingGoal) || 0), 0),
+        uniqueInvestors: new Set(allProjects.flatMap(p => p.investments.map(inv => inv.investorId))).size
       },
       documents: {
         businessLicense: partner.businessLicense,
@@ -296,6 +326,25 @@ export async function PUT(
       return updatedPartner
     })
 
+    // Calculate real statistics for the updated partner
+    const allProjects = await prisma.project.findMany({
+      where: { ownerId: result.userId },
+      include: {
+        investments: {
+          select: {
+            amount: true,
+            investorId: true
+          }
+        }
+      }
+    })
+
+    const totalDeals = allProjects.length
+    const activeDeals = allProjects.filter(p => p.status === 'ACTIVE' || p.status === 'PUBLISHED').length
+    const completedDeals = allProjects.filter(p => p.status === 'COMPLETED').length
+    const totalInvestment = allProjects.reduce((sum, project) => sum + (Number(project.currentFunding) || 0), 0)
+    const successRate = totalDeals > 0 ? Math.round((completedDeals / totalDeals) * 100 * 100) / 100 : 0
+
     return NextResponse.json({
       id: result.id,
       companyName: result.companyName,
@@ -311,10 +360,13 @@ export async function PUT(
       joinedAt: result.joinedAt.toISOString(),
       lastActive: result.lastActive?.toISOString() || result.updatedAt.toISOString(),
       stats: {
-        totalDeals: result.totalDeals,
-        totalCommission: Number(result.totalCommission),
-        successRate: Number(result.successRate),
-        activeDeals: 0 // Would need to count projects
+        totalDeals,
+        totalInvested: totalInvestment,
+        successRate,
+        activeDeals,
+        completedDeals,
+        totalFundingGoal: allProjects.reduce((sum, project) => sum + (Number(project.fundingGoal) || 0), 0),
+        uniqueInvestors: new Set(allProjects.flatMap(p => p.investments.map(inv => inv.investorId))).size
       },
       documents: {
         businessLicense: result.businessLicense,

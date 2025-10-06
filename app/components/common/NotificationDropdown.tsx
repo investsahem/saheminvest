@@ -154,9 +154,9 @@ const NotificationDropdown = ({
       case 'ADMIN':
         return '/admin/notifications'
       case 'PARTNER':
-        return '/partner/communications'
+        return '/partner/notifications'
       case 'INVESTOR':
-        return '/portfolio/settings'
+        return '/portfolio/notifications'
       default:
         return '#'
     }

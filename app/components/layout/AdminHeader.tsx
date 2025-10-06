@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
 import { useAdminNotifications } from '../../hooks/useAdminNotifications'
+import { useNotificationTranslation } from '../../hooks/useNotificationTranslation'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
 import NotificationDropdown from '../common/NotificationDropdown'
 import { Search, User, ChevronDown, Menu, LogOut, Settings } from 'lucide-react'
@@ -19,6 +20,7 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
   const { t } = useTranslation()
   const { locale } = useI18n()
   const { data: session } = useSession()
+  const { translateNotification } = useNotificationTranslation()
   const { 
     notifications: adminNotifications, 
     isLoading: notificationsLoading,
@@ -113,8 +115,8 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
               // Combine deal notifications and general notifications
               ...adminNotifications.notifications.map(n => ({
                 id: n.id,
-                title: n.title,
-                message: n.message,
+                title: translateNotification(n.title, n.data),
+                message: translateNotification(n.message, n.data),
                 type: n.data.type || 'info',
                 read: false, // Deal notifications are always unread in the current implementation
                 createdAt: n.createdAt,
@@ -122,8 +124,8 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
               })),
               ...adminNotifications.generalNotifications.map(n => ({
                 id: n.id,
-                title: n.title,
-                message: n.message,
+                title: translateNotification(n.title, n.metadata),
+                message: translateNotification(n.message, n.metadata),
                 type: n.type || 'info',
                 read: n.read,
                 createdAt: n.createdAt,

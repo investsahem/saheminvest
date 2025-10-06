@@ -7,6 +7,7 @@ import { useTranslation, useI18n } from '../providers/I18nProvider'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
 import { usePartnerStats } from '../../hooks/usePartnerStats'
 import { usePartnerNotifications } from '../../hooks/usePartnerNotifications'
+import { useNotificationTranslation } from '../../hooks/useNotificationTranslation'
 import NotificationDropdown from '../common/NotificationDropdown'
 import { Search, User, ChevronDown, Menu, TrendingUp, DollarSign, LogOut, Building2, Target, Settings } from 'lucide-react'
 import { Button } from '../ui/Button'
@@ -25,6 +26,7 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
   const pathname = usePathname()
   const [showUserDropdown, setShowUserDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const { translateNotification } = useNotificationTranslation()
   
   // Fetch real partner statistics
   const { stats, loading, error } = usePartnerStats()
@@ -219,7 +221,15 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
 
           {/* Notifications */}
           <NotificationDropdown
-            notifications={notifications}
+            notifications={notifications.map(n => ({
+              id: n.id,
+              title: translateNotification(n.title, n.metadata),
+              message: translateNotification(n.message, n.metadata),
+              type: n.type || 'info',
+              read: n.read,
+              createdAt: n.createdAt,
+              metadata: n.metadata
+            }))}
             stats={notificationStats}
             isLoading={notificationsLoading}
             error={notificationsError}

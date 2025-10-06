@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useTranslation, useI18n } from '../providers/I18nProvider'
 import { useUserData } from '../../hooks/useUserData'
 import { useInvestorNotifications } from '../../hooks/useInvestorNotifications'
+import { useNotificationTranslation } from '../../hooks/useNotificationTranslation'
 import { LanguageSwitcher } from '../common/LanguageSwitcher'
 import NotificationDropdown from '../common/NotificationDropdown'
 import { Search, User, ChevronDown, Menu, TrendingUp, DollarSign, LogOut, Settings } from 'lucide-react'
@@ -26,6 +27,7 @@ const InvestorHeader = ({ title, subtitle, onMobileMenuClick }: InvestorHeaderPr
   const { portfolioValue, dailyChange, isLoading } = useUserData()
   const [showUserDropdown, setShowUserDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const { translateNotification } = useNotificationTranslation()
   
   // Fetch investor notifications
   const {
@@ -162,7 +164,15 @@ const InvestorHeader = ({ title, subtitle, onMobileMenuClick }: InvestorHeaderPr
 
             {/* Notifications */}
             <NotificationDropdown
-              notifications={notifications}
+              notifications={notifications.map(n => ({
+                id: n.id,
+                title: translateNotification(n.title, n.metadata),
+                message: translateNotification(n.message, n.metadata),
+                type: n.type || 'info',
+                read: n.read,
+                createdAt: n.createdAt,
+                metadata: n.metadata
+              }))}
               stats={notificationStats}
               isLoading={notificationsLoading}
               error={notificationsError}

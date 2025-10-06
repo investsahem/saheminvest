@@ -54,6 +54,47 @@ class NotificationService {
     }
   }
 
+  // Create translatable notification (stores i18n keys)
+  async createTranslatableNotification(
+    userId: string,
+    titleKey: string,
+    messageKey: string,
+    variables: Record<string, any> = {},
+    type: string = 'info',
+    data?: Record<string, any>
+  ) {
+    try {
+      // Store the translation keys and variables in metadata
+      // The frontend will use these to display in the user's language
+      const metadata = {
+        ...data,
+        i18n: {
+          titleKey,
+          messageKey,
+          variables
+        }
+      }
+
+      // For backward compatibility, also store English text
+      // Frontend will use i18n keys if available, fallback to these
+      const notification = await prisma.notification.create({
+        data: {
+          userId,
+          title: titleKey, // Store key as title (frontend will translate)
+          message: messageKey, // Store key as message (frontend will translate)
+          type,
+          read: false,
+          metadata: JSON.stringify(metadata)
+        }
+      })
+
+      return notification
+    } catch (error) {
+      console.error('Error creating translatable notification:', error)
+      throw error
+    }
+  }
+
   // Send push notification to user
   async sendPushNotification(userId: string, notification: PushNotification) {
     try {
@@ -174,53 +215,44 @@ class NotificationService {
   }
 
   async notifyInvestmentSuccess(userId: string, amount: number, dealTitle: string, reference: string) {
-    const notification: PushNotification = {
-      title: '🎯 Investment Successful',
-      body: `Your investment of $${amount.toLocaleString()} in "${dealTitle}" has been confirmed.`,
-      icon: '/icons/investment.png',
-      data: {
+    await this.createTranslatableNotification(
+      userId,
+      'notifications.investment_success_title',
+      'notifications.investment_success_message',
+      {
+        amount,
+        dealTitle,
+        reference
+      },
+      'success',
+      {
         type: 'investment',
         amount,
         dealTitle,
         reference,
         action: 'view_portfolio'
-      },
-      actions: [
-        {
-          action: 'view_portfolio',
-          title: 'View Portfolio'
-        }
-      ]
-    }
-
-    await this.sendPushNotification(userId, notification)
+      }
+    )
   }
 
   async notifyReturnPayment(userId: string, amount: number, dealTitle: string, reference: string) {
-    const notification: PushNotification = {
-      title: '💰 Return Payment',
-      body: `You received $${amount.toLocaleString()} return from "${dealTitle}".`,
-      icon: '/icons/return.png',
-      data: {
+    await this.createTranslatableNotification(
+      userId,
+      'notifications.profit_received_title',
+      'notifications.profit_received_message',
+      {
+        amount,
+        dealTitle
+      },
+      'success',
+      {
         type: 'return',
         amount,
         dealTitle,
         reference,
         action: 'view_portfolio'
-      },
-      actions: [
-        {
-          action: 'view_portfolio',
-          title: 'View Portfolio'
-        },
-        {
-          action: 'reinvest',
-          title: 'Reinvest'
-        }
-      ]
-    }
-
-    await this.sendPushNotification(userId, notification)
+      }
+    )
   }
 
   // Admin notifications
@@ -254,10 +286,49 @@ class NotificationService {
     }
   }
 
+  // Notify all admins with translatable messages
+  async notifyAdminsTranslatable(
+    titleKey: string,
+    messageKey: string,
+    variables: Record<string, any> = {},
+    data?: Record<string, any>
+  ) {
+    try {
+      const admins = await prisma.user.findMany({
+        where: { 
+          role: 'ADMIN',
+          isActive: true 
+        },
+        select: { id: true }
+      })
+
+      // Create translatable notification for each admin
+      for (const admin of admins) {
+        await this.createTranslatableNotification(
+          admin.id,
+          titleKey,
+          messageKey,
+          variables,
+          'admin',
+          {
+            ...data,
+            target: 'admin'
+          }
+        )
+      }
+
+      return { success: true, notifiedCount: admins.length }
+    } catch (error) {
+      console.error('Error notifying admins:', error)
+      throw error
+    }
+  }
+
   async notifyNewDeposit(amount: number, userEmail: string, reference: string) {
-    await this.notifyAdmins(
-      'New Deposit Received',
-      `New deposit of $${amount.toLocaleString()} from ${userEmail} requires approval.`,
+    await this.notifyAdminsTranslatable(
+      'notifications.new_deposit_request_title',
+      'notifications.new_deposit_request_message',
+      { amount, userEmail, reference },
       {
         type: 'new_deposit',
         amount,
@@ -269,9 +340,10 @@ class NotificationService {
   }
 
   async notifyNewWithdrawal(amount: number, userEmail: string, reference: string) {
-    await this.notifyAdmins(
-      'New Withdrawal Request',
-      `Withdrawal request of $${amount.toLocaleString()} from ${userEmail} requires approval.`,
+    await this.notifyAdminsTranslatable(
+      'notifications.new_withdrawal_request_title',
+      'notifications.new_withdrawal_request_message',
+      { amount, userEmail, reference },
       {
         type: 'new_withdrawal',
         amount,
@@ -283,9 +355,10 @@ class NotificationService {
   }
 
   async notifyNewInvestment(amount: number, userEmail: string, dealTitle: string) {
-    await this.notifyAdmins(
-      'New Investment',
-      `${userEmail} invested $${amount.toLocaleString()} in "${dealTitle}".`,
+    await this.notifyAdminsTranslatable(
+      'notifications.new_investment_title',
+      'notifications.new_investment_message',
+      { amount, userEmail, dealTitle },
       {
         type: 'new_investment',
         amount,

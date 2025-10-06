@@ -200,21 +200,30 @@ export async function GET(request: NextRequest) {
       })
     ])
 
-    // Calculate metrics
+    // Calculate metrics - Fix NaN issues
     const totalRevenue = Number(totalInvestments._sum.amount) || 0
     const thisMonthRevenue = Number(thisMonthInvestments._sum.amount) || 0
     const lastMonthRevenue = Number(lastMonthInvestments._sum.amount) || 0
     
     const monthlyGrowth = lastMonthRevenue > 0 
       ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 * 100) / 100  // Round to 2 decimal places
-      : 0
+      : thisMonthRevenue > 0 ? 100 : 0 // If no last month revenue but this month has revenue, show 100% growth
     
     const successRate = totalDeals > 0 
       ? Math.round((completedDeals / totalDeals) * 100 * 100) / 100  // Round to 2 decimal places
       : 0
     
-    const averageReturn = Number(partner.successRate) || 6.2 // From partner profile or calculate
+    // Calculate average return from actual deals, not partner profile
+    const dealsWithReturns = deals.filter(deal => deal.expectedReturn && Number(deal.expectedReturn) > 0)
+    const averageReturn = dealsWithReturns.length > 0 
+      ? Math.round((dealsWithReturns.reduce((sum, deal) => sum + Number(deal.expectedReturn), 0) / dealsWithReturns.length) * 100) / 100
+      : 0
+    
     const uniqueInvestors = totalInvestors.length
+
+    // Calculate total funding from deals (not just investments received)
+    const totalFundingGoal = deals.reduce((sum, deal) => sum + Number(deal.fundingGoal || 0), 0)
+    const totalCurrentFunding = deals.reduce((sum, deal) => sum + Number(deal.currentFunding || 0), 0)
 
     // Transform deals data
     const currentDeals = deals.map(deal => ({
@@ -247,13 +256,17 @@ export async function GET(request: NextRequest) {
         totalDeals,
         completedDeals,
         activeDeals,
-        totalFunding: totalRevenue,
+        totalFunding: totalCurrentFunding, // Use actual current funding from deals
         averageReturn,
         successRate,
         totalInvestors: uniqueInvestors,
         monthlyGrowth,
         totalRevenue,
-        pendingApprovals: pendingDeals
+        pendingApprovals: pendingDeals,
+        // Add additional metrics for better display
+        totalFundingGoal,
+        totalCurrentFunding,
+        fundingProgress: totalFundingGoal > 0 ? Math.round((totalCurrentFunding / totalFundingGoal) * 100) : 0
       },
       performanceData: monthlyPerformance.reverse(),
       currentDeals,

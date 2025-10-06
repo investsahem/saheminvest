@@ -80,10 +80,14 @@ export async function POST(
 
     // Send notification to the user
     try {
-      await notificationService.createNotification(
+      await notificationService.createTranslatableNotification(
         transaction.userId,
-        'Deposit Approved',
-        `Your ${transaction.method?.toLowerCase() || 'deposit'} of $${Number(transaction.amount)} has been approved and added to your wallet.`,
+        'notifications.deposit_approved_title',
+        'notifications.deposit_approved_message',
+        {
+          amount: Number(transaction.amount),
+          reference: transaction.reference || ''
+        },
         'DEPOSIT_COMPLETED',
         {
           amount: Number(transaction.amount),
