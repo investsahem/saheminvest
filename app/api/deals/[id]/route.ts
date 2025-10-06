@@ -169,8 +169,7 @@ export async function GET(
       dealId: deal.id,
       totalInvestments: deal.investments?.length || 0,
       uniqueInvestorIds: Array.from(uniqueInvestorIds),
-      uniqueInvestorCount,
-      _countInvestments: deal._count?.investments
+      uniqueInvestorCount
     })
 
     // Map partnerProfile to partner for consistency with frontend expectations

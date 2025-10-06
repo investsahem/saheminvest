@@ -169,7 +169,7 @@ export default function PartnerDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
