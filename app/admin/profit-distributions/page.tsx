@@ -355,8 +355,8 @@ const AdminProfitDistributionsPage = () => {
                           <p>{request.project.investments?.length || 0}</p>
                         </div>
                         <div>
-                          <p className="font-medium">نسبة ساهم ({request.sahemInvestPercent}%)</p>
-                          <p className="text-orange-600">{formatCurrency((request.estimatedProfit * request.sahemInvestPercent) / 100)}</p>
+                          <p className="font-medium">نسبة ساهم ({Number(request.sahemInvestPercent)}%)</p>
+                          <p className="text-orange-600">{formatCurrency((request.estimatedProfit * Number(request.sahemInvestPercent)) / 100)}</p>
                         </div>
                       </div>
                       
@@ -528,7 +528,7 @@ const AdminProfitDistributionsPage = () => {
                   </div>
 
                   {/* Calculated Distribution Preview */}
-                  {(editingFields || selectedRequest.sahemInvestPercent !== 10 || selectedRequest.reservedGainPercent !== 10) && (
+                  {(editingFields || Number(selectedRequest.sahemInvestPercent) !== 10 || Number(selectedRequest.reservedGainPercent) !== 10) && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                       <h3 className="text-lg font-medium text-gray-900 mb-3">معاينة التوزيع</h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -537,28 +537,28 @@ const AdminProfitDistributionsPage = () => {
                           <p className="font-bold text-green-600">{formatCurrency(selectedRequest.estimatedProfit)}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-gray-600">ساهم انفست ({editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent}%)</p>
+                          <p className="text-gray-600">ساهم انفست ({Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent)}%)</p>
                           <p className="font-bold text-orange-600">
-                            {formatCurrency((selectedRequest.estimatedProfit * (editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent)) / 100)}
+                            {formatCurrency((selectedRequest.estimatedProfit * Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent)) / 100)}
                           </p>
                         </div>
                         <div className="text-center">
-                          <p className="text-gray-600">الاحتياطي ({editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent}%)</p>
+                          <p className="text-gray-600">الاحتياطي ({Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)}%)</p>
                           <p className="font-bold text-blue-600">
-                            {formatCurrency((selectedRequest.estimatedProfit * (editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)) / 100)}
+                            {formatCurrency((selectedRequest.estimatedProfit * Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)) / 100)}
                           </p>
                         </div>
                         <div className="text-center">
                           <p className="text-gray-600">للمستثمرين</p>
                           <p className="font-bold text-purple-600">
-                            {formatCurrency(selectedRequest.estimatedProfit * (100 - (editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent) - (editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)) / 100)}
+                            {formatCurrency(selectedRequest.estimatedProfit * (100 - Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent) - Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)) / 100)}
                           </p>
                         </div>
                       </div>
-                      {((editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent) + (editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)) > 100 && (
+                      {((Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent) + Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)) > 100) && (
                         <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                           <p className="text-red-800 text-sm font-medium">
-                            ⚠️ تحذير: مجموع النسب ({(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent) + (editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)}%) يتجاوز 100%
+                            ⚠️ تحذير: مجموع النسب ({Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent) + Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)}%) يتجاوز 100%
                           </p>
                         </div>
                       )}
@@ -593,8 +593,8 @@ const AdminProfitDistributionsPage = () => {
                     <div className="flex gap-4 pt-4 border-t">
                       <Button
                         onClick={() => {
-                          const finalSahemPercent = editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent
-                          const finalReservedPercent = editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent
+                          const finalSahemPercent = Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent)
+                          const finalReservedPercent = Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)
                           
                           if (finalSahemPercent + finalReservedPercent > 100) {
                             alert('خطأ: مجموع النسب لا يمكن أن يتجاوز 100%')
@@ -604,8 +604,8 @@ const AdminProfitDistributionsPage = () => {
                           handleApprove(selectedRequest.id, editingFields || undefined)
                         }}
                         disabled={processing === selectedRequest.id || 
-                          ((editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent) + 
-                           (editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)) > 100}
+                          ((Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent)) + 
+                           (Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent))) > 100}
                         className="bg-green-600 hover:bg-green-700 text-white flex-1"
                       >
                         <CheckCircle className="w-4 h-4 mr-2" />
