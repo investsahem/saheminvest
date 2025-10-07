@@ -102,7 +102,8 @@ export async function POST(
           type: 'RETURN',
           amount: investmentAmount,
           status: 'COMPLETED',
-          description: `Capital return from final distribution: ${distributionRequest.project.title}`
+          description: `Capital return from final distribution: ${distributionRequest.project.title}`,
+          investmentId: investment.id
         })
 
         // Profit distribution transaction
@@ -112,7 +113,8 @@ export async function POST(
             type: 'PROFIT_DISTRIBUTION',
             amount: investorProfitShare,
             status: 'COMPLETED',
-            description: `Final profit distribution from ${distributionRequest.project.title}`
+            description: `Final profit distribution from ${distributionRequest.project.title}`,
+            investmentId: investment.id
           })
         }
 
@@ -162,7 +164,8 @@ export async function POST(
             type: 'PROFIT_DISTRIBUTION',
             amount: investorProfitShare,
             status: 'COMPLETED',
-            description: `Partial profit distribution from ${distributionRequest.project.title}`
+            description: `Partial profit distribution from ${distributionRequest.project.title}`,
+            investmentId: investment.id
           })
         }
 

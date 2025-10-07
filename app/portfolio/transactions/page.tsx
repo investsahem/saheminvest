@@ -136,6 +136,21 @@ const TransactionHistory = () => {
     }
   }
 
+  const getTransactionAmountSign = (transaction: any) => {
+    // Determine the correct sign for the transaction amount based on type
+    switch (transaction.type) {
+      case 'deposit': 
+      case 'return':
+      case 'profit_distribution':
+        return Math.abs(transaction.amount) // Always positive for money coming in
+      case 'withdrawal':
+      case 'investment':
+        return -Math.abs(transaction.amount) // Always negative for money going out
+      default:
+        return transaction.amount // Use original amount for unknown types
+    }
+  }
+
   if (loading) {
     return (
       <InvestorLayout title={t('portfolio_transactions.title')} subtitle={t('portfolio_transactions.subtitle')}>
@@ -385,9 +400,9 @@ const TransactionHistory = () => {
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <p className={`text-xl font-bold ${
-                        transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
+                        getTransactionAmountSign(transaction) >= 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
-                        {transaction.amount >= 0 ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
+                        {getTransactionAmountSign(transaction) >= 0 ? '+' : ''}{formatCurrency(Math.abs(getTransactionAmountSign(transaction)))}
                       </p>
                       <p className="text-sm text-gray-500">
                         {t('portfolio_transactions.transaction_list.balance')}: {formatCurrency(transaction.balanceAfter)}

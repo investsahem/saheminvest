@@ -67,13 +67,19 @@ export async function GET(request: NextRequest) {
         totalInvested += investedAmount
       }
 
-      // Get distributed profits from transactions (excluding capital returns)
+      // Get distributed profits from transactions (both RETURN and PROFIT_DISTRIBUTION types)
       const profitTransactions = await prisma.transaction.findMany({
         where: {
           investmentId: investment.id,
-          type: 'RETURN',
+          type: { in: ['RETURN', 'PROFIT_DISTRIBUTION'] },
           status: 'COMPLETED',
-          description: { not: { contains: 'Capital Return' } } // Exclude capital returns
+          // Exclude capital returns - these should be identified by description
+          OR: [
+            { description: { not: { contains: 'Capital return' } } },
+            { description: { not: { contains: 'capital return' } } },
+            { description: { contains: 'profit' } },
+            { description: { contains: 'Profit' } }
+          ]
         }
       })
       
@@ -166,11 +172,11 @@ export async function GET(request: NextRequest) {
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
     
-    // Get all profit distributions (RETURN transactions) from today
+    // Get all profit distributions (RETURN and PROFIT_DISTRIBUTION transactions) from today
     const todayProfits = await prisma.transaction.findMany({
       where: {
         userId: session.user.id,
-        type: 'RETURN',
+        type: { in: ['RETURN', 'PROFIT_DISTRIBUTION'] },
         status: 'COMPLETED',
         createdAt: {
           gte: today,
