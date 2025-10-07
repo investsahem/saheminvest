@@ -74,11 +74,9 @@ export async function GET(request: NextRequest) {
           type: { in: ['RETURN', 'PROFIT_DISTRIBUTION'] },
           status: 'COMPLETED',
           // Exclude capital returns - these should be identified by description
-          OR: [
+          AND: [
             { description: { not: { contains: 'Capital return' } } },
-            { description: { not: { contains: 'capital return' } } },
-            { description: { contains: 'profit' } },
-            { description: { contains: 'Profit' } }
+            { description: { not: { contains: 'capital return' } } }
           ]
         }
       })
@@ -116,8 +114,8 @@ export async function GET(request: NextRequest) {
         // For completed deals, return is just the distributed profits
         totalReturn = distributedProfits
       } else {
-        // For active/funded deals, return is current value - invested amount
-        totalReturn = currentValue - investedAmount
+        // For active/funded deals, return includes distributed profits
+        totalReturn = distributedProfits
       }
       
       totalReturns += totalReturn
@@ -181,7 +179,12 @@ export async function GET(request: NextRequest) {
         createdAt: {
           gte: today,
           lt: tomorrow
-        }
+        },
+        // Exclude capital returns - these should be identified by description
+        AND: [
+          { description: { not: { contains: 'Capital return' } } },
+          { description: { not: { contains: 'capital return' } } }
+        ]
       }
     })
     
