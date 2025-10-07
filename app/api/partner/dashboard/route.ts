@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
+import { calculateUniqueInvestors, calculateTotalUniqueInvestors, addUniqueInvestorCounts } from '../../../lib/investor-utils'
 
 const prisma = new PrismaClient()
 
@@ -123,6 +124,7 @@ export async function GET(request: NextRequest) {
         include: {
           investments: {
             select: {
+              investorId: true,
               amount: true,
               investor: {
                 select: { name: true }
@@ -225,7 +227,7 @@ export async function GET(request: NextRequest) {
     const totalFundingGoal = deals.reduce((sum, deal) => sum + Number(deal.fundingGoal || 0), 0)
     const totalCurrentFunding = deals.reduce((sum, deal) => sum + Number(deal.currentFunding || 0), 0)
 
-    // Transform deals data
+    // Transform deals data with unique investor counts
     const currentDeals = deals.map(deal => ({
       id: deal.id,
       title: deal.title,
@@ -234,7 +236,7 @@ export async function GET(request: NextRequest) {
       expectedReturn: Number(deal.expectedReturn) || 5,
       duration: deal.duration || 6,
       status: deal.status,
-      investorsCount: deal._count.investments,
+      investorsCount: calculateUniqueInvestors(deal.investments || []), // Use unique investor count
       stage: getProjectStage(deal.status, Number(deal.currentFunding), Number(deal.fundingGoal))
     }))
 

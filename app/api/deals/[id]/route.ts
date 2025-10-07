@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
 import { toSafeMoney, toSafeDecimal } from '../../../lib/decimal-utils'
+import { calculateUniqueInvestors, debugInvestorCount } from '../../../lib/investor-utils'
 import { v2 as cloudinary } from 'cloudinary'
 
 const prisma = new PrismaClient()
@@ -157,20 +158,12 @@ export async function GET(
       }))
     }
 
-    // Calculate unique investor count
-    const uniqueInvestorIds = new Set(
-      (deal.investments || [])
-        .filter((inv: any) => inv.investorId) // Filter out any items without investorId
-        .map((inv: any) => inv.investorId)
-    )
-    const uniqueInvestorCount = uniqueInvestorIds.size
+    // Calculate unique investor count using helper function
+    const investments = deal.investments || []
+    const uniqueInvestorCount = calculateUniqueInvestors(investments)
     
-    console.log('🔍 Deal API Debug:', {
-      dealId: deal.id,
-      totalInvestments: deal.investments?.length || 0,
-      uniqueInvestorIds: Array.from(uniqueInvestorIds),
-      uniqueInvestorCount
-    })
+    // Debug logging for investor count
+    debugInvestorCount(deal.id, investments, 'API /deals/[id] route')
 
     // Map partnerProfile to partner for consistency with frontend expectations
     const responseData = {

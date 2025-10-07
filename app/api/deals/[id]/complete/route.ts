@@ -73,10 +73,7 @@ export async function POST(
       const updatedDeal = await tx.project.update({
         where: { id: dealId },
         data: {
-          status: 'COMPLETED',
-          completedAt: new Date(),
-          actualReturn: profitRate,
-          completionNotes: completionNotes || `Deal completed with ${profitRate}% return`
+          status: 'COMPLETED'
         }
       })
 
@@ -136,7 +133,7 @@ export async function POST(
           data: {
             status: 'COMPLETED',
             actualReturn: profitAmount,
-            completedAt: new Date()
+            lastReturnDate: new Date()
           }
         })
 

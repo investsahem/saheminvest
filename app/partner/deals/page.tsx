@@ -583,7 +583,7 @@ const PartnerDealsPage = () => {
                     duration={deal.duration || 12}
                     endDate={deal.endDate || ''}
                     startDate={deal.startDate || ''}
-                    contributorsCount={deal.investorCount || deal._count?.investments || 0}
+                    contributorsCount={deal.investorCount || 0}
                     partnerName={deal.owner?.partnerProfile?.companyName || deal.partner?.companyName || deal.owner.name || 'Partner'}
                     partnerProfile={deal.owner?.partnerProfile}
                     partnerDealsCount={5} // You might want to fetch this from the API

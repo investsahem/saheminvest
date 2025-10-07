@@ -161,7 +161,7 @@ export default function HomePage() {
               riskLevel: getRiskLevel(deal.expectedReturn),
               thumbnailImage: deal.thumbnailImage || getDefaultImage(deal.title),
               status: deal.status,
-              investorCount: deal._count?.investments || 0
+              investorCount: deal.investorCount || 0
             }))
             setDeals(transformedDeals)
           } else {

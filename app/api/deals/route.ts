@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../lib/auth'
 import { PrismaClient } from '@prisma/client'
+import { calculateUniqueInvestors, debugInvestorCount } from '../../lib/investor-utils'
 import { toSafeMoney, toSafeDecimal } from '../../lib/decimal-utils'
 import { v2 as cloudinary } from 'cloudinary'
 
@@ -194,9 +195,12 @@ export async function GET(request: NextRequest) {
 
     // Transform deals to match unified interface and apply privacy filters
     const transformedDeals = deals.map(deal => {
-      // Calculate unique investor count from investments
-      const uniqueInvestorIds = new Set((deal as any).investments?.map((inv: any) => inv.investorId) || [])
-      const uniqueInvestorCount = uniqueInvestorIds.size
+      // Calculate unique investor count from investments using helper function
+      const investments = (deal as any).investments || []
+      const uniqueInvestorCount = calculateUniqueInvestors(investments)
+      
+      // Debug logging for investor count
+      debugInvestorCount(deal.id, investments, 'API /deals route')
       
       const filteredDeal = {
         ...deal,

@@ -479,7 +479,7 @@ export default function PartnerDetailsPage() {
                     }}
                     duration={deal.duration || 12}
                     endDate={deal.endDate || ''}
-                    contributorsCount={deal._count?.investments || deal.investorCount || 0}
+                    contributorsCount={deal.investorCount || 0}
                     partnerName={partner.companyName}
                     partnerDealsCount={partner._count.deals}
                     minInvestment={deal.minInvestment || 1000}
