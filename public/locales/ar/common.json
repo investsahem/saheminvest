@@ -1,5 +1,5 @@
 {
-  "_cache_bust": "2025-01-07T20:15:00Z",
+  "_cache_bust": "2025-01-07T23:30:00Z",
   "deals_detail": {
     "about_investment":"حول الاستثمار",
     "investment_timeline":"الجدول الزمني للاستثمار",
@@ -299,7 +299,10 @@
     "raised":"جمع",
     "goal":"الهدف",
     "learn_more":"اعرف المزيد",
-    "invest_now":"استثمر الآن"
+    "invest_now":"استثمر الآن",
+    "team_size":"حجم الفريق",
+    "location":"الموقع",
+    "website":"الموقع الإلكتروني"
 
   },
   "deal_card": {
@@ -347,7 +350,7 @@
       "privacy_policy": "سياسة الخصوصية",
       "security": "الأمان"
     },
-    "copyright": "© 2024 ساهم إنفست. جميع الحقوق محفوظة."
+    "copyright": "© 2025 ساهم إنفست. جميع الحقوق محفوظة."
   },
   "platform": {
     "name": "ساهم إنفست"
@@ -452,5 +455,17 @@
     "no": "لا",
     "select": "اختر",
     "view_all": "عرض الكل"
+  },
+  "timeline": {
+    "deal_created": "إنشاء الصفقة",
+    "deal_created_desc": "تم إنشاء الصفقة وإتاحتها للمستثمرين",
+    "funding_started": "بدأ التمويل",
+    "funding_started_desc": "بدء قبول الاستثمارات من المستثمرين",
+    "funding_closes": "إغلاق التمويل",
+    "funding_closes_desc": "انتهاء فترة جمع الاستثمارات",
+    "project_starts": "بدء تنفيذ المشروع",
+    "project_starts_desc": "البدء في تنفيذ خطة العمل",
+    "project_completion": "إكمال المشروع",
+    "project_completion_desc": "انتهاء المشروع وتوزيع الأرباح"
   }
 }

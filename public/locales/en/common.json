@@ -1,5 +1,5 @@
 {
-  "_cache_bust": "2025-01-07T20:15:00Z",
+  "_cache_bust": "2025-01-07T23:30:00Z",
   "deals_detail": {
     "about_investment":"About Investment",
     "investment_timeline":"Investment Timeline",
@@ -277,7 +277,10 @@
       "title": "Start Your Investment Journey Today",
       "description": "Join thousands of investors who are achieving their financial goals with us",
       "create_account": "Create Account",
-      "learn_more": "Learn More"
+      "learn_more": "Learn More",
+      "team_size":"Team Size",
+      "location":"Location",
+      "website":"Website"
     }
   },
   "deal_card": {
@@ -428,5 +431,17 @@
     "no": "No",
     "select": "Select",
     "view_all": "View All"
+  },
+  "timeline": {
+    "deal_created": "Deal Created",
+    "deal_created_desc": "Deal was created and made available to investors",
+    "funding_started": "Funding Started",
+    "funding_started_desc": "Started accepting investments from investors",
+    "funding_closes": "Funding Closes",
+    "funding_closes_desc": "End of investment collection period",
+    "project_starts": "Project Execution Begins",
+    "project_starts_desc": "Starting the implementation of business plan",
+    "project_completion": "Project Completion",
+    "project_completion_desc": "Project completion and profit distribution"
   }
 }

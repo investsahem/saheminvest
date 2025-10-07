@@ -1,5 +1,5 @@
 {
-  "_cache_bust": "2025-01-05T17:00:00Z",
+  "_cache_bust": "2025-01-07T23:15:00Z",
   "admin": {
     "title": "Admin Dashboard",
     "welcome_message": "Welcome to Sahem Invest Platform Administration",
@@ -324,5 +324,78 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Comprehensive analytics for platform and investment performance",
+    "time_ranges": {
+      "1month": "1 Month",
+      "3months": "3 Months",
+      "6months": "6 Months",
+      "1year": "1 Year",
+      "all": "All Time"
+    },
+    "metrics": {
+      "revenue": "Revenue",
+      "investments": "Investments",
+      "deals": "Deals",
+      "users": "Users"
+    },
+    "buttons": {
+      "filter": "Filter",
+      "export": "Export",
+      "details": "Details",
+      "view_all": "View All",
+      "view_all_partners": "View All Partners"
+    },
+    "key_metrics": {
+      "total_revenue": "Total Revenue",
+      "total_investments": "Total Investments",
+      "total_deals": "Total Deals",
+      "active_users": "Active Users",
+      "vs_last_month": "vs last month"
+    },
+    "charts": {
+      "revenue_trends": "Revenue Trends",
+      "user_growth": "User Growth",
+      "investment_flow": "Investment Flow",
+      "deal_performance": "Deal Performance",
+      "partner_performance": "Partner Performance"
+    },
+    "labels": {
+      "investors": "Investors",
+      "partners": "Partners",
+      "advisors": "Advisors",
+      "deals": "deals",
+      "success": "success",
+      "avg": "avg",
+      "tier": "Tier",
+      "amount": "Amount",
+      "success_rate": "Success Rate"
+    },
+    "status": {
+      "active": "Active",
+      "completed": "Completed",
+      "pending": "Pending",
+      "cancelled": "Cancelled"
+    },
+    "categories": {
+      "technology": "Technology",
+      "real_estate": "Real Estate",
+      "healthcare": "Healthcare",
+      "finance": "Finance",
+      "retail": "Retail",
+      "manufacturing": "Manufacturing",
+      "agriculture": "Agriculture",
+      "energy": "Energy",
+      "education": "Education",
+      "transportation": "Transportation"
+    },
+    "tiers": {
+      "platinum": "Platinum",
+      "gold": "Gold",
+      "silver": "Silver",
+      "bronze": "Bronze"
+    }
   }
 }

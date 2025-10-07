@@ -1,5 +1,5 @@
 {
-  "_cache_bust": "2025-01-05T17:00:00Z",
+  "_cache_bust": "2025-01-07T23:15:00Z",
   "admin": {
     "title": "لوحة تحكم الإدارة",
     "welcome_message": "مرحباً بك في لوحة إدارة منصة ساهم إنفست",
@@ -51,7 +51,29 @@
     "alerts_attention": "تنبيهات تحتاج انتباه",
     "pending_approvals": "موافقات معلقة",
     "system_alerts": "تنبيهات نظام",
-    "view_details": "عرض التفاصيل"
+    "view_details": "عرض التفاصيل",
+    "users_management": {
+        "title": "إدارة المستخدمين",
+        "subtitle": "إدارة مستخدمي النظام وأدوارهم",
+        "search_placeholder": "البحث عن المستخدمين...",
+        "all_roles": "جميع الأدوار",
+        "add_new_user": "إضافة مستخدم جديد",
+        "user": "المستخدم",
+        "role": "الدور",
+        "status": "الحالة",
+        "creation_date": "تاريخ الإنشاء",
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "last_login": "آخر تسجيل دخول",
+        "actions": "الإجراءات",
+        "edit_role": "تعديل الدور",
+        "disable": "تعطيل",
+        "enable": "تفعيل",
+        "edit_role_for": "تعديل الدور لـ",
+        "select_new_role": "اختر دور جديد",
+        "associated_permissions": "الصلاحيات المرتبطة"
+
+    }
   },
   "users_management": {
     "title": "إدارة المستخدمين",
@@ -264,7 +286,19 @@
     "actions": "الإجراءات",
     "no_deposits_found": "لم يتم العثور على إيداعات",
     "adjust_search": "حاول تعديل معايير البحث أو الفلتر.",
-    "no_submissions": "لم يتم تقديم أي طلبات إيداع بعد."
+    "no_submissions": "لم يتم تقديم أي طلبات إيداع بعد.",
+    "add_manual_deposit_title":"إضافة إيداع يدوي",
+    "select_investor":"اختر المستثمر",
+    "choose_investor":"اختر المستثمر",
+    "amount_required":"المبلغ مطلوب",
+    "method_label":"طريقة الدفع",
+    "cash":"نقدي",
+    "bank_transfer":"تحويل بنكي",
+    "check":"شيك",
+    "description":"الوصف",
+    "description_placeholder":"أدخل الوصف...",
+    "add_deposit":"إضافة الإيداع",
+    "cancel":"إلغاء"
   },
   "roles": {
     "ADMIN": "مدير النظام",
@@ -296,11 +330,14 @@
     "cancel": "إلغاء",
     "edit": "تعديل",
     "delete": "حذف",
+    "suspend": "تعطيل",
+    "active_deals":"الصفقات النشطة",
     "view": "عرض",
     "approve": "موافقة",
     "reject": "رفض",
     "back": "رجوع",
     "next": "التالي",
+    "missing": "مفقود",
     "previous": "السابق",
     "search": "بحث",
     "filter": "تصفية",
@@ -359,5 +396,184 @@
     "transactions":"المعاملات",
     "users":"المستخدمين"
 
+  },
+  "advisor_applications": {
+    "title": "طلبات المستشارين",
+    "subtitle": "مراجعة وإدارة طلبات مستشاري المحفظة",
+    "total_applications": "إجمالي الطلبات",
+    "pending_review": "قيد المراجعة",
+    "approved": "موافق عليها",
+    "rejected": "مرفوضة",
+    "available_advisors": "المستشارون المتاحون",
+    "search_placeholder": "البحث في الطلبات...",
+    "all_status": "جميع الحالات",
+    "pending": "قيد الانتظار",
+    "in_progress": "قيد المعالجة",
+    "applicant": "مقدم الطلب",
+    "experience": "الخبرة",
+    "risk_tolerance": "تحمل المخاطر",
+    "status": "الحالة",
+    "applied": "تاريخ التقديم",
+    "actions": "الإجراءات",
+    "approve_application": "الموافقة على الطلب",
+    "reject_application": "رفض الطلب",
+    "assign_portfolio_advisor": "تعيين مستشار المحفظة",
+    "select_advisor": "اختر مستشار",
+    "rejection_reason": "سبب الرفض",
+    "rejection_placeholder": "أدخل سبب رفض الطلب...",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "cancel": "إلغاء",
+    "no_applications_found": "لم يتم العثور على طلبات",
+    "page_of": "صفحة {current} من {total}",
+    "previous": "السابق",
+    "next": "التالي"
+  },
+  "partner_applications": {
+    "title": "طلبات الشركاء",
+    "subtitle": "مراجعة وإدارة طلبات الشراكة التجارية",
+    "search_placeholder": "البحث في الطلبات...",
+    "all_status": "جميع الحالات",
+    "pending": "قيد الانتظار",
+    "approved": "موافق عليها",
+    "rejected": "مرفوضة",
+    "total_applications": "إجمالي الطلبات",
+    "pending_review": "قيد المراجعة",
+    "company": "الشركة",
+    "contact": "جهة الاتصال",
+    "industry": "الصناعة",
+    "experience": "الخبرة",
+    "status": "الحالة",
+    "submitted": "تاريخ التقديم",
+    "actions": "الإجراءات",
+    "years": "سنوات",
+    "deals": "صفقات",
+    "not_specified": "غير محدد",
+    "no_applications_found": "لم يتم العثور على طلبات",
+    "adjust_search": "حاول تعديل معايير البحث أو الفلتر.",
+    "no_submissions": "لم يتم تقديم أي طلبات شراكة بعد.",
+    "application_details": "تفاصيل الطلب",
+    "company_information": "معلومات الشركة",
+    "company_name": "اسم الشركة",
+    "contact_person": "الشخص المسؤول",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "website": "الموقع الإلكتروني",
+    "address": "العنوان",
+    "business_information": "معلومات العمل",
+    "business_type": "نوع العمل",
+    "years_experience": "سنوات الخبرة",
+    "previous_deals": "الصفقات السابقة",
+    "investment_focus": "التركيز الاستثماري",
+    "investment_areas": "مجالات الاستثمار",
+    "deal_size_range": "نطاق حجم الصفقة",
+    "company_description": "وصف الشركة",
+    "application_status": "حالة الطلب",
+    "reviewed_by": "تم المراجعة من قبل",
+    "on": "في",
+    "reject": "رفض",
+    "approve_create_account": "موافقة وإنشاء حساب"
+  },
+
+    "partner": {
+    "website":"الموقع الإلكتروني",
+    "address":"العنوان"
+  },
+
+  "forms":{
+    "phone":"الهاتف",
+    "email":"البريد الإلكتروني"
+  },
+
+  "deal_updates": {
+    "title": "تحديثات الصفقات",
+    "subtitle": "مراجعة وإدارة تحديثات الصفقات",
+    "search_placeholder": "البحث في التحديثات...",
+    "all_status": "جميع الحالات",
+    "pending": "قيد الانتظار",
+    "approved": "موافق عليها",
+    "rejected": "مرفوضة",
+    "total_updates": "إجمالي التحديثات",
+    "pending_review": "قيد المراجعة",
+    "no_requests_found": "لم يتم العثور على طلبات",
+    "requested_by": "مطلوب من قبل",
+    "proposed_changes": "التغييرات المقترحة",
+    "view_details":"عرض التفاصيل",
+    "reviewed_by":"تم المراجعة من قبل",
+    "on":"في",
+    "rejection_reason":"سبب الرفض"
+  },
+  "analytics": {
+    "title": "التحليلات",
+    "subtitle": "تحليلات شاملة لأداء المنصة والاستثمارات",
+    "time_ranges": {
+      "1month": "شهر واحد",
+      "3months": "3 أشهر",
+      "6months": "6 أشهر",
+      "1year": "سنة واحدة",
+      "all": "جميع الفترات"
+    },
+    "metrics": {
+      "revenue": "الإيرادات",
+      "investments": "الاستثمارات",
+      "deals": "الصفقات",
+      "users": "المستخدمون"
+    },
+    "buttons": {
+      "filter": "تصفية",
+      "export": "تصدير",
+      "details": "التفاصيل",
+      "view_all": "عرض الكل",
+      "view_all_partners": "عرض جميع الشركاء"
+    },
+    "key_metrics": {
+      "total_revenue": "إجمالي الإيرادات",
+      "total_investments": "إجمالي الاستثمارات",
+      "total_deals": "إجمالي الصفقات",
+      "active_users": "المستخدمون النشطون",
+      "vs_last_month": "مقارنة بالشهر الماضي"
+    },
+    "charts": {
+      "revenue_trends": "اتجاهات الإيرادات",
+      "user_growth": "نمو المستخدمين",
+      "investment_flow": "تدفق الاستثمارات",
+      "deal_performance": "أداء الصفقات",
+      "partner_performance": "أداء الشركاء"
+    },
+    "labels": {
+      "investors": "المستثمرون",
+      "partners": "الشركاء",
+      "advisors": "المستشارون",
+      "deals": "الصفقات",
+      "success": "النجاح",
+      "avg": "المتوسط",
+      "tier": "المستوى",
+      "amount": "المبلغ",
+      "success_rate": "معدل النجاح"
+    },
+    "status": {
+      "active": "نشط",
+      "completed": "مكتمل",
+      "pending": "قيد الانتظار",
+      "cancelled": "ملغي"
+    },
+    "categories": {
+      "technology": "التكنولوجيا",
+      "real_estate": "العقارات",
+      "healthcare": "الرعاية الصحية",
+      "finance": "المالية",
+      "retail": "التجارة",
+      "manufacturing": "التصنيع",
+      "agriculture": "الزراعة",
+      "energy": "الطاقة",
+      "education": "التعليم",
+      "transportation": "النقل"
+    },
+    "tiers": {
+      "platinum": "بلاتيني",
+      "gold": "ذهبي",
+      "silver": "فضي",
+      "bronze": "برونزي"
+    }
   }
 }

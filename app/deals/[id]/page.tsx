@@ -691,7 +691,7 @@ export default function DealDetailsPage() {
                 </div>
                 <div className="p-4 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-xl text-center">
                   <div className="text-2xl font-bold text-[#f59e0b] mb-1">
-                    {deal.investments.length > 0 ? formatCurrency(deal.investments.reduce((sum, inv) => sum + inv.amount, 0) / deal.investments.length) : '$0'}
+                    {deal.investments.length > 0 ? formatCurrency(Math.round(deal.investments.reduce((sum, inv) => sum + Number(inv.amount), 0) / deal.investments.length)) : '$0'}
                   </div>
                   <div className="text-sm text-[#b8c2d8]">{t('deals_detail.avg_investment')}</div>
                 </div>
@@ -713,7 +713,7 @@ export default function DealDetailsPage() {
                     
                     const distribution = ranges.map(range => {
                       const count = deal.investments!.filter(inv => 
-                        inv.amount >= range.min && inv.amount < range.max
+                        Number(inv.amount) >= range.min && Number(inv.amount) < range.max
                       ).length
                       const percentage = deal.investments!.length > 0 ? (count / deal.investments!.length) * 100 : 0
                       return { ...range, count, percentage }

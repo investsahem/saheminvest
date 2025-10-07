@@ -1005,5 +1005,9 @@
       "error_message": "Failed to load investment details",
       "back_to_investments": "Back to Investments"
     }
+  },
+  "portfolioAdvisor": {
+    "advisor_application": "Advisor Application",
+    "apply_for_advisor": "Apply for Advisor"
   }
 }
