@@ -28,6 +28,7 @@ interface Deal {
   thumbnailImage?: string
   investments: Investment[]
   profitDistributions: ProfitDistribution[]
+  investorCount: number
   _count: {
     investments: number
   }
@@ -85,12 +86,20 @@ const DealManagePage = () => {
     const fetchDeal = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/deals/${dealId}`, {
+        const response = await fetch(`/api/deals/${dealId}?includeInvestments=true&includeDistributions=true`, {
           credentials: 'include'
         })
 
         if (response.ok) {
           const dealData = await response.json()
+          console.log('Deal data received:', {
+            id: dealData.id,
+            title: dealData.title,
+            investorCount: dealData.investorCount,
+            investmentsCount: dealData._count?.investments,
+            investmentsLength: dealData.investments?.length,
+            investments: dealData.investments?.slice(0, 2) // Show first 2 investments for debugging
+          })
           setDeal(dealData)
         } else {
           console.error('Failed to fetch deal')
@@ -277,7 +286,7 @@ const DealManagePage = () => {
                 <div>
                   <p className="text-sm font-medium text-gray-600">{t('deal_management.investors_count')}</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {deal._count?.investments || 0}
+                    {deal.investorCount || 0}
                   </p>
                 </div>
                 <Users className="w-8 h-8 text-green-600" />

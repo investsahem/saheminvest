@@ -67,9 +67,148 @@ export async function POST(
       return NextResponse.json({ error: 'No investments found for this deal' }, { status: 400 })
     }
 
-    // Start transaction
+    // Get all unique investor IDs and their current wallet data before transaction
+    const uniqueInvestorIds = [...new Set(distributionRequest.project.investments.map(inv => inv.investorId))]
+    const investorsData = await prisma.user.findMany({
+      where: { id: { in: uniqueInvestorIds } },
+      select: { id: true, walletBalance: true, totalReturns: true }
+    })
+    
+    // Create a map for quick lookup
+    const investorDataMap = new Map(investorsData.map(investor => [investor.id, investor]))
+
+    // Prepare all operations for the transaction
+    const transactionOperations: any[] = []
+    const profitDistributionOperations: any[] = []
+    const walletUpdateOperations: any[] = []
+    const notificationOperations: any[] = []
+
+    // Calculate all operations first
+    for (const investment of distributionRequest.project.investments) {
+      const investmentAmount = Number(investment.amount)
+      const investmentRatio = investmentAmount / totalInvestmentAmount
+      const investorProfitShare = investorDistributionAmount * investmentRatio
+      const investorData = investorDataMap.get(investment.investorId)
+
+      if (!investorData) continue
+
+      const currentWalletBalance = Number(investorData.walletBalance || 0)
+      const currentTotalReturns = Number(investorData.totalReturns || 0)
+
+      if (distributionRequest.distributionType === 'FINAL') {
+        // Capital return transaction
+        transactionOperations.push({
+          userId: investment.investorId,
+          type: 'RETURN',
+          amount: investmentAmount,
+          status: 'COMPLETED',
+          description: `Capital return from final distribution: ${distributionRequest.project.title}`
+        })
+
+        // Profit distribution transaction
+        if (investorProfitShare > 0) {
+          transactionOperations.push({
+            userId: investment.investorId,
+            type: 'PROFIT_DISTRIBUTION',
+            amount: investorProfitShare,
+            status: 'COMPLETED',
+            description: `Final profit distribution from ${distributionRequest.project.title}`
+          })
+        }
+
+        // Wallet update
+        walletUpdateOperations.push({
+          where: { id: investment.investorId },
+          data: {
+            walletBalance: currentWalletBalance + investmentAmount + investorProfitShare,
+            totalReturns: currentTotalReturns + investorProfitShare
+          }
+        })
+
+        // Profit distribution record
+        profitDistributionOperations.push({
+          projectId: distributionRequest.projectId,
+          investorId: investment.investorId,
+          investmentId: investment.id,
+          amount: investorProfitShare,
+          profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
+          investmentShare: investmentRatio * 100,
+          distributionDate: new Date(),
+          status: 'COMPLETED',
+          profitPeriod: 'FINAL'
+        })
+
+        // Investor notification
+        const capitalMessage = ` وتم إرجاع رأس المال ${investmentAmount.toFixed(2)} دولار`
+        notificationOperations.push({
+          userId: investment.investorId,
+          type: 'PROFIT_RECEIVED',
+          title: 'تم استلام التوزيع النهائي',
+          message: `تم إضافة ${investorProfitShare.toFixed(2)} دولار كأرباح من الصفقة "${distributionRequest.project.title}" إلى محفظتك${capitalMessage}.`,
+          metadata: JSON.stringify({
+            dealId: distributionRequest.projectId,
+            profitAmount: investorProfitShare,
+            capitalAmount: investmentAmount,
+            profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
+            distributionType: distributionRequest.distributionType
+          }),
+          read: false
+        })
+      } else {
+        // Partial distribution - only profits
+        if (investorProfitShare > 0) {
+          transactionOperations.push({
+            userId: investment.investorId,
+            type: 'PROFIT_DISTRIBUTION',
+            amount: investorProfitShare,
+            status: 'COMPLETED',
+            description: `Partial profit distribution from ${distributionRequest.project.title}`
+          })
+        }
+
+        // Wallet update
+        walletUpdateOperations.push({
+          where: { id: investment.investorId },
+          data: {
+            walletBalance: currentWalletBalance + investorProfitShare,
+            totalReturns: currentTotalReturns + investorProfitShare
+          }
+        })
+
+        // Profit distribution record
+        profitDistributionOperations.push({
+          projectId: distributionRequest.projectId,
+          investorId: investment.investorId,
+          investmentId: investment.id,
+          amount: investorProfitShare,
+          profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
+          investmentShare: investmentRatio * 100,
+          distributionDate: new Date(),
+          status: 'COMPLETED',
+          profitPeriod: 'PARTIAL'
+        })
+
+        // Investor notification
+        notificationOperations.push({
+          userId: investment.investorId,
+          type: 'PROFIT_RECEIVED',
+          title: 'تم استلام أرباح جزئية',
+          message: `تم إضافة ${investorProfitShare.toFixed(2)} دولار كأرباح من الصفقة "${distributionRequest.project.title}" إلى محفظتك.`,
+          metadata: JSON.stringify({
+            dealId: distributionRequest.projectId,
+            profitAmount: investorProfitShare,
+            capitalAmount: 0,
+            profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
+            distributionType: distributionRequest.distributionType
+          }),
+          read: false
+        })
+      }
+    }
+
+    // Execute all operations in a single transaction
     await prisma.$transaction(async (tx) => {
-      // 1. Update the request status with final percentages
+      // 1. Update the request status
       await tx.profitDistributionRequest.update({
         where: { id: requestId },
         data: {
@@ -81,127 +220,26 @@ export async function POST(
         }
       })
 
-      // 2. Handle distribution logic based on type
-      if (distributionRequest.distributionType === 'FINAL') {
-        // For final distributions, return capital first, then distribute profits
-        for (const investment of distributionRequest.project.investments) {
-          const investmentAmount = Number(investment.amount)
-          const investmentRatio = investmentAmount / totalInvestmentAmount
-          const investorProfitShare = investorDistributionAmount * investmentRatio
-
-          // Create capital return transaction
-          await tx.transaction.create({
-            data: {
-              userId: investment.investorId,
-              type: 'RETURN',
-              amount: investmentAmount,
-              status: 'COMPLETED',
-              description: `Capital return from final distribution: ${distributionRequest.project.title}`
-            }
-          })
-
-          // Create profit distribution transaction if there's profit to distribute
-          if (investorProfitShare > 0) {
-            await tx.transaction.create({
-              data: {
-                userId: investment.investorId,
-                type: 'PROFIT_DISTRIBUTION',
-                amount: investorProfitShare,
-                status: 'COMPLETED',
-                description: `Final profit distribution from ${distributionRequest.project.title}`
-              }
-            })
-          }
-
-          // Create profit distribution record
-          await tx.profitDistribution.create({
-            data: {
-              projectId: distributionRequest.projectId,
-              investorId: investment.investorId,
-              investmentId: investment.id,
-              amount: investorProfitShare,
-              profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
-              investmentShare: investmentRatio * 100,
-              distributionDate: new Date(),
-              status: 'COMPLETED',
-              profitPeriod: 'FINAL'
-            }
-          })
-
-          // Update investor's wallet balance and total returns
-          const investor = await tx.user.findUnique({
-            where: { id: investment.investorId }
-          })
-
-          if (investor) {
-            const currentWalletBalance = Number(investor.walletBalance || 0)
-            const currentTotalReturns = Number(investor.totalReturns || 0)
-            
-            await tx.user.update({
-              where: { id: investment.investorId },
-              data: {
-                walletBalance: currentWalletBalance + investmentAmount + investorProfitShare,
-                totalReturns: currentTotalReturns + investorProfitShare
-              }
-            })
-          }
-        }
-      } else {
-        // For partial distributions, only distribute profits (no capital return)
-        for (const investment of distributionRequest.project.investments) {
-          const investmentAmount = Number(investment.amount)
-          const investmentRatio = investmentAmount / totalInvestmentAmount
-          const investorProfitShare = investorDistributionAmount * investmentRatio
-
-          // Create profit distribution transaction
-          if (investorProfitShare > 0) {
-            await tx.transaction.create({
-              data: {
-                userId: investment.investorId,
-                type: 'PROFIT_DISTRIBUTION',
-                amount: investorProfitShare,
-                status: 'COMPLETED',
-                description: `Partial profit distribution from ${distributionRequest.project.title}`
-              }
-            })
-          }
-
-          // Create profit distribution record
-          await tx.profitDistribution.create({
-            data: {
-              projectId: distributionRequest.projectId,
-              investorId: investment.investorId,
-              investmentId: investment.id,
-              amount: investorProfitShare,
-              profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
-              investmentShare: investmentRatio * 100,
-              distributionDate: new Date(),
-              status: 'COMPLETED',
-              profitPeriod: 'PARTIAL'
-            }
-          })
-
-          // Update investor's wallet balance and total returns
-          const investor = await tx.user.findUnique({
-            where: { id: investment.investorId }
-          })
-
-          if (investor) {
-            const currentWalletBalance = Number(investor.walletBalance || 0)
-            const currentTotalReturns = Number(investor.totalReturns || 0)
-            
-            await tx.user.update({
-              where: { id: investment.investorId },
-              data: {
-                walletBalance: currentWalletBalance + investorProfitShare,
-                totalReturns: currentTotalReturns + investorProfitShare
-              }
-            })
-          }
-        }
+      // 2. Create all transactions
+      if (transactionOperations.length > 0) {
+        await tx.transaction.createMany({
+          data: transactionOperations
+        })
       }
 
-      // 3. Create notification for partner
+      // 3. Create all profit distribution records
+      if (profitDistributionOperations.length > 0) {
+        await tx.profitDistribution.createMany({
+          data: profitDistributionOperations
+        })
+      }
+
+      // 4. Update all wallet balances
+      for (const walletUpdate of walletUpdateOperations) {
+        await tx.user.update(walletUpdate)
+      }
+
+      // 5. Create partner notification
       await tx.notification.create({
         data: {
           userId: distributionRequest.partnerId,
@@ -221,35 +259,14 @@ export async function POST(
         }
       })
 
-      // 4. Create notifications for investors
-      for (const investment of distributionRequest.project.investments) {
-        const investmentAmount = Number(investment.amount)
-        const investmentRatio = investmentAmount / totalInvestmentAmount
-        const investorProfitShare = investorDistributionAmount * investmentRatio
-        
-        const capitalMessage = distributionRequest.distributionType === 'FINAL' 
-          ? ` وتم إرجاع رأس المال ${investmentAmount.toFixed(2)} دولار`
-          : ''
-
-        await tx.notification.create({
-          data: {
-            userId: investment.investorId,
-            type: 'PROFIT_RECEIVED',
-            title: distributionRequest.distributionType === 'FINAL' 
-              ? 'تم استلام التوزيع النهائي' 
-              : 'تم استلام أرباح جزئية',
-            message: `تم إضافة ${investorProfitShare.toFixed(2)} دولار كأرباح من الصفقة "${distributionRequest.project.title}" إلى محفظتك${capitalMessage}.`,
-            metadata: JSON.stringify({
-              dealId: distributionRequest.projectId,
-              profitAmount: investorProfitShare,
-              capitalAmount: distributionRequest.distributionType === 'FINAL' ? investmentAmount : 0,
-              profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
-              distributionType: distributionRequest.distributionType
-            }),
-            read: false
-          }
+      // 6. Create all investor notifications
+      if (notificationOperations.length > 0) {
+        await tx.notification.createMany({
+          data: notificationOperations
         })
       }
+    }, {
+      timeout: 30000 // 30 second timeout
     })
 
     return NextResponse.json({ 

@@ -338,7 +338,7 @@ const PartnerDealsPage = () => {
               {/* Total Amount */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Amount ($)
+                  {t('partner.amount')} ($)
                 </label>
                 <input
                   type="number"
@@ -354,7 +354,7 @@ const PartnerDealsPage = () => {
               {/* Estimated Gain % */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Estimated gain %
+                  {t('partner.estimated_gain')} %
                 </label>
                 <input
                   type="number"
@@ -371,7 +371,7 @@ const PartnerDealsPage = () => {
               {/* Estimated Deal Closing % */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Estimated Deal Closing %
+                  {t('partner.estimated_deal_closing')} %
                 </label>
                 <input
                   type="number"

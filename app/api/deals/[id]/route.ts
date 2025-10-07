@@ -107,7 +107,9 @@ export async function GET(
     }
     
     // Add profit distributions if needed
-    if (isAdmin || includeDistributions) {
+    // For partners viewing their own deals, always include profit distributions
+    const isOwner = session?.user?.id && session.user.id === (await prisma.project.findUnique({ where: { id }, select: { ownerId: true } }))?.ownerId
+    if (isAdmin || includeDistributions || isOwner) {
       includeClause.profitDistributions = {
         orderBy: {
           distributionDate: 'desc'
