@@ -15,6 +15,19 @@ import {
   ArrowRight, AlertCircle, Info
 } from 'lucide-react'
 
+interface Investment {
+  id: string
+  amount: number
+  createdAt: string
+  status: string
+  investor: {
+    id: string
+    name: string
+    email: string
+    image?: string
+  }
+}
+
 interface Deal {
   id: string
   title: string
@@ -31,6 +44,7 @@ interface Deal {
   minInvestment: number
   startDate: string
   endDate: string
+  investments?: Investment[]
   partner?: {
     id: string
     companyName: string
@@ -77,7 +91,7 @@ export default function DealDetailsPage() {
     const fetchDeal = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/deals/${dealId}?includePartner=true`)
+        const response = await fetch(`/api/deals/${dealId}?includePartner=true&includeInvestments=true`)
         
         if (response.ok) {
           const data = await response.json()
@@ -348,7 +362,7 @@ export default function DealDetailsPage() {
               {/* Key Stats Grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-gradient-to-br from-[#0f1636cc] to-[#0f1636aa] border border-[#2a3666] rounded-xl backdrop-blur-sm text-center">
-                  <div className="text-2xl font-bold text-[#6be2c9] mb-1">{deal.duration}M</div>
+                  <div className="text-2xl font-bold text-[#6be2c9] mb-1">{deal.duration} {t('common.months')}</div>
                   <div className="text-sm text-[#b8c2d8]">{t('deals.duration')}</div>
                 </div>
                 <div className="p-4 bg-gradient-to-br from-[#0f1636cc] to-[#0f1636aa] border border-[#2a3666] rounded-xl backdrop-blur-sm text-center">
@@ -408,7 +422,7 @@ export default function DealDetailsPage() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl font-bold text-[#e9edf7] mb-4">{t('deals.about_investment')}</h2>
+            <h2 className="text-2xl font-bold text-[#e9edf7] mb-4">{t('deals_detail.about_investment')}</h2>
             <p className="text-[#b8c2d8] leading-relaxed text-lg">
               {deal.description}
             </p>
@@ -422,16 +436,16 @@ export default function DealDetailsPage() {
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">{t('deals.investment_timeline')}</h2>
+            <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">{t('deals_detail.investment_timeline')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-xl flex items-center justify-center">
                   <Calendar className="w-6 h-6 text-[#6be2c9]" />
                 </div>
                 <div>
-                  <div className="text-sm text-[#b8c2d8]">{t('deals.start_date')}</div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals_detail.start_date')}</div>
                   <div className="text-[#e9edf7] font-semibold">
-                    {deal.startDate ? formatDate(deal.startDate) : t('deals.tba')}
+                    {deal.startDate ? formatDate(deal.startDate) : t('deals_detail.tba')}
                   </div>
                 </div>
               </div>
@@ -440,9 +454,9 @@ export default function DealDetailsPage() {
                   <Clock className="w-6 h-6 text-[#6be2c9]" />
                 </div>
                 <div>
-                  <div className="text-sm text-[#b8c2d8]">{t('deals.end_date')}</div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals_detail.end_date')}</div>
                   <div className="text-[#e9edf7] font-semibold">
-                    {deal.endDate ? formatDate(deal.endDate) : t('deals.tba')}
+                    {deal.endDate ? formatDate(deal.endDate) : t('deals_detail.tba')}
                   </div>
                 </div>
               </div>
@@ -457,22 +471,22 @@ export default function DealDetailsPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">{t('deals.risk_assessment')}</h2>
+            <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">{t('deals_detail.risk_assessment')}</h2>
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/10 border border-[#f59e0b]/30 rounded-xl flex items-center justify-center flex-shrink-0">
                 <Shield className="w-6 h-6 text-[#f59e0b]" />
               </div>
               <div>
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-[#e9edf7] font-semibold">{t('deals.risk_level')}:</span>
+                  <span className="text-[#e9edf7] font-semibold">{t('deals_detail.risk_level')}:</span>
                   <span className={`px-3 py-1 rounded-full text-sm font-bold border ${getRiskColor(deal.riskLevel)}`}>
                     {deal.riskLevel}
                   </span>
                 </div>
                 <p className="text-[#b8c2d8] leading-relaxed">
-                  {deal.riskLevel === 'Low' && t('deals.low_risk_desc')}
-                  {deal.riskLevel === 'Medium' && t('deals.medium_risk_desc')}
-                  {deal.riskLevel === 'High' && t('deals.high_risk_desc')}
+                  {deal.riskLevel === 'Low' && t('deals_detail.low_risk_desc')}
+                  {deal.riskLevel === 'Medium' && t('deals_detail.medium_risk_desc')}
+                  {deal.riskLevel === 'High' && t('deals_detail.high_risk_desc')}
                 </p>
               </div>
             </div>
@@ -487,7 +501,7 @@ export default function DealDetailsPage() {
               transition={{ duration: 0.6, delay: 0.3 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">{t('deals.about_partner')}</h2>
+              <h2 className="text-2xl font-bold text-[#e9edf7] mb-6">{t('deals_detail.about_partner')}</h2>
               
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Partner Logo and Basic Info */}
@@ -583,7 +597,7 @@ export default function DealDetailsPage() {
                             rel="noopener noreferrer"
                             className="text-[#6be2c9] font-semibold hover:text-[#79ffd6] transition-colors"
                           >
-                            {t('deals.visit_website')}
+                            {t('deals_detail.visit_website')}
                           </a>
                         </div>
                       </div>
@@ -594,11 +608,11 @@ export default function DealDetailsPage() {
                 {/* Partner Stats */}
                 <div className="space-y-6">
                   <div className="p-4 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-xl">
-                    <h4 className="text-lg font-bold text-[#e9edf7] mb-4">{t('deals.investment_focus')}</h4>
+                    <h4 className="text-lg font-bold text-[#e9edf7] mb-4">{t('deals_detail.investment_focus')}</h4>
                     <div className="space-y-3">
                       {deal.partner.minimumDealSize && (
                         <div>
-                          <div className="text-sm text-[#b8c2d8]">{t('deals.min_deal_size')}</div>
+                          <div className="text-sm text-[#b8c2d8]">{t('deals_detail.min_deal_size')}</div>
                           <div className="text-[#6be2c9] font-bold">
                             {formatCurrency(deal.partner.minimumDealSize)}
                           </div>
@@ -606,7 +620,7 @@ export default function DealDetailsPage() {
                       )}
                       {deal.partner.maximumDealSize && (
                         <div>
-                          <div className="text-sm text-[#b8c2d8]">{t('deals.max_deal_size')}</div>
+                          <div className="text-sm text-[#b8c2d8]">{t('deals_detail.max_deal_size')}</div>
                           <div className="text-[#6be2c9] font-bold">
                             {formatCurrency(deal.partner.maximumDealSize)}
                           </div>
@@ -614,7 +628,7 @@ export default function DealDetailsPage() {
                       )}
                       {deal.partner.investmentAreas && deal.partner.investmentAreas.length > 0 && (
                         <div>
-                          <div className="text-sm text-[#b8c2d8] mb-2">{t('deals.investment_areas')}</div>
+                          <div className="text-sm text-[#b8c2d8] mb-2">{t('deals_detail.investment_areas')}</div>
                           <div className="flex flex-wrap gap-2">
                             {deal.partner.investmentAreas.map((area, index) => (
                               <span 
@@ -635,10 +649,94 @@ export default function DealDetailsPage() {
                       href={`/partners/${deal.partner.id}`}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#6be2c9]/10 to-[#23a1ff]/10 border border-[#6be2c9]/30 rounded-xl text-[#6be2c9] font-medium hover:from-[#6be2c9]/20 hover:to-[#23a1ff]/20 transition-all duration-300"
                     >
-{t('deals.view_partner_profile')}
+{t('deals_detail.view_partner_profile')}
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Investors Section */}
+          {deal.investments && deal.investments.length > 0 && (
+            <motion.div
+              className="p-8 bg-gradient-to-br from-[#0b1124cc] to-[#0b1124aa] border border-[#253261] rounded-2xl backdrop-blur-sm"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-[#e9edf7]">{t('deals_detail.investors_info')}</h2>
+                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6be2c9]/20 to-[#23a1ff]/20 border border-[#6be2c9]/30 rounded-full text-sm text-[#6be2c9] font-medium">
+                  <Users className="w-4 h-4" />
+                  {deal.investorCount} {t('deals_detail.unique_investors')}
+                </div>
+              </div>
+
+              {/* Investment Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="p-4 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-xl text-center">
+                  <div className="text-2xl font-bold text-[#6be2c9] mb-1">
+                    {formatCurrency(deal.currentFunding)}
+                  </div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals_detail.total_invested')}</div>
+                </div>
+                <div className="p-4 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-xl text-center">
+                  <div className="text-2xl font-bold text-[#23a1ff] mb-1">
+                    {deal.investments.length}
+                  </div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals_detail.total_investments')}</div>
+                </div>
+                <div className="p-4 bg-[#0f1640]/50 border border-[#2d3a6b]/30 rounded-xl text-center">
+                  <div className="text-2xl font-bold text-[#f59e0b] mb-1">
+                    {deal.investments.length > 0 ? formatCurrency(deal.investments.reduce((sum, inv) => sum + inv.amount, 0) / deal.investments.length) : '$0'}
+                  </div>
+                  <div className="text-sm text-[#b8c2d8]">{t('deals_detail.avg_investment')}</div>
+                </div>
+              </div>
+
+
+              {/* Investment Distribution Chart */}
+              <div className="mt-8 p-6 bg-[#0f1640]/30 border border-[#2d3a6b]/20 rounded-xl">
+                <h4 className="text-lg font-semibold text-[#e9edf7] mb-4">{t('deals_detail.investment_distribution')}</h4>
+                <div className="space-y-3">
+                  {(() => {
+                    // Group investments by amount ranges
+                    const ranges = [
+                      { min: 0, max: 1000, label: '$0 - $1K', color: 'bg-blue-500' },
+                      { min: 1000, max: 5000, label: '$1K - $5K', color: 'bg-green-500' },
+                      { min: 5000, max: 10000, label: '$5K - $10K', color: 'bg-yellow-500' },
+                      { min: 10000, max: Infinity, label: '$10K+', color: 'bg-purple-500' }
+                    ]
+                    
+                    const distribution = ranges.map(range => {
+                      const count = deal.investments!.filter(inv => 
+                        inv.amount >= range.min && inv.amount < range.max
+                      ).length
+                      const percentage = deal.investments!.length > 0 ? (count / deal.investments!.length) * 100 : 0
+                      return { ...range, count, percentage }
+                    }).filter(item => item.count > 0)
+
+                    return distribution.map((item, index) => (
+                      <div key={index} className="flex items-center gap-3">
+                        <div className="w-20 text-sm text-[#b8c2d8]">{item.label}</div>
+                        <div className="flex-1 bg-[#1a2555] rounded-full h-3 overflow-hidden">
+                          <motion.div 
+                            className={`h-full ${item.color} rounded-full`}
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${item.percentage}%` }}
+                            transition={{ duration: 1, delay: index * 0.1 }}
+                            viewport={{ once: true }}
+                          />
+                        </div>
+                        <div className="w-16 text-sm text-[#e9edf7] text-right">
+                          {item.count} ({Math.round(item.percentage)}%)
+                        </div>
+                      </div>
+                    ))
+                  })()}
                 </div>
               </div>
             </motion.div>
@@ -670,10 +768,10 @@ export default function DealDetailsPage() {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-6">
-            {t('deals.start_investment_journey')}
+            {t('deals_detail.start_investment_journey')}
           </h2>
           <p className="text-lg text-[#b8c2d8] mb-8 max-w-2xl mx-auto leading-relaxed">
-            {t('deals.create_account_description')}
+            {t('deals_detail.create_account_description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <SmartInvestButton dealId={deal.id}>
@@ -682,7 +780,7 @@ export default function DealDetailsPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {t('deals.create_account_invest')}
+                {t('deals_detail.create_account_invest')}
                 <ArrowRight className="w-5 h-5" />
               </motion.button>
             </SmartInvestButton>
@@ -692,7 +790,7 @@ export default function DealDetailsPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {t('deals.view_more_deals')}
+                {t('deals_detail.view_more_deals')}
               </motion.button>
             </Link>
           </div>

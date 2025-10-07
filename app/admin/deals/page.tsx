@@ -612,7 +612,7 @@ export default function AdminDealsPage() {
                               </div>
                               <div>
                                 <span className="text-gray-500">{locale === 'ar' ? 'المستثمرون' : 'Investors'}:</span>
-                                <div className="font-semibold">{deal._count?.investments || deal.investorCount || 0}</div>
+                                <div className="font-semibold">{deal.investorCount || 0}</div>
                               </div>
                             </div>
                             

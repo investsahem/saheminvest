@@ -873,7 +873,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Action Button */}
-                <SmartInvestButton dealId={deal.id}>
+                <Link href={`/deals/${deal.id}`}>
                   <motion.button 
                     className="w-full py-3 bg-gradient-to-r from-[#6be2c9]/10 to-[#23a1ff]/10 border border-[#6be2c9]/30 rounded-xl text-[#6be2c9] font-medium hover:from-[#6be2c9]/20 hover:to-[#23a1ff]/20 transition-all duration-300 backdrop-blur-sm"
                     whileHover={{ scale: 1.02 }}
@@ -885,7 +885,7 @@ export default function HomePage() {
                   >
                     {t('live_activity.view_details')}
                   </motion.button>
-                </SmartInvestButton>
+                </Link>
               </div>
             </motion.div>
           ))}
