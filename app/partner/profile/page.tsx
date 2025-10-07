@@ -357,7 +357,7 @@ const PartnerProfilePage = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Founded Year
+                      {t('partner.Founded Year')}
                     </label>
                     {isEditing ? (
                       <Input
@@ -374,7 +374,7 @@ const PartnerProfilePage = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Employee Count
+                      {t('partner.Employee Count')}
                     </label>
                     {isEditing ? (
                       <select
@@ -529,7 +529,7 @@ const PartnerProfilePage = () => {
 
               {/* Social Links */}
               <div className="mt-6">
-                <h4 className="text-md font-semibold text-gray-900 mb-3">Social Media</h4>
+                <h4 className="text-md font-semibold text-gray-900 mb-3">{t('partner.Social Media')}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
@@ -546,7 +546,7 @@ const PartnerProfilePage = () => {
                             LinkedIn Profile
                           </a>
                         ) : (
-                          'Not specified'
+                          t('partner.Not specified')
                         )}
                       </p>
                     )}
@@ -567,7 +567,7 @@ const PartnerProfilePage = () => {
                             Twitter Profile
                           </a>
                         ) : (
-                          'Not specified'
+                          t('partner.Not specified')
                         )}
                       </p>
                     )}
@@ -588,7 +588,7 @@ const PartnerProfilePage = () => {
                             Facebook Page
                           </a>
                         ) : (
-                          'Not specified'
+                          t('partner.Not specified')
                         )}
                       </p>
                     )}
@@ -605,7 +605,7 @@ const PartnerProfilePage = () => {
             {/* Investment Statistics */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Investment Statistics</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('partner.investment_statistics')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <Target className="w-8 h-8 text-blue-600 mx-auto mb-2" />
@@ -634,12 +634,12 @@ const PartnerProfilePage = () => {
             {/* Investment Preferences */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Investment Preferences</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('partner.Investment Preferences')}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Minimum Investment
+                      {t('partner.Minimum Investment')}
                     </label>
                     {isEditing ? (
                       <Input
@@ -655,7 +655,7 @@ const PartnerProfilePage = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Maximum Investment
+                      {t('partner.Maximum Investment')}
                     </label>
                     {isEditing ? (
                       <Input
@@ -673,7 +673,7 @@ const PartnerProfilePage = () => {
                 {/* Investment Focus Areas */}
                 <div className="mt-6">
                   <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Investment Focus Areas
+                    {t('partner.Investment Focus Areas')}
                   </label>
                   
                   {isEditing && (
@@ -725,11 +725,11 @@ const PartnerProfilePage = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Team Members</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('partner.Team Members')}</h3>
                 {isEditing && (
                   <Button size="sm">
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Member
+                    {t('partner.Add Member')}
                   </Button>
                 )}
               </div>
@@ -765,7 +765,7 @@ const PartnerProfilePage = () => {
               ) : (
                 <div className="text-center py-8">
                   <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500">No team members added yet</p>
+                  <p className="text-gray-500">{t('partner.No team members added yet')}</p>
                   {isEditing && (
                     <Button size="sm" className="mt-3">
                       <Plus className="w-4 h-4 mr-2" />

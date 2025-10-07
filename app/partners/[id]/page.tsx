@@ -231,7 +231,7 @@ export default function PartnerDetailsPage() {
                       {partner.verified && (
                         <div className="flex items-center gap-2 bg-[#6be2c9]/20 border border-[#6be2c9]/30 rounded-full px-4 py-2">
                           <BadgeCheck className="w-5 h-5 text-[#6be2c9]" />
-                          <span className="text-sm font-medium text-[#6be2c9]">{t('partners.verified_partner')}</span>
+                          <span className="text-sm font-medium text-[#6be2c9]">{t('partners.verified_partners')}</span>
                         </div>
                       )}
                     </div>

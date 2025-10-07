@@ -1,13 +1,15 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
-import { getTranslations, type Language } from '../../lib/translations'
+import { usePathname } from 'next/navigation'
+import { getPortalTranslations, detectPortalFromPath, type Language, type Portal } from '../../lib/translations'
 
 interface I18nContextType {
   locale: Language
   setLocale: (locale: Language) => void
   t: (key: string, variables?: Record<string, string | number>) => string
   isRTL: boolean
+  portal: Portal
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined)
@@ -18,6 +20,9 @@ interface I18nProviderProps {
 }
 
 export function I18nProvider({ children, initialLocale = 'ar' }: I18nProviderProps) {
+  const pathname = usePathname()
+  const portal = detectPortalFromPath(pathname)
+  
   const [locale, setLocale] = useState<Language>(() => {
     // Check localStorage on client side, otherwise use initialLocale
     if (typeof window !== 'undefined') {
@@ -28,7 +33,7 @@ export function I18nProvider({ children, initialLocale = 'ar' }: I18nProviderPro
   })
 
   const isRTL = locale === 'ar'
-  const translations = getTranslations(locale)
+  const translations = getPortalTranslations(locale, portal)
 
   useEffect(() => {
     // Update document direction and language
@@ -68,7 +73,8 @@ export function I18nProvider({ children, initialLocale = 'ar' }: I18nProviderPro
     locale,
     setLocale: handleSetLocale,
     t,
-    isRTL
+    isRTL,
+    portal
   }
 
   return (

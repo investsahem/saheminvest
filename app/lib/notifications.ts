@@ -235,6 +235,33 @@ class NotificationService {
     )
   }
 
+  async notifyDealCompletion(userId: string, dealTitle: string, capitalAmount: number, profitAmount: number, profitRate: number) {
+    const totalReturn = capitalAmount + profitAmount
+    
+    await this.createTranslatableNotification(
+      userId,
+      'notifications.deal_completed_title',
+      profitAmount > 0 ? 'notifications.deal_completed_with_profit_message' : 'notifications.deal_completed_message',
+      {
+        dealTitle,
+        capitalAmount,
+        profitAmount,
+        profitRate,
+        totalReturn
+      },
+      'success',
+      {
+        type: 'deal_completion',
+        dealTitle,
+        capitalAmount,
+        profitAmount,
+        profitRate,
+        totalReturn,
+        action: 'view_wallet'
+      }
+    )
+  }
+
   async notifyReturnPayment(userId: string, amount: number, dealTitle: string, reference: string) {
     await this.createTranslatableNotification(
       userId,

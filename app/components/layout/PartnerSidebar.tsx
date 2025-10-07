@@ -128,9 +128,9 @@ const PartnerSidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: PartnerSideba
           <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
             <Building2 className="w-5 h-5 text-white" />
           </div>
-          <span className="ml-2 text-xl font-bold text-gray-900">
-            {t('common.brand_name')}
-          </span>
+        <span className="ml-2 text-xl font-bold text-gray-900">
+          {t('common.brand_name_partner')}
+        </span>
         </div>
         
         {/* Mobile close button */}
@@ -152,9 +152,9 @@ const PartnerSidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }: PartnerSideba
             <p className="text-sm font-medium text-gray-900 truncate">
               {session?.user?.name || t('partner.company_name')}
             </p>
-            <p className="text-xs text-gray-500">
-              {t('common.partner')}
-            </p>
+        <p className="text-xs text-gray-500">
+          {t('partner.role_title')}
+        </p>
           </div>
           <div className="ml-2 flex-shrink-0">
             <div className="flex items-center">

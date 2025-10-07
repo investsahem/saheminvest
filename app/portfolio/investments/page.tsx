@@ -15,13 +15,7 @@ import {
   AlertCircle,
   Activity,
   CheckCircle,
-  Clock,
-  DollarSign,
-  TrendingUp,
-  Calendar,
-  X,
-  History,
-  Coins
+  Clock
 } from 'lucide-react'
 
 interface Investment {
@@ -44,62 +38,6 @@ interface Investment {
   endDate?: string
 }
 
-interface ProfitTransaction {
-  id: string
-  amount: number
-  description: string
-  status: string
-  method: string
-  reference: string
-  createdAt: string
-  updatedAt: string
-}
-
-interface InvestmentDetails {
-  id: string
-  investedAmount: number
-  currentValue: number
-  totalReturn: number
-  returnPercentage: number
-  distributedProfits: number
-  pendingProfits: number
-  unrealizedGains: number
-  progress: number
-  status: string
-  lifecycleStage: string
-  investmentDate: string
-  project: {
-    id: string
-    title: string
-    description: string
-    category: string
-    status: string
-    thumbnailImage?: string
-    images: string[]
-    fundingGoal: number
-    currentFunding: number
-    expectedReturn: number
-    duration: number
-    endDate?: string
-    createdAt: string
-    updatedAt: string
-    partner: {
-      id: string
-      companyName?: string
-      name: string
-    }
-  }
-  investor: {
-    id: string
-    name: string
-    email: string
-  }
-  profitHistory: ProfitTransaction[]
-  pendingProfitDistributions: ProfitTransaction[]
-  // Additional properties for consolidated investments
-  investmentCount?: number
-  investmentDates?: string[]
-}
 
 interface PortfolioData {
   portfolio: {
@@ -121,9 +59,6 @@ export default function InvestmentsPage() {
   const router = useRouter()
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [selectedInvestment, setSelectedInvestment] = useState<InvestmentDetails | null>(null)
-  const [detailsLoading, setDetailsLoading] = useState(false)
-  const [showDetailsModal, setShowDetailsModal] = useState(false)
 
   useEffect(() => {
     const fetchPortfolioData = async () => {
@@ -147,24 +82,8 @@ export default function InvestmentsPage() {
     fetchPortfolioData()
   }, [session])
 
-  const fetchInvestmentDetails = async (projectId: string) => {
-    setDetailsLoading(true)
-    try {
-      // Since we're now grouping by project, we need to fetch details by projectId
-      // We'll need to modify the API endpoint or create a new one for project-based details
-      const response = await fetch(`/api/investments/project/${projectId}/details`)
-      if (response.ok) {
-        const details = await response.json()
-        setSelectedInvestment(details)
-        setShowDetailsModal(true)
-      } else {
-        console.error('Failed to fetch investment details')
-      }
-    } catch (error) {
-      console.error('Error fetching investment details:', error)
-    } finally {
-      setDetailsLoading(false)
-    }
+  const navigateToInvestmentDetails = (projectId: string) => {
+    router.push(`/portfolio/investments/${projectId}`)
   }
 
   const formatCurrency = (amount: number) => {
@@ -232,7 +151,7 @@ export default function InvestmentsPage() {
         return {
           label: t('portfolio_investments.lifecycle_stages.profits_distributed'),
           color: 'bg-green-100 text-green-800',
-          icon: <Coins className="w-4 h-4" />,
+          icon: <CheckCircle className="w-4 h-4" />,
           description: t('portfolio_investments.lifecycle_stages.profits_distributed_desc')
         }
       case 'COMPLETED_WITH_PROFITS':
@@ -443,11 +362,10 @@ export default function InvestmentsPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => fetchInvestmentDetails(investment.projectId)}
-                          disabled={detailsLoading}
+                          onClick={() => navigateToInvestmentDetails(investment.projectId)}
                         >
                           <Eye className="w-4 h-4 mr-1" />
-                          {detailsLoading ? t('portfolio_investments.actions.loading') : t('portfolio_investments.actions.view_details')}
+                          {t('portfolio_investments.actions.view_details')}
                         </Button>
                         {investment.status === 'active' && (
                           <Button
@@ -467,242 +385,6 @@ export default function InvestmentsPage() {
           </div>
         </div>
 
-        {/* Investment Details Modal */}
-        {showDetailsModal && selectedInvestment && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">{t('portfolio_investments.modal.investment_details')}</h2>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowDetailsModal(false)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                {/* Project Information */}
-                <Card className="mb-6">
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4 mb-4">
-                      {selectedInvestment.project.thumbnailImage ? (
-                        <div className="relative w-16 h-16 rounded-lg overflow-hidden">
-                          <Image
-                            src={selectedInvestment.project.thumbnailImage}
-                            alt={selectedInvestment.project.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                          <Target className="w-8 h-8 text-gray-400" />
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-gray-900">{selectedInvestment.project.title}</h3>
-                        <p className="text-gray-600">{selectedInvestment.project.category}</p>
-                        <p className="text-sm text-gray-500">
-                          {t('portfolio_investments.modal.partner')}: {selectedInvestment.project.partner.companyName || selectedInvestment.project.partner.name || 'Unknown Partner'}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        {(() => {
-                          const stageInfo = getLifecycleStageInfo(selectedInvestment.lifecycleStage)
-                          return (
-                            <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${stageInfo.color}`}>
-                              {stageInfo.icon}
-                              <span className="ml-1">{stageInfo.label}</span>
-                            </span>
-                          )
-                        })()}
-                      </div>
-                    </div>
-                    <p className="text-gray-700">{selectedInvestment.project.description}</p>
-                  </CardContent>
-                </Card>
-
-                {/* Investment Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">{t('portfolio_investments.modal.invested_amount')}</p>
-                          <p className="text-lg font-bold text-gray-900">
-                            {formatCurrency(selectedInvestment.investedAmount)}
-                          </p>
-                          {selectedInvestment.investmentCount && selectedInvestment.investmentCount > 1 && (
-                            <p className="text-xs text-gray-500">
-                              {selectedInvestment.investmentCount} investments combined
-                            </p>
-                          )}
-                        </div>
-                        <DollarSign className="w-6 h-6 text-blue-600" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">{t('portfolio_investments.modal.current_value')}</p>
-                          <p className="text-lg font-bold text-gray-900">
-                            {formatCurrency(selectedInvestment.currentValue)}
-                          </p>
-                        </div>
-                        <TrendingUp className="w-6 h-6 text-green-600" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">{t('portfolio_investments.modal.distributed_profits')}</p>
-                          <p className="text-lg font-bold text-green-600">
-                            {formatCurrency(selectedInvestment.distributedProfits)}
-                          </p>
-                        </div>
-                        <Coins className="w-6 h-6 text-green-600" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">{t('portfolio_investments.modal.pending_profits')}</p>
-                          <p className="text-lg font-bold text-yellow-600">
-                            {formatCurrency(selectedInvestment.pendingProfits)}
-                          </p>
-                        </div>
-                        <Clock className="w-6 h-6 text-yellow-600" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Investment Progress */}
-                <Card className="mb-6">
-                  <CardContent className="p-6">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('portfolio_investments.modal.investment_progress')}</h4>
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-600">{t('portfolio_investments.modal.project_progress')}</span>
-                        <span className="text-sm text-gray-600">{selectedInvestment.progress}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div
-                          className="bg-blue-600 h-3 rounded-full"
-                          style={{ width: `${Math.min(selectedInvestment.progress, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-gray-600">{t('portfolio_investments.modal.investment_date')}</p>
-                        <p className="font-medium">{formatDate(selectedInvestment.investmentDate)}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">{t('portfolio_investments.modal.expected_return')}</p>
-                        <p className="font-medium">{selectedInvestment.project.expectedReturn}%</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">{t('portfolio_investments.modal.duration')}</p>
-                        <p className="font-medium">{selectedInvestment.project.duration} {t('portfolio_investments.modal.months')}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Profit Distribution History */}
-                {selectedInvestment.profitHistory.length > 0 && (
-                  <Card className="mb-6">
-                    <CardContent className="p-6">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <History className="w-5 h-5 mr-2" />
-                        {t('portfolio_investments.modal.profit_distribution_history')}
-                      </h4>
-                      <div className="space-y-3">
-                        {selectedInvestment.profitHistory.map((profit) => (
-                          <div key={profit.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                            <div>
-                              <p className="font-medium text-green-800">{formatCurrency(profit.amount)}</p>
-                              <p className="text-sm text-green-600">{profit.description}</p>
-                              <p className="text-xs text-gray-500">{formatDate(profit.createdAt)}</p>
-                            </div>
-                            <div className="text-right">
-                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                {t('portfolio_investments.modal.distributed')}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Pending Profit Distributions */}
-                {selectedInvestment.pendingProfitDistributions.length > 0 && (
-                  <Card className="mb-6">
-                    <CardContent className="p-6">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <Clock className="w-5 h-5 mr-2" />
-                        {t('portfolio_investments.modal.pending_profit_distributions')}
-                      </h4>
-                      <div className="space-y-3">
-                        {selectedInvestment.pendingProfitDistributions.map((profit) => (
-                          <div key={profit.id} className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                            <div>
-                              <p className="font-medium text-yellow-800">{formatCurrency(profit.amount)}</p>
-                              <p className="text-sm text-yellow-600">{profit.description}</p>
-                              <p className="text-xs text-gray-500">{formatDate(profit.createdAt)}</p>
-                            </div>
-                            <div className="text-right">
-                              <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
-                                <Clock className="w-3 h-3 mr-1" />
-                                {t('portfolio_investments.modal.awaiting_admin')}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Lifecycle Stage Information */}
-                <Card>
-                  <CardContent className="p-6">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('portfolio_investments.modal.investment_lifecycle')}</h4>
-                    {(() => {
-                      const stageInfo = getLifecycleStageInfo(selectedInvestment.lifecycleStage)
-                      return (
-                        <div className="flex items-center space-x-3">
-                          <div className={`p-3 rounded-full ${stageInfo.color}`}>
-                            {stageInfo.icon}
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{stageInfo.label}</p>
-                            <p className="text-sm text-gray-600">{stageInfo.description}</p>
-                          </div>
-                        </div>
-                      )
-                    })()}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </InvestorLayout>
   )

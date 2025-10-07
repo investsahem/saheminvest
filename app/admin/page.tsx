@@ -186,7 +186,7 @@ export default function AdminDashboard() {
           </div>
           <Button variant="outline" size="sm" className="text-xs">
             <Eye className="w-3 h-3 mr-1" />
-            View Details
+            {t('admin_dashboard.view_details')}
           </Button>
         </div>
         {children}
@@ -603,11 +603,11 @@ export default function AdminDashboard() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Deal Management</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('admin_dashboard.deal_management')}</h3>
                 <Link href="/deals">
                   <Button variant="outline" size="sm">
                     <Eye className="w-4 h-4 mr-2" />
-                    View All
+                     {t('admin_dashboard.view_all')}
                   </Button>
                 </Link>
               </div>
@@ -618,25 +618,25 @@ export default function AdminDashboard() {
                     <div className="text-2xl font-bold text-blue-600">
                       {dealDistributionData.reduce((sum, item) => sum + item.value, 0)}
                     </div>
-                    <div className="text-sm text-blue-800">Active Deals</div>
+                    <div className="text-sm text-blue-800">{t('admin_dashboard.active_deals')}</div>
                   </div>
                   <div className="bg-green-50 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-green-600">12</div>
-                    <div className="text-sm text-green-800">Draft Deals</div>
+                    <div className="text-sm text-green-800">{t('admin_dashboard.draft_deals')}</div>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Pending Approval</span>
-                    <span className="text-sm font-medium text-yellow-600">3 deals</span>
+                    <span className="text-sm text-gray-600">{t('admin_dashboard.pending_approval')}</span>
+                    <span className="text-sm font-medium text-yellow-600">{t('admin_dashboard.pending_approval')} 3 {t('admin_dashboard.deals')}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Funded This Month</span>
-                    <span className="text-sm font-medium text-green-600">8 deals</span>
+                    <span className="text-sm text-gray-600">{t('admin_dashboard.funded_this_month')}</span>
+                    <span className="text-sm font-medium text-green-600">{t('admin_dashboard.pending_approval')} 8 {t('admin_dashboard.deals')}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total Funding</span>
+                    <span className="text-sm text-gray-600">{t('admin_dashboard.total_funding')}</span>
                     <span className="text-sm font-medium text-blue-600">$2.4M</span>
                   </div>
                 </div>
@@ -645,12 +645,12 @@ export default function AdminDashboard() {
                   <Link href="/deals" className="flex-1">
                     <Button variant="outline" className="w-full">
                       <BarChart3 className="w-4 h-4 mr-2" />
-                      Manage Deals
+                      {t('admin_dashboard.manage_deals')}
                     </Button>
                   </Link>
                   <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                     <Target className="w-4 h-4 mr-2" />
-                    Add Deal
+                    {t('admin_dashboard.add_deal')}
                   </Button>
                 </div>
               </div>
@@ -661,11 +661,11 @@ export default function AdminDashboard() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Portfolio Overview</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('admin_dashboard.portfolio_overview')}</h3>
                 <Link href="/portfolio">
                   <Button variant="outline" size="sm">
                     <Eye className="w-4 h-4 mr-2" />
-                    View Portfolio
+                    {t('admin_dashboard.view_portfolio')}
                   </Button>
                 </Link>
               </div>
@@ -674,7 +674,7 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-purple-50 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-purple-600">1,247</div>
-                    <div className="text-sm text-purple-800">Total Investors</div>
+                    <div className="text-sm text-purple-800">{t('admin_dashboard.total_investors')}</div>
                   </div>
                   <div className="bg-indigo-50 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-indigo-600">$12.5M</div>
@@ -684,15 +684,15 @@ export default function AdminDashboard() {
                 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Active Investments</span>
+                    <span className="text-sm text-gray-600">{t('admin_dashboard.active_investments')}</span>
                     <span className="text-sm font-medium text-green-600">2,456</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Avg. Portfolio Size</span>
+                    <span className="text-sm text-gray-600">{t('admin_dashboard.avg_Portfolio_size')}</span>
                     <span className="text-sm font-medium text-blue-600">$10,042</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Portfolio Growth</span>
+                    <span className="text-sm text-gray-600">{t('admin_dashboard.portfolio_growth')}</span>
                     <span className="text-sm font-medium text-green-600">+15.2%</span>
                   </div>
                 </div>
@@ -701,13 +701,13 @@ export default function AdminDashboard() {
                   <Link href="/admin/users" className="flex-1">
                     <Button variant="outline" className="w-full">
                       <Users className="w-4 h-4 mr-2" />
-                      Manage Users
+                      {t('admin_dashboard.manage_users')}
                     </Button>
                   </Link>
                   <Link href="/portfolio">
                     <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                       <PieIcon className="w-4 h-4 mr-2" />
-                      Analytics
+                      {t('admin_dashboard.analytics')}
                     </Button>
                   </Link>
                 </div>
@@ -721,16 +721,16 @@ export default function AdminDashboard() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Investment Performance</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('admin_dashboard.investment_performance')}</h3>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm">
                     <Calendar className="w-4 h-4 mr-2" />
-                    This Month
+                    {t('admin_dashboard.this_month')}
                   </Button>
                   <Link href="/portfolio/analytics">
                     <Button variant="outline" size="sm">
                       <GrowthIcon className="w-4 h-4 mr-2" />
-                      Detailed Analytics
+                      {t('admin_dashboard.detailed_analytics')}
                     </Button>
                   </Link>
                 </div>
@@ -739,7 +739,7 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-gray-900 mb-1">$2.4M</div>
-                  <div className="text-sm text-gray-600 mb-2">Total Invested</div>
+                  <div className="text-sm text-gray-600 mb-2">{t('admin_dashboard.total_invested')}</div>
                   <div className="flex items-center justify-center text-green-600">
                     <TrendingUp className="w-4 h-4 mr-1" />
                     <span className="text-sm font-medium">+12.5%</span>
@@ -748,7 +748,7 @@ export default function AdminDashboard() {
                 
                 <div className="text-center">
                   <div className="text-3xl font-bold text-gray-900 mb-1">$380K</div>
-                  <div className="text-sm text-gray-600 mb-2">Total Returns</div>
+                  <div className="text-sm text-gray-600 mb-2">{t('admin_dashboard.total_returns')}</div>
                   <div className="flex items-center justify-center text-green-600">
                     <TrendingUp className="w-4 h-4 mr-1" />
                     <span className="text-sm font-medium">+8.2%</span>
@@ -757,7 +757,7 @@ export default function AdminDashboard() {
                 
                 <div className="text-center">
                   <div className="text-3xl font-bold text-gray-900 mb-1">15.8%</div>
-                  <div className="text-sm text-gray-600 mb-2">Avg ROI</div>
+                  <div className="text-sm text-gray-600 mb-2">{t('admin_dashboard.avg_roi')}</div>
                   <div className="flex items-center justify-center text-green-600">
                     <TrendingUp className="w-4 h-4 mr-1" />
                     <span className="text-sm font-medium">+2.1%</span>
@@ -766,10 +766,10 @@ export default function AdminDashboard() {
                 
                 <div className="text-center">
                   <div className="text-3xl font-bold text-gray-900 mb-1">94.2%</div>
-                  <div className="text-sm text-gray-600 mb-2">Success Rate</div>
+                  <div className="text-sm text-gray-600 mb-2">{t('admin_dashboard.success_rate')}</div>
                   <div className="flex items-center justify-center text-green-600">
                     <CheckCircle className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-medium">Excellent</span>
+                    <span className="text-sm font-medium">{t('admin_dashboard.excellent')}</span>
                   </div>
                 </div>
               </div>
@@ -781,34 +781,34 @@ export default function AdminDashboard() {
         <div className="mt-8">
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('admin_dashboard.quick_actions')}</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <Link href="/deals">
                   <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
                     <Target className="w-6 h-6" />
-                    <span className="text-sm">Manage Deals</span>
+                    <span className="text-sm">{t('admin_dashboard.manage_deals')}</span>
                   </Button>
                 </Link>
                 
                 <Link href="/portfolio/investments">
                   <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
                     <PieIcon className="w-6 h-6" />
-                    <span className="text-sm">Investments</span>
+                    <span className="text-sm">{t('admin_dashboard.investments')}</span>
                   </Button>
                 </Link>
                 
                 <Link href="/portfolio/wallet">
                   <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
                     <DollarSign className="w-6 h-6" />
-                    <span className="text-sm">Wallet</span>
+                    <span className="text-sm">{t('admin_dashboard.wallet')}</span>
                   </Button>
                 </Link>
                 
                 <Link href="/portfolio/transactions">
                   <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
                     <Activity className="w-6 h-6" />
-                    <span className="text-sm">Transactions</span>
+                    <span className="text-sm">{t('admin_dashboard.transactions')}</span>
                   </Button>
                 </Link>
                 
@@ -822,7 +822,7 @@ export default function AdminDashboard() {
                 <Link href="/admin/users">
                   <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
                     <Users className="w-6 h-6" />
-                    <span className="text-sm">Users</span>
+                    <span className="text-sm">{t('admin_dashboard.users')}</span>
                   </Button>
                 </Link>
               </div>

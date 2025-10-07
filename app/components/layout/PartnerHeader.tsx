@@ -124,7 +124,7 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
             <div>
               <div className="flex items-center">
                 <h1 className="text-lg font-semibold text-gray-900">
-                  {formatGreeting()}, {session?.user?.name?.split(' ')[0] || t('partner.partner')}!
+                  {formatGreeting()}, {session?.user?.name?.split(' ')[0] || t('partner.role_title')}!
                 </h1>
                 <div className="ml-3 flex items-center space-x-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -256,7 +256,7 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
               </div>
               <div className={`hidden sm:flex sm:flex-col ${locale === 'ar' ? 'sm:items-end' : 'sm:items-start'} min-w-0`}>
                 <p className="text-sm font-medium text-gray-900 truncate max-w-24">
-                  {session?.user?.name || t('partner.partner')}
+                  {session?.user?.name || t('partner.role_title')}
                 </p>
                 <p className="text-xs text-gray-500 uppercase tracking-wide truncate">
                   {t('partner.verified_partner')}
@@ -275,7 +275,7 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
-                        {session?.user?.name || t('partner.partner')}
+                        {session?.user?.name || t('partner.role_title')}
                       </p>
                       <p className="text-xs text-gray-500 truncate">
                         {session?.user?.email}

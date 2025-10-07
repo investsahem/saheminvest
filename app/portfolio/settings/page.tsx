@@ -575,21 +575,21 @@ const ProfileSettings = () => {
           {/* Password & Authentication */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Password & Authentication</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('portfolio_settings.security.password_auth_title')}</h3>
               
               <div className="space-y-6">
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Lock className="w-5 h-5 text-gray-600" />
                     <div>
-                      <p className="font-medium text-gray-900">Password</p>
+                      <p className="font-medium text-gray-900">{t('portfolio_settings.security.password')}</p>
                       <p className="text-sm text-gray-600">
-                        Last changed: {formatDate(securitySettings.lastPasswordChange)}
+                        {t('portfolio_settings.security.last_changed')}: {formatDate(securitySettings.lastPasswordChange)}
                       </p>
                     </div>
                   </div>
                   <Button variant="outline" onClick={handlePasswordChange}>
-                    Change Password
+                    {t('portfolio_settings.security.change_password')}
                   </Button>
                 </div>
 
@@ -597,9 +597,9 @@ const ProfileSettings = () => {
                   <div className="flex items-center gap-3">
                     <Smartphone className="w-5 h-5 text-gray-600" />
                     <div>
-                      <p className="font-medium text-gray-900">Two-Factor Authentication</p>
+                      <p className="font-medium text-gray-900">{t('portfolio_settings.security.two_factor')}</p>
                       <p className="text-sm text-gray-600">
-                        {securitySettings.twoFactorEnabled ? 'Enabled' : 'Disabled'}
+                        {securitySettings.twoFactorEnabled ? t('portfolio_settings.security.enabled') : t('portfolio_settings.security.disabled')}
                       </p>
                     </div>
                   </div>
@@ -608,7 +608,7 @@ const ProfileSettings = () => {
                       <CheckCircle className="w-5 h-5 text-green-600" />
                     )}
                     <Button variant="outline">
-                      {securitySettings.twoFactorEnabled ? 'Disable' : 'Enable'}
+                      {securitySettings.twoFactorEnabled ? t('portfolio_settings.security.disable') : t('portfolio_settings.security.enable')}
                     </Button>
                   </div>
                 </div>
@@ -619,14 +619,14 @@ const ProfileSettings = () => {
           {/* Verification Status */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Verification Status</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('portfolio_settings.security.verification_status')}</h3>
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <div>
-                      <p className="font-medium text-gray-900">Email Verified</p>
+                      <p className="font-medium text-gray-900">{t('portfolio_settings.security.email_verified')}</p>
                       <p className="text-sm text-gray-600">{userProfile.email}</p>
                     </div>
                   </div>
@@ -636,7 +636,7 @@ const ProfileSettings = () => {
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <div>
-                      <p className="font-medium text-gray-900">Phone Verified</p>
+                      <p className="font-medium text-gray-900">{t('portfolio_settings.security.phone_verified')}</p>
                       <p className="text-sm text-gray-600">{userProfile.phone}</p>
                     </div>
                   </div>
@@ -648,7 +648,7 @@ const ProfileSettings = () => {
           {/* Active Sessions */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Active Sessions</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('portfolio_settings.security.active_sessions')}</h3>
               
               <div className="space-y-4">
                 {securitySettings.loginSessions.map((session) => (
@@ -662,12 +662,12 @@ const ProfileSettings = () => {
                           {session.device}
                           {session.current && (
                             <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
-                              Current
+                              {t('portfolio_settings.security.current')}
                             </span>
                           )}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {session.location} • Last active: {formatDateTime(session.lastActive)}
+                          {session.location} • {t('portfolio_settings.security.last_active')}: {formatDateTime(session.lastActive)}
                         </p>
                       </div>
                     </div>
@@ -677,7 +677,7 @@ const ProfileSettings = () => {
                         size="sm"
                         onClick={() => handleLogoutSession(session.id)}
                       >
-                        End Session
+                        {t('portfolio_settings.security.end_session')}
                       </Button>
                     )}
                   </div>
@@ -694,17 +694,17 @@ const ProfileSettings = () => {
           {/* Email Notifications */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Email Notifications</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('portfolio_settings.notifications.email_notifications')}</h3>
               
               <div className="space-y-4">
                 {Object.entries(notificationSettings.email).map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div>
                       <p className="font-medium text-gray-900 capitalize">
-                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                        {t(`portfolio_settings.notifications.${key}`) || key.replace(/([A-Z])/g, ' $1').trim()}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Receive notifications via email
+                        {t('portfolio_settings.notifications.receive_via_email')}
                       </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -728,17 +728,17 @@ const ProfileSettings = () => {
           {/* SMS Notifications */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">SMS Notifications</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('portfolio_settings.notifications.sms_notifications')}</h3>
               
               <div className="space-y-4">
                 {Object.entries(notificationSettings.sms).map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                     <div>
                       <p className="font-medium text-gray-900 capitalize">
-                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                        {t(`portfolio_settings.notifications.${key}`) || key.replace(/([A-Z])/g, ' $1').trim()}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Receive notifications via SMS
+                        {t('portfolio_settings.notifications.receive_via_sms')}
                       </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -767,11 +767,11 @@ const ProfileSettings = () => {
           {/* Language & Region */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Language & Region</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('portfolio_settings.preferences.language_region')}</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('portfolio_settings.preferences.language')}</label>
                   <select
                     value={preferences.language}
                     onChange={(e) => setPreferences({...preferences, language: e.target.value as 'en' | 'ar'})}
@@ -782,7 +782,7 @@ const ProfileSettings = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('portfolio_settings.preferences.currency')}</label>
                   <select
                     value={preferences.currency}
                     onChange={(e) => setPreferences({...preferences, currency: e.target.value})}
@@ -794,7 +794,7 @@ const ProfileSettings = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('portfolio_settings.preferences.timezone')}</label>
                   <select
                     value={preferences.timezone}
                     onChange={(e) => setPreferences({...preferences, timezone: e.target.value})}
@@ -806,7 +806,7 @@ const ProfileSettings = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Date Format</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('portfolio_settings.preferences.date_format')}</label>
                   <select
                     value={preferences.dateFormat}
                     onChange={(e) => setPreferences({...preferences, dateFormat: e.target.value})}
@@ -824,19 +824,19 @@ const ProfileSettings = () => {
           {/* Account Actions */}
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Account Actions</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('portfolio_settings.preferences.account_actions')}</h3>
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                   <div className="flex items-center gap-3">
                     <Download className="w-5 h-5 text-blue-600" />
                     <div>
-                      <p className="font-medium text-gray-900">Export Data</p>
-                      <p className="text-sm text-gray-600">Download all your account data</p>
+                      <p className="font-medium text-gray-900">{t('portfolio_settings.preferences.export_data')}</p>
+                      <p className="text-sm text-gray-600">{t('portfolio_settings.preferences.export_data_desc')}</p>
                     </div>
                   </div>
                   <Button variant="outline">
-                    Export
+                    {t('portfolio_settings.preferences.export')}
                   </Button>
                 </div>
 
@@ -844,12 +844,12 @@ const ProfileSettings = () => {
                   <div className="flex items-center gap-3">
                     <Trash2 className="w-5 h-5 text-red-600" />
                     <div>
-                      <p className="font-medium text-gray-900">Delete Account</p>
-                      <p className="text-sm text-gray-600">Permanently delete your account and all data</p>
+                      <p className="font-medium text-gray-900">{t('portfolio_settings.preferences.delete_account')}</p>
+                      <p className="text-sm text-gray-600">{t('portfolio_settings.preferences.delete_account_desc')}</p>
                     </div>
                   </div>
                   <Button variant="outline" onClick={handleDeleteAccount}>
-                    Delete Account
+                    {t('portfolio_settings.preferences.delete')}
                   </Button>
                 </div>
               </div>
@@ -1071,7 +1071,7 @@ const ProfileSettings = () => {
             <div className="flex justify-end">
               <Button>
                 <Save className={`w-4 h-4 ${locale === 'ar' ? 'ml-2' : 'mr-2'}`} />
-                Save Changes
+{t('portfolio_settings.preferences.save_changes')}
               </Button>
             </div>
           </CardContent>

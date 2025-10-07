@@ -62,6 +62,7 @@ export default function InvestPage() {
   const [investmentAmount, setInvestmentAmount] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showLimitModal, setShowLimitModal] = useState(false)
 
   // Fetch deal details
   useEffect(() => {
@@ -119,6 +120,17 @@ export default function InvestPage() {
     return (amount * deal.expectedReturn) / 100
   }
 
+  const getRemainingFunding = () => {
+    if (!deal) return 0
+    return Math.max(0, deal.fundingGoal - deal.currentFunding)
+  }
+
+  const getMaxInvestmentAmount = () => {
+    if (!deal || !user) return 0
+    const remainingFunding = getRemainingFunding()
+    return Math.min(remainingFunding, user.walletBalance)
+  }
+
   const calculateTimeLeft = () => {
     if (!deal?.endDate) return { days: 0, hours: 0 }
     
@@ -141,12 +153,18 @@ export default function InvestPage() {
     
     // Validation
     if (amount < deal.minInvestment) {
-      setError(`Minimum investment is ${formatCurrency(deal.minInvestment)}`)
+      setError(`${t('investment.minimum_investment_error')} ${formatCurrency(deal.minInvestment)}`)
       return
     }
 
     if (amount > user.walletBalance) {
-      setError(`Insufficient balance. Your balance: ${formatCurrency(user.walletBalance)}`)
+      setError(`${t('investment.insufficient_balance')} ${formatCurrency(user.walletBalance)}`)
+      return
+    }
+
+    const remainingFunding = getRemainingFunding()
+    if (amount > remainingFunding) {
+      setShowLimitModal(true)
       return
     }
 
@@ -166,7 +184,7 @@ export default function InvestPage() {
       const result = await response.json()
 
       if (response.ok) {
-        setSuccess(`Investment successful! You invested ${formatCurrency(amount)} in ${deal.title}`)
+        setSuccess(`${t('investment.investment_successful')} ${formatCurrency(amount)} ${t('deals.in')} ${deal.title}`)
         
         // Update user balance
         setUser(prev => prev ? {
@@ -188,11 +206,11 @@ export default function InvestPage() {
           router.push('/portfolio/investments')
         }, 2000)
       } else {
-        setError(result.error || 'Investment failed')
+        setError(result.error || t('investment.investment_failed'))
       }
     } catch (error) {
       console.error('Error making investment:', error)
-      setError('Network error. Please try again.')
+      setError(t('investment.network_error'))
     } finally {
       setInvesting(false)
     }
@@ -200,7 +218,7 @@ export default function InvestPage() {
 
   if (loading) {
     return (
-      <InvestorLayout title="Loading..." subtitle="">
+      <InvestorLayout title={t('investment.loading')} subtitle="">
         <div className="flex items-center justify-center min-h-96">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -210,15 +228,15 @@ export default function InvestPage() {
 
   if (!deal) {
     return (
-      <InvestorLayout title="Deal Not Found" subtitle="">
+      <InvestorLayout title={t('investment.deal_not_found_title')} subtitle="">
         <Card>
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Deal Not Found</h2>
-            <p className="text-gray-600 mb-4">The investment opportunity you're looking for doesn't exist.</p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('investment.deal_not_found')}</h2>
+            <p className="text-gray-600 mb-4">{t('investment.deal_not_found_message')}</p>
             <Button onClick={() => router.push('/deals')} variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Deals
+              {t('investment.back_to_deals')}
             </Button>
           </CardContent>
         </Card>
@@ -232,8 +250,8 @@ export default function InvestPage() {
 
   return (
     <InvestorLayout 
-      title={`Invest in ${deal.title}`}
-      subtitle="Review deal details and make your investment"
+      title={`${t('investment.invest_in')} ${deal.title}`}
+      subtitle={t('investment.review_deal_details')}
     >
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Back Button */}
@@ -243,7 +261,7 @@ export default function InvestPage() {
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Deals
+          {t('investment.back_to_deals')}
         </Button>
 
         {/* Success Message */}
@@ -295,12 +313,12 @@ export default function InvestPage() {
             {/* Deal Metrics */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Deal Overview</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('investment.deal_overview')}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center">
                     <Target className="w-5 h-5 text-blue-600 mr-2" />
                     <div>
-                      <p className="text-sm text-gray-600">Funding Goal</p>
+                      <p className="text-sm text-gray-600">{t('investment.funding_goal')}</p>
                       <p className="font-semibold">{formatCurrency(deal.fundingGoal)}</p>
                     </div>
                   </div>
@@ -308,7 +326,7 @@ export default function InvestPage() {
                   <div className="flex items-center">
                     <DollarSign className="w-5 h-5 text-green-600 mr-2" />
                     <div>
-                      <p className="text-sm text-gray-600">Current Funding</p>
+                      <p className="text-sm text-gray-600">{t('investment.current_funding')}</p>
                       <p className="font-semibold">{formatCurrency(deal.currentFunding)}</p>
                     </div>
                   </div>
@@ -316,7 +334,7 @@ export default function InvestPage() {
                   <div className="flex items-center">
                     <TrendingUp className="w-5 h-5 text-purple-600 mr-2" />
                     <div>
-                      <p className="text-sm text-gray-600">Expected Return</p>
+                      <p className="text-sm text-gray-600">{t('investment.expected_return')}</p>
                       <p className="font-semibold">{deal.expectedReturn}%</p>
                     </div>
                   </div>
@@ -324,15 +342,15 @@ export default function InvestPage() {
                   <div className="flex items-center">
                     <Calendar className="w-5 h-5 text-orange-600 mr-2" />
                     <div>
-                      <p className="text-sm text-gray-600">Duration</p>
-                      <p className="font-semibold">{deal.duration} months</p>
+                      <p className="text-sm text-gray-600">{t('investment.duration')}</p>
+                      <p className="font-semibold">{deal.duration} {t('investment.months')}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center">
                     <Users className="w-5 h-5 text-indigo-600 mr-2" />
                     <div>
-                      <p className="text-sm text-gray-600">Investors</p>
+                      <p className="text-sm text-gray-600">{t('investment.investors')}</p>
                       <p className="font-semibold">{deal._count?.investments || 0}</p>
                     </div>
                   </div>
@@ -340,7 +358,7 @@ export default function InvestPage() {
                   <div className="flex items-center">
                     <Clock className="w-5 h-5 text-red-600 mr-2" />
                     <div>
-                      <p className="text-sm text-gray-600">Time Left</p>
+                      <p className="text-sm text-gray-600">{t('investment.time_left')}</p>
                       <p className="font-semibold">{timeLeft.days}d {timeLeft.hours}h</p>
                     </div>
                   </div>
@@ -349,7 +367,7 @@ export default function InvestPage() {
                 {/* Progress Bar */}
                 <div className="mt-6">
                   <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Funding Progress</span>
+                    <span>{t('investment.funding_progress')}</span>
                     <span>{Math.round(fundingProgress)}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
@@ -370,10 +388,10 @@ export default function InvestPage() {
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
                   <Wallet className="w-5 h-5 text-green-600 mr-2" />
-                  <h3 className="text-lg font-semibold text-gray-900">Your Wallet</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('investment.your_wallet')}</h3>
                 </div>
                 <div className="bg-green-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Available Balance</p>
+                  <p className="text-sm text-gray-600">{t('investment.available_balance')}</p>
                   <p className="text-2xl font-bold text-green-600">
                     {user ? formatCurrency(user.walletBalance) : '$0'}
                   </p>
@@ -384,7 +402,7 @@ export default function InvestPage() {
             {/* Investment Form */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Make Investment</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('investment.make_investment')}</h3>
                 
                 {/* Error Message */}
                 {error && (
@@ -400,33 +418,38 @@ export default function InvestPage() {
                   {/* Investment Amount */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Investment Amount
+                      {t('investment.investment_amount')}
                     </label>
                     <Input
                       type="number"
                       value={investmentAmount}
                       onChange={(e) => setInvestmentAmount(e.target.value)}
-                      placeholder={`Minimum ${formatCurrency(deal.minInvestment)}`}
+                      placeholder={`${t('investment.minimum_investment')}: ${formatCurrency(deal.minInvestment)}`}
                       min={deal.minInvestment}
-                      max={user?.walletBalance || 0}
+                      max={getMaxInvestmentAmount()}
                       className="text-lg"
                     />
-                    <p className="text-sm text-gray-600 mt-1">
-                      Minimum investment: {formatCurrency(deal.minInvestment)}
-                    </p>
+                    <div className="text-sm text-gray-600 mt-1 space-y-1">
+                      <p>
+                        {t('investment.investment_range')}: {formatCurrency(deal.minInvestment)} - {formatCurrency(getMaxInvestmentAmount())}
+                      </p>
+                      <p>
+                        {t('investment.remaining_funding')}: {formatCurrency(getRemainingFunding())}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Expected Profit */}
                   {investmentAmount && expectedProfit > 0 && (
                     <div className="bg-blue-50 p-4 rounded-lg">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Expected Profit</span>
+                        <span className="text-sm text-gray-600">{t('investment.expected_profit')}</span>
                         <span className="text-lg font-semibold text-blue-600">
                           {formatCurrency(expectedProfit)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center mt-1">
-                        <span className="text-sm text-gray-600">Total Return</span>
+                        <span className="text-sm text-gray-600">{t('investment.total_return')}</span>
                         <span className="text-lg font-semibold text-green-600">
                           {formatCurrency(parseFloat(investmentAmount) + expectedProfit)}
                         </span>
@@ -444,29 +467,35 @@ export default function InvestPage() {
                     {investing ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Processing Investment...
+                        {t('investment.processing_investment')}
                       </>
                     ) : (
                       <>
                         <DollarSign className="w-5 h-5 mr-2" />
-                        Invest {investmentAmount ? formatCurrency(parseFloat(investmentAmount)) : 'Now'}
+                        {investmentAmount ? `${t('investment.invest_now')} ${formatCurrency(parseFloat(investmentAmount))}` : t('investment.invest_now')}
                       </>
                     )}
                   </Button>
 
                   {/* Quick Amount Buttons */}
                   <div className="grid grid-cols-3 gap-2">
-                    {[deal.minInvestment, deal.minInvestment * 2, deal.minInvestment * 5].map((amount) => (
-                      <Button
-                        key={amount}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setInvestmentAmount(amount.toString())}
-                        disabled={!user || amount > user.walletBalance}
-                      >
-                        {formatCurrency(amount)}
-                      </Button>
-                    ))}
+                    {[deal.minInvestment, deal.minInvestment * 2, deal.minInvestment * 5].map((amount) => {
+                      const maxAmount = getMaxInvestmentAmount()
+                      const isDisabled = !user || amount > maxAmount
+                      const displayAmount = Math.min(amount, maxAmount)
+                      
+                      return (
+                        <Button
+                          key={amount}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setInvestmentAmount(displayAmount.toString())}
+                          disabled={isDisabled}
+                        >
+                          {formatCurrency(displayAmount)}
+                        </Button>
+                      )
+                    })}
                   </div>
                 </div>
               </CardContent>
@@ -475,22 +504,22 @@ export default function InvestPage() {
             {/* Investment Terms */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Investment Terms</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('investment.investment_terms')}</h3>
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex justify-between">
-                    <span>Minimum Investment:</span>
+                    <span>{t('investment.minimum_investment')}:</span>
                     <span className="font-medium">{formatCurrency(deal.minInvestment)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Expected Return:</span>
+                    <span>{t('investment.expected_return')}:</span>
                     <span className="font-medium">{deal.expectedReturn}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Investment Duration:</span>
-                    <span className="font-medium">{deal.duration} months</span>
+                    <span>{t('investment.investment_duration')}:</span>
+                    <span className="font-medium">{deal.duration} {t('investment.months')}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Deal Status:</span>
+                    <span>{t('investment.deal_status')}:</span>
                     <span className="font-medium text-green-600">{deal.status}</span>
                   </div>
                 </div>
@@ -498,6 +527,63 @@ export default function InvestPage() {
             </Card>
           </div>
         </div>
+
+        {/* Investment Limit Modal */}
+        {showLimitModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg max-w-md w-full p-6">
+              <div className="text-center">
+                <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {t('investment.investment_limit_modal.title')}
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  {t('investment.investment_limit_modal.message')}
+                </p>
+                
+                <div className="bg-gray-50 p-4 rounded-lg mb-6 text-left">
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">{t('investment.investment_limit_modal.funding_goal')}:</span>
+                      <span className="font-medium">{formatCurrency(deal?.fundingGoal || 0)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">{t('investment.investment_limit_modal.current_funding')}:</span>
+                      <span className="font-medium">{formatCurrency(deal?.currentFunding || 0)}</span>
+                    </div>
+                    <div className="flex justify-between border-t pt-2">
+                      <span className="text-gray-600">{t('investment.investment_limit_modal.remaining')}:</span>
+                      <span className="font-bold text-green-600">{formatCurrency(getRemainingFunding())}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">{t('investment.investment_limit_modal.max_available')}:</span>
+                      <span className="font-bold text-blue-600">{formatCurrency(getMaxInvestmentAmount())}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowLimitModal(false)}
+                    className="flex-1"
+                  >
+                    {t('investment.investment_limit_modal.understand')}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setInvestmentAmount(getMaxInvestmentAmount().toString())
+                      setShowLimitModal(false)
+                    }}
+                    className="flex-1"
+                  >
+                    {t('investment.investment_limit_modal.adjust_amount')}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </InvestorLayout>
   )
