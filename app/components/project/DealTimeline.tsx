@@ -75,6 +75,7 @@ export function DealTimeline({ dealId, isOwner = false, className = '' }: DealTi
 
     return [
       {
+        id: 'deal-created',
         title: t('timeline.deal_created'),
         description: t('timeline.deal_created_desc'),
         date: dealCreated.toISOString(),
@@ -82,6 +83,7 @@ export function DealTimeline({ dealId, isOwner = false, className = '' }: DealTi
         type: 'milestone'
       },
       {
+        id: 'funding-started',
         title: t('timeline.funding_started'),
         description: t('timeline.funding_started_desc'),
         date: fundingStart.toISOString(),
@@ -89,6 +91,7 @@ export function DealTimeline({ dealId, isOwner = false, className = '' }: DealTi
         type: 'funding'
       },
       {
+        id: 'funding-closes',
         title: t('timeline.funding_closes'),
         description: t('timeline.funding_closes_desc'),
         date: fundingEnd.toISOString(),
@@ -96,6 +99,7 @@ export function DealTimeline({ dealId, isOwner = false, className = '' }: DealTi
         type: 'funding'
       },
       {
+        id: 'project-starts',
         title: t('timeline.project_starts'),
         description: t('timeline.project_starts_desc'),
         date: projectStart.toISOString(),
@@ -103,6 +107,7 @@ export function DealTimeline({ dealId, isOwner = false, className = '' }: DealTi
         type: 'business'
       },
       {
+        id: 'project-completion',
         title: t('timeline.project_completion'),
         description: t('timeline.project_completion_desc'),
         date: projectEnd.toISOString(),
