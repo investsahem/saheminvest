@@ -37,6 +37,14 @@ const PartnerDealsPage = () => {
   const [distributingProfits, setDistributingProfits] = useState<Deal | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const dealsPerPage = 12
+  const [profitFormData, setProfitFormData] = useState({
+    totalAmount: 0,
+    estimatedGainPercent: 7,
+    estimatedClosingPercent: 100,
+    distributionType: 'PARTIAL' as 'PARTIAL' | 'FINAL',
+    description: ''
+  })
+  const [submittingProfit, setSubmittingProfit] = useState(false)
 
   // Fetch deals for current partner
   useEffect(() => {
@@ -139,7 +147,7 @@ const PartnerDealsPage = () => {
         throw new Error(errorData.error || 'Failed to submit profit distribution')
       }
 
-      alert('Profit distribution submitted for admin approval')
+      showSuccess('تم إرسال طلب التوزيع بنجاح!', 'سيتم مراجعة طلب توزيع الأرباح من قبل الإدارة قريباً')
       setDistributingProfits(null)
       fetchDeals() // Refresh deals
     } catch (error) {
@@ -336,6 +344,8 @@ const PartnerDealsPage = () => {
                   type="number"
                   step="0.01"
                   min="0"
+                  value={profitFormData.totalAmount || ''}
+                  onChange={(e) => setProfitFormData(prev => ({ ...prev, totalAmount: Number(e.target.value) || 0 }))}
                   placeholder="e.g., 21400"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -351,6 +361,8 @@ const PartnerDealsPage = () => {
                   step="0.1"
                   min="0"
                   max="100"
+                  value={profitFormData.estimatedGainPercent || ''}
+                  onChange={(e) => setProfitFormData(prev => ({ ...prev, estimatedGainPercent: Number(e.target.value) || 0 }))}
                   placeholder="e.g., 7"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -366,6 +378,8 @@ const PartnerDealsPage = () => {
                   step="0.1"
                   min="0"
                   max="100"
+                  value={profitFormData.estimatedClosingPercent || ''}
+                  onChange={(e) => setProfitFormData(prev => ({ ...prev, estimatedClosingPercent: Number(e.target.value) || 0 }))}
                   placeholder="e.g., 100"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -380,7 +394,8 @@ const PartnerDealsPage = () => {
                       type="radio"
                       name="distributionType"
                       value="PARTIAL"
-                      defaultChecked
+                      checked={profitFormData.distributionType === 'PARTIAL'}
+                      onChange={(e) => setProfitFormData(prev => ({ ...prev, distributionType: e.target.value as 'PARTIAL' | 'FINAL' }))}
                       className="mr-2"
                     />
                     توزيع جزئي
@@ -390,6 +405,8 @@ const PartnerDealsPage = () => {
                       type="radio"
                       name="distributionType"
                       value="FINAL"
+                      checked={profitFormData.distributionType === 'FINAL'}
+                      onChange={(e) => setProfitFormData(prev => ({ ...prev, distributionType: e.target.value as 'PARTIAL' | 'FINAL' }))}
                       className="mr-2"
                     />
                     توزيع نهائي
@@ -402,6 +419,8 @@ const PartnerDealsPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">وصف التوزيع</label>
                 <input
                   type="text"
+                  value={profitFormData.description}
+                  onChange={(e) => setProfitFormData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="مثال: توزيع أرباح الربع الأول"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -410,14 +429,45 @@ const PartnerDealsPage = () => {
               {/* Submit Buttons */}
               <div className="flex gap-4 pt-4">
                 <Button
+                  onClick={async () => {
+                    try {
+                      setSubmittingProfit(true)
+                      await handleProfitDistribution(profitFormData)
+                      // Reset form
+                      setProfitFormData({
+                        totalAmount: 0,
+                        estimatedGainPercent: 7,
+                        estimatedClosingPercent: 100,
+                        distributionType: 'PARTIAL',
+                        description: ''
+                      })
+                    } catch (error) {
+                      console.error('Error submitting profit distribution:', error)
+                      showError('خطأ في إرسال التوزيع', 'يرجى المحاولة مرة أخرى')
+                    } finally {
+                      setSubmittingProfit(false)
+                    }
+                  }}
+                  disabled={submittingProfit || !profitFormData.totalAmount || !profitFormData.estimatedGainPercent || !profitFormData.description}
                   className="bg-green-600 hover:bg-green-700 flex-1"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  إرسال للمراجعة الإدارية
+                  {submittingProfit ? 'جاري الإرسال...' : 'إرسال للمراجعة الإدارية'}
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => setDistributingProfits(null)}
+                  onClick={() => {
+                    setDistributingProfits(null)
+                    // Reset form when closing
+                    setProfitFormData({
+                      totalAmount: 0,
+                      estimatedGainPercent: 7,
+                      estimatedClosingPercent: 100,
+                      distributionType: 'PARTIAL',
+                      description: ''
+                    })
+                  }}
+                  disabled={submittingProfit}
                 >
                   إلغاء
                 </Button>

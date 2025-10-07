@@ -110,18 +110,39 @@ const DealManagePage = () => {
   }, [dealId, router])
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount)
+    if (isNaN(amount) || amount === null || amount === undefined) {
+      return '$0.00'
+    }
+    
+    try {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(amount)
+    } catch (error) {
+      console.error('Error formatting currency:', error, 'amount:', amount)
+      return '$0.00'
+    }
   }
 
   const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    }).format(new Date(dateString))
+    if (!dateString) return 'N/A'
+    
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date'
+      }
+      
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      }).format(date)
+    } catch (error) {
+      console.error('Error formatting date:', error, 'dateString:', dateString)
+      return 'Invalid Date'
+    }
   }
 
   const handleSubmitProfitDistribution = async (data: ProfitDistributionFormData) => {
@@ -187,9 +208,17 @@ const DealManagePage = () => {
     )
   }
 
-  const totalInvested = (deal.investments || []).reduce((sum, inv) => sum + Number(inv.amount), 0)
-  const totalDistributed = (deal.profitDistributions || []).reduce((sum, dist) => sum + Number(dist.amount), 0)
-  const fundingProgress = (deal.currentFunding / deal.fundingGoal) * 100
+  const totalInvested = (deal.investments || []).reduce((sum, inv) => {
+    const amount = Number(inv.amount)
+    return sum + (isNaN(amount) ? 0 : amount)
+  }, 0)
+  
+  const totalDistributed = (deal.profitDistributions || []).reduce((sum, dist) => {
+    const amount = Number(dist.amount)
+    return sum + (isNaN(amount) ? 0 : amount)
+  }, 0)
+  
+  const fundingProgress = deal.fundingGoal > 0 ? (deal.currentFunding / deal.fundingGoal) * 100 : 0
 
   return (
     <PartnerLayout title={t('deal_management.title')} subtitle={deal.title}>
@@ -333,8 +362,15 @@ const DealManagePage = () => {
                       .filter(dist => dist.status === 'COMPLETED')
                       .reduce((sum, dist) => {
                         // Calculate this investor's share based on investment ratio
-                        const investorShare = totalInvested > 0 ? (Number(investment.amount) / totalInvested) * Number(dist.amount) : 0
-                        return sum + investorShare
+                        const investmentAmount = Number(investment.amount)
+                        const distributionAmount = Number(dist.amount)
+                        
+                        if (isNaN(investmentAmount) || isNaN(distributionAmount) || totalInvested <= 0) {
+                          return sum
+                        }
+                        
+                        const investorShare = (investmentAmount / totalInvested) * distributionAmount
+                        return sum + (isNaN(investorShare) ? 0 : investorShare)
                       }, 0)
 
                     return (
@@ -397,7 +433,9 @@ const DealManagePage = () => {
                       <div>
                         <p className="text-green-600">{t('deal_management.return_rate')}</p>
                         <p className="font-bold text-green-900">
-                          {totalInvested > 0 ? ((totalDistributed / totalInvested) * 100).toFixed(1) : '0.0'}%
+                          {totalInvested > 0 && !isNaN(totalDistributed) && !isNaN(totalInvested) 
+                            ? ((totalDistributed / totalInvested) * 100).toFixed(1) 
+                            : '0.0'}%
                         </p>
                       </div>
                       <div>
@@ -413,7 +451,11 @@ const DealManagePage = () => {
                     <div>
                       <p className="font-medium text-gray-900">{distribution.description || t('deal_management.profit_distribution')}</p>
                       <p className="text-sm text-gray-600">
-                        {formatDate(distribution.distributionDate)} • {t('deal_management.profit_rate')}: {Number(distribution.profitRate).toFixed(1)}%
+                        {formatDate(distribution.distributionDate)} • {t('deal_management.profit_rate')}: {
+                          !isNaN(Number(distribution.profitRate)) 
+                            ? Number(distribution.profitRate).toFixed(1) 
+                            : '0.0'
+                        }%
                       </p>
                     </div>
                     <div className="text-left">
