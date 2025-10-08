@@ -79,11 +79,17 @@ export async function GET(
       }
     }
     
+    // Check if user is the owner of this deal
+    const isOwner = session?.user?.id && session.user.id === (await prisma.project.findUnique({ where: { id }, select: { ownerId: true } }))?.ownerId
+    
     // Add investments - we need this for investor count calculation
-    // For non-admin users, we'll include minimal investment data just for counting
-    if (isAdmin || includeInvestments) {
+    // For admins, deal owners, or when explicitly requested, include full investment data
+    if (isAdmin || includeInvestments || isOwner) {
       includeClause.investments = {
-        include: {
+        select: {
+          id: true,
+          amount: true,
+          investmentDate: true,
           investor: {
             select: {
               id: true,
@@ -108,7 +114,6 @@ export async function GET(
     
     // Add profit distributions if needed
     // For partners viewing their own deals, always include profit distributions
-    const isOwner = session?.user?.id && session.user.id === (await prisma.project.findUnique({ where: { id }, select: { ownerId: true } }))?.ownerId
     if (isAdmin || includeDistributions || isOwner) {
       includeClause.profitDistributions = {
         orderBy: {
