@@ -83,46 +83,70 @@ export async function POST(
     const walletUpdateOperations: any[] = []
     const notificationOperations: any[] = []
 
-    // Calculate all operations first
+    // Group investments by investor and calculate totals
+    const investorGroups = new Map<string, {
+      totalInvestment: number
+      investments: typeof distributionRequest.project.investments
+    }>()
+
     for (const investment of distributionRequest.project.investments) {
-      const investmentAmount = Number(investment.amount)
-      const investmentRatio = investmentAmount / totalInvestmentAmount
+      const investorId = investment.investorId
+      if (!investorGroups.has(investorId)) {
+        investorGroups.set(investorId, {
+          totalInvestment: 0,
+          investments: []
+        })
+      }
+      const group = investorGroups.get(investorId)!
+      group.totalInvestment += Number(investment.amount)
+      group.investments.push(investment)
+    }
+
+    console.log(`Processing ${investorGroups.size} unique investors from ${distributionRequest.project.investments.length} investments`)
+
+    // Calculate all operations first - ONE per investor
+    for (const [investorId, investorGroup] of investorGroups.entries()) {
+      const investorTotalInvestment = investorGroup.totalInvestment
+      const investmentRatio = investorTotalInvestment / totalInvestmentAmount
       const investorProfitShare = investorDistributionAmount * investmentRatio
-      const investorData = investorDataMap.get(investment.investorId)
+      const investorData = investorDataMap.get(investorId)
 
       if (!investorData) continue
 
       const currentWalletBalance = Number(investorData.walletBalance || 0)
       const currentTotalReturns = Number(investorData.totalReturns || 0)
 
+      // Use the first investment for linking (or we could link to all)
+      const firstInvestment = investorGroup.investments[0]
+
       if (distributionRequest.distributionType === 'FINAL') {
-        // Capital return transaction
+        // Capital return transaction - return total investment
         transactionOperations.push({
-          userId: investment.investorId,
+          userId: investorId,
           type: 'RETURN',
-          amount: investmentAmount,
+          amount: investorTotalInvestment,
           status: 'COMPLETED',
           description: `Capital return from final distribution: ${distributionRequest.project.title}`,
-          investmentId: investment.id
+          investmentId: firstInvestment.id
         })
 
         // Profit distribution transaction
         if (investorProfitShare > 0) {
           transactionOperations.push({
-            userId: investment.investorId,
+            userId: investorId,
             type: 'PROFIT_DISTRIBUTION',
             amount: investorProfitShare,
             status: 'COMPLETED',
             description: `Final profit distribution from ${distributionRequest.project.title}`,
-            investmentId: investment.id
+            investmentId: firstInvestment.id
           })
         }
 
         // Wallet update
         walletUpdateOperations.push({
-          where: { id: investment.investorId },
+          where: { id: investorId },
           data: {
-            walletBalance: currentWalletBalance + investmentAmount + investorProfitShare,
+            walletBalance: currentWalletBalance + investorTotalInvestment + investorProfitShare,
             totalReturns: currentTotalReturns + investorProfitShare
           }
         })
@@ -130,10 +154,10 @@ export async function POST(
         // Profit distribution record
         profitDistributionOperations.push({
           projectId: distributionRequest.projectId,
-          investorId: investment.investorId,
-          investmentId: investment.id,
+          investorId: investorId,
+          investmentId: firstInvestment.id,
           amount: investorProfitShare,
-          profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
+          profitRate: totalProfit > 0 ? (investorProfitShare / investorTotalInvestment) * 100 : 0,
           investmentShare: investmentRatio * 100,
           distributionDate: new Date(),
           status: 'COMPLETED',
@@ -141,17 +165,17 @@ export async function POST(
         })
 
         // Investor notification
-        const capitalMessage = ` وتم إرجاع رأس المال ${investmentAmount.toFixed(2)} دولار`
+        const capitalMessage = ` وتم إرجاع رأس المال ${investorTotalInvestment.toFixed(2)} دولار`
         notificationOperations.push({
-          userId: investment.investorId,
+          userId: investorId,
           type: 'PROFIT_RECEIVED',
           title: 'تم استلام التوزيع النهائي',
           message: `تم إضافة ${investorProfitShare.toFixed(2)} دولار كأرباح من الصفقة "${distributionRequest.project.title}" إلى محفظتك${capitalMessage}.`,
           metadata: JSON.stringify({
             dealId: distributionRequest.projectId,
             profitAmount: investorProfitShare,
-            capitalAmount: investmentAmount,
-            profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
+            capitalAmount: investorTotalInvestment,
+            profitRate: totalProfit > 0 ? (investorProfitShare / investorTotalInvestment) * 100 : 0,
             distributionType: distributionRequest.distributionType
           }),
           read: false
@@ -160,18 +184,18 @@ export async function POST(
         // Partial distribution - only profits
         if (investorProfitShare > 0) {
           transactionOperations.push({
-            userId: investment.investorId,
+            userId: investorId,
             type: 'PROFIT_DISTRIBUTION',
             amount: investorProfitShare,
             status: 'COMPLETED',
             description: `Partial profit distribution from ${distributionRequest.project.title}`,
-            investmentId: investment.id
+            investmentId: firstInvestment.id
           })
         }
 
         // Wallet update
         walletUpdateOperations.push({
-          where: { id: investment.investorId },
+          where: { id: investorId },
           data: {
             walletBalance: currentWalletBalance + investorProfitShare,
             totalReturns: currentTotalReturns + investorProfitShare
@@ -181,10 +205,10 @@ export async function POST(
         // Profit distribution record
         profitDistributionOperations.push({
           projectId: distributionRequest.projectId,
-          investorId: investment.investorId,
-          investmentId: investment.id,
+          investorId: investorId,
+          investmentId: firstInvestment.id,
           amount: investorProfitShare,
-          profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
+          profitRate: totalProfit > 0 ? (investorProfitShare / investorTotalInvestment) * 100 : 0,
           investmentShare: investmentRatio * 100,
           distributionDate: new Date(),
           status: 'COMPLETED',
@@ -193,7 +217,7 @@ export async function POST(
 
         // Investor notification
         notificationOperations.push({
-          userId: investment.investorId,
+          userId: investorId,
           type: 'PROFIT_RECEIVED',
           title: 'تم استلام أرباح جزئية',
           message: `تم إضافة ${investorProfitShare.toFixed(2)} دولار كأرباح من الصفقة "${distributionRequest.project.title}" إلى محفظتك.`,
@@ -201,7 +225,7 @@ export async function POST(
             dealId: distributionRequest.projectId,
             profitAmount: investorProfitShare,
             capitalAmount: 0,
-            profitRate: totalProfit > 0 ? (investorProfitShare / investmentAmount) * 100 : 0,
+            profitRate: totalProfit > 0 ? (investorProfitShare / investorTotalInvestment) * 100 : 0,
             distributionType: distributionRequest.distributionType
           }),
           read: false
