@@ -50,7 +50,20 @@ export async function GET(request: NextRequest) {
             id: true,
             title: true,
             currentFunding: true,
-            fundingGoal: true
+            fundingGoal: true,
+            investments: {
+              select: {
+                id: true,
+                amount: true,
+                investorId: true,
+                investor: {
+                  select: {
+                    id: true,
+                    name: true
+                  }
+                }
+              }
+            }
           }
         },
         partner: {
@@ -66,11 +79,22 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Parse distribution data for each request
-    const requestsWithParsedData = requests.map(request => ({
-      ...request,
-      distributionData: JSON.parse(request.distributionData as string)
-    }))
+    // Parse distribution data for each request and calculate unique investors
+    const requestsWithParsedData = requests.map(request => {
+      // Calculate unique investors
+      const uniqueInvestorIds = new Set(
+        request.project.investments.map(inv => inv.investorId)
+      )
+      
+      return {
+        ...request,
+        distributionData: JSON.parse(request.distributionData as string),
+        project: {
+          ...request.project,
+          uniqueInvestorCount: uniqueInvestorIds.size
+        }
+      }
+    })
 
     return NextResponse.json({ requests: requestsWithParsedData })
   } catch (error) {

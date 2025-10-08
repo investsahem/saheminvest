@@ -19,6 +19,7 @@ interface ProfitDistributionRequest {
     title: string
     fundingGoal: number
     currentFunding: number
+    uniqueInvestorCount: number
     investments: Array<{
       id: string
       amount: number
@@ -352,7 +353,7 @@ const AdminProfitDistributionsPage = () => {
                         </div>
                         <div>
                           <p className="font-medium">عدد المستثمرين</p>
-                          <p>{request.project.investments?.length || 0}</p>
+                          <p>{request.project.uniqueInvestorCount || 0}</p>
                         </div>
                         <div>
                           <p className="font-medium">نسبة ساهم ({Number(request.sahemInvestPercent)}%)</p>
@@ -579,7 +580,7 @@ const AdminProfitDistributionsPage = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">عدد المستثمرين:</span>
-                        <span className="font-medium">{selectedRequest.project.investments?.length || 0}</span>
+                        <span className="font-medium">{selectedRequest.project.uniqueInvestorCount || 0}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">هدف التمويل:</span>
