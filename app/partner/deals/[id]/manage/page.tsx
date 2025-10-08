@@ -375,13 +375,13 @@ const DealManagePage = () => {
                 </thead>
                 <tbody>
                   {(() => {
-                    // Group investments by investor ID
-                    const investorGroupsMap: Map<string, InvestorGroup> = new Map()
+                    // Group investments by investor ID using a plain object
+                    const investorGroupsObj: Record<string, InvestorGroup> = {}
 
                     // Group all investments by investor
                     (deal.investments || []).forEach(investment => {
                       const investorId = investment.investor.id
-                      const existing = investorGroupsMap.get(investorId)
+                      const existing = investorGroupsObj[investorId]
                       
                       if (existing) {
                         existing.totalAmount += Number(investment.amount)
@@ -391,18 +391,18 @@ const DealManagePage = () => {
                           existing.firstInvestmentDate = investment.investmentDate
                         }
                       } else {
-                        investorGroupsMap.set(investorId, {
+                        investorGroupsObj[investorId] = {
                           investorId: investorId,
                           investorName: investment.investor.name,
                           totalAmount: Number(investment.amount),
                           firstInvestmentDate: investment.investmentDate,
                           investments: [investment]
-                        })
+                        }
                       }
                     })
 
                     // Convert to array and sort by investment date
-                    const uniqueInvestors = Array.from(investorGroupsMap.values())
+                    const uniqueInvestors = Object.values(investorGroupsObj)
                       .sort((a, b) => new Date(a.firstInvestmentDate).getTime() - new Date(b.firstInvestmentDate).getTime())
 
                     if (uniqueInvestors.length === 0) {
