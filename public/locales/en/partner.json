@@ -298,6 +298,7 @@
   },
   "deal_management": {
     "completed": "Completed",
+    "profit_rate": "Profit Rate",
     "deal_statuses": {
       "active": "Active",
       "pending": "Pending",

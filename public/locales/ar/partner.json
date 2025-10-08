@@ -525,6 +525,7 @@
 },
 "deal_management": {
   "completed": "مكتمل",
+  "profit_rate": "معدل الأرباح",
     "deal_statuses": {
         "active": "نشط",
         "pending": "قيد الانتظار",
