@@ -197,6 +197,9 @@
       "preview_deal": "Preview Deal"
     }
   },
+  "profit_distribution": {
+    "profit_distribution": "Profit Distribution"
+  },
   "forms": {
     "phone": "Phone Number",
     "email": "Email"
@@ -294,6 +297,7 @@
     "manage_deal": "Manage Deal"
   },
   "deal_management": {
+    "completed": "Completed",
     "deal_statuses": {
       "active": "Active",
       "pending": "Pending",

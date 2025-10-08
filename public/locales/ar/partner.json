@@ -125,9 +125,7 @@
     "submitting": "جاري الإرسال...",
     "submit_for_admin_review": "إرسال للمراجعة الإدارية",
     "profit_distribution_submitted": "تم إرسال طلب توزيع الأرباح بنجاح",
-    "Amount": "المبلغ",
-    "Estimated gain": "العائد المتوقع",
-    "Estimated Deal Closing": "نسبة إغلاق الصفقة المتوقعة"
+    "Amount": "المبلغ"
   },
   "deals": {
     "title": "إدارة الصفقات",
@@ -199,6 +197,9 @@
       "publish_deal": "نشر الصفقة",
       "preview_deal": "معاينة الصفقة"
     }
+  },
+  "profit_distribution": {
+    "profit_distribution": "توزيع الأرباح"
   },
   "forms":{
     "phone": "رقم الهاتف",
@@ -523,6 +524,7 @@
    "manage_deal": "إدارة الصفقة"
 },
 "deal_management": {
+  "completed": "مكتمل",
     "deal_statuses": {
         "active": "نشط",
         "pending": "قيد الانتظار",
