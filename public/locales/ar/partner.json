@@ -526,6 +526,7 @@
 "deal_management": {
   "completed": "مكتمل",
   "profit_rate": "معدل الأرباح",
+  "profit_distribution": "توزيع الأرباح",
     "deal_statuses": {
         "active": "نشط",
         "pending": "قيد الانتظار",
@@ -562,7 +563,23 @@
     "distribution_description": "وصف التوزيع",
     "distribution_description_placeholder": "وصف التوزيع",
     "submit_for_admin_review": "إرسال للمدراء",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "investments": "استثمارات",
+    "sending": "جاري الإرسال...",
+    "profit_distribution_submitted": "تم إرسال طلب توزيع الأرباح بنجاح",
+    "profit_distribution_error": "حدث خطأ أثناء إرسال طلب توزيع الأرباح",
+    "deal_not_found": "الصفقة غير موجودة",
+    "deal_not_found_message": "لم نتمكن من العثور على الصفقة المطلوبة",
+    "completed_deal_view_profits": "صفقة مكتملة - عرض الأرباح",
+    "completed_deal": "صفقة مكتملة",
+    "completed_deal_no_profits": "لا يوجد أرباح موزعة لهذه الصفقة المكتملة",
+    "under_review": "قيد المراجعة",
+    "final_profit_summary": "ملخص الأرباح النهائية",
+    "total_distributed_profits": "إجمالي الأرباح الموزعة",
+    "distributions_count": "عدد التوزيعات",
+    "return_rate": "معدل العائد",
+    "deal_status_completed": "مكتملة",
+    "subtitle": "إدارة تفاصيل الصفقة"
 },
   "investors": {
     "title": "إدارة المستثمرين",

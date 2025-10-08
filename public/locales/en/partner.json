@@ -299,6 +299,7 @@
   "deal_management": {
     "completed": "Completed",
     "profit_rate": "Profit Rate",
+    "profit_distribution": "Profit Distribution",
     "deal_statuses": {
       "active": "Active",
       "pending": "Pending",
@@ -334,7 +335,23 @@
     "distribution_description": "Distribution Description",
     "distribution_description_placeholder": "Distribution Description",
     "submit_for_admin_review": "Submit for Admin Review",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "investments": "investments",
+    "sending": "Sending...",
+    "profit_distribution_submitted": "Profit distribution request submitted successfully",
+    "profit_distribution_error": "An error occurred while submitting the profit distribution request",
+    "deal_not_found": "Deal not found",
+    "deal_not_found_message": "We couldn't find the requested deal",
+    "completed_deal_view_profits": "Completed Deal - View Profits",
+    "completed_deal": "Completed Deal",
+    "completed_deal_no_profits": "No profits distributed for this completed deal",
+    "under_review": "Under Review",
+    "final_profit_summary": "Final Profit Summary",
+    "total_distributed_profits": "Total Distributed Profits",
+    "distributions_count": "Distributions Count",
+    "return_rate": "Return Rate",
+    "deal_status_completed": "Completed",
+    "subtitle": "Manage deal details"
   },
   "investors": {
     "title": "Investor Management",
