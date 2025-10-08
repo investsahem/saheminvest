@@ -61,14 +61,6 @@ interface ProfitDistributionFormData {
   description: string
 }
 
-interface InvestorGroup {
-  investorId: string
-  investorName: string
-  totalAmount: number
-  firstInvestmentDate: string
-  investments: Investment[]
-}
-
 const DealManagePage = () => {
   const { t } = useTranslation()
   const { data: session } = useSession()
@@ -237,37 +229,6 @@ const DealManagePage = () => {
   
   const fundingProgress = deal.fundingGoal > 0 ? (deal.currentFunding / deal.fundingGoal) * 100 : 0
 
-  // Group investments by investor ID
-  const getGroupedInvestors = (): InvestorGroup[] => {
-    const investorGroupsObj = {} as Record<string, InvestorGroup>
-
-    (deal.investments || []).forEach(investment => {
-      const investorId = investment.investor.id
-      const existing = investorGroupsObj[investorId]
-      
-      if (existing) {
-        existing.totalAmount += Number(investment.amount)
-        existing.investments.push(investment)
-        if (new Date(investment.investmentDate) < new Date(existing.firstInvestmentDate)) {
-          existing.firstInvestmentDate = investment.investmentDate
-        }
-      } else {
-        investorGroupsObj[investorId] = {
-          investorId: investorId,
-          investorName: investment.investor.name,
-          totalAmount: Number(investment.amount),
-          firstInvestmentDate: investment.investmentDate,
-          investments: [investment]
-        }
-      }
-    })
-
-    return Object.values(investorGroupsObj)
-      .sort((a, b) => new Date(a.firstInvestmentDate).getTime() - new Date(b.firstInvestmentDate).getTime())
-  }
-
-  const uniqueInvestors = getGroupedInvestors()
-
   return (
     <PartnerLayout title={t('deal_management.title')} subtitle={deal.title}>
       <div className="space-y-6">
@@ -405,19 +366,20 @@ const DealManagePage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {uniqueInvestors.length === 0 ? (
+                  {(deal.investments || []).length === 0 ? (
                     <tr>
                       <td colSpan={4} className="py-8 text-center text-gray-500">
                         {t('deal_management.no_investments')}
                       </td>
                     </tr>
                   ) : (
-                    uniqueInvestors.map((investorGroup, index) => {
-                      // Calculate this investor's total profits based on their total investment
+                    (deal.investments || []).map((investment, index) => {
+                      const investmentAmount = Number(investment.amount)
+                      
+                      // Calculate this investor's profits for this specific investment
                       const investorProfits = (deal.profitDistributions || [])
                         .filter(dist => dist.status === 'COMPLETED')
                         .reduce((sum, dist) => {
-                          const investmentAmount = investorGroup.totalAmount
                           const distributionAmount = Number(dist.amount)
                           
                           if (isNaN(investmentAmount) || isNaN(distributionAmount) || totalInvested <= 0) {
@@ -429,20 +391,15 @@ const DealManagePage = () => {
                         }, 0)
 
                       return (
-                        <tr key={investorGroup.investorId} className="border-b border-gray-100">
+                        <tr key={investment.id} className="border-b border-gray-100">
                           <td className="py-4 px-4 font-medium">
                             {t('deal_management.investor')} #{index + 1}
-                            {investorGroup.investments.length > 1 && (
-                              <span className="text-xs text-gray-500 ml-2">
-                                ({investorGroup.investments.length} {t('deal_management.investments')})
-                              </span>
-                            )}
                           </td>
                           <td className="py-4 px-4">
-                            {formatCurrency(investorGroup.totalAmount)}
+                            {formatCurrency(investmentAmount)}
                           </td>
                           <td className="py-4 px-4">
-                            {formatDate(investorGroup.firstInvestmentDate)}
+                            {formatDate(investment.investmentDate)}
                           </td>
                           <td className="py-4 px-4 text-green-600 font-medium">
                             {formatCurrency(investorProfits)}
