@@ -138,6 +138,9 @@ export async function GET(request: NextRequest) {
         // For completed deals, show the distributed profits as the "current value"
         // since the original investment has been returned to wallet
         displayCurrentValue = distributedProfits
+      } else {
+        // For active/funded deals, current value = investment + distributed profits
+        displayCurrentValue = investedAmount + distributedProfits
       }
 
       portfolioInvestments.push({
@@ -228,10 +231,11 @@ export async function GET(request: NextRequest) {
     })
     const walletBalance = Number(user?.walletBalance || 0)
     
-    // Total portfolio value = wallet balance + active investments (excluding distributed profits to avoid double counting)
-    // currentPortfolioValue includes estimated gains on active investments
-    // walletBalance already includes distributed profits from completed investments
-    const totalPortfolioValue = walletBalance + currentPortfolioValue
+    // Total portfolio value = current investments + distributed profits (still in the deals)
+    // For FUNDED/ACTIVE deals: investment amount is still locked in the deal
+    // Distributed profits should be added to portfolio value
+    // walletBalance is separate (available cash)
+    const totalPortfolioValue = currentPortfolioValue + totalDistributedProfits
 
     return NextResponse.json({
       portfolio: {
