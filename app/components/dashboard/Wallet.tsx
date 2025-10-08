@@ -15,7 +15,7 @@ import { SuccessModal } from '../ui/SuccessModal'
 
 interface Transaction {
   id: string
-  type: 'deposit' | 'withdrawal' | 'investment' | 'return' | 'fee'
+  type: 'deposit' | 'withdrawal' | 'investment' | 'return' | 'fee' | 'profit_distribution'
   amount: number
   description: string
   status: 'pending' | 'completed' | 'failed'
@@ -134,6 +134,8 @@ export function Wallet({
         return <TrendingUp className="w-5 h-5 text-blue-600" />
       case 'return':
         return <DollarSign className="w-5 h-5 text-purple-600" />
+      case 'profit_distribution':
+        return <TrendingUp className="w-5 h-5 text-green-600" />
       case 'fee':
         return <AlertCircle className="w-5 h-5 text-orange-600" />
       default:
@@ -512,9 +514,9 @@ export function Wallet({
                         </div>
                         <div className="text-right">
                           <p className={`text-sm font-medium ${
-                            ['deposit', 'return'].includes(transaction.type) ? 'text-green-600' : 'text-red-600'
+                            ['deposit', 'return', 'profit_distribution'].includes(transaction.type) ? 'text-green-600' : 'text-red-600'
                           }`}>
-                            {['deposit', 'return'].includes(transaction.type) ? '+' : '-'}
+                            {['deposit', 'return', 'profit_distribution'].includes(transaction.type) ? '+' : '-'}
                             {formatNumber(transaction.amount)}
                           </p>
                         </div>
@@ -867,9 +869,9 @@ export function Wallet({
                       </div>
                       <div className="text-left">
                         <p className={`text-sm font-medium ${
-                          ['deposit', 'return'].includes(transaction.type) ? 'text-green-600' : 'text-red-600'
+                          ['deposit', 'return', 'profit_distribution'].includes(transaction.type) ? 'text-green-600' : 'text-red-600'
                         }`}>
-                          {['deposit', 'return'].includes(transaction.type) ? '+' : '-'}
+                          {['deposit', 'return', 'profit_distribution'].includes(transaction.type) ? '+' : '-'}
                           ${formatNumber(transaction.amount)}
                         </p>
                         <span className={getStatusBadge(transaction.status)}>
