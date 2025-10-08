@@ -231,6 +231,9 @@ const DealManagePage = () => {
 
   // Group investments by investor ID (same person)
   const getGroupedInvestorsList = () => {
+    console.log('=== GROUPING INVESTORS ===')
+    console.log('Total investments to process:', deal.investments?.length || 0)
+    
     const investorGroups = {} as Record<string, {
       investorId: string
       totalAmount: number
@@ -238,8 +241,14 @@ const DealManagePage = () => {
       investments: Investment[]
     }>
     
-    (deal.investments || []).forEach(investment => {
+    (deal.investments || []).forEach((investment, index) => {
       const investorId = investment.investor.id
+      console.log(`Investment ${index + 1}:`, {
+        investorId,
+        investorName: investment.investor.name,
+        amount: investment.amount
+      })
+      
       if (!investorGroups[investorId]) {
         investorGroups[investorId] = {
           investorId: investorId,
@@ -258,9 +267,19 @@ const DealManagePage = () => {
       }
     })
     
+    console.log('Unique investors found:', Object.keys(investorGroups).length)
+    Object.entries(investorGroups).forEach(([id, group]) => {
+      console.log(`  - Investor ${id}: ${group.totalAmount} (${group.investments.length} investments)`)
+    })
+    
     // Convert to array and sort by earliest investment date
-    return Object.values(investorGroups)
+    const result = Object.values(investorGroups)
       .sort((a, b) => new Date(a.earliestDate).getTime() - new Date(b.earliestDate).getTime())
+    
+    console.log('Final grouped investors count:', result.length)
+    console.log('=== END GROUPING ===')
+    
+    return result
   }
 
   const groupedInvestors = getGroupedInvestorsList()
