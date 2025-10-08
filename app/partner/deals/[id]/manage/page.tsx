@@ -61,6 +61,14 @@ interface ProfitDistributionFormData {
   description: string
 }
 
+interface InvestorGroup {
+  investorId: string
+  investorName: string
+  totalAmount: number
+  firstInvestmentDate: string
+  investments: Investment[]
+}
+
 const DealManagePage = () => {
   const { t } = useTranslation()
   const { data: session } = useSession()
@@ -368,18 +376,12 @@ const DealManagePage = () => {
                 <tbody>
                   {(() => {
                     // Group investments by investor ID
-                    const investorGroups = new Map<string, {
-                      investorId: string
-                      investorName: string
-                      totalAmount: number
-                      firstInvestmentDate: string
-                      investments: Investment[]
-                    }>()
+                    const investorGroupsMap: Map<string, InvestorGroup> = new Map()
 
                     // Group all investments by investor
                     (deal.investments || []).forEach(investment => {
                       const investorId = investment.investor.id
-                      const existing = investorGroups.get(investorId)
+                      const existing = investorGroupsMap.get(investorId)
                       
                       if (existing) {
                         existing.totalAmount += Number(investment.amount)
@@ -389,7 +391,7 @@ const DealManagePage = () => {
                           existing.firstInvestmentDate = investment.investmentDate
                         }
                       } else {
-                        investorGroups.set(investorId, {
+                        investorGroupsMap.set(investorId, {
                           investorId: investorId,
                           investorName: investment.investor.name,
                           totalAmount: Number(investment.amount),
@@ -400,7 +402,7 @@ const DealManagePage = () => {
                     })
 
                     // Convert to array and sort by investment date
-                    const uniqueInvestors = Array.from(investorGroups.values())
+                    const uniqueInvestors = Array.from(investorGroupsMap.values())
                       .sort((a, b) => new Date(a.firstInvestmentDate).getTime() - new Date(b.firstInvestmentDate).getTime())
 
                     if (uniqueInvestors.length === 0) {
