@@ -43,84 +43,68 @@ const NotificationsPage = () => {
     sendPush: true
   })
 
-  // Sample data - in real app, fetch from API
+  // Fetch notifications from API
   useEffect(() => {
-    const sampleNotifications: Notification[] = [
-      {
-        id: '1',
-        title: 'Deposit Approved',
-        message: 'Your deposit of $15,000 has been approved and added to your wallet.',
-        type: 'success',
-        read: true,
-        userId: 'user1',
-        user: {
-          name: 'Ahmed Al-Rashid',
-          email: 'investor@sahaminvest.com',
-          role: 'INVESTOR'
-        },
-        createdAt: '2024-01-20T10:30:00Z'
-      },
-      {
-        id: '2',
-        title: 'Investment Successful',
-        message: 'Your investment of $5,000 in Electronics Manufacturing Project has been confirmed.',
-        type: 'success',
-        read: false,
-        userId: 'user1',
-        user: {
-          name: 'Ahmed Al-Rashid',
-          email: 'investor@sahaminvest.com',
-          role: 'INVESTOR'
-        },
-        createdAt: '2024-01-19T14:15:00Z'
-      },
-      {
-        id: '3',
-        title: 'New Partner Application',
-        message: 'New partner application from Healthcare Innovations LLC requires review.',
-        type: 'info',
-        read: false,
-        userId: 'admin1',
-        user: {
-          name: 'Admin User',
-          email: 'admin@sahaminvest.com',
-          role: 'ADMIN'
-        },
-        createdAt: '2024-01-18T09:45:00Z'
-      },
-      {
-        id: '4',
-        title: 'Withdrawal Request',
-        message: 'Withdrawal request of $2,000 from Sarah Johnson requires approval.',
-        type: 'warning',
-        read: false,
-        userId: 'admin1',
-        user: {
-          name: 'Admin User',
-          email: 'admin@sahaminvest.com',
-          role: 'ADMIN'
-        },
-        createdAt: '2024-01-17T16:20:00Z'
-      },
-      {
-        id: '5',
-        title: 'System Maintenance',
-        message: 'Scheduled system maintenance will occur tonight from 2:00 AM to 4:00 AM.',
-        type: 'info',
-        read: true,
-        userId: 'user2',
-        user: {
-          name: 'Sarah Johnson',
-          email: 'sarah@example.com',
-          role: 'INVESTOR'
-        },
-        createdAt: '2024-01-16T11:10:00Z'
-      }
-    ]
-    
-    setNotifications(sampleNotifications)
-    setLoading(false)
+    fetchNotifications()
   }, [])
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/notifications/all')
+      if (response.ok) {
+        const data = await response.json()
+        setNotifications(data.notifications || [])
+      } else {
+        console.error('Failed to fetch notifications')
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleMarkAsRead = async (notificationId: string) => {
+    try {
+      const response = await fetch(`/api/notifications/${notificationId}/read`, {
+        method: 'PUT'
+      })
+      if (response.ok) {
+        fetchNotifications()
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error)
+    }
+  }
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      const response = await fetch('/api/notifications/mark-all-read', {
+        method: 'PUT'
+      })
+      if (response.ok) {
+        fetchNotifications()
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error)
+    }
+  }
+
+  const handleDeleteNotification = async (notificationId: string) => {
+    if (confirm('Are you sure you want to delete this notification?')) {
+      try {
+        const response = await fetch(`/api/notifications/${notificationId}`, {
+          method: 'DELETE'
+        })
+        if (response.ok) {
+          fetchNotifications()
+        }
+      } catch (error) {
+        console.error('Error deleting notification:', error)
+      }
+    }
+  }
 
   const formatDate = (dateString: string) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -186,7 +170,7 @@ const NotificationsPage = () => {
           sendPush: true
         })
         // Refresh notifications list
-        // fetchNotifications()
+        fetchNotifications()
       } else {
         const error = await response.json()
         alert(`Error: ${error.error}`)
@@ -344,6 +328,15 @@ const NotificationsPage = () => {
               </div>
 
               <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="flex items-center gap-2"
+                  onClick={handleMarkAllAsRead}
+                  disabled={unreadNotifications === 0}
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Mark All as Read
+                </Button>
                 <Button variant="outline" className="flex items-center gap-2">
                   <Filter className="w-4 h-4" />
                   Export
@@ -437,14 +430,22 @@ const NotificationsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" title="View Details">
-                            <Eye className="w-4 h-4" />
-                          </Button>
+                          {!notification.read && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              title="Mark as Read"
+                              onClick={() => handleMarkAsRead(notification.id)}
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                            </Button>
+                          )}
                           <Button 
                             variant="outline" 
                             size="sm" 
                             className="text-red-600 border-red-300 hover:bg-red-50"
                             title="Delete"
+                            onClick={() => handleDeleteNotification(notification.id)}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
