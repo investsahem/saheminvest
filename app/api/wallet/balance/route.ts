@@ -68,9 +68,13 @@ export async function GET(request: NextRequest) {
         case 'RETURN':
           calculatedBalance += amount
           // Only count actual profit returns, not capital returns
-          if (!transaction.description?.includes('Capital Return')) {
+          if (!transaction.description?.includes('Capital return') && !transaction.description?.includes('capital return')) {
             actualProfitReturns += amount
           }
+          break
+        case 'PROFIT_DISTRIBUTION':
+          calculatedBalance += amount
+          actualProfitReturns += amount
           break
       }
     })
@@ -112,13 +116,16 @@ export async function GET(request: NextRequest) {
       actualTotalInvested += Number(investment.amount)
 
       // Add distributed profits
-      // Get distributed profits from transactions
+      // Get distributed profits from transactions (both RETURN and PROFIT_DISTRIBUTION types)
       const profitTransactions = await prisma.transaction.findMany({
         where: {
           investmentId: investment.id,
-          type: 'RETURN',
+          type: { in: ['RETURN', 'PROFIT_DISTRIBUTION'] },
           status: 'COMPLETED',
-          description: { not: { contains: 'Capital Return' } } // Only actual profits
+          AND: [
+            { description: { not: { contains: 'Capital return' } } },
+            { description: { not: { contains: 'capital return' } } }
+          ]
         }
       })
       
