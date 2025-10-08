@@ -92,14 +92,6 @@ const DealManagePage = () => {
 
         if (response.ok) {
           const dealData = await response.json()
-          console.log('Deal data received:', {
-            id: dealData.id,
-            title: dealData.title,
-            investorCount: dealData.investorCount,
-            investmentsCount: dealData._count?.investments,
-            investmentsLength: dealData.investments?.length,
-            investments: dealData.investments?.slice(0, 2) // Show first 2 investments for debugging
-          })
           setDeal(dealData)
         } else {
           console.error('Failed to fetch deal')
@@ -231,6 +223,10 @@ const DealManagePage = () => {
 
   // Group investments by investor ID (same person)
   const getGroupedInvestorsList = () => {
+    if (!deal.investments || deal.investments.length === 0) {
+      return []
+    }
+    
     const investorGroups = {} as Record<string, {
       investorId: string
       totalAmount: number

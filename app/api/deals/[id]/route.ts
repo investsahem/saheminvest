@@ -152,8 +152,8 @@ export async function GET(
       }
     }
 
-    // Hide investor personal details from partners (except admins)
-    if (isPartner && !isAdminRole && deal.investments) {
+    // Hide investor personal details from partners (except admins and deal owners)
+    if (isPartner && !isAdminRole && !isOwner && deal.investments) {
       (filteredDeal as any).investments = deal.investments.map(investment => ({
         ...investment,
         investor: {
