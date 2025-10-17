@@ -457,13 +457,14 @@ function PublicDealsPageContent() {
                         {t('deals.card.view_details')}
                       </motion.button>
                     </Link>
-                    {statusFilter === 'closed' ? (
+                    {deal.status === 'COMPLETED' || deal.status === 'CANCELLED' ? (
                       <motion.button 
-                        className="px-6 py-3 bg-gradient-to-r from-[#10b981] to-[#059669] text-white font-bold rounded-xl shadow-lg shadow-[#10b981]/25 hover:shadow-xl hover:shadow-[#10b981]/30 transition-all duration-300"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        disabled
+                        className="px-6 py-3 bg-gradient-to-r from-gray-400 to-gray-500 text-gray-200 font-bold rounded-xl opacity-50 cursor-not-allowed blur-[0.5px] relative"
+                        title={t('deals.investment_closed')}
                       >
-                        {t('deals.view_results')}
+                        <span className="filter blur-[0.3px]">{t('deals.closed')}</span>
+                        <div className="absolute inset-0 bg-black/20 rounded-xl"></div>
                       </motion.button>
                     ) : (
                       <SmartInvestButton dealId={deal.id}>

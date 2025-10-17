@@ -381,20 +381,38 @@ export default function DealDetailsPage() {
 
               {/* Investment CTA */}
               <div className="p-6 bg-gradient-to-br from-[#111a3f] to-[#0c1230] border border-[#2a3566] rounded-2xl backdrop-blur-sm">
-                <h3 className="text-xl font-bold text-[#e9edf7] mb-4">{t('deals.ready_to_invest')}</h3>
+                <h3 className="text-xl font-bold text-[#e9edf7] mb-4">
+                  {deal.status === 'COMPLETED' || deal.status === 'CANCELLED' 
+                    ? t('deals.deal_closed') 
+                    : t('deals.ready_to_invest')}
+                </h3>
                 <p className="text-[#b8c2d8] mb-6">
-                  {t('deals.join_investors')} {deal.investorCount} {t('deals.other_investors')} {t('deals.earning_returns')} {deal.expectedReturn}% {t('deals.annually')}.
+                  {deal.status === 'COMPLETED' || deal.status === 'CANCELLED'
+                    ? t('deals.deal_closed_desc')
+                    : `${t('deals.join_investors')} ${deal.investorCount} ${t('deals.other_investors')} ${t('deals.earning_returns')} ${deal.expectedReturn}% ${t('deals.annually')}.`
+                  }
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <SmartInvestButton dealId={deal.id} className="flex-1">
+                  {deal.status === 'COMPLETED' || deal.status === 'CANCELLED' ? (
                     <motion.button
-                      className="w-full py-4 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:shadow-xl hover:shadow-[#6be2c9]/30 transition-all duration-300"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      disabled
+                      className="w-full py-4 bg-gradient-to-r from-gray-400 to-gray-500 text-gray-200 font-bold rounded-xl opacity-50 cursor-not-allowed blur-[0.5px] relative"
+                      title={t('deals.investment_closed')}
                     >
-                      {t('deals.invest_now')}
+                      <span className="filter blur-[0.3px]">{t('deals.invest_now')}</span>
+                      <div className="absolute inset-0 bg-black/20 rounded-xl"></div>
                     </motion.button>
-                  </SmartInvestButton>
+                  ) : (
+                    <SmartInvestButton dealId={deal.id} className="flex-1">
+                      <motion.button
+                        className="w-full py-4 bg-gradient-to-r from-[#6be2c9] to-[#23a1ff] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:shadow-xl hover:shadow-[#6be2c9]/30 transition-all duration-300"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {t('deals.invest_now')}
+                      </motion.button>
+                    </SmartInvestButton>
+                  )}
                   <Link href={`/deals/${deal.id}`}>
                     <motion.button
                       className="px-6 py-4 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] text-[#e9edf7] font-bold rounded-xl hover:transform hover:-translate-y-0.5 transition-all"
@@ -767,33 +785,58 @@ export default function DealDetailsPage() {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-6">
-            {t('deals_detail.start_investment_journey')}
-          </h2>
-          <p className="text-lg text-[#b8c2d8] mb-8 max-w-2xl mx-auto leading-relaxed">
-            {t('deals_detail.create_account_description')}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <SmartInvestButton dealId={deal.id}>
-              <motion.button
-                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#6be2c9] to-[#55e6a5] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:transform hover:-translate-y-1 transition-all"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {t('deals_detail.create_account_invest')}
-                <ArrowRight className="w-5 h-5" />
-              </motion.button>
-            </SmartInvestButton>
-            <Link href="/deals">
-              <motion.button
-                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] text-[#e9edf7] font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {t('deals_detail.view_more_deals')}
-              </motion.button>
-            </Link>
-          </div>
+          {deal.status === 'COMPLETED' || deal.status === 'CANCELLED' ? (
+            <>
+              <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-6">
+                {t('deals_detail.deal_completed')}
+              </h2>
+              <p className="text-lg text-[#b8c2d8] mb-8 max-w-2xl mx-auto leading-relaxed">
+                {t('deals_detail.deal_completed_desc')}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/deals">
+                  <motion.button
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#6be2c9] to-[#55e6a5] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:transform hover:-translate-y-1 transition-all"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {t('deals_detail.view_active_deals')}
+                    <ArrowRight className="w-5 h-5" />
+                  </motion.button>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-3xl lg:text-4xl font-black text-[#e9edf7] mb-6">
+                {t('deals_detail.start_investment_journey')}
+              </h2>
+              <p className="text-lg text-[#b8c2d8] mb-8 max-w-2xl mx-auto leading-relaxed">
+                {t('deals_detail.create_account_description')}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <SmartInvestButton dealId={deal.id}>
+                  <motion.button
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#6be2c9] to-[#55e6a5] text-[#0b1020] font-bold rounded-xl shadow-lg shadow-[#6be2c9]/25 hover:transform hover:-translate-y-1 transition-all"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {t('deals_detail.create_account_invest')}
+                    <ArrowRight className="w-5 h-5" />
+                  </motion.button>
+                </SmartInvestButton>
+                <Link href="/deals">
+                  <motion.button
+                    className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-b from-[#25304d] to-[#121833] border border-[#263057] text-[#e9edf7] font-bold rounded-xl hover:transform hover:-translate-y-1 transition-all"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {t('deals_detail.view_more_deals')}
+                  </motion.button>
+                </Link>
+              </div>
+            </>
+          )}
         </motion.div>
       </section>
 
