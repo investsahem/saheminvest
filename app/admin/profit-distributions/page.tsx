@@ -51,6 +51,17 @@ interface ProfitDistributionRequest {
   createdAt: string
 }
 
+interface EditableDistributionFields {
+  totalAmount: number
+  estimatedGainPercent: number
+  estimatedClosingPercent: number
+  estimatedProfit: number
+  estimatedReturnCapital: number
+  sahemInvestPercent: number
+  reservedGainPercent: number
+  isLoss: boolean // New: indicates if the deal resulted in a loss
+}
+
 const AdminProfitDistributionsPage = () => {
   const { data: session } = useSession()
   const [requests, setRequests] = useState<ProfitDistributionRequest[]>([])
@@ -59,10 +70,7 @@ const AdminProfitDistributionsPage = () => {
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedRequest, setSelectedRequest] = useState<ProfitDistributionRequest | null>(null)
   const [processing, setProcessing] = useState<string | null>(null)
-  const [editingFields, setEditingFields] = useState<{
-    sahemInvestPercent: number
-    reservedGainPercent: number
-  } | null>(null)
+  const [editingFields, setEditingFields] = useState<EditableDistributionFields | null>(null)
 
   useEffect(() => {
     fetchRequests()
@@ -87,17 +95,70 @@ const AdminProfitDistributionsPage = () => {
     }
   }
 
-  const handleApprove = async (requestId: string, editedFields?: {
-    sahemInvestPercent: number
-    reservedGainPercent: number
-  }) => {
+  // Initialize editing fields from request
+  const initializeEditingFields = (request: ProfitDistributionRequest): EditableDistributionFields => {
+    return {
+      totalAmount: request.totalAmount,
+      estimatedGainPercent: request.estimatedGainPercent,
+      estimatedClosingPercent: request.estimatedClosingPercent,
+      estimatedProfit: request.estimatedProfit,
+      estimatedReturnCapital: request.estimatedReturnCapital,
+      sahemInvestPercent: request.sahemInvestPercent,
+      reservedGainPercent: request.reservedGainPercent,
+      isLoss: request.estimatedProfit < 0 || request.estimatedGainPercent < 0
+    }
+  }
+
+  // Calculate distribution breakdown
+  const calculateDistribution = (fields: EditableDistributionFields, request: ProfitDistributionRequest) => {
+    const isFinal = request.distributionType === 'FINAL'
+    const isLoss = fields.isLoss
+    
+    let sahemAmount = 0
+    let reserveAmount = 0
+    let investorsProfit = 0
+    let investorsCapital = fields.estimatedReturnCapital
+
+    if (isFinal && isLoss) {
+      // Loss scenario: No commission, all remaining goes to investors to recover capital
+      sahemAmount = 0
+      reserveAmount = 0
+      investorsProfit = 0
+      investorsCapital = fields.totalAmount // All remaining amount for capital recovery
+    } else {
+      // Profit scenario (or partial): Normal distribution with commissions
+      sahemAmount = (fields.estimatedProfit * fields.sahemInvestPercent) / 100
+      reserveAmount = (fields.estimatedProfit * fields.reservedGainPercent) / 100
+      investorsProfit = fields.estimatedProfit - sahemAmount - reserveAmount
+    }
+
+    const totalToInvestors = investorsCapital + investorsProfit
+
+    return {
+      sahemAmount,
+      reserveAmount,
+      investorsProfit,
+      investorsCapital,
+      totalToInvestors,
+      isLoss,
+      isFinal
+    }
+  }
+
+  const handleApprove = async (requestId: string, editedFields?: EditableDistributionFields) => {
     try {
       setProcessing(requestId)
       
       const requestBody: any = {}
       if (editedFields) {
+        requestBody.totalAmount = editedFields.totalAmount
+        requestBody.estimatedGainPercent = editedFields.estimatedGainPercent
+        requestBody.estimatedClosingPercent = editedFields.estimatedClosingPercent
+        requestBody.estimatedProfit = editedFields.estimatedProfit
+        requestBody.estimatedReturnCapital = editedFields.estimatedReturnCapital
         requestBody.sahemInvestPercent = editedFields.sahemInvestPercent
         requestBody.reservedGainPercent = editedFields.reservedGainPercent
+        requestBody.isLoss = editedFields.isLoss
       }
 
       const response = await fetch(`/api/admin/profit-distribution-requests/${requestId}/approve`, {
@@ -415,222 +476,394 @@ const AdminProfitDistributionsPage = () => {
         )}
 
         {/* Request Details Modal */}
-        {selectedRequest && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">تفاصيل طلب توزيع الأرباح</h2>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setSelectedRequest(null)}
-                  >
-                    إغلاق
-                  </Button>
-                </div>
-
-                <div className="space-y-6">
-                  {/* Partner Data - Read Only */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
-                      <DollarSign className="w-5 h-5 mr-2 text-blue-600" />
-                      بيانات الشريك (للقراءة فقط)
-                    </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">إجمالي المبلغ:</span>
-                        <span className="font-bold text-green-600">{formatCurrency(selectedRequest.totalAmount)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">الربح المقدر:</span>
-                        <span className="font-bold text-blue-600">{selectedRequest.estimatedGainPercent}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">إغلاق الصفقة:</span>
-                        <span className="font-bold text-purple-600">{selectedRequest.estimatedClosingPercent}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">مبلغ الربح:</span>
-                        <span className="font-bold text-green-600">{formatCurrency(selectedRequest.estimatedProfit)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">رأس المال:</span>
-                        <span className="font-bold text-gray-600">{formatCurrency(selectedRequest.estimatedReturnCapital)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">نوع التوزيع:</span>
-                        <span className="font-medium">{selectedRequest.distributionType === 'PARTIAL' ? 'جزئي' : 'نهائي'}</span>
-                      </div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t border-blue-200">
-                      <p className="text-sm text-gray-700">
-                        <span className="font-medium">الوصف:</span> {selectedRequest.description}
+        {selectedRequest && (() => {
+          const currentFields = editingFields || initializeEditingFields(selectedRequest)
+          const distribution = calculateDistribution(currentFields, selectedRequest)
+          
+          return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">تفاصيل طلب توزيع الأرباح</h2>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {selectedRequest.distributionType === 'FINAL' ? (
+                          <span className={`font-medium ${distribution.isLoss ? 'text-red-600' : 'text-green-600'}`}>
+                            توزيع نهائي - {distribution.isLoss ? 'خسارة' : 'ربح'}
+                          </span>
+                        ) : (
+                          <span className="font-medium text-blue-600">توزيع جزئي</span>
+                        )}
                       </p>
                     </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedRequest(null)
+                        setEditingFields(null)
+                      }}
+                    >
+                      إغلاق
+                    </Button>
                   </div>
 
-                  {/* Admin Editable Fields */}
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                    <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
-                      <Target className="w-5 h-5 mr-2 text-orange-600" />
-                      إعدادات الإدارة (قابلة للتعديل)
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          نسبة ساهم انفست (%)
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          step="0.1"
-                          value={editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent}
-                          onChange={(e) => setEditingFields(prev => ({
-                            sahemInvestPercent: Number(e.target.value),
-                            reservedGainPercent: prev?.reservedGainPercent ?? selectedRequest.reservedGainPercent
-                          }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        />
+                  <div className="space-y-6">
+                    {/* Partner Data - Now Editable */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                        <DollarSign className="w-5 h-5 mr-2 text-blue-600" />
+                        بيانات التوزيع (قابلة للتعديل)
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            إجمالي المبلغ (USD)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={currentFields.totalAmount}
+                            onChange={(e) => setEditingFields({
+                              ...currentFields,
+                              totalAmount: Number(e.target.value)
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            نسبة الربح المقدر (%)
+                          </label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={currentFields.estimatedGainPercent}
+                            onChange={(e) => {
+                              const percent = Number(e.target.value)
+                              const profit = (selectedRequest.project.currentFunding * percent) / 100
+                              setEditingFields({
+                                ...currentFields,
+                                estimatedGainPercent: percent,
+                                estimatedProfit: profit,
+                                isLoss: percent < 0
+                              })
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            نسبة إغلاق الصفقة (%)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            value={currentFields.estimatedClosingPercent}
+                            onChange={(e) => setEditingFields({
+                              ...currentFields,
+                              estimatedClosingPercent: Number(e.target.value)
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            مبلغ الربح (USD)
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={currentFields.estimatedProfit}
+                            onChange={(e) => {
+                              const profit = Number(e.target.value)
+                              setEditingFields({
+                                ...currentFields,
+                                estimatedProfit: profit,
+                                isLoss: profit < 0
+                              })
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            رأس المال المُسترد (USD)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={currentFields.estimatedReturnCapital}
+                            onChange={(e) => setEditingFields({
+                              ...currentFields,
+                              estimatedReturnCapital: Number(e.target.value)
+                            })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            نوع التوزيع
+                          </label>
+                          <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                            {selectedRequest.distributionType === 'PARTIAL' ? 'جزئي' : 'نهائي'}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          نسبة الاحتياطي (%)
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          step="0.1"
-                          value={editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent}
-                          onChange={(e) => setEditingFields(prev => ({
-                            sahemInvestPercent: prev?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent,
-                            reservedGainPercent: Number(e.target.value)
-                          }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        />
+                      <div className="mt-4 p-3 bg-white border border-blue-200 rounded-md">
+                        <p className="text-sm text-gray-700">
+                          <span className="font-medium">الوصف:</span> {selectedRequest.description}
+                        </p>
                       </div>
                     </div>
-                    <div className="mt-4 flex justify-end">
-                      <Button
-                        onClick={() => {
-                          if (editingFields) {
-                            // Force preview update
-                            setEditingFields({...editingFields})
-                          }
-                        }}
-                        disabled={!editingFields}
-                        className="bg-orange-600 hover:bg-orange-700 text-white"
-                      >
-                        حفظ التغييرات وإظهار المعاينة
-                      </Button>
-                    </div>
-                  </div>
 
-                  {/* Calculated Distribution Preview */}
-                  {(editingFields || Number(selectedRequest.sahemInvestPercent) !== 10 || Number(selectedRequest.reservedGainPercent) !== 10) && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <h3 className="text-lg font-medium text-gray-900 mb-3">معاينة التوزيع</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div className="text-center">
-                          <p className="text-gray-600">إجمالي الربح</p>
-                          <p className="font-bold text-green-600">{formatCurrency(selectedRequest.estimatedProfit)}</p>
+                    {/* Commission Settings */}
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                      <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                        <Target className="w-5 h-5 mr-2 text-orange-600" />
+                        إعدادات العمولة
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            نسبة ساهم انفست (%)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            value={currentFields.sahemInvestPercent}
+                            onChange={(e) => setEditingFields({
+                              ...currentFields,
+                              sahemInvestPercent: Number(e.target.value)
+                            })}
+                            disabled={distribution.isLoss && selectedRequest.distributionType === 'FINAL'}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
+                          />
+                          {distribution.isLoss && selectedRequest.distributionType === 'FINAL' && (
+                            <p className="text-xs text-red-600 mt-1">لا عمولة في حالة الخسارة</p>
+                          )}
                         </div>
-                        <div className="text-center">
-                          <p className="text-gray-600">ساهم انفست ({Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent)}%)</p>
-                          <p className="font-bold text-orange-600">
-                            {formatCurrency((selectedRequest.estimatedProfit * Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent)) / 100)}
-                          </p>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            نسبة الاحتياطي (%)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            value={currentFields.reservedGainPercent}
+                            onChange={(e) => setEditingFields({
+                              ...currentFields,
+                              reservedGainPercent: Number(e.target.value)
+                            })}
+                            disabled={distribution.isLoss && selectedRequest.distributionType === 'FINAL'}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
+                          />
+                          {distribution.isLoss && selectedRequest.distributionType === 'FINAL' && (
+                            <p className="text-xs text-red-600 mt-1">لا احتياطي في حالة الخسارة</p>
+                          )}
                         </div>
-                        <div className="text-center">
-                          <p className="text-gray-600">الاحتياطي ({Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)}%)</p>
-                          <p className="font-bold text-blue-600">
-                            {formatCurrency((selectedRequest.estimatedProfit * Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)) / 100)}
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-gray-600">للمستثمرين</p>
-                          <p className="font-bold text-purple-600">
-                            {formatCurrency(selectedRequest.estimatedProfit * (100 - Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent) - Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)) / 100)}
-                          </p>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            حالة الصفقة
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={currentFields.isLoss}
+                              onChange={(e) => setEditingFields({
+                                ...currentFields,
+                                isLoss: e.target.checked
+                              })}
+                              disabled={selectedRequest.distributionType === 'PARTIAL'}
+                              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                            />
+                            <span className="text-sm">خسارة (لا عمولة)</span>
+                          </div>
+                          {selectedRequest.distributionType === 'PARTIAL' && (
+                            <p className="text-xs text-gray-600 mt-1">متاح فقط في التوزيع النهائي</p>
+                          )}
                         </div>
                       </div>
-                      {((Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent) + Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)) > 100) && (
-                        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                          <p className="text-red-800 text-sm font-medium">
-                            ⚠️ تحذير: مجموع النسب ({Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent) + Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)}%) يتجاوز 100%
-                          </p>
+                    </div>
+
+                    {/* Distribution Preview */}
+                    <div className={`${distribution.isLoss ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'} border rounded-lg p-4`}>
+                      <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                        <TrendingUp className="w-5 h-5 mr-2" />
+                        معاينة التوزيع النهائي
+                      </h3>
+                      
+                      {distribution.isLoss && selectedRequest.distributionType === 'FINAL' ? (
+                        <div className="space-y-4">
+                          <div className="p-4 bg-white rounded-lg border border-red-300">
+                            <div className="flex items-center gap-2 mb-3">
+                              <AlertCircle className="w-5 h-5 text-red-600" />
+                              <h4 className="font-semibold text-red-800">سيناريو الخسارة</h4>
+                            </div>
+                            <p className="text-sm text-gray-700 mb-3">
+                              في حالة الخسارة، لا يتم خصم عمولات ساهم انفست أو الاحتياطي. 
+                              كل المبلغ المتبقي يذهب للمستثمرين لاسترداد رأس المال (ناقص الخسارة).
+                            </p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              <div className="text-center p-3 bg-red-50 rounded-lg">
+                                <p className="text-xs text-gray-600 mb-1">عمولة ساهم انفست</p>
+                                <p className="font-bold text-red-700">{formatCurrency(0)}</p>
+                                <p className="text-xs text-gray-500">0%</p>
+                              </div>
+                              <div className="text-center p-3 bg-red-50 rounded-lg">
+                                <p className="text-xs text-gray-600 mb-1">الاحتياطي</p>
+                                <p className="font-bold text-red-700">{formatCurrency(0)}</p>
+                                <p className="text-xs text-gray-500">0%</p>
+                              </div>
+                              <div className="text-center p-3 bg-red-50 rounded-lg">
+                                <p className="text-xs text-gray-600 mb-1">الخسارة</p>
+                                <p className="font-bold text-red-700">{formatCurrency(Math.abs(currentFields.estimatedProfit))}</p>
+                              </div>
+                              <div className="text-center p-3 bg-green-100 rounded-lg border border-green-300">
+                                <p className="text-xs text-gray-600 mb-1">للمستثمرين (استرداد)</p>
+                                <p className="font-bold text-green-700">{formatCurrency(distribution.totalToInvestors)}</p>
+                                <p className="text-xs text-gray-500">من أصل {formatCurrency(selectedRequest.project.currentFunding)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="p-4 bg-white rounded-lg border border-green-300">
+                            <div className="flex items-center gap-2 mb-3">
+                              <CheckCircle className="w-5 h-5 text-green-600" />
+                              <h4 className="font-semibold text-green-800">
+                                {selectedRequest.distributionType === 'FINAL' ? 'سيناريو الربح' : 'توزيع جزئي'}
+                              </h4>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                                <p className="text-xs text-gray-600 mb-1">إجمالي الربح</p>
+                                <p className="font-bold text-blue-700">{formatCurrency(currentFields.estimatedProfit)}</p>
+                              </div>
+                              <div className="text-center p-3 bg-orange-50 rounded-lg">
+                                <p className="text-xs text-gray-600 mb-1">ساهم انفست</p>
+                                <p className="font-bold text-orange-700">{formatCurrency(distribution.sahemAmount)}</p>
+                                <p className="text-xs text-gray-500">{currentFields.sahemInvestPercent}%</p>
+                              </div>
+                              <div className="text-center p-3 bg-purple-50 rounded-lg">
+                                <p className="text-xs text-gray-600 mb-1">الاحتياطي</p>
+                                <p className="font-bold text-purple-700">{formatCurrency(distribution.reserveAmount)}</p>
+                                <p className="text-xs text-gray-500">{currentFields.reservedGainPercent}%</p>
+                              </div>
+                              <div className="text-center p-3 bg-green-50 rounded-lg">
+                                <p className="text-xs text-gray-600 mb-1">ربح المستثمرين</p>
+                                <p className="font-bold text-green-700">{formatCurrency(distribution.investorsProfit)}</p>
+                                <p className="text-xs text-gray-500">{(100 - currentFields.sahemInvestPercent - currentFields.reservedGainPercent).toFixed(1)}%</p>
+                              </div>
+                              <div className="text-center p-3 bg-teal-50 rounded-lg border-2 border-teal-400">
+                                <p className="text-xs text-gray-600 mb-1">إجمالي للمستثمرين</p>
+                                <p className="font-bold text-teal-700">{formatCurrency(distribution.totalToInvestors)}</p>
+                                <p className="text-xs text-gray-500">ربح + رأس مال</p>
+                              </div>
+                            </div>
+                            {selectedRequest.distributionType === 'FINAL' && (
+                              <div className="mt-3 p-2 bg-gray-50 rounded-lg">
+                                <p className="text-xs text-gray-600">
+                                  رأس المال المُسترد: <span className="font-semibold">{formatCurrency(distribution.investorsCapital)}</span>
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                          {(currentFields.sahemInvestPercent + currentFields.reservedGainPercent > 100) && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                              <p className="text-red-800 text-sm font-medium flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4" />
+                                تحذير: مجموع النسب ({(currentFields.sahemInvestPercent + currentFields.reservedGainPercent).toFixed(1)}%) يتجاوز 100%
+                              </p>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
-                  )}
 
-                  {/* Deal Info */}
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">معلومات الصفقة</h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">اسم الصفقة:</span>
-                        <span className="font-medium">{selectedRequest.project.title}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">الشريك:</span>
-                        <span className="font-medium">{selectedRequest.partner.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">عدد المستثمرين:</span>
-                        <span className="font-medium">{selectedRequest.project.uniqueInvestorCount || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">هدف التمويل:</span>
-                        <span className="font-medium">{formatCurrency(selectedRequest.project.fundingGoal)}</span>
+                    {/* Deal Info */}
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-3">معلومات الصفقة</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div className="flex flex-col">
+                          <span className="text-gray-600">اسم الصفقة:</span>
+                          <span className="font-medium">{selectedRequest.project.title}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-gray-600">الشريك:</span>
+                          <span className="font-medium">{selectedRequest.partner.name}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-gray-600">عدد المستثمرين:</span>
+                          <span className="font-medium">{selectedRequest.project.uniqueInvestorCount || 0}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-gray-600">هدف التمويل:</span>
+                          <span className="font-medium">{formatCurrency(selectedRequest.project.fundingGoal)}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-gray-600">التمويل الحالي:</span>
+                          <span className="font-medium">{formatCurrency(selectedRequest.project.currentFunding)}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-gray-600">تاريخ الطلب:</span>
+                          <span className="font-medium">{formatDate(selectedRequest.createdAt)}</span>
+                        </div>
                       </div>
                     </div>
+
+                    {/* Actions */}
+                    {selectedRequest.status === 'PENDING' && (
+                      <div className="flex gap-4 pt-4 border-t">
+                        <Button
+                          onClick={() => {
+                            if (!distribution.isLoss && 
+                                currentFields.sahemInvestPercent + currentFields.reservedGainPercent > 100) {
+                              alert('خطأ: مجموع النسب لا يمكن أن يتجاوز 100%')
+                              return
+                            }
+                            
+                            if (confirm(`هل أنت متأكد من الموافقة على هذا التوزيع؟\n\nسيتم توزيع ${formatCurrency(distribution.totalToInvestors)} على ${selectedRequest.project.uniqueInvestorCount} مستثمر`)) {
+                              handleApprove(selectedRequest.id, currentFields)
+                            }
+                          }}
+                          disabled={processing === selectedRequest.id || 
+                            (!distribution.isLoss && currentFields.sahemInvestPercent + currentFields.reservedGainPercent > 100)}
+                          className="bg-green-600 hover:bg-green-700 text-white flex-1"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          موافقة وتوزيع الأرباح
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            const reason = prompt('سبب الرفض:')
+                            if (reason) handleReject(selectedRequest.id, reason)
+                          }}
+                          disabled={processing === selectedRequest.id}
+                          className="text-red-600 border-red-300 hover:bg-red-50 flex-1"
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          رفض الطلب
+                        </Button>
+                      </div>
+                    )}
                   </div>
-
-                  {/* Actions */}
-                  {selectedRequest.status === 'PENDING' && (
-                    <div className="flex gap-4 pt-4 border-t">
-                      <Button
-                        onClick={() => {
-                          const finalSahemPercent = Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent)
-                          const finalReservedPercent = Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent)
-                          
-                          if (finalSahemPercent + finalReservedPercent > 100) {
-                            alert('خطأ: مجموع النسب لا يمكن أن يتجاوز 100%')
-                            return
-                          }
-                          
-                          handleApprove(selectedRequest.id, editingFields || undefined)
-                        }}
-                        disabled={processing === selectedRequest.id || 
-                          ((Number(editingFields?.sahemInvestPercent ?? selectedRequest.sahemInvestPercent)) + 
-                           (Number(editingFields?.reservedGainPercent ?? selectedRequest.reservedGainPercent))) > 100}
-                        className="bg-green-600 hover:bg-green-700 text-white flex-1"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        موافقة وتوزيع الأرباح
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          const reason = prompt('سبب الرفض:')
-                          if (reason) handleReject(selectedRequest.id, reason)
-                        }}
-                        disabled={processing === selectedRequest.id}
-                        className="text-red-600 border-red-300 hover:bg-red-50 flex-1"
-                      >
-                        <XCircle className="w-4 h-4 mr-2" />
-                        رفض الطلب
-                      </Button>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
       </div>
     </AdminLayout>
   )

@@ -502,7 +502,13 @@
       "logo_update_hint": "انقر لتحديث شعار الشركة"
     }
   },
-
+  "deposits": {
+    "deposit_rejected_title": "إيداع مرفوض",
+    "deposit_rejected": "إيداع مرفوض",
+    "deposit_marked_rejected": "إيداع مرفوض",
+    "user_notified_rejection": "إيداع مرفوض",
+    "no_refunds_added": "لا يوجد عوائد مرفوضة"
+  },
   "deal_card": {
     "company_logo": "شعار الشركة",
     "company_description": "وصف الشركة",
@@ -821,6 +827,7 @@
     "cancelled": "ملغي",
     "draft": "مسودة",
     "published": "منشور",
-    "archived": "مؤرشف"
+    "archived": "مؤرشف",
+    "go_back": "العودة"
   }
 }
