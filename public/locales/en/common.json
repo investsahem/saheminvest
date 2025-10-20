@@ -29,7 +29,10 @@
     "avg_investment":"Average Investment",
     "investor_list":"Investor List",
     "invested_on":"Invested on",
-    "investment_distribution":"Investment Distribution"
+    "investment_distribution":"Investment Distribution",
+    "deal_completed": "Deal Completed",
+    "deal_completed_desc": "This deal has been successfully completed. Check out our active deals for new investment opportunities.",
+    "view_active_deals": "View Active Deals"
   },
   "hero": {
     "welcome": "🚀 Welcome to Sahem Invest Platform",
@@ -273,6 +276,15 @@
     },
     "investors": "investors",
     "view_results": "View Results",
+    "closed": "Closed",
+    "deal_closed": "Deal Closed",
+    "deal_closed_desc": "This deal has been closed and is no longer accepting investments.",
+    "investment_closed": "Investment is closed for this deal",
+    "ready_to_invest": "Ready to Invest?",
+    "join_investors": "Join",
+    "other_investors": "other investors",
+    "earning_returns": "earning returns of",
+    "annually": "annually",
     "cta": {
       "title": "Start Your Investment Journey Today",
       "description": "Join thousands of investors who are achieving their financial goals with us",
