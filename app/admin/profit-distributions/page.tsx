@@ -779,11 +779,11 @@ const AdminProfitDistributionsPage = () => {
                               </div>
                             )}
                           </div>
-                          {(currentFields.sahemInvestPercent + currentFields.reservedGainPercent > 100) && (
+                          {(Number(currentFields.sahemInvestPercent) + Number(currentFields.reservedGainPercent) > 100) && (
                             <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                               <p className="text-red-800 text-sm font-medium flex items-center gap-2">
                                 <AlertCircle className="w-4 h-4" />
-                                تحذير: مجموع النسب ({(currentFields.sahemInvestPercent + currentFields.reservedGainPercent).toFixed(1)}%) يتجاوز 100%
+                                تحذير: مجموع النسب ({(Number(currentFields.sahemInvestPercent) + Number(currentFields.reservedGainPercent)).toFixed(1)}%) يتجاوز 100%
                               </p>
                             </div>
                           )}
@@ -828,7 +828,7 @@ const AdminProfitDistributionsPage = () => {
                         <Button
                           onClick={() => {
                             if (!distribution.isLoss && 
-                                currentFields.sahemInvestPercent + currentFields.reservedGainPercent > 100) {
+                                Number(currentFields.sahemInvestPercent) + Number(currentFields.reservedGainPercent) > 100) {
                               alert('خطأ: مجموع النسب لا يمكن أن يتجاوز 100%')
                               return
                             }
@@ -838,7 +838,7 @@ const AdminProfitDistributionsPage = () => {
                             }
                           }}
                           disabled={processing === selectedRequest.id || 
-                            (!distribution.isLoss && currentFields.sahemInvestPercent + currentFields.reservedGainPercent > 100)}
+                            (!distribution.isLoss && Number(currentFields.sahemInvestPercent) + Number(currentFields.reservedGainPercent) > 100)}
                           className="bg-green-600 hover:bg-green-700 text-white flex-1"
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
