@@ -455,5 +455,321 @@
     "project_starts_desc": "Starting the implementation of business plan",
     "project_completion": "Project Completion",
     "project_completion_desc": "Project completion and profit distribution"
+  },
+  "help": {
+    "hero": {
+      "title": "How Can We Help You?",
+      "description": "Find answers to your questions and learn more about using the Sahem Invest platform"
+    },
+    "search_placeholder": "Search for help articles...",
+    "categories_title": "Browse Help Categories",
+    "categories": {
+      "getting_started": {
+        "title": "Getting Started",
+        "description": "Learn the basics of using the platform",
+        "articles": {
+          "create_account": "How to create an account",
+          "verify_identity": "Identity verification process",
+          "first_investment": "Making your first investment"
+        }
+      },
+      "investments": {
+        "title": "Investments",
+        "description": "Everything about investment process",
+        "articles": {
+          "how_to_invest": "How to invest in deals",
+          "minimum_amount": "Minimum investment amounts",
+          "returns": "Understanding returns and profits"
+        }
+      },
+      "account": {
+        "title": "Account Management",
+        "description": "Managing your account settings",
+        "articles": {
+          "update_profile": "Updating profile information",
+          "reset_password": "Resetting your password",
+          "notifications": "Managing notifications"
+        }
+      },
+      "payments": {
+        "title": "Payments & Withdrawals",
+        "description": "Payment methods and withdrawals",
+        "articles": {
+          "deposit_methods": "Available deposit methods",
+          "withdrawal": "How to withdraw funds",
+          "fees": "Platform fees and charges"
+        }
+      }
+    },
+    "faq_title": "Frequently Asked Questions",
+    "faq": {
+      "question_1": "What is the minimum investment amount?",
+      "answer_1": "The minimum investment amount varies by deal, but typically starts from 1,000 SAR. Each deal page shows its specific minimum investment requirement.",
+      "question_2": "How long does it take to verify my account?",
+      "answer_2": "Account verification usually takes 1-2 business days. We'll notify you via email once your account is verified and ready to start investing.",
+      "question_3": "When will I receive my returns?",
+      "answer_3": "Returns are distributed according to the timeline specified in each deal. You'll receive notifications when profit distributions are made to your account.",
+      "question_4": "Can I cancel my investment after confirmation?",
+      "answer_4": "Investment cancellations are subject to the terms of each deal. Generally, you have a 48-hour cooling-off period after making an investment.",
+      "question_5": "How do I withdraw my funds?",
+      "answer_5": "You can withdraw funds from your wallet at any time through the wallet section. Withdrawals are processed within 2-3 business days to your registered bank account."
+    },
+    "contact": {
+      "title": "Still Need Help?",
+      "description": "Our support team is here to assist you",
+      "email": "Email Support",
+      "phone": "Phone Support",
+      "hours": "Business Hours",
+      "hours_value": "Sunday - Thursday, 9 AM - 5 PM",
+      "send_email": "Send us an email",
+      "call_us": "Call us now"
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "description": "Please read these terms carefully before using our platform",
+    "last_updated": "Last Updated",
+    "update_date": "January 2025",
+    "introduction": "Welcome to Sahem Invest. These Terms of Service govern your use of our platform and services. By accessing or using Sahem Invest, you agree to be bound by these terms. If you do not agree with any part of these terms, you may not use our services.",
+    "sections": {
+      "acceptance": {
+        "title": "Acceptance of Terms",
+        "content": "By creating an account and using Sahem Invest platform, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and our Privacy Policy. You must be at least 18 years old and legally capable of entering into binding contracts to use our services.\n\nYou represent and warrant that all information you provide to us is accurate, current, and complete. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account."
+      },
+      "services": {
+        "title": "Description of Services",
+        "content": "Sahem Invest provides an online investment platform that connects investors with investment opportunities. Our services include:\n\n• Access to curated investment deals and opportunities\n• Portfolio management and tracking tools\n• Secure payment processing and fund transfers\n• Investment performance reporting and analytics\n• Customer support and educational resources\n\nWe reserve the right to modify, suspend, or discontinue any aspect of our services at any time with or without notice."
+      },
+      "user_responsibilities": {
+        "title": "User Responsibilities",
+        "content": "As a user of Sahem Invest, you agree to:\n\n• Provide accurate and complete information during registration\n• Maintain the security of your account credentials\n• Comply with all applicable laws and regulations\n• Not engage in fraudulent or illegal activities\n• Not attempt to manipulate or interfere with the platform\n• Not share your account access with others\n• Conduct your own due diligence before making investments\n\nYou are solely responsible for your investment decisions and their consequences."
+      },
+      "investment_risks": {
+        "title": "Investment Risks and Disclaimers",
+        "content": "Investing involves risk, including the potential loss of principal. You acknowledge and understand that:\n\n• Past performance does not guarantee future results\n• All investments carry inherent risks\n• Returns are not guaranteed and may vary\n• You should only invest what you can afford to lose\n• Investment decisions are your sole responsibility\n• We do not provide financial, investment, or tax advice\n\nYou should consult with qualified financial advisors before making investment decisions."
+      },
+      "fees": {
+        "title": "Fees and Charges",
+        "content": "Use of Sahem Invest platform may be subject to various fees including:\n\n• Platform service fees\n• Payment processing fees\n• Withdrawal fees\n• Performance-based fees on certain investments\n\nAll applicable fees will be clearly disclosed before you complete any transaction. We reserve the right to modify our fee structure with reasonable notice to users."
+      }
+    },
+    "important_notes": {
+      "title": "Important Notes",
+      "note_1": "These terms constitute a legally binding agreement between you and Sahem Invest",
+      "note_2": "We may update these terms from time to time. Continued use of the platform constitutes acceptance of updated terms",
+      "note_3": "Any violation of these terms may result in account suspension or termination",
+      "note_4": "These terms are governed by the laws of Saudi Arabia"
+    },
+    "contact": {
+      "title": "Questions About Terms?",
+      "description": "If you have any questions about these Terms of Service, please contact our legal team",
+      "email_us": "Email Legal Team",
+      "visit_help_center": "Visit Help Center"
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "description": "Your privacy is important to us. Learn how we collect, use, and protect your personal information",
+    "last_updated": "Last Updated",
+    "update_date": "January 2025",
+    "introduction": "At Sahem Invest, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform and services.",
+    "sections": {
+      "information_collection": {
+        "title": "Information We Collect",
+        "content": "We collect various types of information to provide and improve our services:",
+        "items": {
+          "personal": "Personal identification information (name, email, phone number, date of birth, national ID)",
+          "financial": "Financial information (bank account details, transaction history, investment portfolio)",
+          "usage": "Usage data (pages visited, features used, time spent on platform)",
+          "device": "Device information (IP address, browser type, operating system)"
+        }
+      },
+      "information_use": {
+        "title": "How We Use Your Information",
+        "content": "We use your information for the following purposes:",
+        "items": {
+          "service_provision": "Providing and maintaining our investment platform services",
+          "security": "Verifying your identity and preventing fraud",
+          "improvement": "Analyzing usage patterns to improve our platform",
+          "communication": "Sending important notifications and updates about your account"
+        }
+      },
+      "data_protection": {
+        "title": "How We Protect Your Data",
+        "content": "We implement industry-standard security measures to protect your information:",
+        "items": {
+          "encryption": "256-bit SSL encryption for all data transmission",
+          "access_control": "Strict access controls and authentication requirements",
+          "monitoring": "24/7 security monitoring and threat detection",
+          "backups": "Regular secure backups of your data"
+        }
+      },
+      "data_sharing": {
+        "title": "Information Sharing and Disclosure",
+        "content": "We may share your information in the following circumstances:",
+        "items": {
+          "partners": "With investment partners for deal participation (with your consent)",
+          "service_providers": "With trusted service providers who assist in operating our platform",
+          "legal": "When required by law or to protect our legal rights",
+          "consent": "With your explicit consent for specific purposes"
+        }
+      },
+      "your_rights": {
+        "title": "Your Privacy Rights",
+        "content": "You have the following rights regarding your personal information:",
+        "items": {
+          "access": "Right to access your personal data",
+          "correction": "Right to correct inaccurate information",
+          "deletion": "Right to request deletion of your data",
+          "portability": "Right to receive your data in a portable format"
+        }
+      }
+    },
+    "cookies": {
+      "title": "Cookies and Tracking",
+      "description": "We use cookies and similar tracking technologies to enhance your experience on our platform. Cookies help us understand how you use our services and improve functionality.",
+      "essential": {
+        "title": "Essential Cookies",
+        "description": "Required for platform operation and security"
+      },
+      "analytics": {
+        "title": "Analytics Cookies",
+        "description": "Help us understand usage patterns and improve services"
+      }
+    },
+    "important": {
+      "title": "Important Information",
+      "note_1": "We never sell your personal information to third parties",
+      "note_2": "You can request a copy of your data at any time by contacting support",
+      "note_3": "We retain your data only as long as necessary to provide our services"
+    },
+    "contact": {
+      "title": "Privacy Questions?",
+      "description": "If you have questions about this Privacy Policy or how we handle your data, please contact us",
+      "email_us": "Email Privacy Team",
+      "visit_help_center": "Visit Help Center"
+    }
+  },
+  "security": {
+    "title": "Security & Protection",
+    "description": "Your security is our top priority. Learn about the measures we take to protect your account and investments",
+    "stats": {
+      "encryption": "Encryption",
+      "monitoring": "Monitoring",
+      "uptime": "Uptime"
+    },
+    "features_title": "Our Security Features",
+    "features": {
+      "encryption": {
+        "title": "Advanced Encryption",
+        "description": "We use bank-level encryption to protect all your data and transactions",
+        "details": {
+          "ssl": "256-bit SSL/TLS encryption for all connections",
+          "data": "End-to-end encryption for sensitive data",
+          "transmission": "Secure data transmission protocols"
+        }
+      },
+      "authentication": {
+        "title": "Multi-Factor Authentication",
+        "description": "Enhanced security with multiple layers of authentication",
+        "details": {
+          "mfa": "Two-factor authentication (2FA) support",
+          "biometric": "Biometric authentication options",
+          "session": "Secure session management"
+        }
+      },
+      "infrastructure": {
+        "title": "Secure Infrastructure",
+        "description": "Enterprise-grade infrastructure hosted on secure cloud platforms",
+        "details": {
+          "cloud": "Hosted on secure, certified cloud infrastructure",
+          "backup": "Regular automated backups",
+          "redundancy": "Redundant systems for high availability"
+        }
+      },
+      "monitoring": {
+        "title": "24/7 Monitoring",
+        "description": "Continuous monitoring to detect and prevent security threats",
+        "details": {
+          "realtime": "Real-time threat detection and prevention",
+          "alerts": "Instant alerts for suspicious activities",
+          "logs": "Comprehensive audit logs and activity tracking"
+        }
+      },
+      "compliance": {
+        "title": "Regulatory Compliance",
+        "description": "We comply with all relevant financial regulations and standards",
+        "details": {
+          "regulations": "Compliance with Saudi financial regulations",
+          "audits": "Regular security audits and assessments",
+          "certifications": "Industry-standard security certifications"
+        }
+      },
+      "access_control": {
+        "title": "Access Control",
+        "description": "Strict controls over who can access your information",
+        "details": {
+          "role_based": "Role-based access control (RBAC)",
+          "least_privilege": "Principle of least privilege",
+          "review": "Regular access reviews and audits"
+        }
+      }
+    },
+    "best_practices_title": "Security Best Practices",
+    "best_practices_description": "Follow these best practices to keep your account secure",
+    "best_practices": {
+      "strong_password": {
+        "title": "Use Strong Passwords",
+        "tips": {
+          "length": "Use at least 12 characters",
+          "mix": "Combine letters, numbers, and symbols",
+          "unique": "Use a unique password for Sahem Invest",
+          "manager": "Consider using a password manager"
+        }
+      },
+      "enable_mfa": {
+        "title": "Enable Two-Factor Authentication",
+        "tips": {
+          "always": "Always enable 2FA for maximum security",
+          "app": "Use an authenticator app instead of SMS when possible",
+          "backup": "Keep backup codes in a safe place"
+        }
+      },
+      "phishing": {
+        "title": "Beware of Phishing",
+        "tips": {
+          "verify": "Always verify the website URL before logging in",
+          "links": "Don't click suspicious links in emails",
+          "info": "Never share your password or 2FA codes",
+          "report": "Report suspicious emails to our security team"
+        }
+      },
+      "monitor": {
+        "title": "Monitor Your Account",
+        "tips": {
+          "regular": "Regularly review your account activity",
+          "alerts": "Enable notifications for account activities",
+          "unauthorized": "Report any unauthorized access immediately"
+        }
+      }
+    },
+    "report": {
+      "title": "Report a Security Issue",
+      "description": "If you discover a security vulnerability or suspect unauthorized access to your account, please contact our security team immediately.",
+      "button": "Report Security Issue"
+    },
+    "certifications": {
+      "title": "Certifications & Compliance",
+      "cert_1": "ISO 27001",
+      "cert_2": "PCI DSS",
+      "cert_3": "SOC 2",
+      "cert_4": "GDPR"
+    },
+    "contact": {
+      "title": "Have Security Questions?",
+      "description": "Our security team is here to help you stay safe",
+      "help_center": "Visit Help Center",
+      "email_us": "Email Security Team"
+    }
   }
 }
