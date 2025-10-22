@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useTranslation } from '../components/providers/I18nProvider'
+import { useI18n } from '../components/providers/I18nProvider'
 import { Search, MessageCircle, Book, FileText, HelpCircle, Mail, Phone, Clock, ChevronRight } from 'lucide-react'
 
 export default function HelpCenter() {
-  const { t, locale } = useTranslation()
+  const { t, locale } = useI18n()
 
   const categories = [
     {

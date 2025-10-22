@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useTranslation } from '../components/providers/I18nProvider'
+import { useI18n } from '../components/providers/I18nProvider'
 import { Shield, Lock, Key, Eye, Server, AlertTriangle, CheckCircle, ChevronRight, FileCheck, Users, Activity } from 'lucide-react'
 
 export default function Security() {
-  const { t, locale } = useTranslation()
+  const { t, locale } = useI18n()
 
   const securityFeatures = [
     {
