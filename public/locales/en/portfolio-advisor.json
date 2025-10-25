@@ -1,5 +1,5 @@
 {
-  "_cache_bust": "2025-01-07T22:30:00Z",
+  "_cache_bust": "2025-01-25T14:30:00Z",
   "portfolioAdvisor": {
     "title": "Portfolio Advisor",
     "role": "Portfolio Advisor",
@@ -42,6 +42,28 @@
     "growth": "growth",
     "last_contact": "Last contact",
     "return": "return"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "client_portfolios": "Client Portfolios",
+    "performance_analysis": "Performance Analysis",
+    "investment_recommendations": "Investment Recommendations",
+    "market_research": "Market Research",
+    "client_communications": "Client Communications",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "metrics": {
+    "active_clients": "Active Clients",
+    "avg_return": "Avg Return",
+    "satisfaction": "Satisfaction",
+    "assets_under_management": "Assets Under Management",
+    "monthly_growth": "Monthly Growth",
+    "client_satisfaction": "Client Satisfaction",
+    "portfolio_performance": "Portfolio Performance",
+    "asset_allocation": "Asset Allocation",
+    "vs_benchmark": "vs benchmark",
+    "growth": "growth"
   },
   "clients": {
     "title": "Client Management",

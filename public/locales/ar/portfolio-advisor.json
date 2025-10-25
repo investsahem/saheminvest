@@ -1,5 +1,5 @@
 {
-  "_cache_bust": "2025-01-07T22:30:00Z",
+  "_cache_bust": "2025-01-25T14:30:00Z",
   "portfolioAdvisor": {
     "title": "مستشار المحفظة الاستثمارية",
     "role": "مستشار المحفظة الاستثمارية",
@@ -42,6 +42,28 @@
     "growth": "النمو",
     "last_contact": "آخر تواصل",
     "return": "العائد"
+  },
+  "navigation": {
+    "dashboard": "لوحة التحكم",
+    "client_portfolios": "محافظ العملاء",
+    "performance_analysis": "تحليل الأداء",
+    "investment_recommendations": "التوصيات الاستثمارية",
+    "market_research": "أبحاث السوق",
+    "client_communications": "التواصل مع العملاء",
+    "reports": "التقارير",
+    "settings": "الإعدادات"
+  },
+  "metrics": {
+    "active_clients": "العملاء النشطون",
+    "avg_return": "متوسط العائد",
+    "satisfaction": "الرضا",
+    "assets_under_management": "الأصول تحت الإدارة",
+    "monthly_growth": "النمو الشهري",
+    "client_satisfaction": "رضا العملاء",
+    "portfolio_performance": "أداء المحفظة",
+    "asset_allocation": "توزيع الأصول",
+    "vs_benchmark": "مقابل المؤشر المرجعي",
+    "growth": "النمو"
   },
   "clients": {
     "title": "إدارة العملاء",
