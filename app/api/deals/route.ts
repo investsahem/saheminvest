@@ -263,8 +263,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/deals - Create new deal
 export async function POST(request: NextRequest) {
+  console.log('🚀 POST /api/deals - Deal creation started')
   try {
     const session = await getServerSession(authOptions)
+    console.log('👤 Session check:', session?.user ? `User: ${session.user.id}` : 'No session')
     
     if (!session?.user) {
       return NextResponse.json(
@@ -302,6 +304,14 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData()
+    console.log('📝 Form data received:', {
+      title: formData.get('title'),
+      category: formData.get('category'),
+      fundingGoal: formData.get('fundingGoal'),
+      hasImage: !!formData.get('image'),
+      imageSize: formData.get('image') ? (formData.get('image') as File).size : 0
+    })
+    
     const title = formData.get('title') as string
     const description = formData.get('description') as string
     const category = formData.get('category') as string
@@ -323,29 +333,78 @@ export async function POST(request: NextRequest) {
     const images: string[] = []
 
     if (imageFile) {
-      const bytes = await imageFile.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      
-      // Upload to Cloudinary
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          {
-            resource_type: 'image',
-            folder: 'sahaminvest/deals',
-            transformation: [
-              { width: 800, height: 600, crop: 'fill' },
-              { quality: 'auto' }
-            ]
-          },
-          (error, result) => {
-            if (error) reject(error)
-            else resolve(result)
-          }
-        ).end(buffer)
-      }) as any
+      console.log('📸 Processing image upload:', {
+        name: imageFile.name,
+        size: imageFile.size,
+        type: imageFile.type
+      })
 
-      thumbnailImage = uploadResult.secure_url
-      images.push(uploadResult.secure_url)
+      // Validate image file
+      if (imageFile.size > 10 * 1024 * 1024) { // 10MB limit
+        console.error('❌ Image file too large:', imageFile.size)
+        return NextResponse.json(
+          { error: 'Image file is too large. Maximum size is 10MB.' },
+          { status: 400 }
+        )
+      }
+
+      if (!imageFile.type.startsWith('image/')) {
+        console.error('❌ Invalid file type:', imageFile.type)
+        return NextResponse.json(
+          { error: 'Invalid file type. Please upload an image file.' },
+          { status: 400 }
+        )
+      }
+
+      try {
+        const bytes = await imageFile.arrayBuffer()
+        const buffer = Buffer.from(bytes)
+        
+        console.log('☁️ Uploading to Cloudinary...', {
+          bufferSize: buffer.length,
+          cloudName: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Missing',
+          apiKey: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Missing',
+          apiSecret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Missing'
+        })
+        
+        // Upload to Cloudinary
+        const uploadResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            {
+              resource_type: 'image',
+              folder: 'sahaminvest/deals',
+              transformation: [
+                { width: 800, height: 600, crop: 'fill' },
+                { quality: 'auto' }
+              ]
+            },
+            (error, result) => {
+              if (error) {
+                console.error('❌ Cloudinary upload error:', error)
+                reject(error)
+              } else {
+                console.log('✅ Cloudinary upload success:', result?.secure_url)
+                resolve(result)
+              }
+            }
+          ).end(buffer)
+        }) as any
+
+        thumbnailImage = uploadResult.secure_url
+        images.push(uploadResult.secure_url)
+      } catch (uploadError) {
+        console.error('❌ Image upload failed:', uploadError)
+        // For now, allow deal creation without image rather than failing completely
+        console.log('⚠️ Proceeding with deal creation without image due to upload failure')
+        thumbnailImage = ''
+        images.length = 0
+        
+        // Optionally, you can still return the error if you want to force image upload
+        // return NextResponse.json(
+        //   { error: 'Failed to upload image. Please try again.', details: (uploadError as Error).message },
+        //   { status: 500 }
+        // )
+      }
     }
 
     // Generate slug
@@ -356,6 +415,7 @@ export async function POST(request: NextRequest) {
       .replace(/^-+|-+$/g, '')
 
     // Create the deal
+    console.log('💾 Creating deal in database...', { title, status, thumbnailImage: thumbnailImage ? 'Set' : 'None' })
     const deal = await prisma.project.create({
       data: {
         title,
@@ -401,6 +461,7 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    console.log('✅ Deal created successfully:', { id: deal.id, title: deal.title })
     return NextResponse.json(deal, { status: 201 })
   } catch (error) {
     console.error('Error creating deal:', error)

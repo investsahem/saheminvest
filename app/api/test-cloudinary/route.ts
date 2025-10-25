@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../../lib/auth'
 import { v2 as cloudinary } from 'cloudinary'
 
 // Configure Cloudinary
@@ -10,52 +8,111 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    console.log('🧪 Testing Cloudinary configuration...')
     
-    // Only allow authenticated users to test
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
     // Check environment variables
     const config = {
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'NOT_SET',
-      api_key: process.env.CLOUDINARY_API_KEY || 'NOT_SET',
-      api_secret: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'NOT_SET',
-      configured: !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET)
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Missing',
+      apiKey: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Missing',
+      apiSecret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Missing'
     }
-
-    // Test Cloudinary connection
-    let cloudinaryTest = null
-    if (config.configured) {
-      try {
-        // Test with a simple API call
-        const result = await cloudinary.api.ping()
-        cloudinaryTest = { success: true, result }
-      } catch (error) {
-        cloudinaryTest = { 
-          success: false, 
-          error: error instanceof Error ? error.message : 'Unknown error' 
-        }
-      }
-    }
-
+    
+    console.log('🔧 Cloudinary config:', config)
+    
+    // Test API connection by getting account details
+    const result = await cloudinary.api.ping()
+    
+    console.log('✅ Cloudinary ping successful:', result)
+    
     return NextResponse.json({
-      message: 'Cloudinary configuration test',
+      success: true,
       config,
-      cloudinaryTest,
-      timestamp: new Date().toISOString()
+      ping: result,
+      message: 'Cloudinary configuration is working correctly'
     })
   } catch (error) {
-    console.error('Error testing Cloudinary:', error)
-    return NextResponse.json(
-      { error: 'Failed to test Cloudinary configuration' },
-      { status: 500 }
-    )
+    console.error('❌ Cloudinary test failed:', error)
+    
+    return NextResponse.json({
+      success: false,
+      error: (error as Error).message,
+      config: {
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Missing',
+        apiKey: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Missing',
+        apiSecret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Missing'
+      }
+    }, { status: 500 })
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    console.log('🧪 Testing Cloudinary image upload...')
+    
+    const formData = await request.formData()
+    const imageFile = formData.get('image') as File
+    
+    if (!imageFile) {
+      return NextResponse.json({
+        success: false,
+        error: 'No image file provided'
+      }, { status: 400 })
+    }
+    
+    console.log('📸 Image file:', {
+      name: imageFile.name,
+      size: imageFile.size,
+      type: imageFile.type
+    })
+    
+    // Convert to buffer
+    const bytes = await imageFile.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+    
+    // Test upload
+    const uploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'image',
+          folder: 'sahaminvest/test',
+          transformation: [
+            { width: 400, height: 300, crop: 'fill' },
+            { quality: 'auto' }
+          ]
+        },
+        (error, result) => {
+          if (error) {
+            console.error('❌ Upload error:', error)
+            reject(error)
+          } else {
+            console.log('✅ Upload success:', result?.secure_url)
+            resolve(result)
+          }
+        }
+      ).end(buffer)
+    }) as any
+    
+    return NextResponse.json({
+      success: true,
+      uploadResult: {
+        url: uploadResult.secure_url,
+        publicId: uploadResult.public_id,
+        width: uploadResult.width,
+        height: uploadResult.height,
+        format: uploadResult.format,
+        bytes: uploadResult.bytes
+      },
+      message: 'Image upload test successful'
+    })
+  } catch (error) {
+    console.error('❌ Image upload test failed:', error)
+    
+    return NextResponse.json({
+      success: false,
+      error: (error as Error).message,
+      details: error
+    }, { status: 500 })
   }
 }
