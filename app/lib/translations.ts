@@ -9,6 +9,8 @@ import enPortfolio from '../../public/locales/en/portfolio.json'
 import arPortfolio from '../../public/locales/ar/portfolio.json'
 import enAdvisor from '../../public/locales/en/advisor.json'
 import arAdvisor from '../../public/locales/ar/advisor.json'
+import enPortfolioAdvisor from '../../public/locales/en/portfolio-advisor.json'
+import arPortfolioAdvisor from '../../public/locales/ar/portfolio-advisor.json'
 
 export type Language = 'ar' | 'en'
 export type Portal = 'common' | 'admin' | 'partner' | 'portfolio' | 'advisor'
@@ -20,14 +22,14 @@ const portalTranslations = {
     admin: enAdmin,
     partner: enPartner,
     portfolio: enPortfolio,
-    advisor: enAdvisor
+    advisor: { ...enAdvisor, ...enPortfolioAdvisor }
   },
   ar: {
     common: arCommon,
     admin: arAdmin,
     partner: arPartner,
     portfolio: arPortfolio,
-    advisor: arAdvisor
+    advisor: { ...arAdvisor, ...arPortfolioAdvisor }
   }
 }
 
