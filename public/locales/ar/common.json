@@ -420,7 +420,9 @@
       "have_account": "لديك حساب؟",
       "required_field": "هذا الحقل مطلوب",
       "invalid_email": "عنوان بريد إلكتروني غير صحيح",
-      "existing_user_redirect": "يوجد حساب بهذا البريد الإلكتروني. هل تريد تسجيل الدخول بدلاً من ذلك؟"
+      "existing_user_redirect": "يوجد حساب بهذا البريد الإلكتروني. هل تريد تسجيل الدخول بدلاً من ذلك؟",
+      "continue_google": "متابعة مع Google",
+      "or_signup_with_form": "أو سجل باستخدام النموذج"
     }
   },
   "forms": {

@@ -105,6 +105,64 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log('🔄 SignIn callback called', {
+        provider: account?.provider,
+        userEmail: user?.email,
+        hasProfile: !!profile
+      })
+
+      // Handle Google OAuth signin/signup
+      if (account?.provider === "google" && user?.email) {
+        try {
+          // Check if user already exists
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email }
+          })
+
+          if (existingUser) {
+            console.log('✅ Google OAuth - Existing user found:', existingUser.email)
+            // Update user info from Google if needed
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: {
+                name: user.name || existingUser.name,
+                image: user.image || existingUser.image,
+                lastLoginAt: new Date()
+              }
+            })
+            return true
+          } else {
+            console.log('🆕 Google OAuth - Creating new user:', user.email)
+            // Create new user from Google OAuth
+            const newUser = await prisma.user.create({
+              data: {
+                email: user.email,
+                name: user.name || '',
+                image: user.image,
+                role: 'INVESTOR', // Default role for Google OAuth users
+                isActive: true,
+                emailVerified: new Date(), // Google emails are pre-verified
+                createdAt: new Date(),
+                lastLoginAt: new Date()
+              }
+            })
+            console.log('✅ Google OAuth - New user created:', newUser.id)
+            return true
+          }
+        } catch (error) {
+          console.error('❌ Google OAuth error:', error)
+          return false
+        }
+      }
+
+      // For credentials provider, allow through (handled in authorize)
+      if (account?.provider === "credentials") {
+        return true
+      }
+
+      return true
+    },
     async jwt({ token, user, account, profile }) {
       console.log('🔄 JWT callback called', {
         hasUser: !!user,
@@ -114,15 +172,27 @@ export const authOptions: NextAuthOptions = {
         account: account?.provider
       })
       
+      // For Google OAuth, fetch user data from database
+      if (account?.provider === "google" && user?.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email }
+        })
+        if (dbUser) {
+          token.role = dbUser.role
+          token.needsPasswordChange = dbUser.needsPasswordChange || false
+          token.id = dbUser.id
+        }
+      }
+      
       // Persist the role and password change flag in the token right after signin
       if (user) {
-        token.role = (user as any).role
-        token.needsPasswordChange = (user as any).needsPasswordChange
+        token.role = (user as any).role || token.role
+        token.needsPasswordChange = (user as any).needsPasswordChange || token.needsPasswordChange
+        token.id = (user as any).id || token.id
         console.log('✅ JWT callback - Setting user data in token:', {
-          userRole: (user as any).role,
-          needsPasswordChange: (user as any).needsPasswordChange,
-          tokenRole: token.role,
-          userId: user.id
+          userRole: token.role,
+          needsPasswordChange: token.needsPasswordChange,
+          userId: token.id
         })
       }
       

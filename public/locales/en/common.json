@@ -398,7 +398,9 @@
       "have_account": "Already have an account?",
       "required_field": "This field is required",
       "invalid_email": "Invalid email address",
-      "existing_user_redirect": "An account with this email already exists. Would you like to sign in instead?"
+      "existing_user_redirect": "An account with this email already exists. Would you like to sign in instead?",
+      "continue_google": "Continue with Google",
+      "or_signup_with_form": "Or sign up with form"
     }
   },
   "forms": {
