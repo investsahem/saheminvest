@@ -127,8 +127,7 @@ export const authOptions: NextAuthOptions = {
               where: { id: existingUser.id },
               data: {
                 name: user.name || existingUser.name,
-                image: user.image || existingUser.image,
-                lastLoginAt: new Date()
+                image: user.image || existingUser.image
               }
             })
             return true
@@ -142,9 +141,7 @@ export const authOptions: NextAuthOptions = {
                 image: user.image,
                 role: 'INVESTOR', // Default role for Google OAuth users
                 isActive: true,
-                emailVerified: new Date(), // Google emails are pre-verified
-                createdAt: new Date(),
-                lastLoginAt: new Date()
+                emailVerified: new Date() // Google emails are pre-verified
               }
             })
             console.log('✅ Google OAuth - New user created:', newUser.id)
