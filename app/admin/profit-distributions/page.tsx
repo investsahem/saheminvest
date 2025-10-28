@@ -180,15 +180,24 @@ const AdminProfitDistributionsPage = () => {
 
   // Initialize editing fields from request
   const initializeEditingFields = (request: ProfitDistributionRequest): EditableDistributionFields => {
+    // Convert all values to proper numbers
+    const totalAmount = Number(request.totalAmount) || 0
+    const estimatedGainPercent = Number(request.estimatedGainPercent) || 0
+    const estimatedClosingPercent = Number(request.estimatedClosingPercent) || 0
+    const estimatedProfit = Number(request.estimatedProfit) || 0
+    const estimatedReturnCapital = Number(request.estimatedReturnCapital) || 0
+    const sahemInvestPercent = Number(request.sahemInvestPercent) || 0
+    const reservedGainPercent = Number(request.reservedGainPercent) || 0
+    
     return {
-      totalAmount: request.totalAmount,
-      estimatedGainPercent: request.estimatedGainPercent,
-      estimatedClosingPercent: request.estimatedClosingPercent,
-      estimatedProfit: request.estimatedProfit,
-      estimatedReturnCapital: request.estimatedReturnCapital,
-      sahemInvestPercent: request.sahemInvestPercent,
-      reservedGainPercent: request.reservedGainPercent,
-      isLoss: request.estimatedProfit < 0 || request.estimatedGainPercent < 0
+      totalAmount,
+      estimatedGainPercent,
+      estimatedClosingPercent,
+      estimatedProfit,
+      estimatedReturnCapital,
+      sahemInvestPercent,
+      reservedGainPercent,
+      isLoss: estimatedProfit < 0 || estimatedGainPercent < 0
     }
   }
 
@@ -197,22 +206,29 @@ const AdminProfitDistributionsPage = () => {
     const isFinal = request.distributionType === 'FINAL'
     const isLoss = fields.isLoss
     
+    // Ensure all values are proper numbers
+    const safeProfit = Number(fields.estimatedProfit) || 0
+    const safeCapital = Number(fields.estimatedReturnCapital) || 0
+    const safeTotalAmount = Number(fields.totalAmount) || 0
+    const safeSahemPercent = Number(fields.sahemInvestPercent) || 0
+    const safeReservePercent = Number(fields.reservedGainPercent) || 0
+    
     let sahemAmount = 0
     let reserveAmount = 0
     let investorsProfit = 0
-    let investorsCapital = fields.estimatedReturnCapital
+    let investorsCapital = safeCapital
 
     if (isFinal && isLoss) {
       // Loss scenario: No commission, all remaining goes to investors to recover capital
       sahemAmount = 0
       reserveAmount = 0
       investorsProfit = 0
-      investorsCapital = fields.totalAmount // All remaining amount for capital recovery
+      investorsCapital = safeTotalAmount // All remaining amount for capital recovery
     } else {
       // Profit scenario (or partial): Normal distribution with commissions
-      sahemAmount = (fields.estimatedProfit * fields.sahemInvestPercent) / 100
-      reserveAmount = (fields.estimatedProfit * fields.reservedGainPercent) / 100
-      investorsProfit = fields.estimatedProfit - sahemAmount - reserveAmount
+      sahemAmount = (safeProfit * safeSahemPercent) / 100
+      reserveAmount = (safeProfit * safeReservePercent) / 100
+      investorsProfit = safeProfit - sahemAmount - reserveAmount
     }
 
     const totalToInvestors = investorsCapital + investorsProfit
