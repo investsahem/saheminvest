@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import AdminLayout from '../../components/layout/AdminLayout'
 import { Card, CardContent } from '../../components/ui/Card'
@@ -91,46 +91,7 @@ const AdminProfitDistributionsPage = () => {
   const [investorDistributions, setInvestorDistributions] = useState<InvestorDistributionDetail[]>([])
   const [loadingHistorical, setLoadingHistorical] = useState(false)
 
-  useEffect(() => {
-    fetchRequests()
-  }, [searchTerm, statusFilter])
-
-  // Fetch historical data when FINAL distribution is selected
-  useEffect(() => {
-    const loadHistoricalData = async () => {
-      if (selectedRequest && selectedRequest.distributionType === 'FINAL') {
-        const data = await fetchHistoricalData(selectedRequest.id)
-        if (data) {
-          // Calculate investor distributions with historical data
-          const totalInvestmentAmount = selectedRequest.project.investments.reduce(
-            (sum, inv) => sum + Number(inv.amount), 0
-          )
-          const currentFields = editingFields || initializeEditingFields(selectedRequest)
-          const distribution = calculateDistribution(currentFields, selectedRequest)
-          
-          const investments = selectedRequest.project.investments.map(inv => ({
-            investorId: inv.investor.id,
-            investorName: inv.investor.name || 'Unknown',
-            investorEmail: inv.investor.id, // Will be replaced by actual email from data
-            amount: Number(inv.amount)
-          }))
-
-          const investorDists = calculateInvestorDistributions(
-            investments,
-            totalInvestmentAmount,
-            distribution.investorsProfit,
-            distribution.investorsCapital,
-            data.investorHistoricalData
-          )
-
-          setInvestorDistributions(investorDists)
-        }
-      }
-    }
-    loadHistoricalData()
-  }, [selectedRequest])
-
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
@@ -147,7 +108,56 @@ const AdminProfitDistributionsPage = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchTerm, statusFilter])
+
+  useEffect(() => {
+    fetchRequests()
+  }, [fetchRequests])
+
+  // Fetch historical data when FINAL distribution is selected
+  useEffect(() => {
+    const loadHistoricalData = async () => {
+      if (selectedRequest && selectedRequest.distributionType === 'FINAL') {
+        try {
+          const data = await fetchHistoricalData(selectedRequest.id)
+          if (data) {
+            // Calculate investor distributions with historical data
+            const totalInvestmentAmount = selectedRequest.project.investments.reduce(
+              (sum, inv) => sum + Number(inv.amount), 0
+            )
+            const currentFields = editingFields || initializeEditingFields(selectedRequest)
+            const distribution = calculateDistribution(currentFields, selectedRequest)
+            
+            const investments = selectedRequest.project.investments.map(inv => ({
+              investorId: inv.investor.id,
+              investorName: inv.investor.name || 'Unknown',
+              investorEmail: inv.investor.id, // Will be replaced by actual email from data
+              amount: Number(inv.amount)
+            }))
+
+            const investorDists = calculateInvestorDistributions(
+              investments,
+              totalInvestmentAmount,
+              distribution.investorsProfit,
+              distribution.investorsCapital,
+              data.investorHistoricalData
+            )
+
+            setInvestorDistributions(investorDists)
+          }
+        } catch (error) {
+          console.error('Error in loadHistoricalData:', error)
+        }
+      } else if (selectedRequest && selectedRequest.distributionType !== 'FINAL') {
+        // Reset state for non-FINAL distributions
+        setHistoricalData(null)
+        setInvestorHistoricalData([])
+        setInvestorDistributions([])
+      }
+    }
+    loadHistoricalData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRequest?.id, selectedRequest?.distributionType])
 
   // Fetch historical partial distribution data for FINAL distributions
   const fetchHistoricalData = async (requestId: string) => {
