@@ -21,6 +21,11 @@ export function calculateInvestorDistributions(
 ): InvestorDistributionDetail[] {
   const results: InvestorDistributionDetail[] = []
 
+  // Ensure numeric values are safe
+  const safeTotalInvestment = Number(totalInvestmentAmount) || 0
+  const safeDistributionAmount = Number(investorDistributionAmount) || 0
+  const safeCapitalReturn = Number(capitalReturnAmount) || 0
+
   // Group investments by investor
   const investorGroups = new Map<string, typeof investments>()
   for (const investment of investments) {
@@ -32,23 +37,26 @@ export function calculateInvestorDistributions(
 
   // Calculate for each investor
   for (const [investorId, investorInvestments] of investorGroups) {
-    const totalInvestment = investorInvestments.reduce((sum, inv) => sum + inv.amount, 0)
-    const investmentRatio = totalInvestment / totalInvestmentAmount
+    const totalInvestment = investorInvestments.reduce((sum, inv) => sum + Number(inv.amount || 0), 0)
+    const investmentRatio = safeTotalInvestment > 0 ? totalInvestment / safeTotalInvestment : 0
 
     const historical = historicalData.find(h => h.investorId === investorId)
 
+    const finalCapital = safeCapitalReturn * investmentRatio
+    const finalProfit = safeDistributionAmount * investmentRatio
+
     results.push({
       investorId,
-      investorName: investorInvestments[0].investorName,
-      investorEmail: investorInvestments[0].investorEmail,
+      investorName: investorInvestments[0].investorName || 'Unknown',
+      investorEmail: investorInvestments[0].investorEmail || '',
       totalInvestment,
       investmentRatio,
-      partialCapitalReceived: historical?.partialDistributions.totalCapital || 0,
-      partialProfitReceived: historical?.partialDistributions.totalProfit || 0,
-      partialDistributionCount: historical?.partialDistributions.count || 0,
-      finalCapital: capitalReturnAmount * investmentRatio,
-      finalProfit: investorDistributionAmount * investmentRatio,
-      finalTotal: (capitalReturnAmount + investorDistributionAmount) * investmentRatio
+      partialCapitalReceived: Number(historical?.partialDistributions.totalCapital) || 0,
+      partialProfitReceived: Number(historical?.partialDistributions.totalProfit) || 0,
+      partialDistributionCount: Number(historical?.partialDistributions.count) || 0,
+      finalCapital,
+      finalProfit,
+      finalTotal: finalCapital + finalProfit
     })
   }
 
@@ -99,11 +107,19 @@ export function analyzeProfitability(
   reservePercent: number,
   isLoss: boolean
 ): ProfitabilityAnalysis {
-  if (isLoss || estimatedProfit < 0) {
+  // Ensure all inputs are valid numbers
+  const safeOriginalInvestment = Number(originalInvestment) || 0
+  const safeTotalAmount = Number(totalAmount) || 0
+  const safeEstimatedProfit = Number(estimatedProfit) || 0
+  const safeEstimatedCapitalReturn = Number(estimatedCapitalReturn) || 0
+  const safeSahemPercent = Number(sahemPercent) || 0
+  const safeReservePercent = Number(reservePercent) || 0
+
+  if (isLoss || safeEstimatedProfit < 0) {
     // Loss scenario
-    const lossAmount = originalInvestment - totalAmount
-    const lossPercentage = (lossAmount / originalInvestment) * 100
-    const investorRecovery = totalAmount
+    const lossAmount = safeOriginalInvestment - safeTotalAmount
+    const lossPercentage = safeOriginalInvestment > 0 ? (lossAmount / safeOriginalInvestment) * 100 : 0
+    const investorRecovery = safeTotalAmount
 
     return {
       isProfitable: false,
@@ -111,8 +127,8 @@ export function analyzeProfitability(
       profitOrLossPercentage: -lossPercentage,
       reason: 'الصفقة لم تحقق أرباحاً كافية لاسترداد رأس المال بالكامل',
       details: {
-        originalInvestment,
-        totalDistributed: totalAmount,
+        originalInvestment: safeOriginalInvestment,
+        totalDistributed: safeTotalAmount,
         commissionsPaid: 0, // No commissions in loss
         investorRecovery
       },
@@ -120,24 +136,24 @@ export function analyzeProfitability(
     }
   } else {
     // Profit scenario
-    const sahemAmount = (estimatedProfit * sahemPercent) / 100
-    const reserveAmount = (estimatedProfit * reservePercent) / 100
+    const sahemAmount = (safeEstimatedProfit * safeSahemPercent) / 100
+    const reserveAmount = (safeEstimatedProfit * safeReservePercent) / 100
     const commissionsPaid = sahemAmount + reserveAmount
-    const investorProfit = estimatedProfit - commissionsPaid
-    const profitPercentage = (estimatedProfit / originalInvestment) * 100
+    const investorProfit = safeEstimatedProfit - commissionsPaid
+    const profitPercentage = safeOriginalInvestment > 0 ? (safeEstimatedProfit / safeOriginalInvestment) * 100 : 0
 
     return {
       isProfitable: true,
-      profitOrLossAmount: estimatedProfit,
+      profitOrLossAmount: safeEstimatedProfit,
       profitOrLossPercentage: profitPercentage,
       reason: 'الصفقة حققت أرباحاً وسيتم إرجاع رأس المال بالكامل مع الأرباح',
       details: {
-        originalInvestment,
-        totalDistributed: totalAmount,
+        originalInvestment: safeOriginalInvestment,
+        totalDistributed: safeTotalAmount,
         commissionsPaid,
-        investorRecovery: estimatedCapitalReturn + investorProfit
+        investorRecovery: safeEstimatedCapitalReturn + investorProfit
       },
-      message: `تم تحقيق ربح قدره ${estimatedProfit.toFixed(2)} دولار (${profitPercentage.toFixed(2)}%). سيحصل المستثمرون على ${estimatedCapitalReturn.toFixed(2)} دولار رأس مال و ${investorProfit.toFixed(2)} دولار أرباح.`
+      message: `تم تحقيق ربح قدره ${safeEstimatedProfit.toFixed(2)} دولار (${profitPercentage.toFixed(2)}%). سيحصل المستثمرون على ${safeEstimatedCapitalReturn.toFixed(2)} دولار رأس مال و ${investorProfit.toFixed(2)} دولار أرباح.`
     }
   }
 }
@@ -153,22 +169,28 @@ export function calculateDistribution(
   isLoss: boolean,
   isFinal: boolean
 ): DistributionBreakdown {
+  // Ensure all inputs are valid numbers
+  const safeProfit = Number(estimatedProfit) || 0
+  const safeCapital = Number(estimatedReturnCapital) || 0
+  const safeSahemPercent = Number(sahemPercent) || 0
+  const safeReservePercent = Number(reservePercent) || 0
+
   let sahemAmount = 0
   let reserveAmount = 0
   let investorsProfit = 0
-  let investorsCapital = estimatedReturnCapital
+  let investorsCapital = safeCapital
 
   if (isFinal && isLoss) {
     // Loss scenario: No commissions, all remaining goes to investors
     sahemAmount = 0
     reserveAmount = 0
     investorsProfit = 0
-    investorsCapital = estimatedReturnCapital // All remaining amount for capital recovery
+    investorsCapital = safeCapital // All remaining amount for capital recovery
   } else {
     // Profit scenario (or partial): Normal distribution with commissions
-    sahemAmount = (estimatedProfit * sahemPercent) / 100
-    reserveAmount = (estimatedProfit * reservePercent) / 100
-    investorsProfit = estimatedProfit - sahemAmount - reserveAmount
+    sahemAmount = (safeProfit * safeSahemPercent) / 100
+    reserveAmount = (safeProfit * safeReservePercent) / 100
+    investorsProfit = safeProfit - sahemAmount - reserveAmount
   }
 
   const totalToInvestors = investorsCapital + investorsProfit
@@ -188,12 +210,13 @@ export function calculateDistribution(
  * Format currency
  */
 export function formatCurrency(amount: number): string {
+  const safeAmount = Number(amount) || 0
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  }).format(amount)
+  }).format(safeAmount)
 }
 
 /**
