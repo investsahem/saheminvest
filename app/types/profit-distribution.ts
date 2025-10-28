@@ -85,7 +85,11 @@ export interface PartnerDistributionDetails {
   status: 'PENDING' | 'APPROVED' | 'REJECTED'
   totalAmount: number
   estimatedGainPercent: number
+  estimatedClosingPercent: number
+  description?: string
   requestedAt: string
+  reviewedAt?: string | null
+  rejectionReason?: string | null
   historicalSummary: {
     partialDistributionCount: number
     totalPartialAmount: number
@@ -93,7 +97,9 @@ export interface PartnerDistributionDetails {
   }
   commissionBreakdown: {
     sahemInvestAmount: number
+    sahemPercent: number
     reservedAmount: number
+    reservePercent: number
     investorPool: number
     totalProfit: number
   }
