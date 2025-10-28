@@ -375,7 +375,7 @@ export async function POST(
           sahemInvestPercent: finalSahemPercent,
           reservedGainPercent: finalReservedPercent,
           // Store custom investor amounts if provided
-          investorCustomAmounts: investorDistributions ? JSON.stringify(investorDistributions) : null
+          investorCustomAmounts: investorDistributions ? investorDistributions : undefined
         }
       })
 
