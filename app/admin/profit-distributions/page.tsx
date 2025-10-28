@@ -23,7 +23,7 @@ import type {
 import { 
   calculateInvestorDistributions, 
   analyzeProfitability 
-} from '../../lib/profit-distribution-utils'
+} from '../../lib/profit-distribution-client-utils'
 
 interface ProfitDistributionRequest {
   id: string
