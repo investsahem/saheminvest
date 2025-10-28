@@ -9,8 +9,9 @@ import { Button } from '../../components/ui/Button'
 import { 
   DollarSign, TrendingUp, Users, Calendar, Send, 
   AlertCircle, CheckCircle, Clock, Eye, Plus,
-  Target, BarChart3, Activity
+  Target, BarChart3, Activity, ArrowRight
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface Deal {
   id: string
@@ -57,6 +58,7 @@ interface ProfitDistributionRequest {
 const PartnerProfitDistributionsPage = () => {
   const { t } = useTranslation()
   const { data: session } = useSession()
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [activeDeals, setActiveDeals] = useState<Deal[]>([])
@@ -308,8 +310,18 @@ const PartnerProfitDistributionsPage = () => {
                       </div>
                     </div>
                     
-                    <div className="mt-3 pt-3 border-t border-gray-100">
+                    <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
                       <span className="text-xs text-gray-500">{t('partner.requested_on')} {formatDate(request.requestedAt)}</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => router.push(`/partner/profit-distributions/${request.id}`)}
+                        className="flex items-center gap-2"
+                      >
+                        <Eye className="w-4 h-4" />
+                        عرض التفاصيل
+                        <ArrowRight className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 ))}

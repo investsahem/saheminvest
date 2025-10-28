@@ -868,6 +868,9 @@ model ProfitDistributionRequest {
   totalInvestmentAmount Decimal?   @db.Decimal(15, 2)
   distributionData Json?           // Legacy field
   
+  // Admin custom per-investor amounts (optional override)
+  investorCustomAmounts Json?      // Store admin-edited per-investor amounts
+  
   // Timestamps
   requestedAt      DateTime        @default(now())
   createdAt        DateTime        @default(now())

@@ -11,6 +11,19 @@ import {
   Calendar, AlertCircle, Search, Filter, Eye,
   TrendingUp, Target, FileText, Plus
 } from 'lucide-react'
+import DistributionHistory from './components/DistributionHistory'
+import InvestorBreakdownTable from './components/InvestorBreakdownTable'
+import ProfitabilityAnalysis from './components/ProfitabilityAnalysis'
+import type { 
+  HistoricalPartialSummary, 
+  InvestorDistributionDetail,
+  ProfitabilityAnalysis as ProfitabilityAnalysisType,
+  InvestorHistoricalData
+} from '../../types/profit-distribution'
+import { 
+  calculateInvestorDistributions, 
+  analyzeProfitability 
+} from '../../lib/profit-distribution-utils'
 
 interface ProfitDistributionRequest {
   id: string
@@ -71,10 +84,51 @@ const AdminProfitDistributionsPage = () => {
   const [selectedRequest, setSelectedRequest] = useState<ProfitDistributionRequest | null>(null)
   const [processing, setProcessing] = useState<string | null>(null)
   const [editingFields, setEditingFields] = useState<EditableDistributionFields | null>(null)
+  
+  // New state for historical data and investor distributions
+  const [historicalData, setHistoricalData] = useState<HistoricalPartialSummary | null>(null)
+  const [investorHistoricalData, setInvestorHistoricalData] = useState<InvestorHistoricalData[]>([])
+  const [investorDistributions, setInvestorDistributions] = useState<InvestorDistributionDetail[]>([])
+  const [loadingHistorical, setLoadingHistorical] = useState(false)
 
   useEffect(() => {
     fetchRequests()
   }, [searchTerm, statusFilter])
+
+  // Fetch historical data when FINAL distribution is selected
+  useEffect(() => {
+    const loadHistoricalData = async () => {
+      if (selectedRequest && selectedRequest.distributionType === 'FINAL') {
+        const data = await fetchHistoricalData(selectedRequest.id)
+        if (data) {
+          // Calculate investor distributions with historical data
+          const totalInvestmentAmount = selectedRequest.project.investments.reduce(
+            (sum, inv) => sum + Number(inv.amount), 0
+          )
+          const currentFields = editingFields || initializeEditingFields(selectedRequest)
+          const distribution = calculateDistribution(currentFields, selectedRequest)
+          
+          const investments = selectedRequest.project.investments.map(inv => ({
+            investorId: inv.investor.id,
+            investorName: inv.investor.name || 'Unknown',
+            investorEmail: inv.investor.id, // Will be replaced by actual email from data
+            amount: Number(inv.amount)
+          }))
+
+          const investorDists = calculateInvestorDistributions(
+            investments,
+            totalInvestmentAmount,
+            distribution.investorsProfit,
+            distribution.investorsCapital,
+            data.investorHistoricalData
+          )
+
+          setInvestorDistributions(investorDists)
+        }
+      }
+    }
+    loadHistoricalData()
+  }, [selectedRequest])
 
   const fetchRequests = async () => {
     try {
@@ -93,6 +147,25 @@ const AdminProfitDistributionsPage = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Fetch historical partial distribution data for FINAL distributions
+  const fetchHistoricalData = async (requestId: string) => {
+    try {
+      setLoadingHistorical(true)
+      const response = await fetch(`/api/admin/profit-distribution-requests/${requestId}/history`)
+      if (response.ok) {
+        const data = await response.json()
+        setHistoricalData(data.historicalSummary)
+        setInvestorHistoricalData(data.investorHistoricalData)
+        return data
+      }
+    } catch (error) {
+      console.error('Error fetching historical data:', error)
+    } finally {
+      setLoadingHistorical(false)
+    }
+    return null
   }
 
   // Initialize editing fields from request
@@ -161,6 +234,17 @@ const AdminProfitDistributionsPage = () => {
         requestBody.isLoss = editedFields.isLoss
       }
 
+      // Include custom investor distributions if available
+      if (investorDistributions && investorDistributions.length > 0) {
+        requestBody.investorDistributions = investorDistributions.map(inv => ({
+          investorId: inv.investorId,
+          finalCapital: inv.finalCapital,
+          finalProfit: inv.finalProfit,
+          partialCapitalHistory: inv.partialCapitalReceived,
+          partialProfitHistory: inv.partialProfitReceived
+        }))
+      }
+
       const response = await fetch(`/api/admin/profit-distribution-requests/${requestId}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -172,6 +256,9 @@ const AdminProfitDistributionsPage = () => {
         fetchRequests()
         setSelectedRequest(null)
         setEditingFields(null)
+        setInvestorDistributions([])
+        setHistoricalData(null)
+        setInvestorHistoricalData([])
       } else {
         const error = await response.json()
         alert(error.error || 'حدث خطأ في الموافقة')
@@ -554,23 +641,26 @@ const AdminProfitDistributionsPage = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            نسبة إغلاق الصفقة (%)
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                            value={currentFields.estimatedClosingPercent}
-                            onChange={(e) => setEditingFields({
-                              ...currentFields,
-                              estimatedClosingPercent: Number(e.target.value)
-                            })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
+                        {/* Hide closing percent for FINAL distributions */}
+                        {selectedRequest.distributionType !== 'FINAL' && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              نسبة إغلاق الصفقة (%)
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={currentFields.estimatedClosingPercent}
+                              onChange={(e) => setEditingFields({
+                                ...currentFields,
+                                estimatedClosingPercent: Number(e.target.value)
+                              })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+                        )}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             مبلغ الربح (USD)
@@ -643,34 +733,37 @@ const AdminProfitDistributionsPage = () => {
                               ...currentFields,
                               sahemInvestPercent: Number(e.target.value)
                             })}
-                            disabled={distribution.isLoss && selectedRequest.distributionType === 'FINAL'}
+                            disabled={distribution.isLoss && distribution.isFinal}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
                           />
-                          {distribution.isLoss && selectedRequest.distributionType === 'FINAL' && (
+                          {distribution.isLoss && distribution.isFinal && (
                             <p className="text-xs text-red-600 mt-1">لا عمولة في حالة الخسارة</p>
                           )}
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            نسبة الاحتياطي (%)
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                            value={currentFields.reservedGainPercent}
-                            onChange={(e) => setEditingFields({
-                              ...currentFields,
-                              reservedGainPercent: Number(e.target.value)
-                            })}
-                            disabled={distribution.isLoss && selectedRequest.distributionType === 'FINAL'}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
-                          />
-                          {distribution.isLoss && selectedRequest.distributionType === 'FINAL' && (
-                            <p className="text-xs text-red-600 mt-1">لا احتياطي في حالة الخسارة</p>
-                          )}
-                        </div>
+                        {/* Hide reserve percent for FINAL distributions */}
+                        {selectedRequest.distributionType !== 'FINAL' && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              نسبة الاحتياطي (%)
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.1"
+                              value={currentFields.reservedGainPercent}
+                              onChange={(e) => setEditingFields({
+                                ...currentFields,
+                                reservedGainPercent: Number(e.target.value)
+                              })}
+                              disabled={distribution.isLoss && distribution.isFinal}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
+                            />
+                            {distribution.isLoss && distribution.isFinal && (
+                              <p className="text-xs text-red-600 mt-1">لا احتياطي في حالة الخسارة</p>
+                            )}
+                          </div>
+                        )}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             حالة الصفقة
@@ -790,6 +883,47 @@ const AdminProfitDistributionsPage = () => {
                         </div>
                       )}
                     </div>
+
+                    {/* FINAL Distribution: Show new sophisticated components */}
+                    {selectedRequest.distributionType === 'FINAL' && (
+                      <>
+                        {/* Profitability Analysis */}
+                        {(() => {
+                          const analysis = analyzeProfitability(
+                            selectedRequest.project.currentFunding,
+                            currentFields.totalAmount,
+                            currentFields.estimatedProfit,
+                            currentFields.estimatedReturnCapital,
+                            currentFields.sahemInvestPercent,
+                            currentFields.reservedGainPercent,
+                            currentFields.isLoss
+                          )
+                          return <ProfitabilityAnalysis analysis={analysis} />
+                        })()}
+
+                        {/* Historical Partial Data */}
+                        {loadingHistorical ? (
+                          <div className="flex justify-center items-center py-12">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                          </div>
+                        ) : historicalData && (
+                          <DistributionHistory summary={historicalData} />
+                        )}
+
+                        {/* Per-Investor Breakdown Table */}
+                        {investorDistributions.length > 0 && (
+                          <InvestorBreakdownTable
+                            investors={investorDistributions}
+                            expectedTotalProfit={distribution.investorsProfit}
+                            expectedTotalCapital={distribution.investorsCapital}
+                            onInvestorAmountsChange={(updated) => {
+                              setInvestorDistributions(updated)
+                            }}
+                            readonly={false}
+                          />
+                        )}
+                      </>
+                    )}
 
                     {/* Deal Info */}
                     <div>

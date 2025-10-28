@@ -29,7 +29,8 @@ export async function POST(
       estimatedReturnCapital,
       sahemInvestPercent, 
       reservedGainPercent,
-      isLoss 
+      isLoss,
+      investorDistributions // Custom per-investor amounts (optional)
     } = body
 
     // Get the profit distribution request
@@ -144,12 +145,37 @@ export async function POST(
 
     console.log(`Processing ${investorGroups.size} unique investors from ${distributionRequest.project.investments.length} investments`)
 
+    // Create a map for custom investor amounts if provided
+    const customAmountsMap = new Map<string, { finalCapital: number; finalProfit: number }>()
+    if (investorDistributions && Array.isArray(investorDistributions)) {
+      for (const dist of investorDistributions) {
+        customAmountsMap.set(dist.investorId, {
+          finalCapital: dist.finalCapital || 0,
+          finalProfit: dist.finalProfit || 0
+        })
+      }
+      console.log(`Using custom amounts for ${customAmountsMap.size} investors`)
+    }
+
     // Calculate all operations first - ONE per investor
     for (const [investorId, investorGroup] of investorGroups.entries()) {
       const investorTotalInvestment = investorGroup.totalInvestment
       const investmentRatio = investorTotalInvestment / totalInvestmentAmount
-      const investorProfitShare = investorDistributionAmount * investmentRatio
-      const investorCapitalReturn = capitalReturnAmount * investmentRatio
+      
+      // Use custom amounts if provided, otherwise calculate from ratio
+      let investorProfitShare: number
+      let investorCapitalReturn: number
+      
+      if (customAmountsMap.has(investorId)) {
+        const customAmounts = customAmountsMap.get(investorId)!
+        investorProfitShare = customAmounts.finalProfit
+        investorCapitalReturn = customAmounts.finalCapital
+        console.log(`Using custom amounts for investor ${investorId}: profit=${investorProfitShare}, capital=${investorCapitalReturn}`)
+      } else {
+        investorProfitShare = investorDistributionAmount * investmentRatio
+        investorCapitalReturn = capitalReturnAmount * investmentRatio
+      }
+      
       const investorData = investorDataMap.get(investorId)
 
       if (!investorData) continue
@@ -347,7 +373,9 @@ export async function POST(
           estimatedClosingPercent: finalEstimatedClosingPercent,
           estimatedReturnCapital: capitalReturnAmount,
           sahemInvestPercent: finalSahemPercent,
-          reservedGainPercent: finalReservedPercent
+          reservedGainPercent: finalReservedPercent,
+          // Store custom investor amounts if provided
+          investorCustomAmounts: investorDistributions ? JSON.stringify(investorDistributions) : null
         }
       })
 
