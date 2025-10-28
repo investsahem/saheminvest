@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '../../../../../../lib/auth'
-import { fetchHistoricalPartials } from '../../../../../../lib/profit-distribution-utils'
+import { authOptions } from '../../../../../lib/auth'
+import { fetchHistoricalPartials } from '../../../../../lib/profit-distribution-utils'
 
 // GET /api/admin/profit-distribution-requests/[id]/history
 // Fetch historical partial distribution data for a distribution request's deal
