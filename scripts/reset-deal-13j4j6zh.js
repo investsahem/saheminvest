@@ -7,7 +7,7 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
-const DEAL_ID = '13j4j6zh'
+const DEAL_ID = 'cmg254qhr0001vuog13j4j6zh' // هواتف مستعملة
 
 // Test data
 const INVESTORS = [
@@ -47,6 +47,25 @@ async function clearDealData(dealId) {
   console.log(`\n🗑️  Clearing existing data for deal ${dealId}...`)
   
   try {
+    // First check if deal exists
+    const deal = await prisma.project.findUnique({
+      where: { id: dealId }
+    })
+
+    if (!deal) {
+      console.log(`   ⚠️  Deal ${dealId} not found in database`)
+      console.log(`   ℹ️  Available deals:`)
+      const allDeals = await prisma.project.findMany({
+        select: { id: true, title: true }
+      })
+      allDeals.slice(0, 5).forEach(d => {
+        console.log(`      - ${d.id}: ${d.title}`)
+      })
+      throw new Error(`Deal ${dealId} does not exist. Please check the deal ID.`)
+    }
+
+    console.log(`   ✅ Found deal: ${deal.title}`)
+
     // Delete in correct order to respect foreign key constraints
     const deletedDistributions = await prisma.profitDistribution.deleteMany({
       where: { projectId: dealId }
@@ -74,7 +93,7 @@ async function clearDealData(dealId) {
     console.log(`   ✅ Reset deal status and funding`)
 
   } catch (error) {
-    console.error('   ❌ Error clearing data:', error)
+    console.error('   ❌ Error clearing data:', error.message || error)
     throw error
   }
 }
@@ -134,7 +153,8 @@ async function createInvestments(dealId, investorMap) {
         amount: investorData.amount,
         projectId: dealId,
         investorId: investor.id,
-        status: 'APPROVED',
+        status: 'COMPLETED',
+        expectedReturn: 0, // Will be updated based on actual returns
         investmentDate: investmentDate,
         createdAt: investmentDate,
         updatedAt: investmentDate
