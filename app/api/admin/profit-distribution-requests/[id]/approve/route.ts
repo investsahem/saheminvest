@@ -163,6 +163,8 @@ export async function POST(
       const investmentRatio = investorTotalInvestment / totalInvestmentAmount
       
       // Use custom amounts if provided, otherwise calculate from ratio
+      // IMPORTANT: For FINAL distributions, custom amounts from frontend already have
+      // partial distributions subtracted (see calculateInvestorDistributions in profit-distribution-client-utils.ts)
       let investorProfitShare: number
       let investorCapitalReturn: number
       
@@ -172,6 +174,8 @@ export async function POST(
         investorCapitalReturn = customAmounts.finalCapital
         console.log(`Using custom amounts for investor ${investorId}: profit=${investorProfitShare}, capital=${investorCapitalReturn}`)
       } else {
+        // Fallback: Calculate from ratio (used only if frontend doesn't send custom amounts)
+        // Note: This doesn't account for partial distributions - frontend should always send custom amounts for FINAL
         investorProfitShare = investorDistributionAmount * investmentRatio
         investorCapitalReturn = capitalReturnAmount * investmentRatio
       }

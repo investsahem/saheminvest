@@ -623,11 +623,11 @@ const AdminProfitDistributionsPage = () => {
                   </div>
 
                   <div className="space-y-6">
-                    {/* Partner Data - Now Editable */}
+                    {/* Partner Data - Editable for PARTIAL, Read-only for FINAL */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
                         <DollarSign className="w-5 h-5 mr-2 text-blue-600" />
-                        بيانات التوزيع (قابلة للتعديل)
+                        بيانات التوزيع {selectedRequest.distributionType === 'FINAL' ? '(للقراءة فقط)' : '(قابلة للتعديل)'}
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
@@ -643,7 +643,8 @@ const AdminProfitDistributionsPage = () => {
                               ...currentFields,
                               totalAmount: Number(e.target.value)
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled={selectedRequest.distributionType === 'FINAL'}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                           />
                         </div>
                         <div>
@@ -664,7 +665,8 @@ const AdminProfitDistributionsPage = () => {
                                 isLoss: percent < 0
                               })
                             }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled={selectedRequest.distributionType === 'FINAL'}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                           />
                         </div>
                         {/* Hide closing percent for FINAL distributions */}
@@ -703,7 +705,8 @@ const AdminProfitDistributionsPage = () => {
                                 isLoss: profit < 0
                               })
                             }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled={selectedRequest.distributionType === 'FINAL'}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                           />
                         </div>
                         <div>
@@ -719,7 +722,8 @@ const AdminProfitDistributionsPage = () => {
                               ...currentFields,
                               estimatedReturnCapital: Number(e.target.value)
                             })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled={selectedRequest.distributionType === 'FINAL'}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                           />
                         </div>
                         <div>
@@ -735,6 +739,11 @@ const AdminProfitDistributionsPage = () => {
                         <p className="text-sm text-gray-700">
                           <span className="font-medium">الوصف:</span> {selectedRequest.description}
                         </p>
+                        {selectedRequest.distributionType === 'FINAL' && (
+                          <p className="text-xs text-gray-500 mt-2">
+                            ملاحظة: بيانات التوزيع النهائي من الشريك للقراءة فقط. يمكنك تعديل نسب العمولة فقط.
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -913,6 +922,138 @@ const AdminProfitDistributionsPage = () => {
                     {/* FINAL Distribution: Show new sophisticated components */}
                     {selectedRequest.distributionType === 'FINAL' && (
                       <>
+                        {/* Comprehensive Summary - Partial + Final */}
+                        {historicalData && investorDistributions.length > 0 && (
+                          <Card className="bg-gradient-to-r from-indigo-50 to-blue-50 border-indigo-200">
+                            <CardContent className="p-6">
+                              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                                <FileText className="w-5 h-5 mr-2 text-indigo-600" />
+                                ملخص التوزيع الشامل (التوزيعات الجزئية + النهائية)
+                              </h3>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {/* Historical Partials Section */}
+                                <div className="bg-white p-4 rounded-lg border border-blue-200">
+                                  <h4 className="text-sm font-semibold text-blue-800 mb-3 flex items-center">
+                                    <Calendar className="w-4 h-4 mr-1" />
+                                    التوزيعات الجزئية (تاريخية)
+                                  </h4>
+                                  <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-gray-600">الأرباح المدفوعة:</span>
+                                      <span className="text-sm font-bold text-blue-700">
+                                        {formatCurrency(historicalData.totalPartialProfit)}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-gray-600">رأس المال المدفوع:</span>
+                                      <span className="text-sm font-bold text-blue-700">
+                                        {formatCurrency(historicalData.totalPartialCapital)}
+                                      </span>
+                                    </div>
+                                    <div className="pt-2 border-t border-blue-100">
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-xs font-medium text-gray-700">إجمالي جزئي:</span>
+                                        <span className="text-sm font-bold text-blue-900">
+                                          {formatCurrency(historicalData.totalPartialProfit + historicalData.totalPartialCapital)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-2">
+                                      عدد التوزيعات: {historicalData.distributionCount}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Current Final Section */}
+                                <div className="bg-white p-4 rounded-lg border border-green-200">
+                                  <h4 className="text-sm font-semibold text-green-800 mb-3 flex items-center">
+                                    <CheckCircle className="w-4 h-4 mr-1" />
+                                    التوزيع النهائي (الحالي)
+                                  </h4>
+                                  <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-gray-600">الأرباح للدفع:</span>
+                                      <span className="text-sm font-bold text-green-700">
+                                        {formatCurrency(investorDistributions.reduce((sum, inv) => sum + inv.finalProfit, 0))}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-gray-600">رأس المال للدفع:</span>
+                                      <span className="text-sm font-bold text-green-700">
+                                        {formatCurrency(investorDistributions.reduce((sum, inv) => sum + inv.finalCapital, 0))}
+                                      </span>
+                                    </div>
+                                    <div className="pt-2 border-t border-green-100">
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-xs font-medium text-gray-700">إجمالي نهائي:</span>
+                                        <span className="text-sm font-bold text-green-900">
+                                          {formatCurrency(investorDistributions.reduce((sum, inv) => sum + inv.finalTotal, 0))}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-2">
+                                      بعد خصم المدفوعات الجزئية
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Grand Total Section */}
+                                <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-4 rounded-lg border-2 border-purple-300">
+                                  <h4 className="text-sm font-semibold text-purple-800 mb-3 flex items-center">
+                                    <TrendingUp className="w-4 h-4 mr-1" />
+                                    الإجمالي الكلي للصفقة
+                                  </h4>
+                                  <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-gray-700">إجمالي الأرباح:</span>
+                                      <span className="text-sm font-bold text-purple-700">
+                                        {formatCurrency(
+                                          historicalData.totalPartialProfit + 
+                                          investorDistributions.reduce((sum, inv) => sum + inv.finalProfit, 0)
+                                        )}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-gray-700">إجمالي رأس المال:</span>
+                                      <span className="text-sm font-bold text-purple-700">
+                                        {formatCurrency(
+                                          historicalData.totalPartialCapital + 
+                                          investorDistributions.reduce((sum, inv) => sum + inv.finalCapital, 0)
+                                        )}
+                                      </span>
+                                    </div>
+                                    <div className="pt-2 border-t-2 border-purple-300">
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-xs font-bold text-gray-800">المبلغ الكلي:</span>
+                                        <span className="text-base font-bold text-purple-900">
+                                          {formatCurrency(
+                                            historicalData.totalPartialProfit + 
+                                            historicalData.totalPartialCapital +
+                                            investorDistributions.reduce((sum, inv) => sum + inv.finalTotal, 0)
+                                          )}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-gray-600 mt-2 bg-white/50 p-2 rounded">
+                                      جزئي ({historicalData.distributionCount}) + نهائي
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Additional Info */}
+                              <div className="mt-4 p-3 bg-white/70 rounded-lg border border-indigo-200">
+                                <p className="text-xs text-gray-700">
+                                  <strong>ملاحظة مهمة:</strong> يعرض هذا الملخص المبالغ الإجمالية للصفقة بأكملها. 
+                                  التوزيع النهائي الحالي يأخذ في الاعتبار جميع التوزيعات الجزئية السابقة، 
+                                  لذا لن يحصل المستثمرون على مدفوعات مكررة.
+                                </p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
+
                         {/* Profitability Analysis */}
                         {(() => {
                           const analysis = analyzeProfitability(

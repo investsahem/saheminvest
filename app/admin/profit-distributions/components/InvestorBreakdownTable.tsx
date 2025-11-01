@@ -148,7 +148,8 @@ export default function InvestorBreakdownTable({
                 <th className="text-right p-3 font-medium text-gray-700">الأرباح الجزئية</th>
                 <th className="text-right p-3 font-medium text-gray-700">رأس المال النهائي</th>
                 <th className="text-right p-3 font-medium text-gray-700">الأرباح النهائية</th>
-                <th className="text-right p-3 font-medium text-gray-700">الإجمالي</th>
+                <th className="text-right p-3 font-medium text-gray-700">صافي الدفعة النهائية</th>
+                <th className="text-right p-3 font-medium text-gray-700">الإجمالي الكلي</th>
                 {!readonly && <th className="text-center p-3 font-medium text-gray-700">إجراءات</th>}
               </tr>
             </thead>
@@ -201,7 +202,20 @@ export default function InvestorBreakdownTable({
                       )}
                     </td>
                     <td className="p-3">
-                      <span className="font-bold text-purple-900">{formatCurrency(investor.finalTotal)}</span>
+                      <span className="font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded">
+                        {formatCurrency(investor.finalTotal)}
+                      </span>
+                      <p className="text-xs text-gray-500 mt-1">ما سيُدفع الآن</p>
+                    </td>
+                    <td className="p-3">
+                      <span className="font-bold text-purple-900">
+                        {formatCurrency(
+                          investor.partialCapitalReceived + 
+                          investor.partialProfitReceived + 
+                          investor.finalTotal
+                        )}
+                      </span>
+                      <p className="text-xs text-gray-500 mt-1">جزئي + نهائي</p>
                     </td>
                     {!readonly && (
                       <td className="p-3 text-center">
@@ -249,7 +263,14 @@ export default function InvestorBreakdownTable({
                 <td className={`p-3 ${profitMismatch ? 'text-red-700' : 'text-green-700'}`}>
                   {formatCurrency(totalActualProfit)}
                 </td>
-                <td className="p-3 text-purple-900">{formatCurrency(totalActualAmount)}</td>
+                <td className="p-3 text-teal-700 bg-teal-50">{formatCurrency(totalActualAmount)}</td>
+                <td className="p-3 text-purple-900">
+                  {formatCurrency(
+                    editedInvestors.reduce((sum, inv) => 
+                      sum + inv.partialCapitalReceived + inv.partialProfitReceived + inv.finalTotal, 0
+                    )
+                  )}
+                </td>
                 {!readonly && <td></td>}
               </tr>
             </tfoot>
@@ -258,10 +279,19 @@ export default function InvestorBreakdownTable({
 
         {/* Summary Info */}
         <div className="mt-4 p-3 bg-white rounded-lg border border-purple-200">
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-600 mb-2">
             <strong>ملاحظة:</strong> يمكنك تعديل مبالغ رأس المال والأرباح النهائية لكل مستثمر بشكل فردي. 
             تأكد من أن الإجماليات تتطابق مع المبالغ المتوقعة قبل الموافقة على التوزيع.
           </p>
+          <div className="mt-2 pt-2 border-t border-purple-100">
+            <p className="text-xs font-medium text-purple-800">
+              📊 فهم الأعمدة:
+            </p>
+            <ul className="text-xs text-gray-600 mt-1 space-y-1 mr-4">
+              <li>• <strong>صافي الدفعة النهائية:</strong> المبلغ الذي سيُدفع للمستثمر في هذا التوزيع (بعد خصم الجزئيات)</li>
+              <li>• <strong>الإجمالي الكلي:</strong> مجموع كل ما حصل عليه المستثمر من الصفقة (جزئي + نهائي)</li>
+            </ul>
+          </div>
         </div>
       </CardContent>
     </Card>
