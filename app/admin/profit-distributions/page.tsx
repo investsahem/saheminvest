@@ -59,6 +59,8 @@ interface ProfitDistributionRequest {
   // Admin-editable fields
   sahemInvestPercent: number
   reservedGainPercent: number
+  reservedAmount?: number
+  sahemInvestAmount?: number
   
   status: 'PENDING' | 'APPROVED' | 'REJECTED'
   createdAt: string
