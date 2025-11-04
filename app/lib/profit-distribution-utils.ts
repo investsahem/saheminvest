@@ -82,8 +82,11 @@ export async function fetchHistoricalPartials(
 
     const summary: HistoricalPartialSummary = {
       totalPartialDistributions: totalPartialProfit,
+      totalPartialAmount: totalPartialProfit,
       totalPartialProfit,
       totalPartialCapital,
+      totalReserved: 0, // Not tracked in profitDistribution records
+      totalSahemCommission: 0, // Not tracked in profitDistribution records
       distributionDates,
       distributionCount: distributionDates.length
     }

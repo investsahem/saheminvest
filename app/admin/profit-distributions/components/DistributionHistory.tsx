@@ -96,7 +96,7 @@ export default function DistributionHistory({ summary, investorData = [] }: Dist
         </div>
 
         {/* Distribution Timeline */}
-        {summary.distributionDates.length > 0 && (
+        {summary.distributionDates && summary.distributionDates.length > 0 && (
           <div className="bg-white rounded-lg p-4 border border-blue-200 mb-4">
             <h4 className="text-sm font-medium text-gray-700 mb-3">تواريخ التوزيعات</h4>
             <div className="flex flex-wrap gap-2">
