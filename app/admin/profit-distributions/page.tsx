@@ -72,6 +72,9 @@ interface EditableDistributionFields {
   estimatedReturnCapital: number
   sahemInvestPercent: number
   reservedGainPercent: number
+  // New: actual amounts for admin to set
+  reservedAmount: number
+  sahemInvestAmount: number
   isLoss: boolean // New: indicates if the deal resulted in a loss
 }
 
@@ -188,6 +191,8 @@ const AdminProfitDistributionsPage = () => {
     const estimatedReturnCapital = Number(request.estimatedReturnCapital) || 0
     const sahemInvestPercent = Number(request.sahemInvestPercent) || 0
     const reservedGainPercent = Number(request.reservedGainPercent) || 0
+    const reservedAmount = Number(request.reservedAmount) || 0
+    const sahemInvestAmount = Number(request.sahemInvestAmount) || 0
     
     return {
       totalAmount,
@@ -197,6 +202,8 @@ const AdminProfitDistributionsPage = () => {
       estimatedReturnCapital,
       sahemInvestPercent,
       reservedGainPercent,
+      reservedAmount,
+      sahemInvestAmount,
       isLoss: estimatedProfit < 0 || estimatedGainPercent < 0
     }
   }
@@ -204,6 +211,7 @@ const AdminProfitDistributionsPage = () => {
   // Calculate distribution breakdown
   const calculateDistribution = (fields: EditableDistributionFields, request: ProfitDistributionRequest) => {
     const isFinal = request.distributionType === 'FINAL'
+    const isPartial = request.distributionType === 'PARTIAL'
     const isLoss = fields.isLoss
     
     // Ensure all values are proper numbers
@@ -212,23 +220,42 @@ const AdminProfitDistributionsPage = () => {
     const safeTotalAmount = Number(fields.totalAmount) || 0
     const safeSahemPercent = Number(fields.sahemInvestPercent) || 0
     const safeReservePercent = Number(fields.reservedGainPercent) || 0
+    const safeReservedAmount = Number(fields.reservedAmount) || 0
+    const safeSahemAmount = Number(fields.sahemInvestAmount) || 0
     
     let sahemAmount = 0
     let reserveAmount = 0
     let investorsProfit = 0
     let investorsCapital = safeCapital
+    let calculatedSahemPercent = safeSahemPercent
+    let calculatedReservePercent = safeReservePercent
 
-    if (isFinal && isLoss) {
-      // Loss scenario: No commission, all remaining goes to investors to recover capital
+    if (isPartial) {
+      // PARTIAL: Deduct amounts from TOTAL AMOUNT (not from profit)
+      sahemAmount = safeSahemAmount
+      reserveAmount = safeReservedAmount
+      
+      // Calculate percentages from amounts (for display)
+      calculatedSahemPercent = safeTotalAmount > 0 ? (safeSahemAmount / safeTotalAmount) * 100 : 0
+      calculatedReservePercent = safeTotalAmount > 0 ? (safeReservedAmount / safeTotalAmount) * 100 : 0
+      
+      // What goes to investors is the total minus commissions
+      investorsProfit = safeTotalAmount - sahemAmount - reserveAmount
+      investorsCapital = 0 // No capital return in partial distributions
+    } else if (isFinal && isLoss) {
+      // FINAL LOSS: No commission, all remaining goes to investors to recover capital
       sahemAmount = 0
       reserveAmount = 0
       investorsProfit = 0
       investorsCapital = safeTotalAmount // All remaining amount for capital recovery
+      calculatedSahemPercent = 0
+      calculatedReservePercent = 0
     } else {
-      // Profit scenario (or partial): Normal distribution with commissions
+      // FINAL PROFIT: Normal distribution with commissions from PROFIT
       sahemAmount = (safeProfit * safeSahemPercent) / 100
       reserveAmount = (safeProfit * safeReservePercent) / 100
       investorsProfit = safeProfit - sahemAmount - reserveAmount
+      investorsCapital = safeCapital
     }
 
     const totalToInvestors = investorsCapital + investorsProfit
@@ -240,7 +267,10 @@ const AdminProfitDistributionsPage = () => {
       investorsCapital,
       totalToInvestors,
       isLoss,
-      isFinal
+      isFinal,
+      isPartial,
+      calculatedSahemPercent,
+      calculatedReservePercent
     }
   }
 
@@ -257,6 +287,9 @@ const AdminProfitDistributionsPage = () => {
         requestBody.estimatedReturnCapital = editedFields.estimatedReturnCapital
         requestBody.sahemInvestPercent = editedFields.sahemInvestPercent
         requestBody.reservedGainPercent = editedFields.reservedGainPercent
+        // New: send actual amounts
+        requestBody.reservedAmount = editedFields.reservedAmount
+        requestBody.sahemInvestAmount = editedFields.sahemInvestAmount
         requestBody.isLoss = editedFields.isLoss
       }
 
@@ -623,114 +656,66 @@ const AdminProfitDistributionsPage = () => {
                   </div>
 
                   <div className="space-y-6">
-                    {/* Partner Data - Editable for PARTIAL, Read-only for FINAL */}
+                    {/* Partner Data - Read-only for both PARTIAL and FINAL */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
                         <DollarSign className="w-5 h-5 mr-2 text-blue-600" />
-                        بيانات التوزيع {selectedRequest.distributionType === 'FINAL' ? '(للقراءة فقط)' : '(قابلة للتعديل)'}
+                        بيانات الشريك (للقراءة فقط)
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             إجمالي المبلغ (USD)
                           </label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={currentFields.totalAmount}
-                            onChange={(e) => setEditingFields({
-                              ...currentFields,
-                              totalAmount: Number(e.target.value)
-                            })}
-                            disabled={selectedRequest.distributionType === 'FINAL'}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          />
+                          <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
+                            {formatCurrency(currentFields.totalAmount)}
+                          </div>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             نسبة الربح المقدر (%)
                           </label>
-                          <input
-                            type="number"
-                            step="0.1"
-                            value={currentFields.estimatedGainPercent}
-                            onChange={(e) => {
-                              const percent = Number(e.target.value)
-                              const profit = (selectedRequest.project.currentFunding * percent) / 100
-                              setEditingFields({
-                                ...currentFields,
-                                estimatedGainPercent: percent,
-                                estimatedProfit: profit,
-                                isLoss: percent < 0
-                              })
-                            }}
-                            disabled={selectedRequest.distributionType === 'FINAL'}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          />
+                          <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
+                            {currentFields.estimatedGainPercent}%
+                          </div>
                         </div>
-                        {/* Hide closing percent for FINAL distributions */}
-                        {selectedRequest.distributionType !== 'FINAL' && (
+                        {/* Show closing percent for PARTIAL only */}
+                        {selectedRequest.distributionType === 'PARTIAL' && (
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               نسبة إغلاق الصفقة (%)
                             </label>
-                            <input
-                              type="number"
-                              min="0"
-                              max="100"
-                              step="0.1"
-                              value={currentFields.estimatedClosingPercent}
-                              onChange={(e) => setEditingFields({
-                                ...currentFields,
-                                estimatedClosingPercent: Number(e.target.value)
-                              })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
+                            <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
+                              {currentFields.estimatedClosingPercent}%
+                            </div>
                           </div>
                         )}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            مبلغ الربح (USD)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={currentFields.estimatedProfit}
-                            onChange={(e) => {
-                              const profit = Number(e.target.value)
-                              setEditingFields({
-                                ...currentFields,
-                                estimatedProfit: profit,
-                                isLoss: profit < 0
-                              })
-                            }}
-                            disabled={selectedRequest.distributionType === 'FINAL'}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            رأس المال المُسترد (USD)
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={currentFields.estimatedReturnCapital}
-                            onChange={(e) => setEditingFields({
-                              ...currentFields,
-                              estimatedReturnCapital: Number(e.target.value)
-                            })}
-                            disabled={selectedRequest.distributionType === 'FINAL'}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                          />
-                        </div>
+                        {/* Show profit and capital for FINAL only */}
+                        {selectedRequest.distributionType === 'FINAL' && (
+                          <>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                مبلغ الربح (USD)
+                              </label>
+                              <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
+                                {formatCurrency(currentFields.estimatedProfit)}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                رأس المال المُسترد (USD)
+                              </label>
+                              <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
+                                {formatCurrency(currentFields.estimatedReturnCapital)}
+                              </div>
+                            </div>
+                          </>
+                        )}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             نوع التوزيع
                           </label>
-                          <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                          <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
                             {selectedRequest.distributionType === 'PARTIAL' ? 'جزئي' : 'نهائي'}
                           </div>
                         </div>
@@ -739,98 +724,233 @@ const AdminProfitDistributionsPage = () => {
                         <p className="text-sm text-gray-700">
                           <span className="font-medium">الوصف:</span> {selectedRequest.description}
                         </p>
-                        {selectedRequest.distributionType === 'FINAL' && (
-                          <p className="text-xs text-gray-500 mt-2">
-                            ملاحظة: بيانات التوزيع النهائي من الشريك للقراءة فقط. يمكنك تعديل نسب العمولة فقط.
-                          </p>
-                        )}
+                        <p className="text-xs text-gray-500 mt-2">
+                          ملاحظة: بيانات الشريك للقراءة فقط ولا يمكن تعديلها.
+                        </p>
                       </div>
                     </div>
 
-                    {/* Commission Settings */}
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                      <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
-                        <Target className="w-5 h-5 mr-2 text-orange-600" />
-                        إعدادات العمولة
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            نسبة ساهم انفست (%)
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                            value={currentFields.sahemInvestPercent}
-                            onChange={(e) => setEditingFields({
-                              ...currentFields,
-                              sahemInvestPercent: Number(e.target.value)
-                            })}
-                            disabled={distribution.isLoss && distribution.isFinal}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
-                          />
-                          {distribution.isLoss && distribution.isFinal && (
-                            <p className="text-xs text-red-600 mt-1">لا عمولة في حالة الخسارة</p>
-                          )}
-                        </div>
-                        {/* Hide reserve percent for FINAL distributions */}
-                        {selectedRequest.distributionType !== 'FINAL' && (
+                    {/* Admin Controls Section - Different for PARTIAL vs FINAL */}
+                    {selectedRequest.distributionType === 'PARTIAL' ? (
+                      // PARTIAL: Admin sets amounts (in USD), percentages calculated automatically
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                          <Target className="w-5 h-5 mr-2 text-green-600" />
+                          إعدادات الإدارة (قابلة للتعديل)
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                              نسبة الاحتياطي (%)
+                              المبلغ المحتفظ به (USD)
                             </label>
                             <input
                               type="number"
                               min="0"
-                              max="100"
-                              step="0.1"
-                              value={currentFields.reservedGainPercent}
+                              step="0.01"
+                              value={currentFields.reservedAmount}
                               onChange={(e) => setEditingFields({
                                 ...currentFields,
-                                reservedGainPercent: Number(e.target.value)
+                                reservedAmount: Number(e.target.value)
                               })}
-                              disabled={distribution.isLoss && distribution.isFinal}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
-                            {distribution.isLoss && distribution.isFinal && (
-                              <p className="text-xs text-red-600 mt-1">لا احتياطي في حالة الخسارة</p>
-                            )}
+                            <p className="text-xs text-gray-600 mt-1">
+                              النسبة: {distribution.calculatedReservePercent.toFixed(2)}%
+                            </p>
                           </div>
-                        )}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            حالة الصفقة
-                          </label>
-                          <div className="flex items-center gap-2">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              عمولة ساهم انفست (USD)
+                            </label>
                             <input
-                              type="checkbox"
-                              checked={currentFields.isLoss}
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={currentFields.sahemInvestAmount}
                               onChange={(e) => setEditingFields({
                                 ...currentFields,
-                                isLoss: e.target.checked
+                                sahemInvestAmount: Number(e.target.value)
                               })}
-                              disabled={selectedRequest.distributionType === 'PARTIAL'}
-                              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
-                            <span className="text-sm">خسارة (لا عمولة)</span>
+                            <p className="text-xs text-gray-600 mt-1">
+                              النسبة: {distribution.calculatedSahemPercent.toFixed(2)}%
+                            </p>
                           </div>
-                          {selectedRequest.distributionType === 'PARTIAL' && (
-                            <p className="text-xs text-gray-600 mt-1">متاح فقط في التوزيع النهائي</p>
-                          )}
+                        </div>
+                        <div className="mt-3 p-3 bg-white border border-green-200 rounded-md">
+                          <p className="text-sm text-gray-700">
+                            <span className="font-medium">ملاحظة:</span> يتم خصم هذه المبالغ من المبلغ الإجمالي ({formatCurrency(currentFields.totalAmount)})، وليس من الربح.
+                          </p>
                         </div>
                       </div>
-                    </div>
+                    ) : null}
+
+                    {/* Commission Settings - Only for FINAL distributions */}
+                    {selectedRequest.distributionType === 'FINAL' && (
+                      <>
+                        {/* Historical Summary from Partial Distributions */}
+                        {historicalData && historicalData.distributionCount > 0 && (
+                          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                            <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                              <Calendar className="w-5 h-5 mr-2 text-purple-600" />
+                              ملخص التوزيعات الجزئية السابقة (للقراءة فقط)
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="bg-white p-3 rounded-lg border border-purple-200">
+                                <p className="text-xs text-gray-600 mb-1">المبلغ المحتفظ به</p>
+                                <p className="text-lg font-bold text-purple-700">{formatCurrency(historicalData.totalReserved || 0)}</p>
+                              </div>
+                              <div className="bg-white p-3 rounded-lg border border-purple-200">
+                                <p className="text-xs text-gray-600 mb-1">عمولة ساهم انفست</p>
+                                <p className="text-lg font-bold text-purple-700">{formatCurrency(historicalData.totalSahemCommission || 0)}</p>
+                              </div>
+                              <div className="bg-white p-3 rounded-lg border border-purple-200">
+                                <p className="text-xs text-gray-600 mb-1">عدد التوزيعات الجزئية</p>
+                                <p className="text-lg font-bold text-purple-700">{historicalData.distributionCount}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Commission Settings for FINAL */}
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                          <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                            <Target className="w-5 h-5 mr-2 text-orange-600" />
+                            إعدادات العمولة للتوزيع النهائي
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                نسبة ساهم انفست (%)
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                value={currentFields.sahemInvestPercent}
+                                onChange={(e) => setEditingFields({
+                                  ...currentFields,
+                                  sahemInvestPercent: Number(e.target.value)
+                                })}
+                                disabled={distribution.isLoss}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
+                              />
+                              {distribution.isLoss && (
+                                <p className="text-xs text-red-600 mt-1">لا عمولة في حالة الخسارة</p>
+                              )}
+                              {!distribution.isLoss && (
+                                <p className="text-xs text-gray-600 mt-1">
+                                  المبلغ: {formatCurrency(distribution.sahemAmount)}
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                نسبة الاحتياطي (%)
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                value={currentFields.reservedGainPercent}
+                                onChange={(e) => setEditingFields({
+                                  ...currentFields,
+                                  reservedGainPercent: Number(e.target.value)
+                                })}
+                                disabled={distribution.isLoss}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
+                              />
+                              {distribution.isLoss && (
+                                <p className="text-xs text-red-600 mt-1">لا احتياطي في حالة الخسارة</p>
+                              )}
+                              {!distribution.isLoss && (
+                                <p className="text-xs text-gray-600 mt-1">
+                                  المبلغ: {formatCurrency(distribution.reserveAmount)}
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                حالة الصفقة
+                              </label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={currentFields.isLoss}
+                                  onChange={(e) => setEditingFields({
+                                    ...currentFields,
+                                    isLoss: e.target.checked
+                                  })}
+                                  className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                                />
+                                <span className="text-sm">خسارة (لا عمولة)</span>
+                              </div>
+                              <p className="text-xs text-gray-600 mt-1">
+                                {distribution.isLoss ? 'لن يتم خصم عمولات' : 'سيتم خصم العمولات من الربح'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="mt-3 p-3 bg-white border border-orange-200 rounded-md">
+                            <p className="text-sm text-gray-700">
+                              <span className="font-medium">ملاحظة:</span> في التوزيع النهائي، يتم حساب العمولات من الربح ({formatCurrency(currentFields.estimatedProfit)})، وليس من المبلغ الإجمالي.
+                            </p>
+                          </div>
+                        </div>
+                      </>
+                    )}
 
                     {/* Distribution Preview */}
                     <div className={`${distribution.isLoss ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'} border rounded-lg p-4`}>
                       <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
                         <TrendingUp className="w-5 h-5 mr-2" />
-                        معاينة التوزيع النهائي
+                        معاينة التوزيع
                       </h3>
                       
-                      {distribution.isLoss && selectedRequest.distributionType === 'FINAL' ? (
+                      {selectedRequest.distributionType === 'PARTIAL' ? (
+                        // PARTIAL Distribution Preview
+                        <div className="space-y-4">
+                          <div className="p-4 bg-white rounded-lg border border-green-300">
+                            <div className="flex items-center gap-2 mb-3">
+                              <CheckCircle className="w-5 h-5 text-green-600" />
+                              <h4 className="font-semibold text-green-800">توزيع جزئي</h4>
+                            </div>
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                <span className="text-sm font-medium text-gray-700">المبلغ الإجمالي:</span>
+                                <span className="text-lg font-bold text-blue-700">{formatCurrency(currentFields.totalAmount)}</span>
+                              </div>
+                              <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                <span className="text-sm font-medium text-gray-700">المبلغ المحتفظ به:</span>
+                                <span className="text-lg font-bold text-red-700">- {formatCurrency(distribution.reserveAmount)}</span>
+                                <span className="text-xs text-gray-500">({distribution.calculatedReservePercent.toFixed(2)}%)</span>
+                              </div>
+                              <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                <span className="text-sm font-medium text-gray-700">عمولة ساهم انفست:</span>
+                                <span className="text-lg font-bold text-red-700">- {formatCurrency(distribution.sahemAmount)}</span>
+                                <span className="text-xs text-gray-500">({distribution.calculatedSahemPercent.toFixed(2)}%)</span>
+                              </div>
+                              <div className="border-t-2 border-gray-300 pt-3">
+                                <div className="flex items-center justify-between p-3 bg-green-100 rounded-lg border-2 border-green-400">
+                                  <span className="text-sm font-bold text-gray-800">المبلغ للمستثمرين:</span>
+                                  <span className="text-xl font-bold text-green-700">{formatCurrency(distribution.investorsProfit)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          {(distribution.reserveAmount + distribution.sahemAmount >= currentFields.totalAmount) && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                              <p className="text-red-800 text-sm font-medium flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4" />
+                                تحذير: مجموع المبالغ المحتفظة والعمولات يساوي أو يتجاوز المبلغ الإجمالي!
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ) : distribution.isLoss ? (
+                        // FINAL Distribution - Loss Scenario
                         <div className="space-y-4">
                           <div className="p-4 bg-white rounded-lg border border-red-300">
                             <div className="flex items-center gap-2 mb-3">
@@ -865,13 +985,12 @@ const AdminProfitDistributionsPage = () => {
                           </div>
                         </div>
                       ) : (
+                        // FINAL Distribution - Profit Scenario
                         <div className="space-y-4">
                           <div className="p-4 bg-white rounded-lg border border-green-300">
                             <div className="flex items-center gap-2 mb-3">
                               <CheckCircle className="w-5 h-5 text-green-600" />
-                              <h4 className="font-semibold text-green-800">
-                                {selectedRequest.distributionType === 'FINAL' ? 'سيناريو الربح' : 'توزيع جزئي'}
-                              </h4>
+                              <h4 className="font-semibold text-green-800">سيناريو الربح (نهائي)</h4>
                             </div>
                             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                               <div className="text-center p-3 bg-blue-50 rounded-lg">
@@ -899,13 +1018,11 @@ const AdminProfitDistributionsPage = () => {
                                 <p className="text-xs text-gray-500">ربح + رأس مال</p>
                               </div>
                             </div>
-                            {selectedRequest.distributionType === 'FINAL' && (
-                              <div className="mt-3 p-2 bg-gray-50 rounded-lg">
-                                <p className="text-xs text-gray-600">
-                                  رأس المال المُسترد: <span className="font-semibold">{formatCurrency(distribution.investorsCapital)}</span>
-                                </p>
-                              </div>
-                            )}
+                            <div className="mt-3 p-2 bg-gray-50 rounded-lg">
+                              <p className="text-xs text-gray-600">
+                                رأس المال المُسترد: <span className="font-semibold">{formatCurrency(distribution.investorsCapital)}</span>
+                              </p>
+                            </div>
                           </div>
                           {(Number(currentFields.sahemInvestPercent) + Number(currentFields.reservedGainPercent) > 100) && (
                             <div className="p-3 bg-red-50 border border-red-200 rounded-lg">

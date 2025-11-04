@@ -29,6 +29,9 @@ export async function POST(
       estimatedReturnCapital,
       sahemInvestPercent, 
       reservedGainPercent,
+      // New: actual amounts for reserve and commission
+      reservedAmount,
+      sahemInvestAmount,
       isLoss,
       investorDistributions // Custom per-investor amounts (optional)
     } = body
@@ -70,31 +73,46 @@ export async function POST(
     // Calculate distribution amounts based on profit/loss scenario
     let finalSahemPercent: number
     let finalReservedPercent: number
-    let sahemInvestAmount: number
-    let reservedAmount: number
+    let finalSahemInvestAmount: number
+    let finalReservedAmount: number
     let investorDistributionAmount: number
     let capitalReturnAmount: number
+    const isPartialDistribution = distributionRequest.distributionType === 'PARTIAL'
 
-    if (isFinalDistribution && finalIsLoss) {
-      // LOSS SCENARIO: No commissions, all remaining amount goes to investors
+    if (isPartialDistribution) {
+      // PARTIAL DISTRIBUTION: Amounts are deducted from TOTAL AMOUNT (not from profit)
+      finalReservedAmount = reservedAmount ?? Number(distributionRequest.reservedAmount ?? 0)
+      finalSahemInvestAmount = sahemInvestAmount ?? Number(distributionRequest.sahemInvestAmount ?? 0)
+      
+      // Calculate percentages from amounts (for storage)
+      finalReservedPercent = finalTotalAmount > 0 ? (finalReservedAmount / finalTotalAmount) * 100 : 0
+      finalSahemPercent = finalTotalAmount > 0 ? (finalSahemInvestAmount / finalTotalAmount) * 100 : 0
+      
+      // Amount to investors is total minus commissions
+      investorDistributionAmount = finalTotalAmount - finalReservedAmount - finalSahemInvestAmount
+      capitalReturnAmount = 0 // No capital return in partial distributions
+      
+      console.log(`Processing PARTIAL scenario: Total ${finalTotalAmount}, Reserved ${finalReservedAmount}, Sahem ${finalSahemInvestAmount}, To Investors ${investorDistributionAmount}`)
+    } else if (isFinalDistribution && finalIsLoss) {
+      // FINAL LOSS SCENARIO: No commissions, all remaining amount goes to investors
       finalSahemPercent = 0
       finalReservedPercent = 0
-      sahemInvestAmount = 0
-      reservedAmount = 0
+      finalSahemInvestAmount = 0
+      finalReservedAmount = 0
       investorDistributionAmount = 0 // No profit
       capitalReturnAmount = finalTotalAmount // All remaining funds for capital recovery
       
-      console.log(`Processing LOSS scenario: Total remaining ${finalTotalAmount} goes to investors for capital recovery`)
+      console.log(`Processing FINAL LOSS scenario: Total remaining ${finalTotalAmount} goes to investors for capital recovery`)
     } else {
-      // PROFIT SCENARIO (or Partial): Normal commission distribution
+      // FINAL PROFIT SCENARIO: Percentages applied to PROFIT (not total amount)
       finalSahemPercent = sahemInvestPercent ?? Number(distributionRequest.sahemInvestPercent)
       finalReservedPercent = reservedGainPercent ?? Number(distributionRequest.reservedGainPercent)
-      sahemInvestAmount = (finalEstimatedProfit * finalSahemPercent) / 100
-      reservedAmount = (finalEstimatedProfit * finalReservedPercent) / 100
-      investorDistributionAmount = finalEstimatedProfit - sahemInvestAmount - reservedAmount
+      finalSahemInvestAmount = (finalEstimatedProfit * finalSahemPercent) / 100
+      finalReservedAmount = (finalEstimatedProfit * finalReservedPercent) / 100
+      investorDistributionAmount = finalEstimatedProfit - finalSahemInvestAmount - finalReservedAmount
       capitalReturnAmount = finalEstimatedReturnCapital
       
-      console.log(`Processing ${isFinalDistribution ? 'PROFIT' : 'PARTIAL'} scenario: Profit ${finalEstimatedProfit}, Sahem ${sahemInvestAmount}, Reserve ${reservedAmount}, Investors ${investorDistributionAmount}, Capital ${capitalReturnAmount}`)
+      console.log(`Processing FINAL PROFIT scenario: Profit ${finalEstimatedProfit}, Sahem ${finalSahemInvestAmount}, Reserve ${finalReservedAmount}, Investors ${investorDistributionAmount}, Capital ${capitalReturnAmount}`)
     }
 
     const totalProfit = finalEstimatedProfit
@@ -378,6 +396,9 @@ export async function POST(
           estimatedReturnCapital: capitalReturnAmount,
           sahemInvestPercent: finalSahemPercent,
           reservedGainPercent: finalReservedPercent,
+          // Store actual amounts
+          reservedAmount: finalReservedAmount,
+          sahemInvestAmount: finalSahemInvestAmount,
           // Store custom investor amounts if provided
           investorCustomAmounts: investorDistributions ? investorDistributions : undefined
         }
@@ -403,9 +424,14 @@ export async function POST(
       }
 
       // 5. Create partner notification
-      const partnerNotificationMessage = finalIsLoss && isFinalDistribution
-        ? `تم الموافقة على طلب التوزيع النهائي للصفقة "${distributionRequest.project.title}". الصفقة أظهرت خسارة، وتم توزيع ${capitalReturnAmount.toFixed(2)} دولار على المستثمرين لاسترداد رأس المال (بدون عمولات).`
-        : `تم الموافقة على طلب توزيع الأرباح للصفقة "${distributionRequest.project.title}" وتم توزيع ${investorDistributionAmount.toFixed(2)} دولار كأرباح و ${capitalReturnAmount.toFixed(2)} دولار كرأس مال على المستثمرين من إجمالي ${totalProfit.toFixed(2)} دولار.`
+      let partnerNotificationMessage: string
+      if (finalIsLoss && isFinalDistribution) {
+        partnerNotificationMessage = `تم الموافقة على طلب التوزيع النهائي للصفقة "${distributionRequest.project.title}". الصفقة أظهرت خسارة، وتم توزيع ${capitalReturnAmount.toFixed(2)} دولار على المستثمرين لاسترداد رأس المال (بدون عمولات).`
+      } else if (isPartialDistribution) {
+        partnerNotificationMessage = `تم الموافقة على التوزيع الجزئي للصفقة "${distributionRequest.project.title}". تم توزيع ${investorDistributionAmount.toFixed(2)} دولار على المستثمرين، بعد خصم ${finalReservedAmount.toFixed(2)} دولار احتياطي و ${finalSahemInvestAmount.toFixed(2)} دولار عمولة.`
+      } else {
+        partnerNotificationMessage = `تم الموافقة على طلب التوزيع النهائي للصفقة "${distributionRequest.project.title}" وتم توزيع ${investorDistributionAmount.toFixed(2)} دولار كأرباح و ${capitalReturnAmount.toFixed(2)} دولار كرأس مال على المستثمرين من إجمالي ${totalProfit.toFixed(2)} دولار.`
+      }
       
       await tx.notification.create({
         data: {
@@ -419,8 +445,8 @@ export async function POST(
             totalProfit: totalProfit,
             investorAmount: investorDistributionAmount,
             capitalReturnAmount: capitalReturnAmount,
-            sahemAmount: sahemInvestAmount,
-            reservedAmount: reservedAmount,
+            sahemAmount: finalSahemInvestAmount,
+            reservedAmount: finalReservedAmount,
             distributionType: distributionRequest.distributionType,
             isLoss: finalIsLoss
           }),
@@ -442,14 +468,18 @@ export async function POST(
       success: true, 
       message: finalIsLoss && isFinalDistribution 
         ? 'Loss distribution approved and processed successfully'
+        : isPartialDistribution
+        ? 'Partial distribution approved and processed successfully'
         : 'Profit distribution approved and processed successfully',
       summary: {
         totalProfit: totalProfit,
         totalAmount: finalTotalAmount,
         investorDistribution: investorDistributionAmount,
         capitalReturn: capitalReturnAmount,
-        sahemInvestAmount: sahemInvestAmount,
-        reservedAmount: reservedAmount,
+        sahemInvestAmount: finalSahemInvestAmount,
+        reservedAmount: finalReservedAmount,
+        sahemInvestPercent: finalSahemPercent,
+        reservedGainPercent: finalReservedPercent,
         uniqueInvestorCount: investorGroups.size,
         totalInvestmentCount: distributionRequest.project.investments.length,
         distributionType: distributionRequest.distributionType,

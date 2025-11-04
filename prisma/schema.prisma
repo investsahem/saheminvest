@@ -857,6 +857,10 @@ model ProfitDistributionRequest {
   sahemInvestPercent Decimal?      @default(10) @db.Decimal(5, 2)  // Sahem invest percentage
   reservedGainPercent Decimal?     @default(10) @db.Decimal(5, 2)  // Reserved gain percentage
   
+  // Admin-set amounts (for PARTIAL: deducted from total; for FINAL: calculated from profit)
+  reservedAmount Decimal?           @default(0) @db.Decimal(15, 2)   // Actual reserved amount in USD
+  sahemInvestAmount Decimal?        @default(0) @db.Decimal(15, 2)   // Actual Sahem commission amount in USD
+  
   // Status and approval
   status           String          @default("PENDING") // PENDING, APPROVED, REJECTED
   reviewedBy       String?

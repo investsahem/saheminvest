@@ -113,6 +113,9 @@ export async function POST(request: NextRequest) {
         distributionType: distributionType,
         estimatedProfit: estimatedProfit,
         estimatedReturnCapital: estimatedReturnCapital,
+        // Initialize admin-set amounts to 0 (admin will set these during approval)
+        reservedAmount: 0,
+        sahemInvestAmount: 0,
         status: 'PENDING'
       }
     })
