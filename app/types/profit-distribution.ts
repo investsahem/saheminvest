@@ -1,10 +1,13 @@
 // Comprehensive type definitions for profit distribution system
 
 export interface HistoricalPartialSummary {
-  totalPartialDistributions: number
+  totalPartialDistributions?: number
+  totalPartialAmount: number
   totalPartialProfit: number
   totalPartialCapital: number
-  distributionDates: string[]
+  totalReserved: number
+  totalSahemCommission: number
+  distributionDates?: string[]
   distributionCount: number
 }
 
