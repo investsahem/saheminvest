@@ -80,8 +80,8 @@ export async function POST(
     const isPartialDistribution = distributionRequest.distributionType === 'PARTIAL'
 
     if (isPartialDistribution) {
-      // PARTIAL DISTRIBUTION: Reserves and commissions are deducted from the TOTAL AMOUNT
-      // But we need to respect the profit vs capital breakdown provided by the partner
+      // PARTIAL DISTRIBUTION: All amounts go to CAPITAL RECOVERY, no profit yet!
+      // Business Logic: Investors must recover 100% of their capital first, then profit starts
       finalReservedAmount = reservedAmount ?? Number(distributionRequest.reservedAmount ?? 0)
       finalSahemInvestAmount = sahemInvestAmount ?? Number(distributionRequest.sahemInvestAmount ?? 0)
       
@@ -92,18 +92,13 @@ export async function POST(
       // Total amount to investors after commissions
       const netToInvestors = finalTotalAmount - finalReservedAmount - finalSahemInvestAmount
       
-      // The partner specified how much of the total is profit vs capital
-      // We need to split netToInvestors proportionally
-      const profitRatio = finalTotalAmount > 0 ? (finalEstimatedProfit / finalTotalAmount) : 0
-      const capitalRatio = finalTotalAmount > 0 ? (finalEstimatedReturnCapital / finalTotalAmount) : 0
-      
-      // Split the net amount to investors based on these ratios
-      investorDistributionAmount = netToInvestors * profitRatio  // Profit portion for investors
-      capitalReturnAmount = netToInvestors * capitalRatio  // Capital portion for investors
+      // IMPORTANT: In partial distributions, ALL net amount is for capital recovery
+      // NO profit is distributed until final distribution
+      investorDistributionAmount = 0  // No profit in partials
+      capitalReturnAmount = netToInvestors  // All goes to capital recovery
       
       console.log(`Processing PARTIAL scenario: Total ${finalTotalAmount}, Reserved ${finalReservedAmount}, Sahem ${finalSahemInvestAmount}`)
-      console.log(`  -> Net to investors: ${netToInvestors} (Profit: ${investorDistributionAmount}, Capital: ${capitalReturnAmount})`)
-      console.log(`  -> Partner specified: Profit ${finalEstimatedProfit}, Capital ${finalEstimatedReturnCapital}`)
+      console.log(`  -> Net to investors: ${netToInvestors} - ALL goes to capital recovery (no profit yet)`)
     } else if (isFinalDistribution && finalIsLoss) {
       // FINAL LOSS SCENARIO: No commissions, all remaining amount goes to investors
       finalSahemPercent = 0
@@ -338,10 +333,10 @@ export async function POST(
           })
         }
       } else {
-        // PARTIAL DISTRIBUTION - Can include both profit AND capital return
-        // Create separate transactions for capital and profit
+        // PARTIAL DISTRIBUTION - ONLY capital return, NO profit
+        // Business Logic: Capital recovery first, profit comes in final distribution
         
-        // Capital return transaction (if any)
+        // Capital return transaction only
         if (investorCapitalReturn > 0) {
           transactionOperations.push({
             userId: investorId,
@@ -352,65 +347,43 @@ export async function POST(
             investmentId: firstInvestment.id
           })
         }
-        
-        // Profit distribution transaction (if any)
-        if (investorProfitShare > 0) {
-          transactionOperations.push({
-            userId: investorId,
-            type: 'PROFIT_DISTRIBUTION',
-            amount: investorProfitShare,
-            status: 'COMPLETED',
-            description: `Partial profit distribution from ${distributionRequest.project.title}`,
-            investmentId: firstInvestment.id
-          })
-        }
 
-        // Wallet update - add both capital and profit to wallet, but ONLY profit to totalReturns
+        // Wallet update - add capital to wallet, NO change to totalReturns (no profit)
         walletUpdateOperations.push({
           where: { id: investorId },
           data: {
-            walletBalance: currentWalletBalance + investorCapitalReturn + investorProfitShare,
-            totalReturns: currentTotalReturns + investorProfitShare  // Only profit counts as "returns"
+            walletBalance: currentWalletBalance + investorCapitalReturn,
+            totalReturns: currentTotalReturns  // No profit in partial distributions
           }
         })
 
-        // Profit distribution record (stores the profit portion)
+        // Profit distribution record - record this as capital recovery (amount = 0 for profit tracking)
         profitDistributionOperations.push({
           projectId: distributionRequest.projectId,
           investorId: investorId,
           investmentId: firstInvestment.id,
-          amount: investorProfitShare,  // Only the profit portion
-          profitRate: investorTotalInvestment > 0 ? (investorProfitShare / investorTotalInvestment) * 100 : 0,
+          amount: 0,  // No profit in partial distributions
+          profitRate: 0,  // No profit yet
           investmentShare: investmentRatio * 100,
           distributionDate: new Date(),
           status: 'COMPLETED',
           profitPeriod: 'PARTIAL'
         })
 
-        // Investor notification - show both capital and profit
-        const totalReceived = investorCapitalReturn + investorProfitShare
-        let message = `تم توزيع ${totalReceived.toFixed(2)} دولار من الصفقة "${distributionRequest.project.title}" إلى محفظتك`
-        
-        if (investorCapitalReturn > 0 && investorProfitShare > 0) {
-          message += ` (رأس المال: ${investorCapitalReturn.toFixed(2)} دولار، الأرباح: ${investorProfitShare.toFixed(2)} دولار)`
-        } else if (investorCapitalReturn > 0) {
-          message += ` (رأس المال فقط)`
-        } else if (investorProfitShare > 0) {
-          message += ` (أرباح فقط)`
-        }
-        
+        // Investor notification - capital recovery only
         notificationOperations.push({
           userId: investorId,
-          type: 'PROFIT_RECEIVED',
-          title: 'تم استلام توزيع جزئي',
-          message: message,
+          type: 'CAPITAL_RETURN',
+          title: 'تم استرداد جزء من رأس المال',
+          message: `تم إرجاع ${investorCapitalReturn.toFixed(2)} دولار من رأس المال المستثمر في الصفقة "${distributionRequest.project.title}" إلى محفظتك. هذا جزء من استرداد رأس المال الخاص بك.`,
           metadata: JSON.stringify({
             dealId: distributionRequest.projectId,
-            profitAmount: investorProfitShare,
+            profitAmount: 0,  // No profit in partials
             capitalAmount: investorCapitalReturn,
-            totalAmount: totalReceived,
-            profitRate: investorTotalInvestment > 0 ? (investorProfitShare / investorTotalInvestment) * 100 : 0,
-            distributionType: distributionRequest.distributionType
+            totalAmount: investorCapitalReturn,
+            profitRate: 0,
+            distributionType: distributionRequest.distributionType,
+            isCapitalRecovery: true
           }),
           read: false
         })
