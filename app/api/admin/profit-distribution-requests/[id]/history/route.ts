@@ -20,7 +20,7 @@ export async function GET(
 
     const params = await context.params
     const requestId = params.id
-    
+
     // Get the current distribution request
     const distributionRequest = await prisma.profitDistributionRequest.findUnique({
       where: { id: requestId },

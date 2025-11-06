@@ -409,6 +409,10 @@ model Investment {
   expectedReturn   Decimal          @db.Decimal(15, 2)
   actualReturn     Decimal          @default(0) @db.Decimal(15, 2)
   
+  // Capital tracking for partial distributions
+  capitalReturned  Decimal          @default(0) @db.Decimal(15, 2) // Amount of capital returned in partial distributions
+  profitReceived   Decimal          @default(0) @db.Decimal(15, 2) // Actual profit received (after capital recovery)
+  
   // Relationships
   investorId       String
   investor         User             @relation(fields: [investorId], references: [id])
@@ -806,9 +810,11 @@ model ProfitDistribution {
   id               String          @id @default(cuid())
   
   // Distribution details
-  amount           Decimal         @db.Decimal(15, 2)
+  amount           Decimal         @db.Decimal(15, 2)  // Total amount distributed
+  capitalAmount    Decimal         @default(0) @db.Decimal(15, 2)  // Amount that is capital return
+  profitAmount     Decimal         @default(0) @db.Decimal(15, 2)  // Amount that is actual profit
   distributionDate DateTime        @default(now())
-  profitPeriod     String          // "daily", "monthly", "quarterly"
+  profitPeriod     String          // "PARTIAL", "FINAL", "daily", "monthly", "quarterly"
   status           String          @default("PENDING") // PENDING, COMPLETED, FAILED
   
   // Calculation details

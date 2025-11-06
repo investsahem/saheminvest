@@ -59,34 +59,45 @@ export async function GET(request: NextRequest) {
     yesterday.setDate(yesterday.getDate() - 1)
 
     for (const investment of investments) {
-      const investedAmount = Number(investment.amount)
-      totalHistoricalInvested += investedAmount
+      const originalInvestment = Number(investment.amount)
+      totalHistoricalInvested += originalInvestment
       
-      // Only count as "currently invested" if not completed
-      if (investment.project.status !== 'COMPLETED') {
-        totalInvested += investedAmount
-      }
-
-      // Get distributed profits from transactions (both RETURN and PROFIT_DISTRIBUTION types)
+      // Get capital return transactions (partial or full)
+      const capitalReturnTransactions = await prisma.transaction.findMany({
+        where: {
+          investmentId: investment.id,
+          type: 'RETURN',
+          status: 'COMPLETED'
+        }
+      })
+      
+      const totalCapitalReturned = capitalReturnTransactions.reduce(
+        (sum, transaction) => sum + Number(transaction.amount), 0
+      )
+      
+      // Get profit distribution transactions (actual profits only)
       const profitTransactions = await prisma.transaction.findMany({
         where: {
           investmentId: investment.id,
-          type: { in: ['RETURN', 'PROFIT_DISTRIBUTION'] },
-          status: 'COMPLETED',
-          // Exclude capital returns - these should be identified by description
-          AND: [
-            { description: { not: { contains: 'Capital return' } } },
-            { description: { not: { contains: 'capital return' } } }
-          ]
+          type: 'PROFIT_DISTRIBUTION',
+          status: 'COMPLETED'
         }
       })
       
       const distributedProfits = profitTransactions.reduce(
         (sum, transaction) => sum + Number(transaction.amount), 0
       )
+      
+      // Remaining active investment = original - capital returned
+      const remainingActiveInvestment = originalInvestment - totalCapitalReturned
+
+      // Only count remaining investment as "currently invested" if not completed
+      if (investment.project.status !== 'COMPLETED') {
+        totalInvested += remainingActiveInvestment
+      }
 
       // Calculate current value based on project performance
-      let currentValue = investedAmount
+      let currentValue = remainingActiveInvestment  // Use remaining investment, not original
       const project = investment.project
 
       if (project.status === 'COMPLETED') {
@@ -94,29 +105,21 @@ export async function GET(request: NextRequest) {
         // Distributed profits are already in wallet balance
         currentValue = 0
       } else if (project.status === 'FUNDED') {
-        // For funded projects, current value = investment only (profits already distributed to wallet)
-        currentValue = investedAmount
+        // For funded projects, current value = remaining investment (not original)
+        currentValue = remainingActiveInvestment
       } else if (project.status === 'ACTIVE') {
-        // For active projects, current value is just the invested amount
-        // Profits are only added when actually distributed by partner and approved by admin
-        currentValue = investedAmount
+        // For active projects, current value is the remaining invested amount
+        currentValue = remainingActiveInvestment
       } else {
-        // For other statuses, just the invested amount (profits already in wallet)
-        currentValue = investedAmount
+        // For other statuses, just the remaining invested amount
+        currentValue = remainingActiveInvestment
       }
 
       currentPortfolioValue += currentValue
       totalDistributedProfits += distributedProfits
 
-      // Calculate returns for completed deals differently
-      let totalReturn = 0
-      if (project.status === 'COMPLETED') {
-        // For completed deals, return is just the distributed profits
-        totalReturn = distributedProfits
-      } else {
-        // For active/funded deals, return includes distributed profits
-        totalReturn = distributedProfits
-      }
+      // Calculate returns - only profits, not capital returns
+      let totalReturn = distributedProfits
       
       totalReturns += totalReturn
 
@@ -139,8 +142,9 @@ export async function GET(request: NextRequest) {
         // since the original investment has been returned to wallet
         displayCurrentValue = distributedProfits
       } else {
-        // For active/funded deals, current value = investment + distributed profits
-        displayCurrentValue = investedAmount + distributedProfits
+        // For active/funded deals: remaining investment (still locked) + profits earned
+        // This represents the total value of this investment slot
+        displayCurrentValue = remainingActiveInvestment + distributedProfits
       }
 
       portfolioInvestments.push({
@@ -149,12 +153,14 @@ export async function GET(request: NextRequest) {
         projectTitle: project.title,
         category: project.category,
         thumbnailImage: project.thumbnailImage,
-        investedAmount: investedAmount,
+        investedAmount: originalInvestment,  // Original investment amount
+        remainingInvestment: remainingActiveInvestment,  // What's still active
+        capitalReturned: totalCapitalReturned,  // Capital returned so far
         currentValue: Math.round(displayCurrentValue * 100) / 100,
         totalReturn: Math.round(totalReturn * 100) / 100,
-        returnPercentage: investedAmount > 0 ? Math.round((totalReturn / investedAmount) * 10000) / 100 : 0,
+        returnPercentage: originalInvestment > 0 ? Math.round((totalReturn / originalInvestment) * 10000) / 100 : 0,
         distributedProfits: distributedProfits,
-        unrealizedGains: Math.round((currentValue - investedAmount) * 100) / 100,
+        unrealizedGains: Math.round((currentValue - remainingActiveInvestment) * 100) / 100,
         progress: Math.min(progress, 100),
         status: project.status.toLowerCase(),
         investmentDate: investment.investmentDate.toISOString(),
