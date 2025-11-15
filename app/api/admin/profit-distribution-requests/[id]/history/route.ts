@@ -55,7 +55,8 @@ export async function GET(
           totalSahemCommission: 0,
           distributionCount: 0,
           totalPartialProfit: 0,
-          totalPartialCapital: 0
+          totalPartialCapital: 0,
+          distributionDates: []
         },
         investorHistoricalData: []
       })
@@ -79,6 +80,7 @@ export async function GET(
     let totalSahemCommission = 0
     let totalPartialProfit = 0
     let totalPartialCapital = 0
+    const distributionDates: string[] = []
 
     partialDistributions.forEach(dist => {
       totalPartialAmount += Number(dist.totalAmount)
@@ -87,6 +89,9 @@ export async function GET(
       // For partial distributions, the amount sent to investors is considered "profit"
       const amountToInvestors = Number(dist.totalAmount) - Number(dist.reservedAmount || 0) - Number(dist.sahemInvestAmount || 0)
       totalPartialProfit += amountToInvestors
+      
+      // Track distribution dates
+      distributionDates.push(dist.reviewedAt?.toISOString() || dist.createdAt.toISOString())
     })
 
     // Calculate per-investor historical data
@@ -95,13 +100,12 @@ export async function GET(
       investorName: string
       investorEmail: string
       totalInvestment: number
-      partialProfitReceived: number
-      partialCapitalReceived: number
-      distributionHistory: Array<{
-        date: string
-        amount: number
-        type: 'PARTIAL'
-      }>
+      partialDistributions: {
+        count: number
+        totalProfit: number
+        totalCapital: number
+        dates: string[]
+      }
     }>()
 
     // Initialize map with all investors
@@ -113,9 +117,12 @@ export async function GET(
           investorName: investment.investor.name || 'Unknown',
           investorEmail: investment.investor.email || '',
           totalInvestment: 0,
-          partialProfitReceived: 0,
-          partialCapitalReceived: 0,
-          distributionHistory: []
+          partialDistributions: {
+            count: 0,
+            totalProfit: 0,
+            totalCapital: 0,
+            dates: []
+          }
         })
       }
       const data = investorHistoricalMap.get(investorId)!
@@ -135,12 +142,12 @@ export async function GET(
         const investorRatio = data.totalInvestment / totalProjectInvestment
         const investorShare = amountToInvestors * investorRatio
         
-        data.partialProfitReceived += investorShare
-        data.distributionHistory.push({
-          date: dist.reviewedAt?.toISOString() || dist.createdAt.toISOString(),
-          amount: investorShare,
-          type: 'PARTIAL'
-        })
+        // Update partial distributions
+        data.partialDistributions.totalProfit += investorShare
+        data.partialDistributions.count += 1
+        data.partialDistributions.dates.push(
+          dist.reviewedAt?.toISOString() || dist.createdAt.toISOString()
+        )
       })
     })
 
@@ -153,7 +160,8 @@ export async function GET(
         totalSahemCommission,
         distributionCount: partialDistributions.length,
         totalPartialProfit,
-        totalPartialCapital: 0 // Partials don't return capital
+        totalPartialCapital: 0, // Partials don't return capital
+        distributionDates
       },
       investorHistoricalData
     })
