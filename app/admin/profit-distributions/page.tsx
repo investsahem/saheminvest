@@ -1376,18 +1376,23 @@ const AdminProfitDistributionsPage = () => {
                         <div className="grid grid-cols-3 gap-3">
                           <div className="bg-white p-3 rounded border border-blue-400">
                             <p className="text-xs text-gray-600">رأس المال الكلي</p>
-                            <p className="text-lg font-bold text-blue-700">{formatCurrency(selectedRequest.project.currentFunding)}</p>
+                            <p className="text-lg font-bold text-blue-700">
+                              {formatCurrency(Number(selectedRequest.project.currentFunding))}
+                            </p>
                           </div>
                           <div className="bg-white p-3 rounded border border-green-400">
                             <p className="text-xs text-gray-600">الأرباح الكلية</p>
-                            <p className="text-lg font-bold text-green-700">{formatCurrency(currentFields.estimatedProfit)}</p>
-                            <p className="text-xs text-gray-500">{currentFields.estimatedGainPercent.toFixed(1)}%</p>
+                            <p className="text-lg font-bold text-green-700">
+                              {formatCurrency(Number(currentFields.estimatedProfit))}
+                            </p>
+                            <p className="text-xs text-gray-500">{Number(currentFields.estimatedGainPercent).toFixed(1)}%</p>
                           </div>
                           <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-3 rounded border-2 border-purple-500">
                             <p className="text-xs text-purple-800 font-semibold">إجمالي الصفقة</p>
                             <p className="text-lg font-bold text-purple-900">
-                              {formatCurrency(selectedRequest.project.currentFunding + currentFields.estimatedProfit)}
+                              {formatCurrency(Number(selectedRequest.project.currentFunding) + Number(currentFields.estimatedProfit))}
                             </p>
+                            <p className="text-xs text-purple-700">رأس المال + الأرباح</p>
                           </div>
                         </div>
                       </div>
