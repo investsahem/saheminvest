@@ -729,11 +729,14 @@ const AdminProfitDistributionsPage = () => {
                             value={currentFields.estimatedGainPercent}
                             onChange={(e) => {
                               const newGainPercent = Number(e.target.value)
+                              // Calculate profit based on capital
+                              const newProfit = (currentFields.estimatedReturnCapital * newGainPercent) / 100
                               setEditingFields({
                                 ...currentFields,
                                 estimatedGainPercent: newGainPercent,
-                                // Auto-calculate profit based on capital
-                                estimatedProfit: (currentFields.estimatedReturnCapital * newGainPercent) / 100
+                                estimatedProfit: newProfit,
+                                // Update total amount
+                                totalAmount: currentFields.estimatedReturnCapital + newProfit
                               })
                             }}
                             className="w-full px-3 py-2 border-2 border-orange-300 bg-orange-50 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold"
@@ -758,66 +761,44 @@ const AdminProfitDistributionsPage = () => {
                             </div>
                           </div>
                         )}
-                        {/* Show profit and capital for FINAL only - EDITABLE */}
+                        {/* Show profit and capital for FINAL only - READ ONLY (calculated from gain %) */}
                         {selectedRequest.distributionType === 'FINAL' && (
                           <>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            مبلغ الربح (USD) - قابل للتعديل
+                            مبلغ الربح (USD) - محسوب تلقائياً
                               </label>
-                              <input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={currentFields.estimatedProfit}
-                                onChange={(e) => {
-                                  const newProfit = Number(e.target.value)
-                                  setEditingFields({
-                                    ...currentFields,
-                                    estimatedProfit: newProfit,
-                                    // Auto-calculate totalAmount = profit + capital
-                                    totalAmount: newProfit + currentFields.estimatedReturnCapital,
-                                    // Auto-calculate gain percent based on capital
-                                    estimatedGainPercent: currentFields.estimatedReturnCapital > 0 
-                                      ? (newProfit / currentFields.estimatedReturnCapital) * 100 
-                                      : 0
-                                  })
-                                }}
-                                className="w-full px-3 py-2 border border-orange-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 bg-orange-50 font-semibold"
-                              />
-                              {currentFields.estimatedProfit !== Number(selectedRequest.estimatedProfit) && (
-                                <p className="text-xs text-orange-600 mt-1">
-                                  الأصلي: {formatCurrency(Number(selectedRequest.estimatedProfit))}
-                                </p>
-                              )}
+                              <div className={`px-3 py-2 border rounded-md font-semibold ${
+                                currentFields.estimatedProfit !== Number(selectedRequest.estimatedProfit)
+                                  ? 'bg-green-100 border-green-400 text-green-900'
+                                  : 'bg-gray-50 border-gray-300'
+                              }`}>
+                                {formatCurrency(currentFields.estimatedProfit)}
+                                {currentFields.estimatedProfit !== Number(selectedRequest.estimatedProfit) && (
+                                  <span className="text-xs block">(الأصلي: {formatCurrency(Number(selectedRequest.estimatedProfit))})</span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-600 mt-1">
+                                💡 محسوب من: رأس المال × نسبة الربح
+                              </p>
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                                رأس المال المُسترد (USD) - قابل للتعديل
+                                رأس المال المُسترد (USD)
                               </label>
-                              <input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={currentFields.estimatedReturnCapital}
-                                onChange={(e) => {
-                                  const newCapital = Number(e.target.value)
-                                  setEditingFields({
-                                    ...currentFields,
-                                    estimatedReturnCapital: newCapital,
-                                    // Auto-calculate totalAmount = profit + capital
-                                    totalAmount: currentFields.estimatedProfit + newCapital,
-                                    // Auto-calculate gain percent
-                                    estimatedGainPercent: newCapital > 0 
-                                      ? (currentFields.estimatedProfit / newCapital) * 100 
-                                      : 0
-                                  })
-                                }}
-                                className="w-full px-3 py-2 border border-orange-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 bg-orange-50 font-semibold"
-                              />
-                              {currentFields.estimatedReturnCapital !== Number(selectedRequest.estimatedReturnCapital) && (
-                                <p className="text-xs text-orange-600 mt-1">
-                                  الأصلي: {formatCurrency(Number(selectedRequest.estimatedReturnCapital))}
+                              <div className={`px-3 py-2 border rounded-md font-semibold ${
+                                currentFields.estimatedReturnCapital !== Number(selectedRequest.estimatedReturnCapital)
+                                  ? 'bg-green-100 border-green-400 text-green-900'
+                                  : 'bg-gray-50 border-gray-300'
+                              }`}>
+                                {formatCurrency(currentFields.estimatedReturnCapital)}
+                                {currentFields.estimatedReturnCapital !== Number(selectedRequest.estimatedReturnCapital) && (
+                                  <span className="text-xs block">(الأصلي: {formatCurrency(Number(selectedRequest.estimatedReturnCapital))})</span>
+                                )}
+                              </div>
+                              {historicalData && historicalData.totalPartialCapital > 0 && (
+                                <p className="text-xs text-blue-600 mt-1">
+                                  💡 المتبقي بعد الجزئيات: {formatCurrency(selectedRequest.project.currentFunding - historicalData.totalPartialCapital)}
                                 </p>
                               )}
                             </div>
