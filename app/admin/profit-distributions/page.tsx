@@ -1367,36 +1367,42 @@ const AdminProfitDistributionsPage = () => {
                     </div>
 
                     {/* Final Deal Summary - Just Above Approval Buttons */}
-                    {selectedRequest.status === 'PENDING' && selectedRequest.distributionType === 'FINAL' && (
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-500 rounded-lg p-4">
-                        <h3 className="text-base font-bold text-green-900 mb-3 flex items-center">
-                          <CheckCircle className="w-5 h-5 mr-2" />
-                          ملخص الصفقة النهائي
-                        </h3>
-                        <div className="grid grid-cols-3 gap-3">
-                          <div className="bg-white p-3 rounded border border-blue-400">
-                            <p className="text-xs text-gray-600">رأس المال الكلي</p>
-                            <p className="text-lg font-bold text-blue-700">
-                              {formatCurrency(Number(selectedRequest.project.currentFunding))}
-                            </p>
-                          </div>
-                          <div className="bg-white p-3 rounded border border-green-400">
-                            <p className="text-xs text-gray-600">الأرباح الكلية</p>
-                            <p className="text-lg font-bold text-green-700">
-                              {formatCurrency(Number(currentFields.estimatedProfit))}
-                            </p>
-                            <p className="text-xs text-gray-500">{Number(currentFields.estimatedGainPercent).toFixed(1)}%</p>
-                          </div>
-                          <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-3 rounded border-2 border-purple-500">
-                            <p className="text-xs text-purple-800 font-semibold">إجمالي الصفقة</p>
-                            <p className="text-lg font-bold text-purple-900">
-                              {formatCurrency(Number(selectedRequest.project.currentFunding) + Number(currentFields.estimatedProfit))}
-                            </p>
-                            <p className="text-xs text-purple-700">رأس المال + الأرباح</p>
+                    {selectedRequest.status === 'PENDING' && selectedRequest.distributionType === 'FINAL' && (() => {
+                      const totalCapital = Number(selectedRequest.project.currentFunding);
+                      const totalProfit = (Number(currentFields.estimatedGainPercent) / 100) * totalCapital;
+                      const totalDeal = totalCapital + totalProfit;
+                      
+                      return (
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-500 rounded-lg p-4">
+                          <h3 className="text-base font-bold text-green-900 mb-3 flex items-center">
+                            <CheckCircle className="w-5 h-5 mr-2" />
+                            ملخص الصفقة النهائي
+                          </h3>
+                          <div className="grid grid-cols-3 gap-3">
+                            <div className="bg-white p-3 rounded border border-blue-400">
+                              <p className="text-xs text-gray-600">رأس المال الكلي</p>
+                              <p className="text-lg font-bold text-blue-700">
+                                {formatCurrency(totalCapital)}
+                              </p>
+                            </div>
+                            <div className="bg-white p-3 rounded border border-green-400">
+                              <p className="text-xs text-gray-600">الأرباح الكلية</p>
+                              <p className="text-lg font-bold text-green-700">
+                                {formatCurrency(totalProfit)}
+                              </p>
+                              <p className="text-xs text-gray-500">{Number(currentFields.estimatedGainPercent).toFixed(1)}%</p>
+                            </div>
+                            <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-3 rounded border-2 border-purple-500">
+                              <p className="text-xs text-purple-800 font-semibold">إجمالي الصفقة</p>
+                              <p className="text-lg font-bold text-purple-900">
+                                {formatCurrency(totalDeal)}
+                              </p>
+                              <p className="text-xs text-purple-700">رأس المال + الأرباح</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
 
                     {/* Actions */}
                     {selectedRequest.status === 'PENDING' && (
