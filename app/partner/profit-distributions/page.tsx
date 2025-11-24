@@ -135,7 +135,26 @@ const PartnerProfitDistributionsPage = () => {
     setShowForm(true)
     
     // Fetch partial history for this deal
-    await fetchPartialHistory(deal.id)
+    const history = await fetchPartialHistory(deal.id)
+    
+    // Auto-fill the remaining capital amount
+    if (history) {
+      const totalCapital = deal.currentFunding
+      const partialCapitalPaid = history.totalPartialCapital
+      const remainingCapital = totalCapital - partialCapitalPaid
+      
+      // Pre-fill the form with remaining capital
+      setFormData(prev => ({
+        ...prev,
+        totalAmount: remainingCapital
+      }))
+    } else {
+      // No partial history, pre-fill with total capital
+      setFormData(prev => ({
+        ...prev,
+        totalAmount: deal.currentFunding
+      }))
+    }
   }
 
   // Calculate remaining capital and suggested amounts
@@ -416,10 +435,63 @@ const PartnerProfitDistributionsPage = () => {
                 </div>
 
                 <div className="space-y-6">
-                  {/* Amount */}
+                  {/* Remaining Capital Info - Show for ALL distributions */}
+                  {partialHistory && (() => {
+                    const remaining = calculateRemaining()
+                    if (!remaining) return null
+                    
+                    return (
+                      <div className="p-4 bg-blue-50 border-2 border-blue-400 rounded-lg">
+                        <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
+                          <DollarSign className="w-5 h-5 mr-2" />
+                          معلومات رأس المال
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-blue-800">إجمالي رأس المال:</span>
+                            <span className="font-bold text-blue-900">{formatCurrency(remaining.totalCapital)}</span>
+                          </div>
+                          {partialHistory.distributionCount > 0 && (
+                            <>
+                              <div className="flex justify-between">
+                                <span className="text-blue-800">تم توزيعه في توزيعات جزئية ({partialHistory.distributionCount}):</span>
+                                <span className="font-bold text-red-700">- {formatCurrency(remaining.partialCapitalPaid)}</span>
+                              </div>
+                              <div className="flex justify-between pt-2 border-t-2 border-blue-400">
+                                <span className="text-blue-900 font-bold">المتبقي المتاح للتوزيع:</span>
+                                <span className="font-bold text-green-700">{formatCurrency(remaining.remainingCapital)}</span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {/* No history case */}
+                  {!partialHistory && !loadingHistory && selectedDeal && (
+                    <div className="p-4 bg-blue-50 border border-blue-300 rounded-lg">
+                      <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
+                        <DollarSign className="w-5 h-5 mr-2" />
+                        معلومات رأس المال
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-blue-800">إجمالي رأس المال المتاح:</span>
+                          <span className="font-bold text-blue-900">{formatCurrency(selectedDeal.currentFunding)}</span>
+                        </div>
+                        <p className="text-xs text-blue-700 mt-2">
+                          لا توجد توزيعات سابقة. كامل رأس المال متاح للتوزيع.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Amount - Pre-filled with remaining capital */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('partner.amount')} ($) *
+                      {t('partner.amount')} ($) * 
+                      <span className="text-xs text-gray-500 font-normal mr-2">(تم التعبئة تلقائياً - يمكن التعديل)</span>
                     </label>
                     <input
                       type="number"
@@ -428,8 +500,11 @@ const PartnerProfitDistributionsPage = () => {
                       value={formData.totalAmount || ''}
                       onChange={(e) => setFormData(prev => ({ ...prev, totalAmount: Number(e.target.value) || 0 }))}
                       placeholder="e.g., 21400"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border-2 border-green-300 bg-green-50 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 font-semibold"
                     />
+                    <p className="text-xs text-gray-600 mt-1">
+                      💡 تم تعبئة المبلغ تلقائياً برأس المال المتبقي. يمكنك تعديله حسب الحاجة.
+                    </p>
                   </div>
 
                   {/* Estimated Gain % */}
@@ -495,46 +570,26 @@ const PartnerProfitDistributionsPage = () => {
                     </div>
                   </div>
 
-                  {/* FINAL Distribution Helper - Show remaining capital info */}
-                  {formData.distributionType === 'FINAL' && partialHistory && partialHistory.distributionCount > 0 && (() => {
-                    const remaining = calculateRemaining()
-                    if (!remaining) return null
-                    
-                    return (
-                      <div className="p-4 bg-yellow-50 border-2 border-yellow-400 rounded-lg">
-                        <h4 className="font-semibold text-yellow-900 mb-3 flex items-center">
-                          <AlertCircle className="w-5 h-5 mr-2" />
-                          معلومات التوزيع النهائي
-                        </h4>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-yellow-800">إجمالي رأس المال:</span>
-                            <span className="font-bold text-yellow-900">{formatCurrency(remaining.totalCapital)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-yellow-800">تم توزيعه في توزيعات جزئية ({partialHistory.distributionCount}):</span>
-                            <span className="font-bold text-red-700">- {formatCurrency(remaining.partialCapitalPaid)}</span>
-                          </div>
-                          <div className="flex justify-between pt-2 border-t-2 border-yellow-400">
-                            <span className="text-yellow-900 font-bold">رأس المال المتبقي للتوزيع:</span>
-                            <span className="font-bold text-green-700">{formatCurrency(remaining.remainingCapital)}</span>
-                          </div>
-                          <div className="mt-3 p-3 bg-white rounded border border-yellow-300">
-                            <p className="text-xs text-gray-700">
-                              <strong>ملاحظة هامة:</strong> في التوزيع النهائي، أدخل المبلغ الإجمالي (رأس المال المتبقي + الأرباح). 
-                              مثال: إذا كان الربح {formatCurrency(1000)}، فالمبلغ الإجمالي = {formatCurrency(remaining.remainingCapital)} + {formatCurrency(1000)} = {formatCurrency(remaining.remainingCapital + 1000)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })()}
+                  {/* Additional info for FINAL distributions */}
+                  {formData.distributionType === 'FINAL' && (
+                    <div className="p-3 bg-yellow-50 border border-yellow-300 rounded-lg">
+                      <p className="text-sm text-yellow-800">
+                        <strong>⚠️ تنبيه:</strong> التوزيع النهائي = رأس المال المتبقي + الأرباح. 
+                        {partialHistory && partialHistory.distributionCount > 0 ? (
+                          <> المبلغ المعبأ ({formatCurrency(formData.totalAmount)}) هو رأس المال المتبقي فقط. أضف الأرباح إليه.</>
+                        ) : (
+                          <> أدخل المبلغ الإجمالي (رأس المال + الأرباح).</>
+                        )}
+                      </p>
+                    </div>
+                  )}
 
-                  {/* Warning if no partial history and selecting FINAL */}
-                  {formData.distributionType === 'FINAL' && (!partialHistory || partialHistory.distributionCount === 0) && (
-                    <div className="p-4 bg-blue-50 border border-blue-300 rounded-lg">
-                      <p className="text-sm text-blue-800">
-                        <strong>معلومة:</strong> لا توجد توزيعات جزئية سابقة. سيتم توزيع رأس المال الكامل ({formatCurrency(selectedDeal?.currentFunding || 0)}) + الأرباح في هذا التوزيع النهائي.
+                  {/* Additional info for PARTIAL distributions */}
+                  {formData.distributionType === 'PARTIAL' && (
+                    <div className="p-3 bg-green-50 border border-green-300 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        <strong>💡 معلومة:</strong> التوزيع الجزئي = استرداد جزء من رأس المال (لا يشمل أرباح). 
+                        المبلغ المعبأ هو رأس المال المتبقي بالكامل، يمكنك تقليله لتوزيع جزء منه فقط.
                       </p>
                     </div>
                   )}
