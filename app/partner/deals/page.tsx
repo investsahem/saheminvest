@@ -45,6 +45,13 @@ const PartnerDealsPage = () => {
     description: ''
   })
   const [submittingProfit, setSubmittingProfit] = useState(false)
+  const [partialHistory, setPartialHistory] = useState<{
+    totalPartialAmount: number
+    totalPartialCapital: number
+    totalPartialProfit: number
+    distributionCount: number
+  } | null>(null)
+  const [loadingHistory, setLoadingHistory] = useState(false)
 
   // Fetch deals for current partner
   useEffect(() => {
@@ -195,6 +202,64 @@ const PartnerDealsPage = () => {
 
   const formatCurrency = (amount: number) => dealsService.formatCurrency(amount, 'en')
 
+  // Fetch partial distribution history for selected deal
+  const fetchPartialHistory = async (dealId: string) => {
+    try {
+      setLoadingHistory(true)
+      const response = await fetch(`/api/partner/deals/${dealId}/partial-history`)
+      if (response.ok) {
+        const data = await response.json()
+        setPartialHistory(data)
+        return data
+      }
+    } catch (error) {
+      console.error('Error fetching partial history:', error)
+    } finally {
+      setLoadingHistory(false)
+    }
+    return null
+  }
+
+  // Calculate remaining capital
+  const calculateRemaining = () => {
+    if (!distributingProfits || !partialHistory) return null
+    
+    const totalCapital = distributingProfits.currentFunding
+    const partialCapitalPaid = partialHistory.totalPartialCapital
+    const remainingCapital = totalCapital - partialCapitalPaid
+    
+    return {
+      totalCapital,
+      partialCapitalPaid,
+      remainingCapital
+    }
+  }
+
+  // Handle when partner clicks distribute profits
+  const handleDistributeProfitsClick = async (deal: Deal) => {
+    setDistributingProfits(deal)
+    
+    // Fetch partial history
+    const history = await fetchPartialHistory(deal.id)
+    
+    // Auto-fill the remaining capital amount
+    if (history) {
+      const totalCapital = deal.currentFunding
+      const partialCapitalPaid = history.totalPartialCapital
+      const remainingCapital = totalCapital - partialCapitalPaid
+      
+      setProfitFormData(prev => ({
+        ...prev,
+        totalAmount: remainingCapital
+      }))
+    } else {
+      setProfitFormData(prev => ({
+        ...prev,
+        totalAmount: deal.currentFunding
+      }))
+    }
+  }
+
   if (showAddDeal) {
     return (
       <PartnerLayout
@@ -335,10 +400,63 @@ const PartnerDealsPage = () => {
             </div>
 
             <div className="space-y-6">
-              {/* Total Amount */}
+              {/* Remaining Capital Info - Show for ALL distributions */}
+              {partialHistory && (() => {
+                const remaining = calculateRemaining()
+                if (!remaining) return null
+                
+                return (
+                  <div className="p-4 bg-blue-50 border-2 border-blue-400 rounded-lg">
+                    <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
+                      <DollarSign className="w-5 h-5 mr-2" />
+                      معلومات رأس المال
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-blue-800">إجمالي رأس المال:</span>
+                        <span className="font-bold text-blue-900">{formatCurrency(remaining.totalCapital)}</span>
+                      </div>
+                      {partialHistory.distributionCount > 0 && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-blue-800">تم توزيعه في توزيعات جزئية ({partialHistory.distributionCount}):</span>
+                            <span className="font-bold text-red-700">- {formatCurrency(remaining.partialCapitalPaid)}</span>
+                          </div>
+                          <div className="flex justify-between pt-2 border-t-2 border-blue-400">
+                            <span className="text-blue-900 font-bold">المتبقي المتاح للتوزيع:</span>
+                            <span className="font-bold text-green-700">{formatCurrency(remaining.remainingCapital)}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )
+              })()}
+
+              {/* No history case */}
+              {!partialHistory && !loadingHistory && distributingProfits && (
+                <div className="p-4 bg-blue-50 border border-blue-300 rounded-lg">
+                  <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
+                    <DollarSign className="w-5 h-5 mr-2" />
+                    معلومات رأس المال
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-blue-800">إجمالي رأس المال المتاح:</span>
+                      <span className="font-bold text-blue-900">{formatCurrency(distributingProfits.currentFunding)}</span>
+                    </div>
+                    <p className="text-xs text-blue-700 mt-2">
+                      لا توجد توزيعات سابقة. كامل رأس المال متاح للتوزيع.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Total Amount - Pre-filled with remaining capital */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('partner.amount')} ($)
+                  {t('partner.amount')} ($) *
+                  <span className="text-xs text-gray-500 font-normal mr-2">(تم التعبئة تلقائياً - يمكن التعديل)</span>
                 </label>
                 <input
                   type="number"
@@ -347,8 +465,11 @@ const PartnerDealsPage = () => {
                   value={profitFormData.totalAmount || ''}
                   onChange={(e) => setProfitFormData(prev => ({ ...prev, totalAmount: Number(e.target.value) || 0 }))}
                   placeholder="e.g., 21400"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border-2 border-green-300 bg-green-50 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 font-semibold"
                 />
+                <p className="text-xs text-gray-600 mt-1">
+                  💡 تم تعبئة المبلغ تلقائياً برأس المال المتبقي. يمكنك تعديله حسب الحاجة.
+                </p>
               </div>
 
               {/* Estimated Gain % */}
@@ -413,6 +534,30 @@ const PartnerDealsPage = () => {
                   </label>
                 </div>
               </div>
+
+              {/* Additional info for FINAL distributions */}
+              {profitFormData.distributionType === 'FINAL' && (
+                <div className="p-3 bg-yellow-50 border border-yellow-300 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    <strong>⚠️ تنبيه:</strong> التوزيع النهائي = رأس المال المتبقي + الأرباح. 
+                    {partialHistory && partialHistory.distributionCount > 0 ? (
+                      <> المبلغ المعبأ ({formatCurrency(profitFormData.totalAmount)}) هو رأس المال المتبقي فقط. أضف الأرباح إليه.</>
+                    ) : (
+                      <> أدخل المبلغ الإجمالي (رأس المال + الأرباح).</>
+                    )}
+                  </p>
+                </div>
+              )}
+
+              {/* Additional info for PARTIAL distributions */}
+              {profitFormData.distributionType === 'PARTIAL' && (
+                <div className="p-3 bg-green-50 border border-green-300 rounded-lg">
+                  <p className="text-sm text-green-800">
+                    <strong>💡 معلومة:</strong> التوزيع الجزئي = استرداد جزء من رأس المال (لا يشمل أرباح). 
+                    المبلغ المعبأ هو رأس المال المتبقي بالكامل، يمكنك تقليله لتوزيع جزء منه فقط.
+                  </p>
+                </div>
+              )}
 
               {/* Description */}
               <div>
@@ -726,7 +871,7 @@ const PartnerDealsPage = () => {
                        (deal.investorCount || 0) > 0 && (
                         <Button
                           size="sm"
-                          onClick={() => setDistributingProfits(deal)}
+                          onClick={() => handleDistributeProfitsClick(deal)}
                           className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-1"
                           title="Distribute Profits"
                         >
