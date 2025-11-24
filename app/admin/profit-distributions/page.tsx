@@ -667,10 +667,17 @@ const AdminProfitDistributionsPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            إجمالي المبلغ (USD)
+                            إجمالي المبلغ (USD) {selectedRequest.distributionType === 'FINAL' && '- يتم الحساب تلقائياً'}
                           </label>
-                          <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
+                          <div className={`px-3 py-2 border rounded-md font-semibold ${
+                            currentFields.totalAmount !== Number(selectedRequest.totalAmount)
+                              ? 'bg-green-100 border-green-400 text-green-900'
+                              : 'bg-gray-50 border-gray-300'
+                          }`}>
                             {formatCurrency(currentFields.totalAmount)}
+                            {currentFields.totalAmount !== Number(selectedRequest.totalAmount) && (
+                              <span className="text-xs block">(الأصلي: {formatCurrency(Number(selectedRequest.totalAmount))})</span>
+                            )}
                           </div>
                         </div>
                         <div>
@@ -692,24 +699,68 @@ const AdminProfitDistributionsPage = () => {
                             </div>
                           </div>
                         )}
-                        {/* Show profit and capital for FINAL only */}
+                        {/* Show profit and capital for FINAL only - EDITABLE */}
                         {selectedRequest.distributionType === 'FINAL' && (
                           <>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            مبلغ الربح (USD)
+                            مبلغ الربح (USD) - قابل للتعديل
                               </label>
-                              <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
-                                {formatCurrency(currentFields.estimatedProfit)}
-                              </div>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={currentFields.estimatedProfit}
+                                onChange={(e) => {
+                                  const newProfit = Number(e.target.value)
+                                  setEditingFields({
+                                    ...currentFields,
+                                    estimatedProfit: newProfit,
+                                    // Auto-calculate totalAmount = profit + capital
+                                    totalAmount: newProfit + currentFields.estimatedReturnCapital,
+                                    // Auto-calculate gain percent based on capital
+                                    estimatedGainPercent: currentFields.estimatedReturnCapital > 0 
+                                      ? (newProfit / currentFields.estimatedReturnCapital) * 100 
+                                      : 0
+                                  })
+                                }}
+                                className="w-full px-3 py-2 border border-orange-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 bg-orange-50 font-semibold"
+                              />
+                              {currentFields.estimatedProfit !== Number(selectedRequest.estimatedProfit) && (
+                                <p className="text-xs text-orange-600 mt-1">
+                                  الأصلي: {formatCurrency(Number(selectedRequest.estimatedProfit))}
+                                </p>
+                              )}
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                                رأس المال المُسترد (USD)
+                                رأس المال المُسترد (USD) - قابل للتعديل
                               </label>
-                              <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
-                                {formatCurrency(currentFields.estimatedReturnCapital)}
-                              </div>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={currentFields.estimatedReturnCapital}
+                                onChange={(e) => {
+                                  const newCapital = Number(e.target.value)
+                                  setEditingFields({
+                                    ...currentFields,
+                                    estimatedReturnCapital: newCapital,
+                                    // Auto-calculate totalAmount = profit + capital
+                                    totalAmount: currentFields.estimatedProfit + newCapital,
+                                    // Auto-calculate gain percent
+                                    estimatedGainPercent: newCapital > 0 
+                                      ? (currentFields.estimatedProfit / newCapital) * 100 
+                                      : 0
+                                  })
+                                }}
+                                className="w-full px-3 py-2 border border-orange-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 bg-orange-50 font-semibold"
+                              />
+                              {currentFields.estimatedReturnCapital !== Number(selectedRequest.estimatedReturnCapital) && (
+                                <p className="text-xs text-orange-600 mt-1">
+                                  الأصلي: {formatCurrency(Number(selectedRequest.estimatedReturnCapital))}
+                                </p>
+                              )}
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -757,8 +808,18 @@ const AdminProfitDistributionsPage = () => {
                           <span className="font-medium">الوصف:</span> {selectedRequest.description}
                         </p>
                         <p className="text-xs text-gray-500 mt-2">
-                          ملاحظة: القيم المعروضة تشمل أي تعديلات قام بها الإدارة. القيم المميزة بالأصفر تم تعديلها.
+                          ملاحظة: القيم المعروضة تشمل أي تعديلات قام بها الإدارة. 
+                          {selectedRequest.distributionType === 'FINAL' && (
+                            <> يمكنك تعديل مبلغ الربح ورأس المال، وسيتم حساب الإجمالي تلقائياً.</>
+                          )}
                         </p>
+                        {selectedRequest.distributionType === 'FINAL' && historicalData && historicalData.totalPartialCapital > 0 && (
+                          <div className="mt-2 p-2 bg-yellow-50 border border-yellow-300 rounded text-xs">
+                            <strong>تذكير:</strong> تم توزيع {formatCurrency(historicalData.totalPartialCapital)} كتوزيعات جزئية. 
+                            رأس المال المتبقي = رأس المال الكلي ({formatCurrency(selectedRequest.project.currentFunding)}) - التوزيعات الجزئية ({formatCurrency(historicalData.totalPartialCapital)}) 
+                            = {formatCurrency(selectedRequest.project.currentFunding - historicalData.totalPartialCapital)}
+                          </div>
+                        )}
                       </div>
                     </div>
 
