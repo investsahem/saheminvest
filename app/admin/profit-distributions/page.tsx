@@ -164,6 +164,43 @@ const AdminProfitDistributionsPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRequest?.id, selectedRequest?.distributionType])
 
+  // Recalculate investor distributions when editingFields changes (admin edits amounts)
+  useEffect(() => {
+    if (selectedRequest && selectedRequest.distributionType === 'FINAL' && editingFields && historicalData) {
+      try {
+        const totalInvestmentAmount = selectedRequest.project.investments.reduce(
+          (sum, inv) => sum + Number(inv.amount), 0
+        )
+        const distribution = calculateDistribution(editingFields, selectedRequest)
+        
+        const investments = selectedRequest.project.investments.map(inv => ({
+          investorId: inv.investor.id,
+          investorName: inv.investor.name || 'Unknown',
+          investorEmail: inv.investor.id,
+          amount: Number(inv.amount)
+        }))
+
+        const investorDists = calculateInvestorDistributions(
+          investments,
+          totalInvestmentAmount,
+          distribution.investorsProfit,
+          distribution.investorsCapital,
+          investorHistoricalData
+        )
+
+        setInvestorDistributions(investorDists)
+        console.log('🔄 Recalculated investor distributions after admin edit:', {
+          investorsProfit: distribution.investorsProfit,
+          investorsCapital: distribution.investorsCapital,
+          investorCount: investorDists.length
+        })
+      } catch (error) {
+        console.error('Error recalculating investor distributions:', error)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingFields?.estimatedProfit, editingFields?.estimatedReturnCapital, editingFields?.sahemInvestPercent, editingFields?.reservedGainPercent, editingFields?.isLoss])
+
   // Fetch historical partial distribution data for FINAL distributions
   const fetchHistoricalData = async (requestId: string) => {
     try {
