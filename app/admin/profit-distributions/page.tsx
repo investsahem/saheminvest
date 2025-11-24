@@ -682,11 +682,33 @@ const AdminProfitDistributionsPage = () => {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            نسبة الربح المقدر (%)
+                            نسبة الربح المقدر (%) - قابل للتعديل
                           </label>
-                          <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
-                            {currentFields.estimatedGainPercent}%
-                        </div>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            value={currentFields.estimatedGainPercent}
+                            onChange={(e) => {
+                              const newGainPercent = Number(e.target.value)
+                              setEditingFields({
+                                ...currentFields,
+                                estimatedGainPercent: newGainPercent,
+                                // Auto-calculate profit based on capital
+                                estimatedProfit: (currentFields.estimatedReturnCapital * newGainPercent) / 100
+                              })
+                            }}
+                            className="w-full px-3 py-2 border-2 border-orange-300 bg-orange-50 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold"
+                          />
+                          {currentFields.estimatedGainPercent !== Number(selectedRequest.estimatedGainPercent) && (
+                            <p className="text-xs text-orange-600 mt-1">
+                              الأصلي: {Number(selectedRequest.estimatedGainPercent)}%
+                            </p>
+                          )}
+                          <p className="text-xs text-gray-600 mt-1">
+                            💡 عند تغيير النسبة، سيتم حساب مبلغ الربح تلقائياً
+                          </p>
                         </div>
                         {/* Show closing percent for PARTIAL only */}
                         {selectedRequest.distributionType === 'PARTIAL' && (
