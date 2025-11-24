@@ -892,6 +892,128 @@ const AdminProfitDistributionsPage = () => {
                       </div>
                     ) : null}
 
+                    {/* FINAL DEAL CLOSURE SUMMARY - Only for FINAL distributions */}
+                    {selectedRequest.distributionType === 'FINAL' && (
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg p-6">
+                        <h3 className="text-xl font-bold text-green-900 mb-4 flex items-center">
+                          <CheckCircle className="w-6 h-6 mr-2 text-green-600" />
+                          إجمالي إغلاق الصفقة بالكامل
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {/* Total Capital */}
+                          <div className="bg-white p-4 rounded-lg border-2 border-blue-400 shadow-sm">
+                            <p className="text-xs text-gray-600 mb-2">إجمالي رأس المال الكلي</p>
+                            <p className="text-3xl font-bold text-blue-700 mb-1">
+                              {formatCurrency(selectedRequest.project.currentFunding)}
+                            </p>
+                            <p className="text-xs text-gray-500">الاستثمار الأصلي من جميع المستثمرين</p>
+                          </div>
+
+                          {/* Total Profit */}
+                          <div className="bg-white p-4 rounded-lg border-2 border-green-400 shadow-sm">
+                            <p className="text-xs text-gray-600 mb-2">إجمالي الأرباح الكلي</p>
+                            <p className="text-3xl font-bold text-green-700 mb-1">
+                              {formatCurrency(currentFields.estimatedProfit)}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {currentFields.estimatedGainPercent}% عائد على الاستثمار
+                            </p>
+                          </div>
+
+                          {/* Grand Total */}
+                          <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-4 rounded-lg border-2 border-purple-500 shadow-lg">
+                            <p className="text-xs text-purple-800 font-semibold mb-2">المبلغ الإجمالي للصفقة</p>
+                            <p className="text-3xl font-bold text-purple-900 mb-1">
+                              {formatCurrency(selectedRequest.project.currentFunding + currentFields.estimatedProfit)}
+                            </p>
+                            <p className="text-xs text-purple-700 font-medium">
+                              رأس المال + الأرباح
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Distribution Breakdown */}
+                        <div className="mt-4 p-4 bg-white border-2 border-green-300 rounded-lg">
+                          <h4 className="font-semibold text-gray-900 mb-3">توزيع المبلغ الإجمالي:</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            {/* Left column - What investors get */}
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center p-2 bg-green-50 rounded">
+                                <span className="text-gray-700">للمستثمرين (رأس مال + ربح):</span>
+                                <span className="font-bold text-green-700">
+                                  {formatCurrency(distribution.totalToInvestors + (historicalData?.totalPartialCapital || 0))}
+                                </span>
+                              </div>
+                              {historicalData && historicalData.totalPartialCapital > 0 && (
+                                <>
+                                  <div className="flex justify-between items-center p-2 bg-blue-50 rounded ml-4 text-xs">
+                                    <span className="text-gray-600">→ تم دفعه في الجزئيات:</span>
+                                    <span className="font-semibold text-blue-700">
+                                      {formatCurrency(historicalData.totalPartialCapital)}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between items-center p-2 bg-green-100 rounded ml-4 text-xs">
+                                    <span className="text-gray-600">→ سيُدفع في النهائي:</span>
+                                    <span className="font-semibold text-green-700">
+                                      {formatCurrency(distribution.totalToInvestors)}
+                                    </span>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Right column - Commissions */}
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center p-2 bg-orange-50 rounded">
+                                <span className="text-gray-700">عمولة ساهم انفست:</span>
+                                <span className="font-bold text-orange-700">
+                                  {formatCurrency(distribution.sahemAmount + (historicalData?.totalSahemCommission || 0))}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center p-2 bg-purple-50 rounded">
+                                <span className="text-gray-700">المبلغ المحتفظ به:</span>
+                                <span className="font-bold text-purple-700">
+                                  {formatCurrency(distribution.reserveAmount + (historicalData?.totalReserved || 0))}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Verification */}
+                          <div className="mt-4 pt-3 border-t-2 border-green-300">
+                            <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg">
+                              <span className="font-bold text-gray-900">التحقق من المجموع:</span>
+                              <span className="text-lg font-bold text-green-900">
+                                {formatCurrency(
+                                  distribution.totalToInvestors + 
+                                  (historicalData?.totalPartialCapital || 0) +
+                                  distribution.sahemAmount + 
+                                  (historicalData?.totalSahemCommission || 0) +
+                                  distribution.reserveAmount + 
+                                  (historicalData?.totalReserved || 0)
+                                )}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-600 text-center mt-2">
+                              {Math.abs(
+                                (selectedRequest.project.currentFunding + currentFields.estimatedProfit) -
+                                (distribution.totalToInvestors + 
+                                 (historicalData?.totalPartialCapital || 0) +
+                                 distribution.sahemAmount + 
+                                 (historicalData?.totalSahemCommission || 0) +
+                                 distribution.reserveAmount + 
+                                 (historicalData?.totalReserved || 0))
+                              ) < 1 ? (
+                                <span className="text-green-600 font-semibold">✓ المجموع متطابق - جاهز للموافقة!</span>
+                              ) : (
+                                <span className="text-red-600 font-semibold">⚠️ تحذير: المجموع غير متطابق!</span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Commission Settings - Only for FINAL distributions */}
                         {selectedRequest.distributionType === 'FINAL' && (
                       <>
