@@ -658,11 +658,11 @@ const AdminProfitDistributionsPage = () => {
                   </div>
 
                   <div className="space-y-6">
-                    {/* Partner Data - Read-only for both PARTIAL and FINAL */}
+                    {/* Partner Data - Shows current values (including admin edits) */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
                         <DollarSign className="w-5 h-5 mr-2 text-blue-600" />
-                        بيانات الشريك (للقراءة فقط)
+                        بيانات التوزيع الحالية
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
@@ -711,6 +711,36 @@ const AdminProfitDistributionsPage = () => {
                                 {formatCurrency(currentFields.estimatedReturnCapital)}
                               </div>
                             </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                نسبة ساهم انفست الحالية (%)
+                              </label>
+                              <div className={`px-3 py-2 border rounded-md font-semibold ${
+                                currentFields.sahemInvestPercent !== Number(selectedRequest.sahemInvestPercent) 
+                                  ? 'bg-yellow-100 border-yellow-400 text-yellow-900' 
+                                  : 'bg-gray-50 border-gray-300'
+                              }`}>
+                                {currentFields.sahemInvestPercent}%
+                                {currentFields.sahemInvestPercent !== Number(selectedRequest.sahemInvestPercent) && (
+                                  <span className="text-xs block">(الأصلي: {Number(selectedRequest.sahemInvestPercent)}%)</span>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                نسبة الاحتياطي الحالية (%)
+                              </label>
+                              <div className={`px-3 py-2 border rounded-md font-semibold ${
+                                currentFields.reservedGainPercent !== Number(selectedRequest.reservedGainPercent) 
+                                  ? 'bg-yellow-100 border-yellow-400 text-yellow-900' 
+                                  : 'bg-gray-50 border-gray-300'
+                              }`}>
+                                {currentFields.reservedGainPercent}%
+                                {currentFields.reservedGainPercent !== Number(selectedRequest.reservedGainPercent) && (
+                                  <span className="text-xs block">(الأصلي: {Number(selectedRequest.reservedGainPercent)}%)</span>
+                                )}
+                              </div>
+                            </div>
                           </>
                         )}
                         <div>
@@ -727,7 +757,7 @@ const AdminProfitDistributionsPage = () => {
                           <span className="font-medium">الوصف:</span> {selectedRequest.description}
                         </p>
                         <p className="text-xs text-gray-500 mt-2">
-                          ملاحظة: بيانات الشريك للقراءة فقط ولا يمكن تعديلها.
+                          ملاحظة: القيم المعروضة تشمل أي تعديلات قام بها الإدارة. القيم المميزة بالأصفر تم تعديلها.
                         </p>
                       </div>
                     </div>
