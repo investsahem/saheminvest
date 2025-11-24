@@ -1059,15 +1059,15 @@ const AdminProfitDistributionsPage = () => {
                                   </h4>
                                   <div className="space-y-2">
                                     <div className="flex justify-between items-center">
-                                      <span className="text-xs text-gray-600">الأرباح المدفوعة:</span>
+                                      <span className="text-xs text-gray-600">رأس المال المسترد:</span>
                                       <span className="text-sm font-bold text-blue-700">
-                                        {formatCurrency(historicalData.totalPartialProfit)}
+                                        {formatCurrency(historicalData.totalPartialCapital)}
                                       </span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                      <span className="text-xs text-gray-600">رأس المال المدفوع:</span>
+                                      <span className="text-xs text-gray-600">الأرباح المدفوعة:</span>
                                       <span className="text-sm font-bold text-blue-700">
-                                        {formatCurrency(historicalData.totalPartialCapital)}
+                                        {formatCurrency(historicalData.totalPartialProfit)}
                                       </span>
                                     </div>
                                     <div className="pt-2 border-t border-blue-100">
@@ -1080,6 +1080,9 @@ const AdminProfitDistributionsPage = () => {
                                     </div>
                                     <div className="text-xs text-gray-500 mt-2">
                                       عدد التوزيعات: {historicalData.distributionCount}
+                                    </div>
+                                    <div className="text-xs bg-blue-50 p-2 rounded mt-2">
+                                      ملاحظة: التوزيعات الجزئية هي استرداد لرأس المال فقط
                                     </div>
                                   </div>
                                 </div>
@@ -1128,17 +1131,17 @@ const AdminProfitDistributionsPage = () => {
                                       <span className="text-xs text-gray-700">إجمالي الأرباح:</span>
                                       <span className="text-sm font-bold text-purple-700">
                                         {formatCurrency(
-                                          historicalData.totalPartialProfit + 
+                                          historicalData.totalPartialProfit +  // Should be 0 for partials
                                           investorDistributions.reduce((sum, inv) => sum + inv.finalProfit, 0)
                                         )}
                                       </span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                      <span className="text-xs text-gray-700">إجمالي رأس المال:</span>
+                                      <span className="text-xs text-gray-700">إجمالي رأس المال المسترد:</span>
                                       <span className="text-sm font-bold text-purple-700">
                                         {formatCurrency(
-                                          historicalData.totalPartialCapital + 
-                                          investorDistributions.reduce((sum, inv) => sum + inv.finalCapital, 0)
+                                          historicalData.totalPartialCapital +  // Capital from partials
+                                          investorDistributions.reduce((sum, inv) => sum + inv.finalCapital, 0)  // Remaining capital from final
                                         )}
                                       </span>
                                     </div>
@@ -1147,15 +1150,15 @@ const AdminProfitDistributionsPage = () => {
                                         <span className="text-xs font-bold text-gray-800">المبلغ الكلي:</span>
                                         <span className="text-base font-bold text-purple-900">
                                           {formatCurrency(
-                                            historicalData.totalPartialProfit + 
-                                            historicalData.totalPartialCapital +
-                                            investorDistributions.reduce((sum, inv) => sum + inv.finalTotal, 0)
+                                            historicalData.totalPartialProfit +  // Profit from partials (0)
+                                            historicalData.totalPartialCapital +  // Capital from partials
+                                            investorDistributions.reduce((sum, inv) => sum + inv.finalTotal, 0)  // Final distribution
                                           )}
                                         </span>
                                       </div>
                                     </div>
                                     <div className="text-xs text-gray-600 mt-2 bg-white/50 p-2 rounded">
-                                      جزئي ({historicalData.distributionCount}) + نهائي
+                                      جزئي ({historicalData.distributionCount}) + نهائي = رأس المال الكامل + الأرباح
                                     </div>
                                   </div>
                                 </div>

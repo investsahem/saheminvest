@@ -86,9 +86,10 @@ export async function GET(
       totalPartialAmount += Number(dist.totalAmount)
       totalReserved += Number(dist.reservedAmount || 0)
       totalSahemCommission += Number(dist.sahemInvestAmount || 0)
-      // For partial distributions, the amount sent to investors is considered "profit"
+      // For partial distributions, the amount sent to investors is CAPITAL RECOVERY (not profit)
       const amountToInvestors = Number(dist.totalAmount) - Number(dist.reservedAmount || 0) - Number(dist.sahemInvestAmount || 0)
-      totalPartialProfit += amountToInvestors
+      totalPartialCapital += amountToInvestors  // Track as capital recovery
+      // totalPartialProfit stays at 0 - no profit in partial distributions
       
       // Track distribution dates
       distributionDates.push(dist.reviewedAt?.toISOString() || dist.createdAt.toISOString())
@@ -142,8 +143,9 @@ export async function GET(
         const investorRatio = data.totalInvestment / totalProjectInvestment
         const investorShare = amountToInvestors * investorRatio
         
-        // Update partial distributions
-        data.partialDistributions.totalProfit += investorShare
+        // Update partial distributions - record as CAPITAL RECOVERY, not profit
+        data.partialDistributions.totalCapital += investorShare  // Capital recovered in partials
+        // data.partialDistributions.totalProfit stays at 0 - no profit in partials
         data.partialDistributions.count += 1
         data.partialDistributions.dates.push(
           dist.reviewedAt?.toISOString() || dist.createdAt.toISOString()
@@ -159,8 +161,8 @@ export async function GET(
         totalReserved,
         totalSahemCommission,
         distributionCount: partialDistributions.length,
-        totalPartialProfit,
-        totalPartialCapital: 0, // Partials don't return capital
+        totalPartialProfit,  // Should be 0 for partials (no profit distributed yet)
+        totalPartialCapital, // Actual capital recovered in partial distributions
         distributionDates
       },
       investorHistoricalData
