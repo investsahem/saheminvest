@@ -719,36 +719,11 @@ const AdminProfitDistributionsPage = () => {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            نسبة الربح المقدر (%) - قابل للتعديل
+                            نسبة الربح المقدر (%)
                           </label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                            value={currentFields.estimatedGainPercent}
-                            onChange={(e) => {
-                              const newGainPercent = Number(e.target.value)
-                              // Calculate profit based on capital
-                              const newProfit = (currentFields.estimatedReturnCapital * newGainPercent) / 100
-                              setEditingFields({
-                                ...currentFields,
-                                estimatedGainPercent: newGainPercent,
-                                estimatedProfit: newProfit,
-                                // Update total amount
-                                totalAmount: currentFields.estimatedReturnCapital + newProfit
-                              })
-                            }}
-                            className="w-full px-3 py-2 border-2 border-orange-300 bg-orange-50 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold"
-                          />
-                          {currentFields.estimatedGainPercent !== Number(selectedRequest.estimatedGainPercent) && (
-                            <p className="text-xs text-orange-600 mt-1">
-                              الأصلي: {Number(selectedRequest.estimatedGainPercent)}%
-                            </p>
-                          )}
-                          <p className="text-xs text-gray-600 mt-1">
-                            💡 عند تغيير النسبة، سيتم حساب مبلغ الربح تلقائياً
-                          </p>
+                          <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-semibold">
+                            {currentFields.estimatedGainPercent}%
+                          </div>
                         </div>
                         {/* Show closing percent for PARTIAL only */}
                         {selectedRequest.distributionType === 'PARTIAL' && (
@@ -848,10 +823,8 @@ const AdminProfitDistributionsPage = () => {
                           <span className="font-medium">الوصف:</span> {selectedRequest.description}
                         </p>
                         <p className="text-xs text-gray-500 mt-2">
-                          ملاحظة: القيم المعروضة تشمل أي تعديلات قام بها الإدارة. 
-                          {selectedRequest.distributionType === 'FINAL' && (
-                            <> يمكنك تعديل مبلغ الربح ورأس المال، وسيتم حساب الإجمالي تلقائياً.</>
-                          )}
+                          ملاحظة: هذه البيانات المقدمة من الشريك (للقراءة فقط). 
+                          يمكنك تعديل إعدادات العمولة في القسم التالي.
                         </p>
                         {selectedRequest.distributionType === 'FINAL' && historicalData && historicalData.totalPartialCapital > 0 && (
                           <div className="mt-2 p-2 bg-yellow-50 border border-yellow-300 rounded text-xs">
@@ -929,19 +902,32 @@ const AdminProfitDistributionsPage = () => {
                               <Calendar className="w-5 h-5 mr-2 text-purple-600" />
                               ملخص التوزيعات الجزئية السابقة (للقراءة فقط)
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                              <div className="bg-white p-3 rounded-lg border border-purple-200">
+                                <p className="text-xs text-gray-600 mb-1">رأس المال المسترد للمستثمرين</p>
+                                <p className="text-lg font-bold text-green-700">{formatCurrency(historicalData.totalPartialCapital || 0)}</p>
+                                <p className="text-xs text-gray-500 mt-1">تم استرداده</p>
+                              </div>
                               <div className="bg-white p-3 rounded-lg border border-purple-200">
                                 <p className="text-xs text-gray-600 mb-1">المبلغ المحتفظ به</p>
                                 <p className="text-lg font-bold text-purple-700">{formatCurrency(historicalData.totalReserved || 0)}</p>
-                      </div>
+                              </div>
                               <div className="bg-white p-3 rounded-lg border border-purple-200">
                                 <p className="text-xs text-gray-600 mb-1">عمولة ساهم انفست</p>
                                 <p className="text-lg font-bold text-purple-700">{formatCurrency(historicalData.totalSahemCommission || 0)}</p>
-                    </div>
+                              </div>
                               <div className="bg-white p-3 rounded-lg border border-purple-200">
                                 <p className="text-xs text-gray-600 mb-1">عدد التوزيعات الجزئية</p>
                                 <p className="text-lg font-bold text-purple-700">{historicalData.distributionCount}</p>
                               </div>
+                            </div>
+                            <div className="mt-3 p-3 bg-white border border-purple-200 rounded-lg">
+                              <p className="text-xs text-gray-700">
+                                <strong>ملاحظة:</strong> المبلغ الإجمالي للجزئيات = {formatCurrency(historicalData.totalPartialAmount || 0)} 
+                                (رأس مال للمستثمرين: {formatCurrency(historicalData.totalPartialCapital || 0)} + 
+                                محتفظ: {formatCurrency(historicalData.totalReserved || 0)} + 
+                                عمولة: {formatCurrency(historicalData.totalSahemCommission || 0)})
+                              </p>
                             </div>
                           </div>
                         )}
