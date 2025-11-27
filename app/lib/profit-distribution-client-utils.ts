@@ -45,14 +45,11 @@ export function calculateInvestorDistributions(
     const partialProfitReceived = Number(historical?.partialDistributions.totalProfit) || 0  // Should always be 0 for partials
     const partialCapitalReceived = Number(historical?.partialDistributions.totalCapital) || 0  // Actual capital recovered
 
-    // Calculate total entitled amounts
-    const totalProfitEntitled = safeDistributionAmount * investmentRatio
-    const totalCapitalEntitled = safeCapitalReturn * investmentRatio
-
-    // CRITICAL FIX: Subtract already-paid partial distributions from final distribution
-    // Partials are capital recovery, so they reduce the remaining capital to return
-    const finalProfit = Math.max(0, totalProfitEntitled - partialProfitReceived)  // Profit minus any partial profit (usually 0)
-    const finalCapital = Math.max(0, totalCapitalEntitled - partialCapitalReceived)  // Capital minus capital already recovered
+    // Calculate final distribution amounts
+    // IMPORTANT: capitalReturnAmount is ALREADY the remaining capital after partials
+    // So we distribute it proportionally WITHOUT subtracting partials again
+    const finalProfit = safeDistributionAmount * investmentRatio  // Investor's share of profit
+    const finalCapital = safeCapitalReturn * investmentRatio  // Investor's share of remaining capital
 
     results.push({
       investorId,
