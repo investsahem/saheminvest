@@ -286,11 +286,12 @@ const AdminProfitDistributionsPage = () => {
       calculatedSahemPercent = 0
       calculatedReservePercent = 0
     } else {
-      // FINAL PROFIT: Normal distribution with commissions from PROFIT
+      // FINAL PROFIT: Only Sahem commission from PROFIT (NO reserve in final)
       sahemAmount = (safeProfit * safeSahemPercent) / 100
-      reserveAmount = (safeProfit * safeReservePercent) / 100
-      investorsProfit = safeProfit - sahemAmount - reserveAmount
+      reserveAmount = 0  // NO reserve in final distributions
+      investorsProfit = safeProfit - sahemAmount  // Only Sahem commission deducted
       investorsCapital = safeCapital
+      calculatedReservePercent = 0  // NO reserve in final
     }
 
     const totalToInvestors = investorsCapital + investorsProfit

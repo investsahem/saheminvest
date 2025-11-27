@@ -110,15 +110,16 @@ export async function POST(
       
       console.log(`Processing FINAL LOSS scenario: Total remaining ${finalTotalAmount} goes to investors for capital recovery`)
     } else {
-      // FINAL PROFIT SCENARIO: Percentages applied to PROFIT (not total amount)
+      // FINAL PROFIT SCENARIO: Only Sahem commission applied to PROFIT (NO reserve in final)
       finalSahemPercent = sahemInvestPercent ?? Number(distributionRequest.sahemInvestPercent)
-      finalReservedPercent = reservedGainPercent ?? Number(distributionRequest.reservedGainPercent)
+      finalReservedPercent = 0  // NO reserve in final distributions
       finalSahemInvestAmount = (finalEstimatedProfit * finalSahemPercent) / 100
-      finalReservedAmount = (finalEstimatedProfit * finalReservedPercent) / 100
-      investorDistributionAmount = finalEstimatedProfit - finalSahemInvestAmount - finalReservedAmount
+      finalReservedAmount = 0  // NO reserve in final distributions
+      investorDistributionAmount = finalEstimatedProfit - finalSahemInvestAmount  // Only Sahem commission deducted
       capitalReturnAmount = finalEstimatedReturnCapital
       
-      console.log(`Processing FINAL PROFIT scenario: Profit ${finalEstimatedProfit}, Sahem ${finalSahemInvestAmount}, Reserve ${finalReservedAmount}, Investors ${investorDistributionAmount}, Capital ${capitalReturnAmount}`)
+      console.log(`Processing FINAL PROFIT scenario: Profit ${finalEstimatedProfit}, Sahem ${finalSahemInvestAmount}, Investors Profit ${investorDistributionAmount}, Capital ${capitalReturnAmount}`)
+      console.log(`  -> NO RESERVE in final distribution (reserve only in partials)`)
     }
 
     const totalProfit = finalEstimatedProfit
