@@ -11,18 +11,14 @@ import {
   Calendar, AlertCircle, Search, Filter, Eye,
   TrendingUp, Target, FileText, Plus
 } from 'lucide-react'
-import DistributionHistory from './components/DistributionHistory'
 import InvestorBreakdownTable from './components/InvestorBreakdownTable'
-import ProfitabilityAnalysis from './components/ProfitabilityAnalysis'
 import type { 
   HistoricalPartialSummary, 
   InvestorDistributionDetail,
-  ProfitabilityAnalysis as ProfitabilityAnalysisType,
   InvestorHistoricalData
 } from '../../types/profit-distribution'
 import { 
-  calculateInvestorDistributions, 
-  analyzeProfitability 
+  calculateInvestorDistributions
 } from '../../lib/profit-distribution-client-utils'
 
 interface ProfitDistributionRequest {
@@ -1183,20 +1179,6 @@ const AdminProfitDistributionsPage = () => {
                             </CardContent>
                           </Card>
                         )}
-
-                        {/* Profitability Analysis */}
-                        {(() => {
-                          const analysis = analyzeProfitability(
-                            selectedRequest.project.currentFunding,
-                            currentFields.totalAmount,
-                            currentFields.estimatedProfit,
-                            currentFields.estimatedReturnCapital,
-                            currentFields.sahemInvestPercent,
-                            currentFields.reservedGainPercent,
-                            currentFields.isLoss
-                          )
-                          return <ProfitabilityAnalysis analysis={analysis} />
-                        })()}
 
                         {/* Per-Investor Breakdown Table */}
                         {investorDistributions.length > 0 && (
