@@ -826,59 +826,26 @@ const AdminProfitDistributionsPage = () => {
                         <Target className="w-5 h-5 mr-2 text-orange-600" />
                             إعدادات العمولة للتوزيع النهائي
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            نسبة ساهم انفست (%)
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                            value={currentFields.sahemInvestPercent}
-                            onChange={(e) => setEditingFields({
-                              ...currentFields,
-                              sahemInvestPercent: Number(e.target.value)
-                            })}
-                                disabled={distribution.isLoss}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100"
-                          />
-                              {distribution.isLoss && (
-                            <p className="text-xs text-red-600 mt-1">لا عمولة في حالة الخسارة</p>
-                          )}
-                              {!distribution.isLoss && (
-                                <p className="text-xs text-gray-600 mt-1">
-                                  المبلغ: {formatCurrency(distribution.sahemAmount)}
-                                </p>
-                              )}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            حالة الصفقة
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={currentFields.isLoss}
-                              onChange={(e) => setEditingFields({
-                                ...currentFields,
-                                isLoss: e.target.checked
-                              })}
-                              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                            />
-                            <span className="text-sm">خسارة (لا عمولة)</span>
-                          </div>
-                              <p className="text-xs text-gray-600 mt-1">
-                                {distribution.isLoss ? 'لن يتم خصم عمولات' : 'سيتم خصم العمولات من الربح'}
-                              </p>
-                        </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          نسبة ساهم انفست (%)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={currentFields.sahemInvestPercent}
+                          onChange={(e) => setEditingFields({
+                            ...currentFields,
+                            sahemInvestPercent: Number(e.target.value)
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        />
+                        <p className="text-xs text-gray-600 mt-1">
+                          المبلغ: {formatCurrency(distribution.sahemAmount)}
+                        </p>
                       </div>
-                          <div className="mt-3 p-3 bg-white border border-orange-200 rounded-md">
-                            <p className="text-sm text-gray-700">
-                              <span className="font-medium">ملاحظة:</span> في التوزيع النهائي، يتم حساب عمولة ساهم انفست من الربح ({formatCurrency(currentFields.estimatedProfit)})، وليس من المبلغ الإجمالي.
-                            </p>
-                          </div>
                         </div>
                       </>
                     )}
