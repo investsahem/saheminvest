@@ -572,25 +572,34 @@ const PartnerProfitDistributionsPage = () => {
 
                   {/* Additional info for FINAL distributions */}
                   {formData.distributionType === 'FINAL' && (
-                    <div className="p-3 bg-yellow-50 border border-yellow-300 rounded-lg">
-                      <p className="text-sm text-yellow-800">
-                        <strong>⚠️ تنبيه:</strong> التوزيع النهائي = رأس المال المتبقي + الأرباح. 
-                        {partialHistory && partialHistory.distributionCount > 0 ? (
-                          <> المبلغ المعبأ ({formatCurrency(formData.totalAmount)}) هو رأس المال المتبقي فقط. أضف الأرباح إليه.</>
-                        ) : (
-                          <> أدخل المبلغ الإجمالي (رأس المال + الأرباح).</>
-                        )}
+                    <div className="p-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-lg space-y-2">
+                      <p className="text-sm text-yellow-900">
+                        <strong>⚠️ توزيع نهائي (إغلاق الصفقة):</strong>
                       </p>
+                      <ul className="text-sm text-yellow-800 space-y-1 mr-4">
+                        <li>• المبلغ = رأس المال المتبقي + الأرباح</li>
+                        {partialHistory && partialHistory.distributionCount > 0 ? (
+                          <li>• المبلغ المعبأ ({formatCurrency(formData.totalAmount)}) هو رأس المال المتبقي فقط. أضف الأرباح إليه.</li>
+                        ) : (
+                          <li>• أدخل المبلغ الإجمالي (رأس المال + الأرباح)</li>
+                        )}
+                        <li>• <strong className="text-orange-700">العمولة:</strong> سيتم خصم عمولة ساهم انفست من الأرباح فقط (لا احتياطي في النهائي)</li>
+                      </ul>
                     </div>
                   )}
 
                   {/* Additional info for PARTIAL distributions */}
                   {formData.distributionType === 'PARTIAL' && (
-                    <div className="p-3 bg-green-50 border border-green-300 rounded-lg">
-                      <p className="text-sm text-green-800">
-                        <strong>💡 معلومة:</strong> التوزيع الجزئي = استرداد جزء من رأس المال (لا يشمل أرباح). 
-                        المبلغ المعبأ هو رأس المال المتبقي بالكامل، يمكنك تقليله لتوزيع جزء منه فقط.
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg space-y-2">
+                      <p className="text-sm text-green-900">
+                        <strong>💡 توزيع جزئي (استرداد رأس مال):</strong>
                       </p>
+                      <ul className="text-sm text-green-800 space-y-1 mr-4">
+                        <li>• التوزيع الجزئي = استرداد جزء من رأس المال (لا يشمل أرباح)</li>
+                        <li>• المبلغ المعبأ ({formatCurrency(formData.totalAmount)}) هو رأس المال المتبقي بالكامل</li>
+                        <li>• يمكنك تقليله لتوزيع جزء منه فقط</li>
+                        <li>• <strong className="text-orange-700">العمولة:</strong> سيتم خصم عمولة ساهم انفست والاحتياطي من المبلغ الإجمالي</li>
+                      </ul>
                     </div>
                   )}
 
