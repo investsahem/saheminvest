@@ -224,10 +224,14 @@ const AdminProfitDistributionsPage = () => {
     const estimatedClosingPercent = Number(request.estimatedClosingPercent) || 0
     const estimatedProfit = Number(request.estimatedProfit) || 0
     const estimatedReturnCapital = Number(request.estimatedReturnCapital) || 0
-    const sahemInvestPercent = Number(request.sahemInvestPercent) || 0
-    const reservedGainPercent = Number(request.reservedGainPercent) || 0
-    const reservedAmount = Number(request.reservedAmount) || 0
-    const sahemInvestAmount = Number(request.sahemInvestAmount) || 0
+    
+    // For FINAL distributions, always start with 0% commission (admin sets it)
+    // For PARTIAL distributions, use partner's submitted values
+    const isFinal = request.distributionType === 'FINAL'
+    const sahemInvestPercent = isFinal ? 0 : (Number(request.sahemInvestPercent) || 0)
+    const reservedGainPercent = isFinal ? 0 : (Number(request.reservedGainPercent) || 0)
+    const reservedAmount = isFinal ? 0 : (Number(request.reservedAmount) || 0)
+    const sahemInvestAmount = isFinal ? 0 : (Number(request.sahemInvestAmount) || 0)
     
     return {
       totalAmount,
@@ -840,11 +844,17 @@ const AdminProfitDistributionsPage = () => {
                             ...currentFields,
                             sahemInvestPercent: Number(e.target.value)
                           })}
+                          placeholder="0"
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                         />
                         <p className="text-xs text-gray-600 mt-1">
                           المبلغ: {formatCurrency(distribution.sahemAmount)}
                         </p>
+                        {currentFields.sahemInvestPercent === 0 && (
+                          <p className="text-xs text-blue-600 mt-1">
+                            💡 قم بتعيين نسبة العمولة (مثال: 10%)
+                          </p>
+                        )}
                       </div>
                         </div>
                       </>
