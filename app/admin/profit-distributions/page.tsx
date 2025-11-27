@@ -736,79 +736,6 @@ const AdminProfitDistributionsPage = () => {
                             </div>
                           </div>
                         )}
-                        {/* Show profit and capital for FINAL only - READ ONLY (calculated from gain %) */}
-                        {selectedRequest.distributionType === 'FINAL' && (
-                          <>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            مبلغ الربح (USD) - محسوب تلقائياً
-                              </label>
-                              <div className={`px-3 py-2 border rounded-md font-semibold ${
-                                currentFields.estimatedProfit !== Number(selectedRequest.estimatedProfit)
-                                  ? 'bg-green-100 border-green-400 text-green-900'
-                                  : 'bg-gray-50 border-gray-300'
-                              }`}>
-                                {formatCurrency(currentFields.estimatedProfit)}
-                                {currentFields.estimatedProfit !== Number(selectedRequest.estimatedProfit) && (
-                                  <span className="text-xs block">(الأصلي: {formatCurrency(Number(selectedRequest.estimatedProfit))})</span>
-                                )}
-                              </div>
-                              <p className="text-xs text-gray-600 mt-1">
-                                💡 محسوب من: رأس المال × نسبة الربح
-                              </p>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                رأس المال المُسترد (USD)
-                              </label>
-                              <div className={`px-3 py-2 border rounded-md font-semibold ${
-                                currentFields.estimatedReturnCapital !== Number(selectedRequest.estimatedReturnCapital)
-                                  ? 'bg-green-100 border-green-400 text-green-900'
-                                  : 'bg-gray-50 border-gray-300'
-                              }`}>
-                                {formatCurrency(currentFields.estimatedReturnCapital)}
-                                {currentFields.estimatedReturnCapital !== Number(selectedRequest.estimatedReturnCapital) && (
-                                  <span className="text-xs block">(الأصلي: {formatCurrency(Number(selectedRequest.estimatedReturnCapital))})</span>
-                                )}
-                              </div>
-                              {historicalData && historicalData.totalPartialCapital > 0 && (
-                                <p className="text-xs text-blue-600 mt-1">
-                                  💡 المتبقي بعد الجزئيات: {formatCurrency(selectedRequest.project.currentFunding - historicalData.totalPartialCapital)}
-                                </p>
-                              )}
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                نسبة ساهم انفست الحالية (%)
-                              </label>
-                              <div className={`px-3 py-2 border rounded-md font-semibold ${
-                                currentFields.sahemInvestPercent !== Number(selectedRequest.sahemInvestPercent) 
-                                  ? 'bg-yellow-100 border-yellow-400 text-yellow-900' 
-                                  : 'bg-gray-50 border-gray-300'
-                              }`}>
-                                {currentFields.sahemInvestPercent}%
-                                {currentFields.sahemInvestPercent !== Number(selectedRequest.sahemInvestPercent) && (
-                                  <span className="text-xs block">(الأصلي: {Number(selectedRequest.sahemInvestPercent)}%)</span>
-                                )}
-                              </div>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                نسبة الاحتياطي الحالية (%)
-                              </label>
-                              <div className={`px-3 py-2 border rounded-md font-semibold ${
-                                currentFields.reservedGainPercent !== Number(selectedRequest.reservedGainPercent) 
-                                  ? 'bg-yellow-100 border-yellow-400 text-yellow-900' 
-                                  : 'bg-gray-50 border-gray-300'
-                              }`}>
-                                {currentFields.reservedGainPercent}%
-                                {currentFields.reservedGainPercent !== Number(selectedRequest.reservedGainPercent) && (
-                                  <span className="text-xs block">(الأصلي: {Number(selectedRequest.reservedGainPercent)}%)</span>
-                                )}
-                              </div>
-                            </div>
-                          </>
-                        )}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             نوع التوزيع
@@ -896,43 +823,6 @@ const AdminProfitDistributionsPage = () => {
                     {/* Commission Settings - Only for FINAL distributions */}
                         {selectedRequest.distributionType === 'FINAL' && (
                       <>
-                        {/* Historical Summary from Partial Distributions */}
-                        {historicalData && historicalData.distributionCount > 0 && (
-                          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                            <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
-                              <Calendar className="w-5 h-5 mr-2 text-purple-600" />
-                              ملخص التوزيعات الجزئية السابقة (للقراءة فقط)
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                              <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                <p className="text-xs text-gray-600 mb-1">رأس المال المسترد للمستثمرين</p>
-                                <p className="text-lg font-bold text-green-700">{formatCurrency(historicalData.totalPartialCapital || 0)}</p>
-                                <p className="text-xs text-gray-500 mt-1">تم استرداده</p>
-                              </div>
-                              <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                <p className="text-xs text-gray-600 mb-1">المبلغ المحتفظ به</p>
-                                <p className="text-lg font-bold text-purple-700">{formatCurrency(historicalData.totalReserved || 0)}</p>
-                              </div>
-                              <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                <p className="text-xs text-gray-600 mb-1">عمولة ساهم انفست</p>
-                                <p className="text-lg font-bold text-purple-700">{formatCurrency(historicalData.totalSahemCommission || 0)}</p>
-                              </div>
-                              <div className="bg-white p-3 rounded-lg border border-purple-200">
-                                <p className="text-xs text-gray-600 mb-1">عدد التوزيعات الجزئية</p>
-                                <p className="text-lg font-bold text-purple-700">{historicalData.distributionCount}</p>
-                              </div>
-                            </div>
-                            <div className="mt-3 p-3 bg-white border border-purple-200 rounded-lg">
-                              <p className="text-xs text-gray-700">
-                                <strong>ملاحظة:</strong> المبلغ الإجمالي للجزئيات = {formatCurrency(historicalData.totalPartialAmount || 0)} 
-                                (رأس مال للمستثمرين: {formatCurrency(historicalData.totalPartialCapital || 0)} + 
-                                محتفظ: {formatCurrency(historicalData.totalReserved || 0)} + 
-                                عمولة: {formatCurrency(historicalData.totalSahemCommission || 0)})
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
                         {/* Commission Settings for FINAL */}
                     <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                       <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
@@ -1308,18 +1198,6 @@ const AdminProfitDistributionsPage = () => {
                           return <ProfitabilityAnalysis analysis={analysis} />
                         })()}
 
-                        {/* Historical Partial Data */}
-                        {loadingHistorical ? (
-                          <div className="flex justify-center items-center py-12">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                          </div>
-                        ) : historicalData && (
-                          <DistributionHistory 
-                            summary={historicalData} 
-                            investorData={investorHistoricalData}
-                          />
-                        )}
-
                         {/* Per-Investor Breakdown Table */}
                         {investorDistributions.length > 0 && (
                           <InvestorBreakdownTable
@@ -1365,44 +1243,6 @@ const AdminProfitDistributionsPage = () => {
                         </div>
                       </div>
                     </div>
-
-                    {/* Final Deal Summary - Just Above Approval Buttons */}
-                    {selectedRequest.status === 'PENDING' && selectedRequest.distributionType === 'FINAL' && (() => {
-                      const totalCapital = Number(selectedRequest.project.currentFunding);
-                      const totalProfit = (Number(currentFields.estimatedGainPercent) / 100) * totalCapital;
-                      const totalDeal = totalCapital + totalProfit;
-                      
-                      return (
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-500 rounded-lg p-4">
-                          <h3 className="text-base font-bold text-green-900 mb-3 flex items-center">
-                            <CheckCircle className="w-5 h-5 mr-2" />
-                            ملخص الصفقة النهائي
-                          </h3>
-                          <div className="grid grid-cols-3 gap-3">
-                            <div className="bg-white p-3 rounded border border-blue-400">
-                              <p className="text-xs text-gray-600">رأس المال الكلي</p>
-                              <p className="text-lg font-bold text-blue-700">
-                                {formatCurrency(totalCapital)}
-                              </p>
-                            </div>
-                            <div className="bg-white p-3 rounded border border-green-400">
-                              <p className="text-xs text-gray-600">الأرباح الكلية</p>
-                              <p className="text-lg font-bold text-green-700">
-                                {formatCurrency(totalProfit)}
-                              </p>
-                              <p className="text-xs text-gray-500">{Number(currentFields.estimatedGainPercent).toFixed(1)}%</p>
-                            </div>
-                            <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-3 rounded border-2 border-purple-500">
-                              <p className="text-xs text-purple-800 font-semibold">إجمالي الصفقة</p>
-                              <p className="text-lg font-bold text-purple-900">
-                                {formatCurrency(totalDeal)}
-                              </p>
-                              <p className="text-xs text-purple-700">رأس المال + الأرباح</p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
 
                     {/* Actions */}
                     {selectedRequest.status === 'PENDING' && (
