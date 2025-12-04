@@ -127,7 +127,14 @@ const AdminProfitDistributionsPage = () => {
               (sum, inv) => sum + Number(inv.amount), 0
             )
             const currentFields = editingFields || initializeEditingFields(selectedRequest)
-            const distribution = calculateDistribution(currentFields, selectedRequest)
+
+            // Calculate correct values using percentages (same as preview)
+            const totalCapital = Number(selectedRequest.project.currentFunding)
+            const totalProfit = (Number(currentFields.estimatedGainPercent) / 100) * totalCapital
+            const partialCapital = data.historicalSummary ? data.historicalSummary.totalPartialCapital : 0
+            const finalCapitalToInvestors = totalCapital - partialCapital
+            const sahemCommission = (totalProfit * currentFields.sahemInvestPercent) / 100
+            const finalProfitToInvestors = totalProfit - sahemCommission
 
             const investments = selectedRequest.project.investments.map(inv => ({
               investorId: inv.investor.id,
@@ -139,8 +146,8 @@ const AdminProfitDistributionsPage = () => {
             const investorDists = calculateInvestorDistributions(
               investments,
               totalInvestmentAmount,
-              distribution.investorsProfit,
-              distribution.investorsCapital,
+              finalProfitToInvestors,
+              finalCapitalToInvestors,
               data.investorHistoricalData
             )
 
@@ -167,7 +174,14 @@ const AdminProfitDistributionsPage = () => {
         const totalInvestmentAmount = selectedRequest.project.investments.reduce(
           (sum, inv) => sum + Number(inv.amount), 0
         )
-        const distribution = calculateDistribution(editingFields, selectedRequest)
+
+        // Calculate correct values using percentages (same as preview)
+        const totalCapital = Number(selectedRequest.project.currentFunding)
+        const totalProfit = (Number(editingFields.estimatedGainPercent) / 100) * totalCapital
+        const partialCapital = historicalData ? historicalData.totalPartialCapital : 0
+        const finalCapitalToInvestors = totalCapital - partialCapital
+        const sahemCommission = (totalProfit * editingFields.sahemInvestPercent) / 100
+        const finalProfitToInvestors = totalProfit - sahemCommission
 
         const investments = selectedRequest.project.investments.map(inv => ({
           investorId: inv.investor.id,
@@ -179,15 +193,15 @@ const AdminProfitDistributionsPage = () => {
         const investorDists = calculateInvestorDistributions(
           investments,
           totalInvestmentAmount,
-          distribution.investorsProfit,
-          distribution.investorsCapital,
+          finalProfitToInvestors,
+          finalCapitalToInvestors,
           investorHistoricalData
         )
 
         setInvestorDistributions(investorDists)
         console.log('🔄 Recalculated investor distributions after admin edit:', {
-          investorsProfit: distribution.investorsProfit,
-          investorsCapital: distribution.investorsCapital,
+          investorsProfit: finalProfitToInvestors,
+          investorsCapital: finalCapitalToInvestors,
           investorCount: investorDists.length
         })
       } catch (error) {
@@ -1014,20 +1028,6 @@ const AdminProfitDistributionsPage = () => {
                                   </div>
                                 </div>
 
-                                {/* Sahem Commission Info */}
-                                <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                                  <div className="flex items-center justify-between">
-                                    <div>
-                                      <p className="text-xs text-gray-700 mb-1">عمولة ساهم انفست الكلية</p>
-                                      <p className="text-sm font-bold text-orange-700">{formatCurrency(globalSahemCommission)}</p>
-                                    </div>
-                                    <div className="text-right">
-                                      <p className="text-xs text-gray-600">النسبة الحالية: {currentFields.sahemInvestPercent}%</p>
-                                      <p className="text-xs text-gray-500">نهائي: {formatCurrency(sahemCommission)}</p>
-                                      <p className="text-xs text-gray-500">جزئي: {formatCurrency(partialSahemCommission)}</p>
-                                    </div>
-                                  </div>
-                                </div>
 
                                 {/* Note */}
                                 <div className="mt-3 p-2 bg-white/70 rounded-lg border border-green-200">
