@@ -950,9 +950,12 @@ const AdminProfitDistributionsPage = () => {
                           const globalCapitalReturned = partialCapital + finalCapitalToInvestors;
                           
                           // Calculate total profit to investors (should be only in final)
-                          const partialProfit = historicalData ? historicalData.totalPartialProfit : 0; // Should be 0
-                          const finalProfitToInvestors = distribution.investorsProfit;
-                          const globalProfitToInvestors = partialProfit + finalProfitToInvestors;
+                          // Use calculated profit (percentage × capital) not the submitted estimatedProfit
+                          const partialProfit = historicalData ? historicalData.totalPartialProfit : 0;
+                          // Final profit = total calculated profit - Sahem commission - any partial profit already distributed
+                          const sahemCommissionFromProfit = (totalProfit * currentFields.sahemInvestPercent) / 100;
+                          const finalProfitToInvestors = totalProfit - sahemCommissionFromProfit - partialProfit;
+                          const globalProfitToInvestors = totalProfit - sahemCommissionFromProfit;
                           
                           // Calculate Sahem commission (from profit only)
                           const sahemCommission = distribution.sahemAmount;
