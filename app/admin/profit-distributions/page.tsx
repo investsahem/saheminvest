@@ -708,8 +708,8 @@ const AdminProfitDistributionsPage = () => {
                             إجمالي المبلغ (USD) {selectedRequest.distributionType === 'FINAL' && '- يتم الحساب تلقائياً'}
                           </label>
                           <div className={`px-3 py-2 border rounded-md font-semibold ${currentFields.totalAmount !== Number(selectedRequest.totalAmount)
-                              ? 'bg-green-100 border-green-400 text-green-900'
-                              : 'bg-gray-50 border-gray-300'
+                            ? 'bg-green-100 border-green-400 text-green-900'
+                            : 'bg-gray-50 border-gray-300'
                             }`}>
                             {formatCurrency(currentFields.totalAmount)}
                             {currentFields.totalAmount !== Number(selectedRequest.totalAmount) && (
@@ -944,9 +944,10 @@ const AdminProfitDistributionsPage = () => {
                           const totalProfit = (Number(currentFields.estimatedGainPercent) / 100) * totalCapital;
 
                           // Calculate total capital returned to investors (partial + final)
+                          // Auto-calculate remaining capital = total capital - partial capital already distributed
                           const partialCapital = historicalData ? historicalData.totalPartialCapital : 0;
-                          const finalCapitalToInvestors = distribution.investorsCapital;
-                          const globalCapitalReturned = partialCapital + finalCapitalToInvestors;
+                          const finalCapitalToInvestors = totalCapital - partialCapital; // Auto-calculated, not partner-submitted
+                          const globalCapitalReturned = totalCapital; // Full capital is always returned
 
                           // Calculate total profit to investors (should be only in final)
                           // Use calculated profit (percentage × capital) not the submitted estimatedProfit
