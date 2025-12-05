@@ -128,9 +128,9 @@ const AdminProfitDistributionsPage = () => {
             )
             const currentFields = editingFields || initializeEditingFields(selectedRequest)
 
-            // Calculate correct values using percentages (same as preview)
+            // Calculate correct values using actual profit (not percentage calculation)
             const totalCapital = Number(selectedRequest.project.currentFunding)
-            const totalProfit = (Number(currentFields.estimatedGainPercent) / 100) * totalCapital
+            const totalProfit = Number(currentFields.estimatedProfit) // Use actual profit, not calculated from percentage
             const partialCapital = data.historicalSummary ? data.historicalSummary.totalPartialCapital : 0
             const finalCapitalToInvestors = totalCapital - partialCapital
             const sahemCommission = (totalProfit * currentFields.sahemInvestPercent) / 100
@@ -175,9 +175,9 @@ const AdminProfitDistributionsPage = () => {
           (sum, inv) => sum + Number(inv.amount), 0
         )
 
-        // Calculate correct values using percentages (same as preview)
+        // Calculate correct values using actual profit (not percentage calculation)
         const totalCapital = Number(selectedRequest.project.currentFunding)
-        const totalProfit = (Number(editingFields.estimatedGainPercent) / 100) * totalCapital
+        const totalProfit = Number(editingFields.estimatedProfit) // Use actual profit, not calculated from percentage
         const partialCapital = historicalData ? historicalData.totalPartialCapital : 0
         const finalCapitalToInvestors = totalCapital - partialCapital
         const sahemCommission = (totalProfit * editingFields.sahemInvestPercent) / 100
@@ -955,7 +955,7 @@ const AdminProfitDistributionsPage = () => {
                         (() => {
                           // Calculate global deal totals (including partial and final)
                           const totalCapital = Number(selectedRequest.project.currentFunding);
-                          const totalProfit = (Number(currentFields.estimatedGainPercent) / 100) * totalCapital;
+                          const totalProfit = Number(currentFields.estimatedProfit); // Use actual profit, not calculated from percentage
 
                           // Calculate total capital returned to investors (partial + final)
                           // Auto-calculate remaining capital = total capital - partial capital already distributed
