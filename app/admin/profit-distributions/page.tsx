@@ -841,33 +841,54 @@ const AdminProfitDistributionsPage = () => {
                         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                           <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
                             <Target className="w-5 h-5 mr-2 text-orange-600" />
-                            إعدادات العمولة للتوزيع النهائي
+                            إعدادات التوزيع النهائي
                           </h3>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              نسبة ساهم انفست (%)
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              max="100"
-                              step="0.1"
-                              value={currentFields.sahemInvestPercent}
-                              onChange={(e) => setEditingFields({
-                                ...currentFields,
-                                sahemInvestPercent: Number(e.target.value)
-                              })}
-                              placeholder="0"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                            />
-                            <p className="text-xs text-gray-600 mt-1">
-                              المبلغ: {formatCurrency(distribution.sahemAmount)}
-                            </p>
-                            {currentFields.sahemInvestPercent === 0 && (
-                              <p className="text-xs text-blue-600 mt-1">
-                                💡 قم بتعيين نسبة العمولة (مثال: 10%)
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                الربح الفعلي (USD)
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={currentFields.estimatedProfit}
+                                onChange={(e) => setEditingFields({
+                                  ...currentFields,
+                                  estimatedProfit: Number(e.target.value)
+                                })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                              />
+                              <p className="text-xs text-gray-600 mt-1">
+                                الربح الفعلي من الصفقة (ليس محسوباً من النسبة)
                               </p>
-                            )}
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                نسبة ساهم انفست (%)
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.1"
+                                value={currentFields.sahemInvestPercent}
+                                onChange={(e) => setEditingFields({
+                                  ...currentFields,
+                                  sahemInvestPercent: Number(e.target.value)
+                                })}
+                                placeholder="0"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                              />
+                              <p className="text-xs text-gray-600 mt-1">
+                                المبلغ: {formatCurrency(distribution.sahemAmount)}
+                              </p>
+                              {currentFields.sahemInvestPercent === 0 && (
+                                <p className="text-xs text-blue-600 mt-1">
+                                  💡 قم بتعيين نسبة العمولة (مثال: 10%)
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </>
