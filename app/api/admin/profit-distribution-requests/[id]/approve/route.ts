@@ -11,23 +11,23 @@ export async function POST(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const params = await context.params
     const requestId = params.id
-    
+
     // Get admin editable fields from request body (if any)
     const body = await request.json().catch(() => ({}))
-    const { 
+    const {
       totalAmount,
       estimatedProfit,
       estimatedGainPercent,
       estimatedClosingPercent,
       estimatedReturnCapital,
-      sahemInvestPercent, 
+      sahemInvestPercent,
       reservedGainPercent,
       // New: actual amounts for reserve and commission
       reservedAmount,
@@ -84,19 +84,19 @@ export async function POST(
       // Business Logic: Investors must recover 100% of their capital first, then profit starts
       finalReservedAmount = reservedAmount ?? Number(distributionRequest.reservedAmount ?? 0)
       finalSahemInvestAmount = sahemInvestAmount ?? Number(distributionRequest.sahemInvestAmount ?? 0)
-      
+
       // Calculate percentages from amounts (for storage)
       finalReservedPercent = finalTotalAmount > 0 ? (finalReservedAmount / finalTotalAmount) * 100 : 0
       finalSahemPercent = finalTotalAmount > 0 ? (finalSahemInvestAmount / finalTotalAmount) * 100 : 0
-      
+
       // Total amount to investors after commissions
       const netToInvestors = finalTotalAmount - finalReservedAmount - finalSahemInvestAmount
-      
+
       // IMPORTANT: In partial distributions, ALL net amount is for capital recovery
       // NO profit is distributed until final distribution
       investorDistributionAmount = 0  // No profit in partials
       capitalReturnAmount = netToInvestors  // All goes to capital recovery
-      
+
       console.log(`Processing PARTIAL scenario: Total ${finalTotalAmount}, Reserved ${finalReservedAmount}, Sahem ${finalSahemInvestAmount}`)
       console.log(`  -> Net to investors: ${netToInvestors} - ALL goes to capital recovery (no profit yet)`)
     } else if (isFinalDistribution && finalIsLoss) {
@@ -107,7 +107,7 @@ export async function POST(
       finalReservedAmount = 0
       investorDistributionAmount = 0 // No profit
       capitalReturnAmount = finalTotalAmount // All remaining funds for capital recovery
-      
+
       console.log(`Processing FINAL LOSS scenario: Total remaining ${finalTotalAmount} goes to investors for capital recovery`)
     } else {
       // FINAL PROFIT SCENARIO: Only Sahem commission applied to PROFIT (NO reserve in final)
@@ -117,7 +117,7 @@ export async function POST(
       finalReservedAmount = 0  // NO reserve in final distributions
       investorDistributionAmount = finalEstimatedProfit - finalSahemInvestAmount  // Only Sahem commission deducted
       capitalReturnAmount = finalEstimatedReturnCapital
-      
+
       console.log(`Processing FINAL PROFIT scenario: Profit ${finalEstimatedProfit}, Sahem ${finalSahemInvestAmount}, Investors Profit ${investorDistributionAmount}, Capital ${capitalReturnAmount}`)
       console.log(`  -> NO RESERVE in final distribution (reserve only in partials)`)
     }
@@ -139,7 +139,7 @@ export async function POST(
       where: { id: { in: uniqueInvestorIds } },
       select: { id: true, walletBalance: true, totalReturns: true }
     })
-    
+
     // Create a map for quick lookup
     const investorDataMap = new Map(investorsData.map(investor => [investor.id, investor]))
 
@@ -186,13 +186,13 @@ export async function POST(
     for (const [investorId, investorGroup] of investorGroups.entries()) {
       const investorTotalInvestment = investorGroup.totalInvestment
       const investmentRatio = investorTotalInvestment / totalInvestmentAmount
-      
+
       // Use custom amounts if provided, otherwise calculate from ratio
       // IMPORTANT: For FINAL distributions, custom amounts from frontend already have
       // partial distributions subtracted (see calculateInvestorDistributions in profit-distribution-client-utils.ts)
       let investorProfitShare: number
       let investorCapitalReturn: number
-      
+
       if (customAmountsMap.has(investorId)) {
         const customAmounts = customAmountsMap.get(investorId)!
         investorProfitShare = customAmounts.finalProfit
@@ -204,7 +204,7 @@ export async function POST(
         investorProfitShare = investorDistributionAmount * investmentRatio
         investorCapitalReturn = capitalReturnAmount * investmentRatio
       }
-      
+
       const investorData = investorDataMap.get(investorId)
 
       if (!investorData) continue
@@ -336,7 +336,7 @@ export async function POST(
       } else {
         // PARTIAL DISTRIBUTION - ONLY capital return, NO profit
         // Business Logic: Capital recovery first, profit comes in final distribution
-        
+
         // Capital return transaction only
         if (investorCapitalReturn > 0) {
           transactionOperations.push({
@@ -444,7 +444,7 @@ export async function POST(
       } else {
         partnerNotificationMessage = `تم الموافقة على طلب التوزيع النهائي للصفقة "${distributionRequest.project.title}" وتم توزيع ${investorDistributionAmount.toFixed(2)} دولار كأرباح و ${capitalReturnAmount.toFixed(2)} دولار كرأس مال على المستثمرين من إجمالي ${totalProfit.toFixed(2)} دولار.`
       }
-      
+
       await tx.notification.create({
         data: {
           userId: distributionRequest.partnerId,
@@ -472,17 +472,26 @@ export async function POST(
           data: notificationOperations
         })
       }
+
+      // 7. Mark project as COMPLETED after FINAL distribution
+      if (isFinalDistribution) {
+        await tx.project.update({
+          where: { id: distributionRequest.projectId },
+          data: { status: 'COMPLETED' }
+        })
+        console.log(`Project ${distributionRequest.projectId} marked as COMPLETED after FINAL distribution`)
+      }
     }, {
       timeout: 30000 // 30 second timeout
     })
 
-    return NextResponse.json({ 
-      success: true, 
-      message: finalIsLoss && isFinalDistribution 
+    return NextResponse.json({
+      success: true,
+      message: finalIsLoss && isFinalDistribution
         ? 'Loss distribution approved and processed successfully'
         : isPartialDistribution
-        ? 'Partial distribution approved and processed successfully'
-        : 'Profit distribution approved and processed successfully',
+          ? 'Partial distribution approved and processed successfully'
+          : 'Profit distribution approved and processed successfully',
       summary: {
         totalProfit: totalProfit,
         totalAmount: finalTotalAmount,
