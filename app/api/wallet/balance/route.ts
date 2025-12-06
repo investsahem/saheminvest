@@ -9,7 +9,7 @@ const prisma = new PrismaClient()
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
 
     transactions.forEach(transaction => {
       const amount = Number(transaction.amount)
-      
+
       switch (transaction.type) {
         case 'DEPOSIT':
           calculatedBalance += amount
@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
           ]
         }
       })
-      
+
       const distributedProfits = profitTransactions.reduce(
         (sum, transaction) => sum + Number(transaction.amount), 0
       )
@@ -144,45 +144,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // For completed investments, we need to add back the original investment to the wallet
-    // This simulates the capital being "returned" when the deal completes
-    let completedInvestmentReturns = 0
-    for (const investment of investmentRecords) {
-      if (investment.project.status === 'COMPLETED') {
-        // Check if we've already added this completed investment back to the wallet
-        const hasCapitalReturn = await prisma.transaction.findFirst({
-          where: {
-            userId: session.user.id,
-            investmentId: investment.id,
-            type: 'RETURN',
-            description: { contains: 'Capital Return' }
-          }
-        })
-        
-        if (!hasCapitalReturn) {
-          // Create a capital return transaction for the completed investment
-          await prisma.transaction.create({
-            data: {
-              userId: session.user.id,
-              investmentId: investment.id,
-              type: 'RETURN',
-              amount: Number(investment.amount),
-              description: `Capital Return - ${investment.project.title}`,
-              status: 'COMPLETED',
-              createdAt: new Date(),
-              updatedAt: new Date()
-            }
-          })
-          completedInvestmentReturns += Number(investment.amount)
-        }
-      }
-    }
-
-    // Recalculate balance if we added capital returns
-    if (completedInvestmentReturns > 0) {
-      calculatedBalance += completedInvestmentReturns
-      // Don't add capital returns to profit returns - they're just returned capital
-    }
+    // Note: Capital returns are already handled by the approval route when distributions are approved.
+    // We should NOT auto-create capital return transactions here as it causes duplicates.
 
     // Update user's wallet balance and investment totals
     await prisma.user.update({
