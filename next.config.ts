@@ -33,3 +33,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+// Trigger redeploy Sun Dec  7 14:32:00 +01 2025
