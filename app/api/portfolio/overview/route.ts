@@ -9,7 +9,7 @@ const prisma = new PrismaClient()
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     for (const investment of investments) {
       const originalInvestment = Number(investment.amount)
       totalHistoricalInvested += originalInvestment
-      
+
       // Get capital return transactions (partial or full)
       const capitalReturnTransactions = await prisma.transaction.findMany({
         where: {
@@ -70,11 +70,11 @@ export async function GET(request: NextRequest) {
           status: 'COMPLETED'
         }
       })
-      
+
       const totalCapitalReturned = capitalReturnTransactions.reduce(
         (sum, transaction) => sum + Number(transaction.amount), 0
       )
-      
+
       // Get profit distribution transactions (actual profits only)
       const profitTransactions = await prisma.transaction.findMany({
         where: {
@@ -83,11 +83,11 @@ export async function GET(request: NextRequest) {
           status: 'COMPLETED'
         }
       })
-      
+
       const distributedProfits = profitTransactions.reduce(
         (sum, transaction) => sum + Number(transaction.amount), 0
       )
-      
+
       // Remaining active investment = original - capital returned
       const remainingActiveInvestment = originalInvestment - totalCapitalReturned
 
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
 
       // Calculate returns - only profits, not capital returns
       let totalReturn = distributedProfits
-      
+
       totalReturns += totalReturn
 
       // Calculate project progress
@@ -138,9 +138,9 @@ export async function GET(request: NextRequest) {
       // For the individual investment display, show what the investment is worth now
       let displayCurrentValue = currentValue
       if (project.status === 'COMPLETED') {
-        // For completed deals, show the distributed profits as the "current value"
-        // since the original investment has been returned to wallet
-        displayCurrentValue = distributedProfits
+        // For completed deals, show the total received (capital returned + profits)
+        // This represents the full value the investor got back from this investment
+        displayCurrentValue = totalCapitalReturned + distributedProfits
       } else {
         // For active/funded deals: remaining investment (still locked) + profits earned
         // This represents the total value of this investment slot
@@ -172,13 +172,13 @@ export async function GET(request: NextRequest) {
 
     // Calculate portfolio performance metrics
     const portfolioReturn = totalHistoricalInvested > 0 ? (totalReturns / totalHistoricalInvested) * 100 : 0
-    
+
     // Calculate real daily change based on profit distributions from today
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
-    
+
     // Get all profit distributions (RETURN and PROFIT_DISTRIBUTION transactions) from today
     const todayProfits = await prisma.transaction.findMany({
       where: {
@@ -196,12 +196,12 @@ export async function GET(request: NextRequest) {
         ]
       }
     })
-    
+
     // Calculate today's change from profit distributions
     const todayProfitAmount = todayProfits.reduce(
       (sum, transaction) => sum + Number(transaction.amount), 0
     )
-    
+
     // Also check for any new investments today (they would increase portfolio value)
     const todayInvestments = await prisma.transaction.findMany({
       where: {
@@ -214,11 +214,11 @@ export async function GET(request: NextRequest) {
         }
       }
     })
-    
+
     const todayInvestmentAmount = todayInvestments.reduce(
       (sum, transaction) => sum + Number(transaction.amount), 0
     )
-    
+
     // Daily change is primarily from profit distributions
     // New investments don't count as "gains" in daily change
     const dailyChangeAmount = Math.round(todayProfitAmount * 100) / 100
@@ -226,7 +226,7 @@ export async function GET(request: NextRequest) {
     const dailyChangePercentage = yesterdayPortfolioValue > 0 ? (dailyChangeAmount / yesterdayPortfolioValue) * 100 : 0
 
     // Count active investments
-    const activeInvestments = portfolioInvestments.filter(inv => 
+    const activeInvestments = portfolioInvestments.filter(inv =>
       ['active', 'funded'].includes(inv.status)
     ).length
 
@@ -236,7 +236,7 @@ export async function GET(request: NextRequest) {
       select: { walletBalance: true }
     })
     const walletBalance = Number(user?.walletBalance || 0)
-    
+
     // Total portfolio value = current investments + distributed profits (still in the deals)
     // For FUNDED/ACTIVE deals: investment amount is still locked in the deal
     // Distributed profits should be added to portfolio value
@@ -262,12 +262,12 @@ export async function GET(request: NextRequest) {
       },
       investments: portfolioInvestments,
       summary: {
-        bestPerformer: portfolioInvestments.length > 0 ? 
-          portfolioInvestments.reduce((best, current) => 
+        bestPerformer: portfolioInvestments.length > 0 ?
+          portfolioInvestments.reduce((best, current) =>
             current.returnPercentage > best.returnPercentage ? current : best
           ) : null,
         totalProjects: portfolioInvestments.length,
-        averageReturn: portfolioInvestments.length > 0 ? 
+        averageReturn: portfolioInvestments.length > 0 ?
           Math.round((portfolioInvestments.reduce((sum, inv) => sum + inv.returnPercentage, 0) / portfolioInvestments.length) * 100) / 100 : 0
       }
     })

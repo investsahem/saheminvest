@@ -445,6 +445,7 @@
     "portfolio_dashboard": "لوحة تحكم المحفظة",
     "track_investment_performance": "تتبع أداء استثماراتك",
     "portfolio_value": "قيمة المحفظة",
+    "includes_capital_and_profits": "رأس المال + الأرباح",
     "todays_change": "تغيير اليوم",
     "total_return": "إجمالي العائد",
     "total_invested": "إجمالي المستثمر",
@@ -543,10 +544,10 @@
     "archived": "مؤرشف",
     "amount": "المبلغ",
     "view_all": "عرض الكل",
-    "payment_method":"طريقة الدفع",
-    "status":"الحالة",
-    "reference":"المرجع",
-    "got_it":"فهمت"
+    "payment_method": "طريقة الدفع",
+    "status": "الحالة",
+    "reference": "المرجع",
+    "got_it": "فهمت"
   },
   "investment": {
     "invest_in": "استثمر في",
@@ -646,24 +647,23 @@
       "withdraw_funds": "سحب الأموال"
     }
   },
-
   "wallet": {
-    "deposit_submitted":"تم إيداع الأموال بنجاح",
-    "what_happens_next":"ما الذي يحدث بعد الإيداع؟",
-    "secure_processing":"المعاملات المالية آمنة",
-    "secure_processing_description":"نحرص على حماية المعاملات المالية وأمان أموالك",
-    "view_history":"عرض التاريخ",
-    "pending":{
-        "description":"تم إيداع الأموال بنجاح",
-        "verify_24h":"يتم التحقق من الإيداع خلال 24 ساعة",
-        "notification_approval":"يتم إرسال تنبيه للمستثمر عندما يتم التحقق من الإيداع",
-        "funds_after_verification":"يتم إيداع الأموال بعد التحقق"
+    "deposit_submitted": "تم إيداع الأموال بنجاح",
+    "what_happens_next": "ما الذي يحدث بعد الإيداع؟",
+    "secure_processing": "المعاملات المالية آمنة",
+    "secure_processing_description": "نحرص على حماية المعاملات المالية وأمان أموالك",
+    "view_history": "عرض التاريخ",
+    "pending": {
+      "description": "تم إيداع الأموال بنجاح",
+      "verify_24h": "يتم التحقق من الإيداع خلال 24 ساعة",
+      "notification_approval": "يتم إرسال تنبيه للمستثمر عندما يتم التحقق من الإيداع",
+      "funds_after_verification": "يتم إيداع الأموال بعد التحقق"
     },
-    "status":{
-        "under_review":"قيد المراجعة",
-        "completed":"مكتمل",
-        "failed":"فشل",
-        "pending":"قيد الانتظار"    
+    "status": {
+      "under_review": "قيد المراجعة",
+      "completed": "مكتمل",
+      "failed": "فشل",
+      "pending": "قيد الانتظار"
     },
     "payment_methods": {
       "cash_office": "نقداً في المكتب",
@@ -672,21 +672,21 @@
       "instant_fee": "فوري - مع رسوم",
       "bank_transfer": "تحويل بنكي",
       "bank_transfer_time": "1-3 أيام عمل",
-      "cash":"نقداً",
-      "card":"بطاقة ائتمان",
-      "bank":"تحويل بنكي"
+      "cash": "نقداً",
+      "card": "بطاقة ائتمان",
+      "bank": "تحويل بنكي"
     },
-    "withdraw":{
-        "max":"الحد الأقصى",
-        "maximum":"الحد الأقصى",
-        "notice_title":"ملاحظة",
-        "notice_text":"الحد الأقصى للسحب هو"
+    "withdraw": {
+      "max": "الحد الأقصى",
+      "maximum": "الحد الأقصى",
+      "notice_title": "ملاحظة",
+      "notice_text": "الحد الأقصى للسحب هو"
     },
-    "deposit":{
-        "confirm_title":"تأكيد الإيداع",
-        "confirm_deposit":"تأكيد الإيداع",
-        "confirm_button":"تأكيد الإيداع"
-       }
+    "deposit": {
+      "confirm_title": "تأكيد الإيداع",
+      "confirm_deposit": "تأكيد الإيداع",
+      "confirm_button": "تأكيد الإيداع"
+    }
   },
   "portfolio_transactions": {
     "title": "تاريخ المعاملات",
@@ -893,9 +893,9 @@
       "current_session": "الجلسة الحالية",
       "end_session": "إنهاء الجلسة",
       "last_active": "آخر نشاط",
-      "password_auth_title":"كلمة المرور والمصادقة",
-      "disabled":"غير مفعل",
-      "current":"الحالي"
+      "password_auth_title": "كلمة المرور والمصادقة",
+      "disabled": "غير مفعل",
+      "current": "الحالي"
     },
     "notifications": {
       "title": "إعدادات الإشعارات",
@@ -913,17 +913,16 @@
       "deal_updates": "تحديثات الصفقات",
       "price_alerts": "تنبيهات الأسعار",
       "news_updates": "تحديثات الأخبار",
-      "receive_via_email":"الاستقبال عبر البريد الإلكتروني",
-      "receive_via_sms":"الاستقبال عبر الرسائل النصية",
-      "investmentUpdates":"تحديثات الاستثمار",
-      "monthlyStatements":"الكشوف الشهرية",
-      "dealAlerts":"تنبيهات الصفقات",
-      "securityAlerts":"تنبيهات الأمان",
-      "marketingEmails":"رسائل التسويق",
-      "criticalAlerts":"التنبيهات الحرجة",
-      "payoutNotifications":"إشعارات الأرباح",
-      "loginAlerts":"تنبيهات تسجيل الدخول"
-
+      "receive_via_email": "الاستقبال عبر البريد الإلكتروني",
+      "receive_via_sms": "الاستقبال عبر الرسائل النصية",
+      "investmentUpdates": "تحديثات الاستثمار",
+      "monthlyStatements": "الكشوف الشهرية",
+      "dealAlerts": "تنبيهات الصفقات",
+      "securityAlerts": "تنبيهات الأمان",
+      "marketingEmails": "رسائل التسويق",
+      "criticalAlerts": "التنبيهات الحرجة",
+      "payoutNotifications": "إشعارات الأرباح",
+      "loginAlerts": "تنبيهات تسجيل الدخول"
     },
     "preferences": {
       "title": "التفضيلات",
@@ -1052,8 +1051,8 @@
       "back_to_investments": "العودة للاستثمارات"
     }
   },
-  "portfolioAdvisor":{
-    "advisor_application":"طلب المستشار",
-    "apply_for_advisor":"التقدم للمستشار"
+  "portfolioAdvisor": {
+    "advisor_application": "طلب المستشار",
+    "apply_for_advisor": "التقدم للمستشار"
   }
 }

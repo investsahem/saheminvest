@@ -47,7 +47,7 @@ export function useUserData(): UserData {
 
         setUserData({
           walletBalance: walletData?.balance || 0,
-          portfolioValue: portfolioData?.portfolio?.totalValue || 0,
+          portfolioValue: walletData?.balance || 0,  // Portfolio value = wallet (capital + profits)
           totalReturns: portfolioData?.portfolio?.totalReturns || 0,
           dailyChange: portfolioData?.dailyChange || {
             amount: 0,
