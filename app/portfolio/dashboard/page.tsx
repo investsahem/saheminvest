@@ -8,10 +8,10 @@ import InvestorLayout from '../../components/layout/InvestorLayout'
 import { useTranslation } from '../../components/providers/I18nProvider'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
-import { 
-  TrendingUp, 
+import {
+  TrendingUp,
   TrendingDown,
-  DollarSign, 
+  DollarSign,
   PieChart,
   BarChart3,
   Calendar,
@@ -76,28 +76,39 @@ export default function InvestorDashboard() {
   const { data: session } = useSession()
   const router = useRouter()
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
+  const [walletBalance, setWalletBalance] = useState<number>(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchPortfolioData = async () => {
+    const fetchData = async () => {
       if (!session?.user) return
 
       try {
-        const response = await fetch('/api/portfolio/overview')
-        if (response.ok) {
-          const data = await response.json()
+        // Fetch both portfolio and wallet data
+        const [portfolioResponse, walletResponse] = await Promise.all([
+          fetch('/api/portfolio/overview'),
+          fetch('/api/wallet/balance')
+        ])
+
+        if (portfolioResponse.ok) {
+          const data = await portfolioResponse.json()
           setPortfolioData(data)
         } else {
           console.error('Failed to fetch portfolio data')
         }
+
+        if (walletResponse.ok) {
+          const walletData = await walletResponse.json()
+          setWalletBalance(walletData.balance || 0)
+        }
       } catch (error) {
-        console.error('Error fetching portfolio data:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchPortfolioData()
+    fetchData()
   }, [session])
 
   const formatCurrency = (amount: number) => {
@@ -177,7 +188,7 @@ export default function InvestorDashboard() {
   // Group investments by projectId and aggregate amounts
   const groupedInvestments = investments.reduce((acc: Record<string, Investment>, investment: Investment) => {
     const projectId = investment.projectId
-    
+
     if (!acc[projectId]) {
       // First investment in this project - use it as base
       acc[projectId] = { ...investment }
@@ -188,18 +199,18 @@ export default function InvestorDashboard() {
       acc[projectId].totalReturn += investment.totalReturn
       acc[projectId].distributedProfits += investment.distributedProfits
       acc[projectId].unrealizedGains += investment.unrealizedGains
-      
+
       // Recalculate return percentage based on accumulated amounts
       if (acc[projectId].investedAmount > 0) {
         acc[projectId].returnPercentage = (acc[projectId].totalReturn / acc[projectId].investedAmount) * 100
       }
-      
+
       // Keep the earliest investment date
       if (new Date(investment.investmentDate) < new Date(acc[projectId].investmentDate)) {
         acc[projectId].investmentDate = investment.investmentDate
       }
     }
-    
+
     return acc
   }, {})
 
@@ -211,25 +222,27 @@ export default function InvestorDashboard() {
       <div className="space-y-6">
         {/* Portfolio Overview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Portfolio Value */}
+          {/* Main Portfolio Value - Shows Total Wallet (Capital + Profit) */}
           <Card className="lg:col-span-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-sm font-medium text-blue-700">{t('investor.portfolio_value')}</p>
                   <p className="text-4xl font-bold text-blue-900">
-                    {formatCurrency(portfolio.totalValue)}
+                    {formatCurrency(walletBalance)}
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    {t('investor.includes_capital_and_profits') || 'رأس المال + الأرباح'}
                   </p>
                 </div>
                 <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center">
                   <PieChart className="w-8 h-8 text-blue-600" />
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-4">
-                <div className={`flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-medium ${
-                  portfolio.portfolioReturn >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
+                <div className={`flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-medium ${portfolio.portfolioReturn >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
                   {portfolio.portfolioReturn >= 0 ? (
                     <TrendingUp className="w-4 h-4" />
                   ) : (
@@ -237,7 +250,7 @@ export default function InvestorDashboard() {
                   )}
                   <span>+{portfolio.portfolioReturn.toFixed(1)}%</span>
                 </div>
-                
+
                 <div className="text-sm text-blue-700">
                   {t('investor.total_return')}: {formatCurrency(portfolio.totalReturns)}
                 </div>
@@ -251,9 +264,8 @@ export default function InvestorDashboard() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-sm font-medium text-green-700">{t('investor.todays_change')}</p>
-                  <p className={`text-2xl font-bold ${
-                    dailyChange.isPositive ? 'text-green-900' : 'text-red-900'
-                  }`}>
+                  <p className={`text-2xl font-bold ${dailyChange.isPositive ? 'text-green-900' : 'text-red-900'
+                    }`}>
                     {dailyChange.isPositive ? '+' : ''}{formatCurrency(dailyChange.amount)}
                   </p>
                 </div>
@@ -265,10 +277,9 @@ export default function InvestorDashboard() {
                   )}
                 </div>
               </div>
-              
-              <div className={`text-sm font-medium ${
-                dailyChange.isPositive ? 'text-green-800' : 'text-red-800'
-              }`}>
+
+              <div className={`text-sm font-medium ${dailyChange.isPositive ? 'text-green-800' : 'text-red-800'
+                }`}>
                 ({dailyChange.isPositive ? '+' : ''}{dailyChange.percentage.toFixed(2)}%)
               </div>
             </CardContent>
@@ -361,7 +372,7 @@ export default function InvestorDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">{t('investor.my_investments')}</h3>
-              <Button 
+              <Button
                 onClick={() => router.push('/portfolio/deals')}
                 className="bg-blue-600 hover:bg-blue-700"
               >
@@ -429,14 +440,12 @@ export default function InvestorDashboard() {
                           {formatCurrency(investment.currentValue)}
                         </td>
                         <td className="py-4 px-4 text-right">
-                          <div className={`font-medium ${
-                            investment.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'
-                          }`}>
+                          <div className={`font-medium ${investment.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'
+                            }`}>
                             {formatCurrency(investment.totalReturn)}
                           </div>
-                          <div className={`text-sm ${
-                            investment.returnPercentage >= 0 ? 'text-green-600' : 'text-red-600'
-                          }`}>
+                          <div className={`text-sm ${investment.returnPercentage >= 0 ? 'text-green-600' : 'text-red-600'
+                            }`}>
                             ({investment.returnPercentage >= 0 ? '+' : ''}{investment.returnPercentage.toFixed(1)}%)
                           </div>
                         </td>
