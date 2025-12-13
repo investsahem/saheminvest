@@ -98,19 +98,19 @@ const NotificationDropdown = ({
 
     if (diffInMinutes < 1) return locale === 'ar' ? 'الآن' : 'Just now'
     if (diffInMinutes < 60) return locale === 'ar' ? `منذ ${diffInMinutes} دقيقة` : `${diffInMinutes}m ago`
-    
+
     const diffInHours = Math.floor(diffInMinutes / 60)
     if (diffInHours < 24) return locale === 'ar' ? `منذ ${diffInHours} ساعة` : `${diffInHours}h ago`
-    
+
     const diffInDays = Math.floor(diffInHours / 24)
     if (diffInDays < 7) return locale === 'ar' ? `منذ ${diffInDays} يوم` : `${diffInDays}d ago`
-    
+
     return date.toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')
   }
 
   const handleMarkAsRead = async (id: string) => {
     if (processingIds.has(id)) return
-    
+
     setProcessingIds(prev => new Set(prev).add(id))
     try {
       await onMarkAsRead(id)
@@ -125,7 +125,7 @@ const NotificationDropdown = ({
 
   const handleMarkAllAsRead = async () => {
     if (markingAllAsRead || stats.unread === 0) return
-    
+
     setMarkingAllAsRead(true)
     try {
       await onMarkAllAsRead()
@@ -136,7 +136,7 @@ const NotificationDropdown = ({
 
   const handleDelete = async (id: string) => {
     if (!onDelete || processingIds.has(id)) return
-    
+
     setProcessingIds(prev => new Set(prev).add(id))
     try {
       await onDelete(id)
@@ -164,15 +164,15 @@ const NotificationDropdown = ({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="relative p-2"
+      <Button
+        variant="outline"
+        size="sm"
+        className={`relative p-2 ${stats.unread > 0 ? 'animate-pulse' : ''}`}
         onClick={() => setShowDropdown(!showDropdown)}
       >
-        <Bell className="w-5 h-5" />
+        <Bell className={`w-5 h-5 ${stats.unread > 0 ? 'text-blue-600' : ''}`} />
         {stats.unread > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center animate-bounce">
             <span className="text-xs text-white font-bold">
               {stats.unread > 99 ? '99+' : stats.unread}
             </span>
@@ -215,14 +215,14 @@ const NotificationDropdown = ({
             </div>
             {stats.unread > 0 && (
               <p className={`text-sm text-gray-500 mt-1 ${locale === 'ar' ? 'text-right font-arabic' : ''}`}>
-                {locale === 'ar' 
+                {locale === 'ar'
                   ? `${stats.unread} إشعار غير مقروء`
                   : `${stats.unread} unread notification${stats.unread > 1 ? 's' : ''}`
                 }
               </p>
             )}
           </div>
-          
+
           {/* Content */}
           <div className="max-h-96 overflow-y-auto">
             {isLoading ? (
@@ -255,11 +255,10 @@ const NotificationDropdown = ({
               </div>
             ) : (
               notifications.map((notification) => (
-                <div 
-                  key={notification.id} 
-                  className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                    !notification.read ? 'bg-blue-50' : ''
-                  }`}
+                <div
+                  key={notification.id}
+                  className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${!notification.read ? 'bg-blue-50' : ''
+                    }`}
                 >
                   <div className={`flex items-start ${locale === 'ar' ? 'flex-row-reverse' : ''}`}>
                     <div className="flex-shrink-0 p-2 bg-white rounded-lg shadow-sm">

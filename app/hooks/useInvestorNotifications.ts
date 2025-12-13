@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useNotificationSound } from './useNotificationSound'
 
 interface InvestorNotification {
   id: string
@@ -29,6 +30,7 @@ interface InvestorNotificationStats {
 
 export const useInvestorNotifications = () => {
   const { data: session } = useSession()
+  const { checkAndPlaySound } = useNotificationSound()
   const [notifications, setNotifications] = useState<InvestorNotification[]>([])
   const [stats, setStats] = useState<InvestorNotificationStats>({
     total: 0,
@@ -54,14 +56,19 @@ export const useInvestorNotifications = () => {
 
       if (response.ok) {
         const data = await response.json()
-        setNotifications(data.notifications || [])
-        setStats(data.stats || {
+        const newStats = data.stats || {
           total: 0,
           unread: 0,
           newReturns: 0,
           dealUpdates: 0,
           transactionUpdates: 0
-        })
+        }
+
+        // Check if we should play sound (new notifications)
+        checkAndPlaySound(newStats.unread)
+
+        setNotifications(data.notifications || [])
+        setStats(newStats)
       } else {
         throw new Error(`Failed to fetch notifications: ${response.statusText}`)
       }
@@ -85,9 +92,9 @@ export const useInvestorNotifications = () => {
       })
 
       if (response.ok) {
-        setNotifications(prev => 
-          prev.map(notification => 
-            notification.id === notificationId 
+        setNotifications(prev =>
+          prev.map(notification =>
+            notification.id === notificationId
               ? { ...notification, read: true }
               : notification
           )
@@ -114,7 +121,7 @@ export const useInvestorNotifications = () => {
       })
 
       if (response.ok) {
-        setNotifications(prev => 
+        setNotifications(prev =>
           prev.map(notification => ({ ...notification, read: true }))
         )
         setStats(prev => ({ ...prev, unread: 0 }))
@@ -154,10 +161,10 @@ export const useInvestorNotifications = () => {
 
   useEffect(() => {
     fetchNotifications()
-    
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000)
-    
+
+    // Poll for new notifications every 10 seconds for near-real-time updates
+    const interval = setInterval(fetchNotifications, 10000)
+
     return () => clearInterval(interval)
   }, [session])
 

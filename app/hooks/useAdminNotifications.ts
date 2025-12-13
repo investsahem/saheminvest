@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useNotificationSound } from './useNotificationSound'
 
 interface DealNotification {
   id: string
@@ -34,6 +35,7 @@ interface AdminNotifications {
 
 export const useAdminNotifications = () => {
   const { data: session } = useSession()
+  const { checkAndPlaySound } = useNotificationSound()
   const [notifications, setNotifications] = useState<AdminNotifications>({
     pendingDealsCount: 0,
     notifications: [],
@@ -80,6 +82,9 @@ export const useAdminNotifications = () => {
         const generalData = await generalResponse.json()
         results.generalNotifications = generalData.notifications || []
         results.unreadCount = generalData.unreadCount || 0
+
+        // Check if we should play sound (new notifications)
+        checkAndPlaySound(results.unreadCount ?? 0)
       } else {
         console.error('Error fetching general notifications:', generalResponse.statusText)
       }
@@ -124,10 +129,10 @@ export const useAdminNotifications = () => {
 
   useEffect(() => {
     fetchNotifications()
-    
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000)
-    
+
+    // Poll for new notifications every 10 seconds for near-real-time updates
+    const interval = setInterval(fetchNotifications, 10000)
+
     return () => clearInterval(interval)
   }, [session])
 

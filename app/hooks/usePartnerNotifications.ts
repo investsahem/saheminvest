@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import { useNotificationSound } from './useNotificationSound'
 
 interface PartnerNotification {
   id: string
@@ -28,6 +29,7 @@ interface PartnerNotificationStats {
 
 export const usePartnerNotifications = () => {
   const { data: session } = useSession()
+  const { checkAndPlaySound } = useNotificationSound()
   const [notifications, setNotifications] = useState<PartnerNotification[]>([])
   const [stats, setStats] = useState<PartnerNotificationStats>({
     total: 0,
@@ -53,14 +55,19 @@ export const usePartnerNotifications = () => {
 
       if (response.ok) {
         const data = await response.json()
-        setNotifications(data.notifications || [])
-        setStats(data.stats || {
+        const newStats = data.stats || {
           total: 0,
           unread: 0,
           newInvestors: 0,
           completedDeals: 0,
           pendingDistributions: 0
-        })
+        }
+
+        // Check if we should play sound (new notifications)
+        checkAndPlaySound(newStats.unread)
+
+        setNotifications(data.notifications || [])
+        setStats(newStats)
       } else {
         throw new Error(`Failed to fetch notifications: ${response.statusText}`)
       }
@@ -84,9 +91,9 @@ export const usePartnerNotifications = () => {
       })
 
       if (response.ok) {
-        setNotifications(prev => 
-          prev.map(notification => 
-            notification.id === notificationId 
+        setNotifications(prev =>
+          prev.map(notification =>
+            notification.id === notificationId
               ? { ...notification, read: true }
               : notification
           )
@@ -113,7 +120,7 @@ export const usePartnerNotifications = () => {
       })
 
       if (response.ok) {
-        setNotifications(prev => 
+        setNotifications(prev =>
           prev.map(notification => ({ ...notification, read: true }))
         )
         setStats(prev => ({ ...prev, unread: 0 }))
@@ -153,10 +160,10 @@ export const usePartnerNotifications = () => {
 
   useEffect(() => {
     fetchNotifications()
-    
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000)
-    
+
+    // Poll for new notifications every 10 seconds for near-real-time updates
+    const interval = setInterval(fetchNotifications, 10000)
+
     return () => clearInterval(interval)
   }, [session])
 
