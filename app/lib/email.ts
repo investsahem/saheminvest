@@ -21,7 +21,7 @@ interface EmailData {
 }
 
 class EmailService {
-  private resend: Resend
+  private _resend: Resend | null = null
   private fromEmail: string
   private fromName: string
   private infoEmail: string
@@ -30,7 +30,7 @@ class EmailService {
   private adminEmail: string
 
   constructor() {
-    this.resend = new Resend(process.env.RESEND_API_KEY)
+    // Don't initialize Resend here - it will fail during build if API key is missing
     this.fromEmail = process.env.FROM_EMAIL || 'noreply@sahaminvest.com'
     this.infoEmail = process.env.INFO_EMAIL || 'info@sahaminvest.com'
     this.billingEmail = process.env.BILLING_EMAIL || 'billing@sahaminvest.com'
@@ -39,8 +39,29 @@ class EmailService {
     this.fromName = 'Sahem Invest'
   }
 
+  // Lazy-load Resend client to avoid build-time errors
+  private get resend(): Resend {
+    if (!this._resend) {
+      const apiKey = process.env.RESEND_API_KEY
+      if (!apiKey) {
+        throw new Error('RESEND_API_KEY environment variable is not set')
+      }
+      this._resend = new Resend(apiKey)
+    }
+    return this._resend
+  }
+
   async sendEmail(emailData: EmailData) {
     try {
+      // Check if API key is configured
+      if (!process.env.RESEND_API_KEY) {
+        console.warn('⚠️ RESEND_API_KEY not configured, skipping email send')
+        return {
+          success: false,
+          error: 'Email service not configured (RESEND_API_KEY missing)'
+        }
+      }
+
       // Extract email addresses from recipients
       const toAddresses = emailData.to.map(recipient => recipient.email)
 
