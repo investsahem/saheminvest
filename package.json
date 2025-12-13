@@ -45,6 +45,7 @@
     "react-hook-form": "^7.48.2",
     "react-i18next": "^15.6.0",
     "recharts": "^2.15.4",
+    "resend": "^6.6.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

@@ -1,3 +1,5 @@
+import { Resend } from 'resend'
+
 interface EmailTemplate {
   subject: string
   htmlContent: string
@@ -19,17 +21,16 @@ interface EmailData {
 }
 
 class EmailService {
-  private apiKey: string
+  private resend: Resend
   private fromEmail: string
   private fromName: string
   private infoEmail: string
   private billingEmail: string
   private supportEmail: string
   private adminEmail: string
-  private baseUrl = 'https://api.brevo.com/v3'
 
   constructor() {
-    this.apiKey = process.env.BREVO_API_KEY!
+    this.resend = new Resend(process.env.RESEND_API_KEY)
     this.fromEmail = process.env.FROM_EMAIL || 'noreply@sahaminvest.com'
     this.infoEmail = process.env.INFO_EMAIL || 'info@sahaminvest.com'
     this.billingEmail = process.env.BILLING_EMAIL || 'billing@sahaminvest.com'
@@ -38,85 +39,60 @@ class EmailService {
     this.fromName = 'Sahem Invest'
   }
 
-  private async makeRequest(endpoint: string, data: any) {
+  async sendEmail(emailData: EmailData) {
     try {
-      console.log('🚀 Making Brevo API request:', {
-        endpoint,
-        apiKeyExists: !!this.apiKey,
-        fromEmail: this.fromEmail,
-        to: data.to
+      // Extract email addresses from recipients
+      const toAddresses = emailData.to.map(recipient => recipient.email)
+
+      console.log('🚀 Sending email via Resend:', {
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to: toAddresses,
+        subject: emailData.subject
       })
 
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'api-key': this.apiKey
-        },
-        body: JSON.stringify(data)
+      const { data, error } = await this.resend.emails.send({
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to: toAddresses,
+        subject: emailData.subject,
+        html: emailData.htmlContent,
+        text: emailData.textContent
       })
 
-      console.log('📡 Brevo API response status:', response.status)
-
-      if (!response.ok) {
-        const error = await response.text()
-        console.error('❌ Brevo API Error:', {
-          status: response.status,
-          error: error
-        })
+      if (error) {
+        console.error('❌ Resend API Error:', error)
         return {
           success: false,
-          error: `Brevo API Error: ${response.status} - ${error}`,
-          status: response.status
+          error: `Resend API Error: ${error.message}`,
+          status: 400
         }
       }
 
-      const result = await response.json()
-      console.log('✅ Brevo API success:', result)
-      
+      console.log('✅ Resend API success:', data)
+
       return {
         success: true,
-        data: result,
-        messageId: result.messageId
+        data: data,
+        messageId: data?.id
       }
     } catch (error) {
-      console.error('💥 Email service network error:', error)
+      console.error('💥 Email service error:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown network error'
+        error: error instanceof Error ? error.message : 'Unknown error'
       }
     }
-  }
-
-  async sendEmail(emailData: EmailData) {
-    const payload = {
-      sender: {
-        name: this.fromName,
-        email: this.fromEmail
-      },
-      to: emailData.to,
-      subject: emailData.subject,
-      htmlContent: emailData.htmlContent,
-      textContent: emailData.textContent
-    }
-
-    return await this.makeRequest('/smtp/email', payload)
   }
 
   async sendTemplateEmail(templateId: number, to: EmailRecipient[], params: Record<string, any> = {}) {
-    const payload = {
-      sender: {
-        name: this.fromName,
-        email: this.fromEmail
-      },
-      to,
-      templateId,
-      params
+    // Resend doesn't use template IDs the same way as Brevo
+    // For now, we'll log a warning and return
+    console.warn('⚠️ Template emails are not supported with Resend in the same way. Use sendEmail with HTML content.')
+    return {
+      success: false,
+      error: 'Template emails not supported - use sendEmail with HTML content'
     }
-
-    return await this.makeRequest('/smtp/email', payload)
   }
+
 
   // Forgot Password Email
   async sendForgotPasswordEmail(email: string, name: string, resetToken: string, resetUrl: string) {
@@ -657,7 +633,7 @@ Visit us at https://sahaminvest.com
   // Deal Approval Notifications
   async sendDealPendingNotification(adminEmails: string[], dealTitle: string, partnerName: string, dealId: string) {
     const adminUrl = `${process.env.NEXTAUTH_URL}/admin/deals`
-    
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -716,7 +692,7 @@ Visit us at https://sahaminvest.com
 
   async sendDealUpdateNotification(adminEmails: string[], dealTitle: string, partnerName: string, dealId: string, changes: string[]) {
     const adminUrl = `${process.env.NEXTAUTH_URL}/admin/deals`
-    
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -781,9 +757,9 @@ Visit us at https://sahaminvest.com
 
   // Welcome and Onboarding Emails
   async sendWelcomeEmail(email: string, name: string, userType: 'INVESTOR' | 'PARTNER' | 'PORTFOLIO_ADVISOR') {
-    const dashboardUrl = userType === 'INVESTOR' ? '/portfolio' : 
-                        userType === 'PARTNER' ? '/partner/dashboard' : 
-                        '/portfolio-advisor'
+    const dashboardUrl = userType === 'INVESTOR' ? '/portfolio' :
+      userType === 'PARTNER' ? '/partner/dashboard' :
+        '/portfolio-advisor'
 
     const htmlContent = `
       <!DOCTYPE html>
