@@ -31,7 +31,7 @@ class EmailService {
 
   constructor() {
     // Don't initialize Resend here - it will fail during build if API key is missing
-    this.fromEmail = process.env.FROM_EMAIL || 'noreply@sahaminvest.com'
+    this.fromEmail = process.env.FROM_EMAIL || 'noreply@notifications.saheminvest.com'
     this.infoEmail = process.env.INFO_EMAIL || 'info@sahaminvest.com'
     this.billingEmail = process.env.BILLING_EMAIL || 'billing@sahaminvest.com'
     this.supportEmail = process.env.SUPPORT_EMAIL || 'support@sahaminvest.com'
