@@ -91,6 +91,27 @@ const NotificationDropdown = ({
     }
   }
 
+  // Translate notification content - handles both raw text and i18n keys
+  const translateNotificationText = (text: string, metadata?: NotificationItem['metadata']) => {
+    // If text looks like a translation key (e.g., "notifications.something")
+    if (text && text.startsWith('notifications.')) {
+      // Build variables from metadata for interpolation
+      const variables: Record<string, any> = {}
+      if (metadata) {
+        if (metadata.amount) variables.amount = metadata.amount.toLocaleString()
+        if (metadata.dealTitle) variables.dealTitle = metadata.dealTitle
+        if (metadata.partnerName) variables.partnerName = metadata.partnerName
+        if (metadata.investorName) variables.investorName = metadata.investorName
+      }
+      // Try to translate using t() function
+      const translated = t(text, variables)
+      // If translation returns the key itself, it wasn't found - return original
+      return translated !== text ? translated : text
+    }
+    // Return as-is if not a translation key
+    return text
+  }
+
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
@@ -268,10 +289,10 @@ const NotificationDropdown = ({
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
                           <p className={`text-sm font-medium text-gray-900 line-clamp-2 ${locale === 'ar' ? 'font-arabic' : ''}`}>
-                            {notification.title}
+                            {translateNotificationText(notification.title, notification.metadata)}
                           </p>
                           <p className={`text-xs text-gray-600 mt-1 line-clamp-2 ${locale === 'ar' ? 'font-arabic' : ''}`}>
-                            {notification.message}
+                            {translateNotificationText(notification.message, notification.metadata)}
                           </p>
                           <div className={`flex items-center mt-2 ${locale === 'ar' ? 'flex-row-reverse justify-end' : 'justify-between'}`}>
                             <p className="text-xs text-gray-400">
