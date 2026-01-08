@@ -47,10 +47,14 @@ export function getTranslations(locale: Language, portal: Portal = 'common') {
 export function getPortalTranslations(locale: Language, portal: Portal) {
   const portalTrans = portalTranslations[locale]?.[portal] || portalTranslations.ar[portal]
   const commonTrans = portalTranslations[locale]?.common || portalTranslations.ar.common
-  
-  // Merge portal-specific translations with common ones (portal takes precedence)
+  const portfolioTrans = portalTranslations[locale]?.portfolio || portalTranslations.ar.portfolio
+
+  // Merge common, portfolio (for notifications), and portal-specific translations
+  // Portfolio is included so notification translations are available in all portals
+  // Portal-specific takes precedence over portfolio, which takes precedence over common
   return {
     ...commonTrans,
+    ...portfolioTrans,  // Include notifications from portfolio for all portals
     ...portalTrans
   }
 }
@@ -74,10 +78,10 @@ export function translateKey(key: string, locale: Language, portal: Portal = 'co
   const t = getTranslations(locale, portal)
   const keys = key.split('.')
   let value: any = t
-  
+
   for (const k of keys) {
     value = value?.[k]
   }
-  
+
   return typeof value === 'string' ? value : key
 }
