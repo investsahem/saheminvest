@@ -677,6 +677,8 @@
   },
   "wallet": {
     "deposit_submitted": "تم إيداع الأموال بنجاح",
+    "withdrawal_requested": "تم طلب السحب بنجاح",
+    "withdrawal_failed": "فشل طلب السحب",
     "what_happens_next": "ما الذي يحدث بعد الإيداع؟",
     "secure_processing": "المعاملات المالية آمنة",
     "secure_processing_description": "نحرص على حماية المعاملات المالية وأمان أموالك",
@@ -707,6 +709,8 @@
     "withdraw": {
       "max": "الحد الأقصى",
       "maximum": "الحد الأقصى",
+      "withdrawal_method": "طريقة السحب",
+      "cash_office": "فوري - بدون رسوم",
       "notice_title": "ملاحظة",
       "notice_text": "الحد الأقصى للسحب هو"
     },

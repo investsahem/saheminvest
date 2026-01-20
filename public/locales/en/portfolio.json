@@ -669,6 +669,8 @@
     }
   },
   "wallet": {
+    "withdrawal_requested": "Withdrawal requested successfully",
+    "withdrawal_failed": "Withdrawal request failed",
     "payment_methods": {
       "cash_office": "Cash at Office",
       "instant_no_fees": "Instant - No Fees",
@@ -676,6 +678,14 @@
       "instant_fee": "Instant - With Fee",
       "bank_transfer": "Bank Transfer",
       "bank_transfer_time": "1-3 Business Days"
+    },
+    "withdraw": {
+      "max": "Max",
+      "maximum": "Maximum",
+      "withdrawal_method": "Withdrawal Method",
+      "cash_office": "Cash at Office",
+      "notice_title": "Note",
+      "notice_text": "Maximum withdrawal limit is"
     }
   },
   "portfolio_transactions": {
