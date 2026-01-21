@@ -6,9 +6,9 @@ import AdminLayout from '../../components/layout/AdminLayout'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
-import { 
-  Settings, Shield, Bell, Mail, Globe, Database, Key, 
-  Users, DollarSign, FileText, Save, RefreshCw, Eye, 
+import {
+  Settings, Shield, Bell, Mail, Globe, Database, Key,
+  Users, DollarSign, FileText, Save, RefreshCw, Eye,
   EyeOff, AlertCircle, CheckCircle, Lock, Unlock,
   Server, Cloud, Smartphone, Monitor, Palette, Languages, Edit
 } from 'lucide-react'
@@ -68,12 +68,28 @@ interface SystemSettings {
   }
 }
 
+// Admin notification settings interface
+interface AdminNotificationSettings {
+  adminNotificationEmail: string
+  notifyOnInvestment: boolean
+  notifyOnDeposit: boolean
+  notifyOnWithdrawal: boolean
+  notifyOnProfitDistribution: boolean
+}
+
 const SettingsPage = () => {
   const { data: session } = useSession()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState<string>('general')
   const [showApiKeys, setShowApiKeys] = useState(false)
+  const [adminNotificationSettings, setAdminNotificationSettings] = useState<AdminNotificationSettings>({
+    adminNotificationEmail: '',
+    notifyOnInvestment: true,
+    notifyOnDeposit: true,
+    notifyOnWithdrawal: true,
+    notifyOnProfitDistribution: true
+  })
   const [settings, setSettings] = useState<SystemSettings>({
     general: {
       siteName: 'Sahem Invest',
@@ -129,19 +145,47 @@ const SettingsPage = () => {
     }
   })
 
+  // Fetch admin notification settings
   useEffect(() => {
-    // Simulate loading settings
-    setTimeout(() => setLoading(false), 1000)
+    const fetchAdminSettings = async () => {
+      try {
+        const response = await fetch('/api/admin/settings')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.settings) {
+            setAdminNotificationSettings(data.settings)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching admin settings:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchAdminSettings()
   }, [])
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Save admin notification settings
+      const response = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(adminNotificationSettings)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to save settings')
+      }
+
       alert('Settings saved successfully!')
     } catch (error) {
-      alert('Error saving settings')
+      console.error('Error saving settings:', error)
+      alert(error instanceof Error ? error.message : 'Error saving settings')
     } finally {
       setSaving(false)
     }
@@ -228,11 +272,10 @@ const SettingsPage = () => {
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`w-full flex items-center px-4 py-3 text-sm font-medium text-left transition-colors ${
-                          activeTab === tab.id
+                        className={`w-full flex items-center px-4 py-3 text-sm font-medium text-left transition-colors ${activeTab === tab.id
                             ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-500'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                        }`}
+                          }`}
                       >
                         <Icon className="w-5 h-5 mr-3" />
                         {tab.name}
@@ -544,6 +587,118 @@ const SettingsPage = () => {
                         </div>
                       </div>
                     </div>
+
+                    {/* Admin Email Notifications Section */}
+                    <div className="mt-8 pt-6 border-t border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Admin Email Notifications</h3>
+                      <p className="text-sm text-gray-600 mb-4">Configure an email address to receive notifications for important platform operations.</p>
+
+                      <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Admin Notification Email
+                        </label>
+                        <Input
+                          type="email"
+                          placeholder="admin@example.com"
+                          value={adminNotificationSettings.adminNotificationEmail}
+                          onChange={(e) => setAdminNotificationSettings(prev => ({
+                            ...prev,
+                            adminNotificationEmail: e.target.value
+                          }))}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">This email will receive notifications for the enabled events below.</p>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center">
+                            <DollarSign className="w-5 h-5 text-purple-500 mr-3" />
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900">Investment Notifications</h4>
+                              <p className="text-sm text-gray-600">Notify when a new investment is made</p>
+                            </div>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={adminNotificationSettings.notifyOnInvestment}
+                              onChange={(e) => setAdminNotificationSettings(prev => ({
+                                ...prev,
+                                notifyOnInvestment: e.target.checked
+                              }))}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                          </label>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center">
+                            <DollarSign className="w-5 h-5 text-green-500 mr-3" />
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900">Deposit Notifications</h4>
+                              <p className="text-sm text-gray-600">Notify when a new deposit is submitted</p>
+                            </div>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={adminNotificationSettings.notifyOnDeposit}
+                              onChange={(e) => setAdminNotificationSettings(prev => ({
+                                ...prev,
+                                notifyOnDeposit: e.target.checked
+                              }))}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center">
+                            <DollarSign className="w-5 h-5 text-amber-500 mr-3" />
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900">Withdrawal Notifications</h4>
+                              <p className="text-sm text-gray-600">Notify when a withdrawal is requested</p>
+                            </div>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={adminNotificationSettings.notifyOnWithdrawal}
+                              onChange={(e) => setAdminNotificationSettings(prev => ({
+                                ...prev,
+                                notifyOnWithdrawal: e.target.checked
+                              }))}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                          </label>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center">
+                            <DollarSign className="w-5 h-5 text-blue-500 mr-3" />
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900">Profit Distribution Notifications</h4>
+                              <p className="text-sm text-gray-600">Notify when a profit distribution is approved</p>
+                            </div>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={adminNotificationSettings.notifyOnProfitDistribution}
+                              onChange={(e) => setAdminNotificationSettings(prev => ({
+                                ...prev,
+                                notifyOnProfitDistribution: e.target.checked
+                              }))}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -731,11 +886,10 @@ const SettingsPage = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              settings.integrations.cloudinaryEnabled 
-                                ? 'bg-green-100 text-green-800' 
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${settings.integrations.cloudinaryEnabled
+                                ? 'bg-green-100 text-green-800'
                                 : 'bg-red-100 text-red-800'
-                            }`}>
+                              }`}>
                               {settings.integrations.cloudinaryEnabled ? 'Connected' : 'Disconnected'}
                             </span>
                             <Button variant="outline" size="sm">
@@ -753,11 +907,10 @@ const SettingsPage = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              settings.integrations.emailServiceEnabled 
-                                ? 'bg-green-100 text-green-800' 
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${settings.integrations.emailServiceEnabled
+                                ? 'bg-green-100 text-green-800'
                                 : 'bg-red-100 text-red-800'
-                            }`}>
+                              }`}>
                               {settings.integrations.emailServiceEnabled ? 'Connected' : 'Disconnected'}
                             </span>
                             <Button variant="outline" size="sm">
@@ -775,11 +928,10 @@ const SettingsPage = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              settings.integrations.paymentGatewayEnabled 
-                                ? 'bg-green-100 text-green-800' 
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${settings.integrations.paymentGatewayEnabled
+                                ? 'bg-green-100 text-green-800'
                                 : 'bg-red-100 text-red-800'
-                            }`}>
+                              }`}>
                               {settings.integrations.paymentGatewayEnabled ? 'Connected' : 'Disconnected'}
                             </span>
                             <Button variant="outline" size="sm">
@@ -797,11 +949,10 @@ const SettingsPage = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              settings.integrations.backupServiceEnabled 
-                                ? 'bg-green-100 text-green-800' 
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${settings.integrations.backupServiceEnabled
+                                ? 'bg-green-100 text-green-800'
                                 : 'bg-red-100 text-red-800'
-                            }`}>
+                              }`}>
                               {settings.integrations.backupServiceEnabled ? 'Connected' : 'Disconnected'}
                             </span>
                             <Button variant="outline" size="sm">
@@ -861,8 +1012,8 @@ const SettingsPage = () => {
                         <div className="mt-8 p-4 border border-gray-200 rounded-lg">
                           <div className="flex items-center justify-between mb-4">
                             <h4 className="text-sm font-medium text-gray-900">API Keys & Configuration</h4>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => setShowApiKeys(!showApiKeys)}
                             >

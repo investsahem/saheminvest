@@ -4,6 +4,7 @@ import { authOptions } from '../../../lib/auth'
 import { toSafeMoney } from '../../../lib/decimal-utils'
 import { PrismaClient } from '@prisma/client'
 import notificationService from '../../../lib/notifications'
+import EmailTriggers from '../../../lib/email-triggers'
 
 const prisma = new PrismaClient()
 
@@ -11,7 +12,7 @@ const prisma = new PrismaClient()
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -94,6 +95,15 @@ export async function POST(request: NextRequest) {
         session.user.email!,
         transaction.reference || `WTH-${Date.now()}`
       )
+
+      // Send admin email notification
+      await EmailTriggers.notifyAdminNewWithdrawal({
+        userName: user.name || 'User',
+        userEmail: session.user.email!,
+        amount: Number(amount),
+        method: method,
+        reference: transaction.reference || `WTH-${Date.now()}`
+      })
     } catch (notificationError) {
       console.error('Failed to send withdrawal notification:', notificationError)
     }

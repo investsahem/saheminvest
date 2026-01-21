@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client'
 import { toSafeMoney } from '../../../lib/decimal-utils'
 import { emailService } from '../../../lib/email'
 import notificationService from '../../../lib/notifications'
+import EmailTriggers from '../../../lib/email-triggers'
 
 const prisma = new PrismaClient()
 
@@ -12,7 +13,7 @@ const prisma = new PrismaClient()
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
       // For cash and bank transfers, create as PENDING (requires admin approval)
       // For card payments, process immediately (simulate payment processing)
       const status = method === 'card' ? 'COMPLETED' : 'PENDING'
-      
+
       const transaction = await tx.transaction.create({
         data: {
           userId: session.user.id,
@@ -146,6 +147,15 @@ export async function POST(request: NextRequest) {
           session.user.email!,
           result.reference || `DEP-${Date.now()}`
         )
+
+        // Send admin email notification for deposit
+        await EmailTriggers.notifyAdminNewDeposit({
+          userName: user.name || 'User',
+          userEmail: session.user.email!,
+          amount: Number(amount),
+          method: method,
+          reference: result.reference || `DEP-${Date.now()}`
+        })
       } catch (notificationError) {
         console.error('Failed to send deposit notification:', notificationError)
       }
@@ -159,8 +169,8 @@ export async function POST(request: NextRequest) {
         method: method,
         status: result.status.toLowerCase(),
         reference: result.reference,
-        message: method === 'card' 
-          ? 'Deposit processed successfully!' 
+        message: method === 'card'
+          ? 'Deposit processed successfully!'
           : 'Deposit request submitted and pending approval.'
       }
     })

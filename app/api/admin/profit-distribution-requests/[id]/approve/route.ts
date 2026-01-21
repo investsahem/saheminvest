@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
+import EmailTriggers from '../../../../../lib/email-triggers'
 
 const prisma = new PrismaClient()
 
@@ -485,6 +486,19 @@ export async function POST(
       timeout: 30000 // 30 second timeout
     })
 
+    // Send admin email notification for profit distribution
+    try {
+      await EmailTriggers.notifyAdminProfitDistribution({
+        dealTitle: distributionRequest.project.title,
+        totalAmount: finalTotalAmount,
+        distributionType: distributionRequest.distributionType,
+        investorCount: investorGroups.size,
+        approvedBy: session.user.name || session.user.email || 'Admin'
+      })
+    } catch (notificationError) {
+      console.error('Failed to send admin profit distribution notification:', notificationError)
+    }
+
     return NextResponse.json({
       success: true,
       message: finalIsLoss && isFinalDistribution
@@ -518,3 +532,4 @@ export async function POST(
     )
   }
 }
+

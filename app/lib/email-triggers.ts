@@ -6,7 +6,26 @@ import { prisma } from './db'
  * Handles automatic email notifications for various user actions
  */
 
+// Admin notification settings interface
+interface AdminNotificationSettings {
+  adminNotificationEmail: string
+  notifyOnInvestment: boolean
+  notifyOnDeposit: boolean
+  notifyOnWithdrawal: boolean
+  notifyOnProfitDistribution: boolean
+}
+
+// Default admin notification settings
+const DEFAULT_ADMIN_SETTINGS: AdminNotificationSettings = {
+  adminNotificationEmail: '',
+  notifyOnInvestment: true,
+  notifyOnDeposit: true,
+  notifyOnWithdrawal: true,
+  notifyOnProfitDistribution: true
+}
+
 export class EmailTriggers {
+
   // User Registration and Onboarding
   static async onUserRegistration(userId: string) {
     try {
@@ -404,7 +423,7 @@ export class EmailTriggers {
 
           const totalInvestments = investments.reduce((sum, inv) => sum + Number(inv.amount), 0)
           const portfolioValue = totalInvestments + Number(user?.walletBalance || 0)
-          const activeDeals = investments.filter(inv => 
+          const activeDeals = investments.filter(inv =>
             ['ACTIVE', 'PUBLISHED', 'FUNDED'].includes(inv.project.status)
           ).length
 
@@ -497,6 +516,133 @@ export class EmailTriggers {
       console.error('Error sending admin alert:', error)
     }
   }
+
+  // Helper method to get admin notification settings
+  static async getAdminNotificationSettings(): Promise<AdminNotificationSettings> {
+    try {
+      const settingsRecord = await prisma.systemSettings.findUnique({
+        where: { key: 'admin_notifications' }
+      })
+
+      if (!settingsRecord) {
+        return DEFAULT_ADMIN_SETTINGS
+      }
+
+      return settingsRecord.value as unknown as AdminNotificationSettings
+    } catch (error) {
+      console.error('Error fetching admin notification settings:', error)
+      return DEFAULT_ADMIN_SETTINGS
+    }
+  }
+
+  // Admin notification for new investments
+  static async notifyAdminNewInvestment(data: {
+    investorName: string
+    investorEmail: string
+    amount: number
+    dealTitle: string
+    dealId: string
+  }) {
+    try {
+      const settings = await this.getAdminNotificationSettings()
+
+      if (!settings.adminNotificationEmail || !settings.notifyOnInvestment) {
+        console.log('Admin investment notifications disabled or no email configured')
+        return
+      }
+
+      await emailService.sendAdminNewInvestmentEmail(
+        settings.adminNotificationEmail,
+        data
+      )
+
+      console.log(`Admin investment notification sent to ${settings.adminNotificationEmail}`)
+    } catch (error) {
+      console.error('Error sending admin investment notification:', error)
+    }
+  }
+
+  // Admin notification for new deposits
+  static async notifyAdminNewDeposit(data: {
+    userName: string
+    userEmail: string
+    amount: number
+    method: string
+    reference: string
+  }) {
+    try {
+      const settings = await this.getAdminNotificationSettings()
+
+      if (!settings.adminNotificationEmail || !settings.notifyOnDeposit) {
+        console.log('Admin deposit notifications disabled or no email configured')
+        return
+      }
+
+      await emailService.sendAdminNewDepositEmail(
+        settings.adminNotificationEmail,
+        data
+      )
+
+      console.log(`Admin deposit notification sent to ${settings.adminNotificationEmail}`)
+    } catch (error) {
+      console.error('Error sending admin deposit notification:', error)
+    }
+  }
+
+  // Admin notification for new withdrawal requests
+  static async notifyAdminNewWithdrawal(data: {
+    userName: string
+    userEmail: string
+    amount: number
+    method: string
+    reference: string
+  }) {
+    try {
+      const settings = await this.getAdminNotificationSettings()
+
+      if (!settings.adminNotificationEmail || !settings.notifyOnWithdrawal) {
+        console.log('Admin withdrawal notifications disabled or no email configured')
+        return
+      }
+
+      await emailService.sendAdminNewWithdrawalEmail(
+        settings.adminNotificationEmail,
+        data
+      )
+
+      console.log(`Admin withdrawal notification sent to ${settings.adminNotificationEmail}`)
+    } catch (error) {
+      console.error('Error sending admin withdrawal notification:', error)
+    }
+  }
+
+  // Admin notification for profit distributions
+  static async notifyAdminProfitDistribution(data: {
+    dealTitle: string
+    totalAmount: number
+    distributionType: string
+    investorCount: number
+    approvedBy: string
+  }) {
+    try {
+      const settings = await this.getAdminNotificationSettings()
+
+      if (!settings.adminNotificationEmail || !settings.notifyOnProfitDistribution) {
+        console.log('Admin profit distribution notifications disabled or no email configured')
+        return
+      }
+
+      await emailService.sendAdminProfitDistributionEmail(
+        settings.adminNotificationEmail,
+        data
+      )
+
+      console.log(`Admin profit distribution notification sent to ${settings.adminNotificationEmail}`)
+    } catch (error) {
+      console.error('Error sending admin profit distribution notification:', error)
+    }
+  }
 }
 
 export default EmailTriggers
+

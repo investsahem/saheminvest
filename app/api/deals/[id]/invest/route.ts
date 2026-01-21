@@ -4,6 +4,7 @@ import { authOptions } from '../../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
 import { emailService } from '../../../../lib/email'
 import notificationService from '../../../../lib/notifications'
+import EmailTriggers from '../../../../lib/email-triggers'
 
 const prisma = new PrismaClient()
 
@@ -15,7 +16,7 @@ export async function POST(
   try {
     const { id: dealId } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -189,7 +190,7 @@ export async function POST(
     // Send notifications and emails after successful investment
     try {
       const reference = `INV-${Date.now()}`
-      
+
       // Send email to investor
       await emailService.sendInvestmentConfirmationEmail(
         session.user.email!,
@@ -213,6 +214,15 @@ export async function POST(
         session.user.email!,
         deal.title
       )
+
+      // Send admin email notification
+      await EmailTriggers.notifyAdminNewInvestment({
+        investorName: session.user.name || 'Investor',
+        investorEmail: session.user.email!,
+        amount: amount,
+        dealTitle: deal.title,
+        dealId: dealId
+      })
     } catch (notificationError) {
       console.error('Failed to send investment notifications:', notificationError)
       // Don't fail the investment if notifications fail

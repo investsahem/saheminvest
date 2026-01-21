@@ -528,6 +528,258 @@ Visit us at https://sahaminvest.com
     })
   }
 
+  // Admin notification for new investments
+  async sendAdminNewInvestmentEmail(adminEmail: string, data: {
+    investorName: string
+    investorEmail: string
+    amount: number
+    dealTitle: string
+    dealId: string
+  }) {
+    const { investorName, investorEmail, amount, dealTitle, dealId } = data
+    const adminUrl = `${process.env.NEXTAUTH_URL}/admin/investments`
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>New Investment - Sahem Invest Admin</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 28px; font-weight: bold; color: #8B5CF6; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #8B5CF6; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>💰 New Investment Received</h1>
+          </div>
+          <div class="content">
+            <p>A new investment has been made on the platform.</p>
+            <div class="amount">$${amount.toLocaleString()}</div>
+            <div class="details">
+              <h3>Investment Details:</h3>
+              <p><strong>Investor:</strong> ${investorName}</p>
+              <p><strong>Investor Email:</strong> ${investorEmail}</p>
+              <p><strong>Deal:</strong> ${dealTitle}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+            <div style="text-align: center;">
+              <a href="${adminUrl}" class="button">View Investments</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest Admin Panel</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email: adminEmail, name: 'Admin' }],
+      subject: `[ADMIN] New Investment: $${amount.toLocaleString()} in ${dealTitle}`,
+      htmlContent
+    })
+  }
+
+  // Admin notification for new deposits
+  async sendAdminNewDepositEmail(adminEmail: string, data: {
+    userName: string
+    userEmail: string
+    amount: number
+    method: string
+    reference: string
+  }) {
+    const { userName, userEmail, amount, method, reference } = data
+    const adminUrl = `${process.env.NEXTAUTH_URL}/admin/transactions`
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>New Deposit - Sahem Invest Admin</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 28px; font-weight: bold; color: #10B981; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #10B981; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>💵 New Deposit Submitted</h1>
+          </div>
+          <div class="content">
+            <p>A new deposit has been submitted and requires approval.</p>
+            <div class="amount">$${amount.toLocaleString()}</div>
+            <div class="details">
+              <h3>Deposit Details:</h3>
+              <p><strong>User:</strong> ${userName}</p>
+              <p><strong>Email:</strong> ${userEmail}</p>
+              <p><strong>Method:</strong> ${method.charAt(0).toUpperCase() + method.slice(1)}</p>
+              <p><strong>Reference:</strong> ${reference}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+            <div style="text-align: center;">
+              <a href="${adminUrl}" class="button">Review Deposit</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest Admin Panel</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email: adminEmail, name: 'Admin' }],
+      subject: `[ADMIN] New Deposit: $${amount.toLocaleString()} from ${userName}`,
+      htmlContent
+    })
+  }
+
+  // Admin notification for new withdrawal requests
+  async sendAdminNewWithdrawalEmail(adminEmail: string, data: {
+    userName: string
+    userEmail: string
+    amount: number
+    method: string
+    reference: string
+  }) {
+    const { userName, userEmail, amount, method, reference } = data
+    const adminUrl = `${process.env.NEXTAUTH_URL}/admin/transactions`
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>New Withdrawal Request - Sahem Invest Admin</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 28px; font-weight: bold; color: #F59E0B; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #F59E0B; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>💸 New Withdrawal Request</h1>
+          </div>
+          <div class="content">
+            <p>A new withdrawal request has been submitted and requires approval.</p>
+            <div class="amount">$${amount.toLocaleString()}</div>
+            <div class="details">
+              <h3>Withdrawal Details:</h3>
+              <p><strong>User:</strong> ${userName}</p>
+              <p><strong>Email:</strong> ${userEmail}</p>
+              <p><strong>Method:</strong> ${method === 'cash' ? 'Cash from Office' : 'Bank Transfer'}</p>
+              <p><strong>Reference:</strong> ${reference}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+            <div style="text-align: center;">
+              <a href="${adminUrl}" class="button">Review Withdrawal</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest Admin Panel</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email: adminEmail, name: 'Admin' }],
+      subject: `[ADMIN] Withdrawal Request: $${amount.toLocaleString()} from ${userName}`,
+      htmlContent
+    })
+  }
+
+  // Admin notification for profit distribution approved
+  async sendAdminProfitDistributionEmail(adminEmail: string, data: {
+    dealTitle: string
+    totalAmount: number
+    distributionType: string
+    investorCount: number
+    approvedBy: string
+  }) {
+    const { dealTitle, totalAmount, distributionType, investorCount, approvedBy } = data
+    const adminUrl = `${process.env.NEXTAUTH_URL}/admin/profit-distribution-requests`
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Profit Distribution Processed - Sahem Invest Admin</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #3B82F6, #1E40AF); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 28px; font-weight: bold; color: #3B82F6; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #3B82F6; }
+          .badge { display: inline-block; background: ${distributionType === 'FINAL' ? '#10B981' : '#F59E0B'}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>📊 Profit Distribution Processed</h1>
+          </div>
+          <div class="content">
+            <p>A profit distribution has been approved and processed.</p>
+            <div class="amount">$${totalAmount.toLocaleString()}</div>
+            <div class="details">
+              <h3>Distribution Details:</h3>
+              <p><strong>Deal:</strong> ${dealTitle}</p>
+              <p><strong>Type:</strong> <span class="badge">${distributionType}</span></p>
+              <p><strong>Investors Affected:</strong> ${investorCount}</p>
+              <p><strong>Approved By:</strong> ${approvedBy}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+            <div style="text-align: center;">
+              <a href="${adminUrl}" class="button">View Distributions</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest Admin Panel</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email: adminEmail, name: 'Admin' }],
+      subject: `[ADMIN] Profit Distribution: $${totalAmount.toLocaleString()} for ${dealTitle}`,
+      htmlContent
+    })
+  }
+
   async sendDepositConfirmation(data: {
     to: string
     userName: string
