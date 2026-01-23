@@ -4,6 +4,7 @@ import { authOptions } from '../../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
 import { emailService } from '../../../../lib/email'
 import notificationService from '../../../../lib/notifications'
+import EmailTriggers from '../../../../lib/email-triggers'
 
 const prisma = new PrismaClient()
 
@@ -15,7 +16,7 @@ export async function GET(
   try {
     const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -116,7 +117,7 @@ export async function PUT(
   try {
     const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -229,8 +230,26 @@ export async function PUT(
               reference: existingTransaction.reference
             }
           )
+
+          // Send withdrawal approved email
+          await EmailTriggers.onWithdrawalApproved(existingTransaction.id)
         } catch (notificationError) {
           console.error('Failed to send withdrawal notification:', notificationError)
+        }
+      }
+
+      // If rejecting a withdrawal, just notify user (funds were already deduced? No, withdrawals are pending requests usually holding funds or just request logic. 
+      // Based on withdraw route, funds are NOT deducted strictly at request time in this codebase based on this update logic (it deducts on completion).
+      // Wait, let's double check withdrawal logic.
+      // In withdrawal route: walletBalance < amount check is done, but NO deduction happens in POST.
+      // So if rejected, we just update status to FAILED/REJECTED.
+
+      if ((status.toLowerCase() === 'failed' || status.toLowerCase() === 'rejected') && existingTransaction.type === 'WITHDRAWAL' && existingTransaction.status === 'PENDING') {
+        try {
+          // Send withdrawal rejection email
+          await EmailTriggers.onWithdrawalRejected(existingTransaction.id, notes || 'Withdrawal request rejected by admin')
+        } catch (error) {
+          console.error('Failed to send withdrawal rejection email:', error)
         }
       }
 
@@ -268,7 +287,7 @@ export async function DELETE(
   try {
     const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -321,4 +340,3 @@ export async function DELETE(
     )
   }
 }
- 

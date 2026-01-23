@@ -382,6 +382,106 @@ Visit us at https://sahaminvest.com
     })
   }
 
+  async sendWithdrawalApprovedEmail(email: string, name: string, amount: number, reference: string, method: string) {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Withdrawal Approved - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 24px; font-weight: bold; color: #10B981; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>✅ Withdrawal Approved</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name},</h2>
+            <p>Good news! Your withdrawal request has been approved and processed successfully.</p>
+            <div class="amount">$${amount.toLocaleString()}</div>
+            <div class="details">
+              <h3>Transaction Details:</h3>
+              <p><strong>Reference:</strong> ${reference}</p>
+              <p><strong>Method:</strong> ${method}</p>
+              <p><strong>Status:</strong> Completed</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+            </div>
+            <p>The funds should reflect in your account shortly, depending on the withdrawal method chosen.</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: 'Withdrawal Approved - Funds Sent',
+      htmlContent
+    })
+  }
+
+  async sendWithdrawalRejectedEmail(email: string, name: string, amount: number, reference: string, reason: string) {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Withdrawal Rejected - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 24px; font-weight: bold; color: #EF4444; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>❌ Withdrawal Rejected</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${name},</h2>
+            <p>We're writing to inform you that your withdrawal request has been rejected.</p>
+            <div class="amount">$${amount.toLocaleString()}</div>
+            <div class="details">
+              <h3>Transaction Details:</h3>
+              <p><strong>Reference:</strong> ${reference}</p>
+              <p><strong>Status:</strong> Rejected</p>
+              <p><strong>Reason:</strong> ${reason}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+            </div>
+            <p>The funds have been returned to your Sahem Invest wallet. If you believe this is an error, please contact our support team.</p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: 'Withdrawal Request Rejected',
+      htmlContent
+    })
+  }
+
   async sendInvestmentConfirmationEmail(email: string, name: string, amount: number, dealTitle: string, reference: string) {
     const htmlContent = `
       <!DOCTYPE html>

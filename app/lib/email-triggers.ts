@@ -116,6 +116,67 @@ export class EmailTriggers {
     }
   }
 
+  // Withdrawal Notifications
+  static async onWithdrawalApproved(transactionId: string) {
+    try {
+      const transaction = await prisma.transaction.findUnique({
+        where: { id: transactionId },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true
+            }
+          }
+        }
+      })
+
+      if (!transaction || transaction.type !== 'WITHDRAWAL') return
+
+      await emailService.sendWithdrawalApprovedEmail(
+        transaction.user.email,
+        transaction.user.name || 'User',
+        Number(transaction.amount),
+        transaction.reference || transaction.id,
+        transaction.method || 'BANK'
+      )
+
+      console.log(`Withdrawal approved email sent to ${transaction.user.email}`)
+    } catch (error) {
+      console.error('Error sending withdrawal approval email:', error)
+    }
+  }
+
+  static async onWithdrawalRejected(transactionId: string, reason?: string) {
+    try {
+      const transaction = await prisma.transaction.findUnique({
+        where: { id: transactionId },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true
+            }
+          }
+        }
+      })
+
+      if (!transaction || transaction.type !== 'WITHDRAWAL') return
+
+      await emailService.sendWithdrawalRejectedEmail(
+        transaction.user.email,
+        transaction.user.name || 'User',
+        Number(transaction.amount),
+        transaction.reference || transaction.id,
+        reason || 'Withdrawal request rejected'
+      )
+
+      console.log(`Withdrawal rejection email sent to ${transaction.user.email}`)
+    } catch (error) {
+      console.error('Error sending withdrawal rejection email:', error)
+    }
+  }
+
   // Investment Notifications
   static async onInvestmentMade(investmentId: string) {
     try {
