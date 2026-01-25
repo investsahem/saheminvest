@@ -527,7 +527,12 @@
     "view_details": "عرض التفاصيل",
     "reviewed_by": "تم المراجعة من قبل",
     "on": "في",
-    "rejection_reason": "سبب الرفض"
+    "rejection_reason": "سبب الرفض",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "approve_confirmation": "هل أنت متأكد أنك تريد الموافقة على طلب التحديث هذا؟",
+    "approved_success": "تمت الموافقة على طلب التحديث بنجاح",
+    "processing": "جاري المعالجة..."
   },
   "analytics": {
     "title": "التحليلات",

@@ -712,7 +712,10 @@
       "withdrawal_method": "طريقة السحب",
       "cash_office": "فوري - بدون رسوم",
       "notice_title": "ملاحظة",
-      "notice_text": "الحد الأقصى للسحب هو"
+      "notice_text": "الحد الأقصى للسحب هو",
+      "request_withdrawal": "طلب السحب",
+      "processing": "جاري المعالجة...",
+      "cancel": "إلغاء"
     },
     "deposit": {
       "confirm_title": "تأكيد الإيداع",

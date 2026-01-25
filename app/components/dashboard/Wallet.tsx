@@ -6,8 +6,8 @@ import { useTranslation } from '../providers/I18nProvider'
 import { Card, CardContent } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
-import { 
-  Wallet as WalletIcon, DollarSign, ArrowUpRight, ArrowDownLeft, 
+import {
+  Wallet as WalletIcon, DollarSign, ArrowUpRight, ArrowDownLeft,
   TrendingUp, CreditCard, Landmark, Plus, Minus, Eye, EyeOff,
   CheckCircle, Clock, AlertCircle, Shield, Lock
 } from 'lucide-react'
@@ -78,7 +78,7 @@ export function Wallet({
   const [showPaymentForm, setShowPaymentForm] = useState(false)
   const [showBalance, setShowBalance] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
-  
+
   // Modal states
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -89,16 +89,16 @@ export function Wallet({
     method: '' as 'cash' | 'card' | 'bank' | '',
     reference: ''
   })
-  
+
   // Confirmation modal state
   const [confirmationModal, setConfirmationModal] = useState({
     isOpen: false,
     amount: 0,
     method: '' as 'cash' | 'bank',
-    onConfirm: () => {},
-    onCancel: () => {}
+    onConfirm: () => { },
+    onCancel: () => { }
   })
-  
+
   // Card payment form states
   const [cardDetails, setCardDetails] = useState({
     number: '',
@@ -159,7 +159,7 @@ export function Wallet({
 
   const handlePaymentMethodSelect = async (method: 'cash' | 'card' | 'bank') => {
     setPaymentMethod(method)
-    
+
     if (method === 'card') {
       setShowPaymentForm(true)
     } else {
@@ -170,15 +170,15 @@ export function Wallet({
         showConfirmationModal(amount, method as 'cash' | 'bank', async () => {
           setIsProcessing(true)
           closeConfirmationModal()
-          
+
           const result = await onDeposit(amount, method)
           setIsProcessing(false)
-          
+
           if (result.success) {
             setDepositAmount('')
             setPaymentMethod('')
             setActiveTab('overview')
-            
+
             // Show appropriate modal - cash and bank are always pending
             showModal('pending', t('wallet.deposit_submitted'), result.message, amount, method, result.transaction?.reference)
           } else {
@@ -196,12 +196,12 @@ export function Wallet({
     }
 
     setIsProcessing(true)
-    
+
     try {
       const amount = parseFloat(depositAmount)
       if (amount > 0 && onDeposit) {
         const result = await onDeposit(amount, 'card', cardDetails)
-        
+
         if (result.success) {
           setDepositAmount('')
           setPaymentMethod('')
@@ -226,7 +226,7 @@ export function Wallet({
       setIsProcessing(true)
       const result = await onWithdraw(amount, withdrawMethod)
       setIsProcessing(false)
-      
+
       if (result.success) {
         setWithdrawAmount('')
         setActiveTab('overview')
@@ -442,11 +442,10 @@ export function Wallet({
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab as any)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab
+                  className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   {tab === 'overview' && t('portfolio_wallet.tabs.overview')}
                   {tab === 'deposit' && t('portfolio_wallet.tabs.deposit')}
@@ -461,10 +460,10 @@ export function Wallet({
           {activeTab === 'overview' && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_wallet.wallet_overview.title')}</h3>
-              
+
               {/* Quick Actions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button 
+                <Button
                   onClick={() => setActiveTab('deposit')}
                   className="w-full h-16 flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
                 >
@@ -474,7 +473,7 @@ export function Wallet({
                     <p className="text-xs opacity-80">{t('portfolio_wallet.wallet_overview.deposit_subtitle')}</p>
                   </div>
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => setActiveTab('withdraw')}
                   className="w-full h-16 flex items-center justify-center gap-3 bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -492,8 +491,8 @@ export function Wallet({
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-medium text-gray-900">{t('portfolio_wallet.transactions.recent_transactions')}</h4>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => setActiveTab('history')}
                     >
@@ -513,9 +512,8 @@ export function Wallet({
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`text-sm font-medium ${
-                            ['deposit', 'return', 'profit_distribution'].includes(transaction.type) ? 'text-green-600' : 'text-red-600'
-                          }`}>
+                          <p className={`text-sm font-medium ${['deposit', 'return', 'profit_distribution'].includes(transaction.type) ? 'text-green-600' : 'text-red-600'
+                            }`}>
                             {['deposit', 'return', 'profit_distribution'].includes(transaction.type) ? '+' : '-'}
                             {formatNumber(transaction.amount)}
                           </p>
@@ -531,7 +529,7 @@ export function Wallet({
           {activeTab === 'deposit' && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_wallet.actions.deposit_funds')}</h3>
-              
+
               {/* Amount Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -558,10 +556,9 @@ export function Wallet({
                     {t('common.payment_method')}
                   </label>
                   <div className="space-y-3">
-                    <div 
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        paymentMethod === 'cash' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                    <div
+                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${paymentMethod === 'cash' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
                       onClick={() => handlePaymentMethodSelect('cash')}
                     >
                       <WalletIcon className="w-5 h-5 text-gray-600 mr-3" />
@@ -572,10 +569,9 @@ export function Wallet({
                       {paymentMethod === 'cash' && <CheckCircle className="w-5 h-5 text-blue-600" />}
                     </div>
 
-                    <div 
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        paymentMethod === 'card' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                    <div
+                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${paymentMethod === 'card' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
                       onClick={() => handlePaymentMethodSelect('card')}
                     >
                       <CreditCard className="w-5 h-5 text-gray-600 mr-3" />
@@ -586,10 +582,9 @@ export function Wallet({
                       {paymentMethod === 'card' && <CheckCircle className="w-5 h-5 text-blue-600" />}
                     </div>
 
-                    <div 
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        paymentMethod === 'bank' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                    <div
+                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${paymentMethod === 'bank' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
                       onClick={() => handlePaymentMethodSelect('bank')}
                     >
                       <Landmark className="w-5 h-5 text-gray-600 mr-3" />
@@ -619,7 +614,7 @@ export function Wallet({
                       <Input
                         type="text"
                         value={cardDetails.number}
-                        onChange={(e) => setCardDetails({...cardDetails, number: formatCardNumber(e.target.value)})}
+                        onChange={(e) => setCardDetails({ ...cardDetails, number: formatCardNumber(e.target.value) })}
                         placeholder="1234 5678 9012 3456"
                         maxLength={19}
                       />
@@ -632,7 +627,7 @@ export function Wallet({
                       <Input
                         type="text"
                         value={cardDetails.name}
-                        onChange={(e) => setCardDetails({...cardDetails, name: e.target.value.toUpperCase()})}
+                        onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value.toUpperCase() })}
                         placeholder="AHMED AL-RASHID"
                       />
                     </div>
@@ -645,7 +640,7 @@ export function Wallet({
                         <Input
                           type="text"
                           value={cardDetails.expiry}
-                          onChange={(e) => setCardDetails({...cardDetails, expiry: formatExpiry(e.target.value)})}
+                          onChange={(e) => setCardDetails({ ...cardDetails, expiry: formatExpiry(e.target.value) })}
                           placeholder="MM/YY"
                           maxLength={5}
                         />
@@ -657,7 +652,7 @@ export function Wallet({
                         <Input
                           type="text"
                           value={cardDetails.cvv}
-                          onChange={(e) => setCardDetails({...cardDetails, cvv: e.target.value.replace(/\D/g, '')})}
+                          onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value.replace(/\D/g, '') })}
                           placeholder="123"
                           maxLength={4}
                         />
@@ -676,8 +671,8 @@ export function Wallet({
                   </div>
 
                   <div className="flex gap-3 pt-4">
-                    <Button 
-                      onClick={handleCardPayment} 
+                    <Button
+                      onClick={handleCardPayment}
                       disabled={isProcessing || !cardDetails.number || !cardDetails.expiry || !cardDetails.cvv || !cardDetails.name}
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500"
                     >
@@ -693,8 +688,8 @@ export function Wallet({
                         </>
                       )}
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => {
                         setShowPaymentForm(false)
                         setPaymentMethod('')
@@ -711,8 +706,8 @@ export function Wallet({
               {/* Action Buttons */}
               {!showPaymentForm && (
                 <div className="flex gap-3">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => {
                       setActiveTab('overview')
                       setPaymentMethod('')
@@ -729,7 +724,7 @@ export function Wallet({
           {activeTab === 'withdraw' && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">{t('portfolio_wallet.actions.withdraw_funds')}</h3>
-              
+
               {/* Amount Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -770,10 +765,9 @@ export function Wallet({
                     {t('wallet.withdraw.withdrawal_method')}
                   </label>
                   <div className="space-y-3">
-                    <div 
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        withdrawMethod === 'cash' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                    <div
+                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${withdrawMethod === 'cash' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
                       onClick={() => setWithdrawMethod('cash')}
                     >
                       <WalletIcon className="w-5 h-5 text-gray-600 mr-3" />
@@ -784,10 +778,9 @@ export function Wallet({
                       {withdrawMethod === 'cash' && <CheckCircle className="w-5 h-5 text-blue-600" />}
                     </div>
 
-                    <div 
-                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        withdrawMethod === 'bank' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                    <div
+                      className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${withdrawMethod === 'bank' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                        }`}
                       onClick={() => setWithdrawMethod('bank')}
                     >
                       <Landmark className="w-5 h-5 text-gray-600 mr-3" />
@@ -817,32 +810,32 @@ export function Wallet({
 
               {/* Action Buttons */}
               <div className="flex gap-3">
-                <Button 
-                  onClick={handleWithdraw} 
+                <Button
+                  onClick={handleWithdraw}
                   disabled={!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > balance || !withdrawMethod || isProcessing}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
                 >
                   {isProcessing ? (
                     <>
                       <Clock className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
+                      {t('wallet.withdraw.processing')}
                     </>
                   ) : (
                     <>
                       <Minus className="w-4 h-4 mr-2" />
-                      Request Withdrawal ${withdrawAmount && formatNumber(parseFloat(withdrawAmount))}
+                      {t('wallet.withdraw.request_withdrawal')} ${withdrawAmount && formatNumber(parseFloat(withdrawAmount))}
                     </>
                   )}
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setActiveTab('overview')
                     setWithdrawAmount('')
                     setWithdrawMethod('cash')
                   }}
                 >
-                  Cancel
+                  {t('wallet.withdraw.cancel')}
                 </Button>
               </div>
             </div>
@@ -868,9 +861,8 @@ export function Wallet({
                         </div>
                       </div>
                       <div className="text-left">
-                        <p className={`text-sm font-medium ${
-                          ['deposit', 'return', 'profit_distribution'].includes(transaction.type) ? 'text-green-600' : 'text-red-600'
-                        }`}>
+                        <p className={`text-sm font-medium ${['deposit', 'return', 'profit_distribution'].includes(transaction.type) ? 'text-green-600' : 'text-red-600'
+                          }`}>
                           {['deposit', 'return', 'profit_distribution'].includes(transaction.type) ? '+' : '-'}
                           ${formatNumber(transaction.amount)}
                         </p>
@@ -911,18 +903,18 @@ export function Wallet({
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <DollarSign className="w-8 h-8 text-blue-600" />
               </div>
-              
+
               <h3 className="text-xl font-bold text-gray-900 mb-2">
                 {t('wallet.deposit.confirm_title')}
               </h3>
-              
+
               <p className="text-gray-600 mb-6">
                 {t('wallet.deposit.confirm_deposit', {
                   amount: formatNumber(confirmationModal.amount),
                   method: confirmationModal.method === 'cash' ? t('wallet.payment_methods.cash') : t('wallet.payment_methods.bank_transfer')
                 })}
               </p>
-              
+
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-600">{t('common.amount')}</span>
@@ -944,7 +936,7 @@ export function Wallet({
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-3">
                 <Button
                   variant="outline"

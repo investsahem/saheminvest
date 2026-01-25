@@ -685,7 +685,10 @@
       "withdrawal_method": "Withdrawal Method",
       "cash_office": "Cash at Office",
       "notice_title": "Note",
-      "notice_text": "Maximum withdrawal limit is"
+      "notice_text": "Maximum withdrawal limit is",
+      "request_withdrawal": "Request Withdrawal",
+      "processing": "Processing...",
+      "cancel": "Cancel"
     }
   },
   "portfolio_transactions": {

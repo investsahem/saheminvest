@@ -527,7 +527,12 @@
     "view_details": "View Details",
     "reviewed_by": "Reviewed by",
     "on": "on",
-    "rejection_reason": "Rejection Reason"
+    "rejection_reason": "Rejection Reason",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approve_confirmation": "Are you sure you want to approve this update request?",
+    "approved_success": "Update request approved successfully",
+    "processing": "Processing..."
   },
   "analytics": {
     "title": "Analytics",
