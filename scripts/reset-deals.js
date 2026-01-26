@@ -11,9 +11,8 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 // Deals to reset - using full CUID format
-// cmg254qhr0001vuog13j4j6zh = "هواتف مستعملة" (Used Phones)
-// cmg24uh150001vu02w47uusmw = "أجهزة إلكترونية للأطفال" (Children's Electronics) - already empty
-const DEAL_IDS = ['cmg254qhr0001vuog13j4j6zh', 'cmg24uh150001vu02w47uusmw']
+// cmh6azjck0001l504outbrn6c = "test" deal
+const DEAL_IDS = ['cmh6azjck0001l504outbrn6c']
 
 async function analyzeDeal(dealId) {
     console.log(`\n========== Analyzing Deal: ${dealId} ==========`)

@@ -1035,7 +1035,8 @@
       "active": "نشط",
       "completed": "مكتمل",
       "funded": "ممول",
-      "pending": "قيد الانتظار"
+      "pending": "قيد الانتظار",
+      "published": "منشور"
     },
     "actions": {
       "view_details": "عرض التفاصيل",

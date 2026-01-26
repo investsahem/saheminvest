@@ -996,7 +996,8 @@
       "active": "Active",
       "completed": "Completed",
       "funded": "Funded",
-      "pending": "Pending"
+      "pending": "Pending",
+      "published": "Published"
     },
     "actions": {
       "view_details": "View Details",
