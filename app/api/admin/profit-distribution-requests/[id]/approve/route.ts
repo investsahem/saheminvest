@@ -245,6 +245,8 @@ export async function POST(
             investorId: investorId,
             investmentId: firstInvestment.id,
             amount: -lossAmount, // Negative to indicate loss
+            capitalAmount: investorCapitalReturn,  // Track capital returned
+            profitAmount: -lossAmount,  // Negative profit (loss)
             profitRate: -((lossAmount / investorTotalInvestment) * 100),
             investmentShare: investmentRatio * 100,
             distributionDate: new Date(),
@@ -309,6 +311,8 @@ export async function POST(
             investorId: investorId,
             investmentId: firstInvestment.id,
             amount: investorProfitShare,
+            capitalAmount: investorCapitalReturn,  // Track capital returned in final
+            profitAmount: investorProfitShare,  // Track profit amount
             profitRate: totalProfit > 0 ? (investorProfitShare / investorTotalInvestment) * 100 : 0,
             investmentShare: investmentRatio * 100,
             distributionDate: new Date(),
@@ -359,12 +363,14 @@ export async function POST(
           }
         })
 
-        // Profit distribution record - record this as capital recovery (amount = 0 for profit tracking)
+        // Profit distribution record - record this as capital recovery with capital amount
         profitDistributionOperations.push({
           projectId: distributionRequest.projectId,
           investorId: investorId,
           investmentId: firstInvestment.id,
           amount: 0,  // No profit in partial distributions
+          capitalAmount: investorCapitalReturn,  // Track capital returned
+          profitAmount: 0,  // No profit in partial distributions
           profitRate: 0,  // No profit yet
           investmentShare: investmentRatio * 100,
           distributionDate: new Date(),

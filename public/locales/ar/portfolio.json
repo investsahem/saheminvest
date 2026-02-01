@@ -650,7 +650,20 @@
       "return_rate": "معدل العائد",
       "return_rate_desc": "معدل العائد الإجمالي",
       "unrealized_gains": "المكاسب غير المحققة",
-      "unrealized_gains_desc": "الأرباح المحتملة غير المحققة"
+      "unrealized_gains_desc": "الأرباح المحتملة غير المحققة",
+      "partial_capital_returned": "رأس المال المسترد (جزئي)",
+      "partial_capital_desc": "من التوزيعات الجزئية"
+    },
+    "partial_distributions": {
+      "title": "التوزيعات الجزئية",
+      "subtitle": "رأس المال المسترد من الصفقات النشطة",
+      "capital_return": "استرداد رأس المال"
+    },
+    "final_distributions": {
+      "title": "التوزيعات النهائية",
+      "subtitle": "الأرباح الموزعة من الصفقات المكتملة",
+      "capital": "رأس مال",
+      "completed": "مكتمل"
     },
     "tabs": {
       "overview": "نظرة عامة",

@@ -194,6 +194,13 @@ export async function GET(request: NextRequest) {
       (sum, t) => sum + Number(t.amount), 0
     )
 
+    // Create a map of investmentId -> capital amount from transactions for fallback
+    const capitalByInvestment = new Map<string, number>()
+    for (const t of transactions.filter(t => t.type === 'RETURN' && t.investmentId)) {
+      const existing = capitalByInvestment.get(t.investmentId!) || 0
+      capitalByInvestment.set(t.investmentId!, existing + Number(t.amount))
+    }
+
     // Update user's wallet balance and investment totals
     await prisma.user.update({
       where: { id: session.user.id },
@@ -229,24 +236,31 @@ export async function GET(request: NextRequest) {
         unrealizedGains: 0 // For now, set to 0 - can be calculated based on expected returns later
       },
       distributions: {
-        partial: partialDistributions.map(d => ({
-          id: d.id,
-          projectId: d.projectId,
-          projectTitle: d.project.title,
-          amount: Number(d.amount),
-          capitalAmount: Number(d.capitalAmount),
-          profitAmount: Number(d.profitAmount),
-          distributionDate: d.distributionDate,
-          profitRate: Number(d.profitRate),
-          status: d.status
-        })),
+        partial: partialDistributions.map(d => {
+          // Use capitalAmount from record, or fallback to transaction amount
+          const capitalFromRecord = Number(d.capitalAmount || 0)
+          const capitalFromTransaction = capitalByInvestment.get(d.investmentId) || 0
+          const effectiveCapital = capitalFromRecord > 0 ? capitalFromRecord : capitalFromTransaction
+
+          return {
+            id: d.id,
+            projectId: d.projectId,
+            projectTitle: d.project.title,
+            amount: Number(d.amount),
+            capitalAmount: effectiveCapital,
+            profitAmount: Number(d.profitAmount || 0),
+            distributionDate: d.distributionDate,
+            profitRate: Number(d.profitRate),
+            status: d.status
+          }
+        }),
         final: finalDistributions.map(d => ({
           id: d.id,
           projectId: d.projectId,
           projectTitle: d.project.title,
           amount: Number(d.amount),
-          capitalAmount: Number(d.capitalAmount),
-          profitAmount: Number(d.profitAmount),
+          capitalAmount: Number(d.capitalAmount || 0),
+          profitAmount: Number(d.profitAmount || d.amount),
           distributionDate: d.distributionDate,
           profitRate: Number(d.profitRate),
           status: d.status
