@@ -8,7 +8,7 @@ const prisma = new PrismaClient()
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
           }
         }
       }),
-      
+
       // Get total investments in partner's deals
       prisma.investment.aggregate({
         where: {
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
           id: true
         }
       }),
-      
+
       // Get completed deals count
       prisma.project.count({
         where: {
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
           status: 'COMPLETED'
         }
       }),
-      
+
       // Get active deals count
       prisma.project.count({
         where: {
@@ -85,20 +85,19 @@ export async function GET(request: NextRequest) {
 
     // Calculate additional metrics
     const avgDealSize = totalDeals > 0 ? totalRaised / totalDeals : 0
-    
+
     // Get unique investors across all partner's deals
+    const partnerDealIds = partnerDeals.map(deal => deal.id)
     const allInvestments = await prisma.investment.findMany({
       where: {
-        project: {
-          ownerId: userId
-        }
+        projectId: { in: partnerDealIds }
       },
       select: {
         investorId: true
       },
       distinct: ['investorId']
     })
-    
+
     const totalInvestors = allInvestments.length
 
     const stats = {

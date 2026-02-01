@@ -19,13 +19,13 @@ cloudinary.config({
 export async function GET(request: NextRequest) {
   try {
     console.log('=== DEALS API START ===')
-    
+
     const session = await getServerSession(authOptions)
     console.log('Session user:', session?.user?.id, session?.user?.role)
-    
+
     const { searchParams } = new URL(request.url)
     console.log('Search params:', Object.fromEntries(searchParams.entries()))
-    
+
     const status = searchParams.get('status')
     const category = searchParams.get('category')
     const featured = searchParams.get('featured')
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const where: any = {}
-    
+
     // Status filtering
     if (status) {
       // Handle comma-separated status values
@@ -50,11 +50,11 @@ export async function GET(request: NextRequest) {
       // For non-admin users (but not partners viewing their own deals), only show active/published deals by default
       where.status = { in: ['ACTIVE', 'PUBLISHED'] }
     }
-    
+
     if (category) {
       where.category = category
     }
-    
+
     if (featured === 'true') {
       where.featured = true
     }
@@ -77,13 +77,13 @@ export async function GET(request: NextRequest) {
 
     // Try to fetch deals with error handling for each step
     console.log('Fetching deals with where clause:', JSON.stringify(where))
-    
+
     let deals = []
     let total = 0
-    
+
     // Start with the simplest possible query
     console.log('Step 1: Testing basic project query...')
-    
+
     try {
       // Test basic query first
       const basicDeals = await prisma.project.findMany({
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
         take: 5
       })
       console.log('Basic query successful, found', basicDeals.length, 'deals')
-      
+
       // Now try with owner
       console.log('Step 2: Testing with owner include...')
       const dealsWithOwner = await prisma.project.findMany({
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
         take: 5
       })
       console.log('Owner include successful, found', dealsWithOwner.length, 'deals')
-      
+
       // Try with investments count
       console.log('Step 3: Testing with investments count...')
       const dealsWithCount = await prisma.project.findMany({
@@ -171,15 +171,15 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit
       })
-      
+
       const totalCount = await prisma.project.count({ where })
-      
+
       console.log('Full query successful!')
-      
+
       // Keep investments for now to calculate unique investor count
       deals = dealsWithCount
       total = totalCount
-      
+
     } catch (queryError) {
       console.error('Query failed at step:', (queryError as Error).message)
       console.error('Query error stack:', (queryError as Error).stack)
@@ -198,10 +198,10 @@ export async function GET(request: NextRequest) {
       // Calculate unique investor count from investments using helper function
       const investments = (deal as any).investments || []
       const uniqueInvestorCount = calculateUniqueInvestors(investments)
-      
+
       // Debug logging for investor count
       debugInvestorCount(deal.id, investments, 'API /deals route')
-      
+
       const filteredDeal = {
         ...deal,
         investorCount: uniqueInvestorCount, // Use unique investor count instead of total investments
@@ -243,7 +243,7 @@ export async function GET(request: NextRequest) {
     console.log('=== DEALS API SUCCESS ===')
     console.log('Returning deals count:', transformedDeals.length)
     console.log('Total:', total)
-    
+
     return NextResponse.json({
       deals: transformedDeals,
       total,
@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     console.log('👤 Session check:', session?.user ? `User: ${session.user.id}` : 'No session')
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -291,7 +291,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check permissions
-    const hasWritePermission = user.role === 'ADMIN' || 
+    const hasWritePermission = user.role === 'ADMIN' ||
       user.role === 'DEAL_MANAGER' ||
       user.role === 'PARTNER' ||
       (user.permissions && user.permissions.some(up => up.permission === 'WRITE_DEALS'))
@@ -311,7 +311,7 @@ export async function POST(request: NextRequest) {
       hasImage: !!formData.get('image'),
       imageSize: formData.get('image') ? (formData.get('image') as File).size : 0
     })
-    
+
     const title = formData.get('title') as string
     const description = formData.get('description') as string
     const category = formData.get('category') as string
@@ -359,20 +359,26 @@ export async function POST(request: NextRequest) {
       try {
         const bytes = await imageFile.arrayBuffer()
         const buffer = Buffer.from(bytes)
-        
+
         console.log('☁️ Uploading to Cloudinary...', {
           bufferSize: buffer.length,
-          cloudName: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Missing',
-          apiKey: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Missing',
-          apiSecret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Missing'
+          cloudName: process.env.CLOUDINARY_CLOUD_NAME?.substring(0, 3) + '...',
+          apiKey: process.env.CLOUDINARY_API_KEY?.substring(0, 3) + '...',
+          hasSecret: !!process.env.CLOUDINARY_API_SECRET
         })
-        
+
+        // Verify config
+        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+          throw new Error('Missing Cloudinary configuration')
+        }
+
         // Upload to Cloudinary
         const uploadResult = await new Promise((resolve, reject) => {
-          cloudinary.uploader.upload_stream(
+          const uploadStream = cloudinary.uploader.upload_stream(
             {
               resource_type: 'image',
               folder: 'sahaminvest/deals',
+              // Simplified options to test if transformation is the cause
               transformation: [
                 { width: 800, height: 600, crop: 'fill' },
                 { quality: 'auto' }
@@ -380,25 +386,37 @@ export async function POST(request: NextRequest) {
             },
             (error, result) => {
               if (error) {
-                console.error('❌ Cloudinary upload error:', error)
+                console.error('❌ Cloudinary upload callback error:', error)
                 reject(error)
               } else {
                 console.log('✅ Cloudinary upload success:', result?.secure_url)
                 resolve(result)
               }
             }
-          ).end(buffer)
+          )
+
+          // Handle stream errors
+          uploadStream.on('error', (err) => {
+            console.error('❌ Cloudinary stream error:', err)
+            reject(err)
+          })
+
+          uploadStream.end(buffer)
         }) as any
 
         thumbnailImage = uploadResult.secure_url
         images.push(uploadResult.secure_url)
       } catch (uploadError) {
-        console.error('❌ Image upload failed:', uploadError)
+        console.error('❌ Image upload failed details:', {
+          message: (uploadError as Error).message,
+          stack: (uploadError as Error).stack,
+          raw: uploadError
+        })
         // For now, allow deal creation without image rather than failing completely
         console.log('⚠️ Proceeding with deal creation without image due to upload failure')
         thumbnailImage = ''
         images.length = 0
-        
+
         // Optionally, you can still return the error if you want to force image upload
         // return NextResponse.json(
         //   { error: 'Failed to upload image. Please try again.', details: (uploadError as Error).message },
