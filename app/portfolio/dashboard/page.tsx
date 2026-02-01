@@ -238,7 +238,7 @@ export default function InvestorDashboard() {
     <InvestorLayout title={t('investor.portfolio_dashboard')} subtitle={t('investor.track_investment_performance')}>
       <div className="space-y-6">
         {/* Portfolio Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Portfolio Value - Shows Total Wallet (Capital + Profit) */}
           <Card className="lg:col-span-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
             <CardContent className="p-6">
@@ -349,72 +349,7 @@ export default function InvestorDashboard() {
         )}
 
         {/* Pending Distributions Detail */}
-        {(pendingDistributions && pendingDistributions.length > 0) && (
-          <Card className="border-amber-200">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {t('investor.pending_distributions_title') || 'التوزيعات المتوقعة'}
-                </h3>
-                <Clock className="w-5 h-5 text-amber-600" />
-              </div>
-              <div className="space-y-3">
-                {pendingDistributions.map((dist) => (
-                  <div key={dist.id}
-                    className={`rounded-xl border-2 p-4 ${dist.status === 'PENDING'
-                        ? 'bg-amber-50 border-amber-200'
-                        : 'bg-green-50 border-green-200'
-                      }`}>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${dist.distributionType === 'FINAL'
-                            ? 'bg-green-600 text-white'
-                            : 'bg-purple-600 text-white'
-                          }`}>
-                          {dist.distributionType === 'FINAL'
-                            ? (t('investor.final_distribution') || 'توزيع نهائي')
-                            : (t('investor.partial_distribution') || 'توزيع جزئي')
-                          }
-                        </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${dist.status === 'PENDING'
-                            ? 'bg-amber-200 text-amber-800'
-                            : 'bg-green-200 text-green-800'
-                          }`}>
-                          {dist.status === 'PENDING'
-                            ? (t('investor.pending_approval') || 'قيد المراجعة')
-                            : (t('investor.approved') || 'تمت الموافقة')
-                          }
-                        </span>
-                      </div>
-                      <p className="text-lg font-bold text-green-600">
-                        +{formatCurrency(dist.estimatedInvestorTotal)}
-                      </p>
-                    </div>
-                    <p className="font-medium text-gray-900 mb-2">{dist.projectTitle}</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-sm">
-                      <div className="bg-white/70 rounded-lg p-2">
-                        <p className="text-xs text-gray-500">{t('investor.expected_profit') || 'الربح المتوقع'}</p>
-                        <p className="font-bold text-green-600">{formatCurrency(dist.estimatedInvestorProfit)}</p>
-                      </div>
-                      <div className="bg-white/70 rounded-lg p-2">
-                        <p className="text-xs text-gray-500">{t('investor.capital_return') || 'رأس المال'}</p>
-                        <p className="font-bold text-gray-700">{formatCurrency(dist.estimatedInvestorCapitalReturn)}</p>
-                      </div>
-                      <div className="bg-white/70 rounded-lg p-2">
-                        <p className="text-xs text-gray-500">{t('investor.return_percent') || 'نسبة العائد'}</p>
-                        <p className="font-bold text-blue-600">{dist.estimatedGainPercent.toFixed(1)}%</p>
-                      </div>
-                      <div className="bg-white/70 rounded-lg p-2">
-                        <p className="text-xs text-gray-500">{t('investor.your_share') || 'حصتك'}</p>
-                        <p className="font-bold text-purple-600">{dist.investorSharePercent.toFixed(1)}%</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
 
         {/* Portfolio Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -612,6 +547,74 @@ export default function InvestorDashboard() {
             )}
           </CardContent>
         </Card>
+
+        {/* Pending Distributions Detail */}
+        {(pendingDistributions && pendingDistributions.length > 0) && (
+          <Card className="border-amber-200 mt-8">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {t('investor.pending_distributions_title') || 'التوزيعات المتوقعة'}
+                </h3>
+                <Clock className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="space-y-3">
+                {pendingDistributions.map((dist) => (
+                  <div key={dist.id}
+                    className={`rounded-xl border-2 p-4 ${dist.status === 'PENDING'
+                        ? 'bg-amber-50 border-amber-200'
+                        : 'bg-green-50 border-green-200'
+                      }`}>
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${dist.distributionType === 'FINAL'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-purple-600 text-white'
+                          }`}>
+                          {dist.distributionType === 'FINAL'
+                            ? (t('investor.final_distribution') || 'توزيع نهائي')
+                            : (t('investor.partial_distribution') || 'توزيع جزئي')
+                          }
+                        </span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${dist.status === 'PENDING'
+                            ? 'bg-amber-200 text-amber-800'
+                            : 'bg-green-200 text-green-800'
+                          }`}>
+                          {dist.status === 'PENDING'
+                            ? (t('investor.pending_approval') || 'قيد المراجعة')
+                            : (t('investor.approved') || 'تمت الموافقة')
+                          }
+                        </span>
+                      </div>
+                      <p className="text-lg font-bold text-green-600">
+                        +{formatCurrency(dist.estimatedInvestorTotal)}
+                      </p>
+                    </div>
+                    <p className="font-medium text-gray-900 mb-2">{dist.projectTitle}</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center text-sm">
+                      <div className="bg-white/70 rounded-lg p-2">
+                        <p className="text-xs text-gray-500">{t('investor.expected_profit') || 'الربح المتوقع'}</p>
+                        <p className="font-bold text-green-600">{formatCurrency(dist.estimatedInvestorProfit)}</p>
+                      </div>
+                      <div className="bg-white/70 rounded-lg p-2">
+                        <p className="text-xs text-gray-500">{t('investor.capital_return') || 'رأس المال'}</p>
+                        <p className="font-bold text-gray-700">{formatCurrency(dist.estimatedInvestorCapitalReturn)}</p>
+                      </div>
+                      <div className="bg-white/70 rounded-lg p-2">
+                        <p className="text-xs text-gray-500">{t('investor.return_percent') || 'نسبة العائد'}</p>
+                        <p className="font-bold text-blue-600">{dist.estimatedGainPercent.toFixed(1)}%</p>
+                      </div>
+                      <div className="bg-white/70 rounded-lg p-2">
+                        <p className="text-xs text-gray-500">{t('investor.your_share') || 'حصتك'}</p>
+                        <p className="font-bold text-purple-600">{dist.investorSharePercent.toFixed(1)}%</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </InvestorLayout>
   )
