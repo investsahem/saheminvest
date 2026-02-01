@@ -88,15 +88,19 @@ export async function GET(request: NextRequest) {
 
     // Get unique investors across all partner's deals
     const partnerDealIds = partnerDeals.map(deal => deal.id)
-    const allInvestments = await prisma.investment.findMany({
-      where: {
-        projectId: { in: partnerDealIds }
-      },
-      select: {
-        investorId: true
-      },
-      distinct: ['investorId']
-    })
+    let allInvestments: { investorId: string }[] = []
+
+    if (partnerDealIds.length > 0) {
+      allInvestments = await prisma.investment.findMany({
+        where: {
+          projectId: { in: partnerDealIds }
+        },
+        select: {
+          investorId: true
+        },
+        distinct: ['investorId']
+      })
+    }
 
     const totalInvestors = allInvestments.length
 
