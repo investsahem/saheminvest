@@ -8,8 +8,8 @@ import PartnerLayout from '../../../../components/layout/PartnerLayout'
 import { Card, CardContent } from '../../../../components/ui/Card'
 import { Button } from '../../../../components/ui/Button'
 import { DealTimeline } from '../../../../components/project/DealTimeline'
-import { 
-  ArrowLeft, Users, DollarSign, TrendingUp, Calendar, 
+import {
+  ArrowLeft, Users, DollarSign, TrendingUp, Calendar,
   Plus, Send, AlertCircle, CheckCircle, Clock, Eye,
   BarChart3, PieChart, Activity, Target, FileText
 } from 'lucide-react'
@@ -72,7 +72,7 @@ const DealManagePage = () => {
   const [loading, setLoading] = useState(true)
   const [showProfitForm, setShowProfitForm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  
+
   const [profitForm, setProfitForm] = useState<ProfitDistributionFormData>({
     estimatedGainPercent: 7,
     estimatedClosingPercent: 100,
@@ -114,7 +114,7 @@ const DealManagePage = () => {
     if (isNaN(amount) || amount === null || amount === undefined) {
       return '$0.00'
     }
-    
+
     try {
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -128,13 +128,13 @@ const DealManagePage = () => {
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A'
-    
+
     try {
       const date = new Date(dateString)
       if (isNaN(date.getTime())) {
         return 'Invalid Date'
       }
-      
+
       return new Intl.DateTimeFormat('en-US', {
         year: 'numeric',
         month: 'short',
@@ -213,12 +213,12 @@ const DealManagePage = () => {
     const amount = Number(inv.amount)
     return sum + (isNaN(amount) ? 0 : amount)
   }, 0)
-  
+
   const totalDistributed = (deal.profitDistributions || []).reduce((sum, dist) => {
     const amount = Number(dist.amount)
     return sum + (isNaN(amount) ? 0 : amount)
   }, 0)
-  
+
   const fundingProgress = deal.fundingGoal > 0 ? (deal.currentFunding / deal.fundingGoal) * 100 : 0
 
   // Group investments by investor ID (same person)
@@ -226,14 +226,14 @@ const DealManagePage = () => {
     if (!deal.investments || deal.investments.length === 0) {
       return []
     }
-    
+
     const investorGroups = {} as Record<string, {
       investorId: string
       totalAmount: number
       earliestDate: string
       investments: Investment[]
     }>
-    
+
     (deal.investments || []).forEach(investment => {
       const investorId = investment.investor.id
       if (!investorGroups[investorId]) {
@@ -244,16 +244,16 @@ const DealManagePage = () => {
           investments: []
         }
       }
-      
+
       investorGroups[investorId].totalAmount += Number(investment.amount)
       investorGroups[investorId].investments.push(investment)
-      
+
       // Keep earliest date
       if (new Date(investment.investmentDate) < new Date(investorGroups[investorId].earliestDate)) {
         investorGroups[investorId].earliestDate = investment.investmentDate
       }
     })
-    
+
     // Convert to array and sort by earliest investment date
     return Object.values(investorGroups)
       .sort((a, b) => new Date(a.earliestDate).getTime() - new Date(b.earliestDate).getTime())
@@ -266,15 +266,15 @@ const DealManagePage = () => {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.push('/partner/deals')}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
             {t('deal_management.back_to_deals')}
           </Button>
-          
+
           <div className="flex gap-2">
             {deal.status === 'COMPLETED' ? (
               <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
@@ -287,7 +287,7 @@ const DealManagePage = () => {
               <Button
                 onClick={() => setShowProfitForm(true)}
                 className="bg-green-600 hover:bg-green-700"
-                disabled={deal.status !== 'ACTIVE' && deal.status !== 'FUNDED'}
+                disabled={deal.status !== 'PUBLISHED' && deal.status !== 'ACTIVE' && deal.status !== 'FUNDED'}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {t('deal_management.distribute_profits')}
@@ -369,7 +369,7 @@ const DealManagePage = () => {
                   <span>{fundingProgress.toFixed(1)}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div 
+                  <div
                     className="bg-blue-600 h-3 rounded-full transition-all duration-300"
                     style={{ width: `${Math.min(fundingProgress, 100)}%` }}
                   />
@@ -411,11 +411,11 @@ const DealManagePage = () => {
                         .filter(dist => dist.status === 'COMPLETED')
                         .reduce((sum, dist) => {
                           const distributionAmount = Number(dist.amount)
-                          
+
                           if (isNaN(investor.totalAmount) || isNaN(distributionAmount) || totalInvested <= 0) {
                             return sum
                           }
-                          
+
                           const investorShare = (investor.totalAmount / totalInvested) * distributionAmount
                           return sum + (isNaN(investorShare) ? 0 : investorShare)
                         }, 0)
@@ -455,7 +455,7 @@ const DealManagePage = () => {
                 </div>
               )}
             </div>
-            
+
             {(deal.profitDistributions || []).length > 0 ? (
               <div className="space-y-4">
                 {/* Summary for completed deals */}
@@ -474,8 +474,8 @@ const DealManagePage = () => {
                       <div>
                         <p className="text-green-600">{t('deal_management.return_rate')}</p>
                         <p className="font-bold text-green-900">
-                          {totalInvested > 0 && !isNaN(totalDistributed) && !isNaN(totalInvested) 
-                            ? ((totalDistributed / totalInvested) * 100).toFixed(1) 
+                          {totalInvested > 0 && !isNaN(totalDistributed) && !isNaN(totalInvested)
+                            ? ((totalDistributed / totalInvested) * 100).toFixed(1)
                             : '0.0'}%
                         </p>
                       </div>
@@ -486,15 +486,15 @@ const DealManagePage = () => {
                     </div>
                   </div>
                 )}
-                
+
                 {(deal.profitDistributions || []).map((distribution) => (
                   <div key={distribution.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                     <div>
                       <p className="font-medium text-gray-900">{distribution.description || t('deal_management.profit_distribution')}</p>
                       <p className="text-sm text-gray-600">
                         {formatDate(distribution.distributionDate)} • {t('deal_management.profit_rate')}: {
-                          !isNaN(Number(distribution.profitRate)) 
-                            ? Number(distribution.profitRate).toFixed(1) 
+                          !isNaN(Number(distribution.profitRate))
+                            ? Number(distribution.profitRate).toFixed(1)
                             : '0.0'
                         }%
                       </p>
@@ -534,7 +534,7 @@ const DealManagePage = () => {
         </Card>
 
         {/* Project Timeline Management */}
-        <DealTimeline 
+        <DealTimeline
           dealId={deal.id}
           isOwner={true}
         />
@@ -546,8 +546,8 @@ const DealManagePage = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">{t('deal_management.new_profit_distribution')}</h2>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => setShowProfitForm(false)}
                   >
