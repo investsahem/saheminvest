@@ -25,16 +25,16 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        console.log('🔐 Credentials provider - authorize called', { 
+        console.log('🔐 Credentials provider - authorize called', {
           email: credentials?.email,
           hasPassword: !!credentials?.password,
           timestamp: new Date().toISOString()
         })
-        
+
         if (!credentials?.email || !credentials?.password) {
-          console.log('❌ Missing credentials', { 
-            email: !!credentials?.email, 
-            password: !!credentials?.password 
+          console.log('❌ Missing credentials', {
+            email: !!credentials?.email,
+            password: !!credentials?.password
           })
           return null
         }
@@ -45,9 +45,9 @@ export const authOptions: NextAuthOptions = {
             where: { email: credentials.email }
           })
 
-          console.log('👤 Database query result:', user ? { 
-            id: user.id, 
-            email: user.email, 
+          console.log('👤 Database query result:', user ? {
+            id: user.id,
+            email: user.email,
             role: user.role,
             hasPassword: !!user.password,
             isActive: user.isActive
@@ -92,7 +92,7 @@ export const authOptions: NextAuthOptions = {
 
           console.log('✅ Authorization successful, returning user:', returnUser)
           return returnUser
-          
+
         } catch (error) {
           console.error('❌ Critical error in authorize function:', {
             error: error instanceof Error ? error.message : error,
@@ -145,6 +145,14 @@ export const authOptions: NextAuthOptions = {
               }
             })
             console.log('✅ Google OAuth - New user created:', newUser.id)
+
+            // Send welcome email to new user (non-blocking)
+            import('../lib/email-triggers').then(({ EmailTriggers }) => {
+              EmailTriggers.onUserRegistration(newUser.id).catch(err =>
+                console.error('Failed to send welcome email:', err)
+              )
+            }).catch(err => console.error('Failed to import email triggers:', err))
+
             return true
           }
         } catch (error) {
@@ -168,7 +176,7 @@ export const authOptions: NextAuthOptions = {
         tokenSub: token?.sub,
         account: account?.provider
       })
-      
+
       // For Google OAuth, fetch user data from database
       if (account?.provider === "google" && user?.email) {
         const dbUser = await prisma.user.findUnique({
@@ -180,7 +188,7 @@ export const authOptions: NextAuthOptions = {
           token.id = dbUser.id
         }
       }
-      
+
       // Persist the role and password change flag in the token right after signin
       if (user) {
         token.role = (user as any).role || token.role
@@ -192,7 +200,7 @@ export const authOptions: NextAuthOptions = {
           userId: token.id
         })
       }
-      
+
       return token
     },
     async session({ session, token }) {
@@ -203,13 +211,13 @@ export const authOptions: NextAuthOptions = {
         tokenRole: token?.role,
         tokenSub: token?.sub
       })
-      
+
       // Send properties to the client
       if (token && session.user) {
         session.user.id = token.sub!
         session.user.role = token.role as string
         session.user.needsPasswordChange = token.needsPasswordChange as boolean
-        
+
         console.log('✅ Session callback - Setting session data:', {
           userId: session.user.id,
           userRole: session.user.role,
@@ -217,24 +225,24 @@ export const authOptions: NextAuthOptions = {
           userEmail: session.user.email
         })
       }
-      
+
       return session
     },
     async redirect({ url, baseUrl }) {
       console.log('🔄 Redirect callback:', { url, baseUrl })
-      
+
       // Allows relative callback URLs
       if (url.startsWith("/")) {
         console.log('✅ Relative URL redirect:', `${baseUrl}${url}`)
         return `${baseUrl}${url}`
       }
-      
+
       // Allows callback URLs on the same origin
       if (url.startsWith(baseUrl)) {
         console.log('✅ Same origin redirect:', url)
         return url
       }
-      
+
       // Default fallback
       console.log('🔄 Fallback redirect to portfolio')
       return `${baseUrl}/portfolio`
