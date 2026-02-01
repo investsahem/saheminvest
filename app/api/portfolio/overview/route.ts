@@ -243,6 +243,55 @@ export async function GET(request: NextRequest) {
     // walletBalance is separate (available cash)
     const totalPortfolioValue = currentPortfolioValue + totalDistributedProfits
 
+    // Fetch pending/approved distribution requests for this investor's projects
+    const userProjectIds = investments.map(inv => inv.projectId)
+    const pendingDistributionRequests = await prisma.profitDistributionRequest.findMany({
+      where: {
+        projectId: { in: userProjectIds },
+        status: { in: ['PENDING', 'APPROVED'] }
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            title: true,
+            currentFunding: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    })
+
+    // Calculate investor's estimated profits from pending requests
+    const pendingDistributions = pendingDistributionRequests.map(request => {
+      const investorInvestment = investments.filter(inv => inv.projectId === request.projectId)
+      const investorTotalAmount = investorInvestment.reduce((sum, inv) => sum + Number(inv.amount), 0)
+      const totalProjectFunding = Number(request.project.currentFunding) || 1
+
+      const investorSharePercent = (investorTotalAmount / totalProjectFunding) * 100
+      const estimatedInvestorProfit = (investorSharePercent / 100) * Number(request.estimatedProfit)
+      const estimatedInvestorCapitalReturn = (investorSharePercent / 100) * Number(request.estimatedReturnCapital)
+
+      return {
+        id: request.id,
+        projectId: request.projectId,
+        projectTitle: request.project.title,
+        estimatedGainPercent: Number(request.estimatedGainPercent),
+        estimatedClosingPercent: Number(request.estimatedClosingPercent),
+        distributionType: request.distributionType,
+        status: request.status,
+        createdAt: request.createdAt.toISOString(),
+        investorSharePercent,
+        estimatedInvestorProfit,
+        estimatedInvestorCapitalReturn,
+        estimatedInvestorTotal: estimatedInvestorProfit + estimatedInvestorCapitalReturn
+      }
+    })
+
+    const totalPendingEstimatedProfit = pendingDistributions.reduce(
+      (sum, p) => sum + p.estimatedInvestorProfit, 0
+    )
+
     return NextResponse.json({
       portfolio: {
         totalValue: Math.round(totalPortfolioValue * 100) / 100,
@@ -253,7 +302,8 @@ export async function GET(request: NextRequest) {
         distributedProfits: Math.round(totalDistributedProfits * 100) / 100,
         unrealizedGains: Math.round((totalReturns - totalDistributedProfits) * 100) / 100,
         activeInvestments: activeInvestments,
-        totalInvestments: portfolioInvestments.length
+        totalInvestments: portfolioInvestments.length,
+        pendingEstimatedProfit: Math.round(totalPendingEstimatedProfit * 100) / 100
       },
       dailyChange: {
         amount: dailyChangeAmount,
@@ -261,6 +311,7 @@ export async function GET(request: NextRequest) {
         isPositive: dailyChangeAmount >= 0
       },
       investments: portfolioInvestments,
+      pendingDistributions: pendingDistributions,
       summary: {
         bestPerformer: portfolioInvestments.length > 0 ?
           portfolioInvestments.reduce((best, current) =>

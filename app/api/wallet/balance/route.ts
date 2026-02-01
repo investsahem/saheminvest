@@ -5,6 +5,60 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+// Helper function to get pending distribution requests for an investor
+async function getPendingDistributionsForUser(userId: string, investmentRecords: any[]) {
+  const userInvestmentProjectIds = investmentRecords.map(inv => inv.project.id)
+
+  const pendingDistributionRequests = await prisma.profitDistributionRequest.findMany({
+    where: {
+      projectId: { in: userInvestmentProjectIds },
+      status: { in: ['PENDING', 'APPROVED'] }
+    },
+    include: {
+      project: {
+        select: {
+          id: true,
+          title: true,
+          currentFunding: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
+
+  // Calculate estimated profits for the current investor from pending requests
+  return pendingDistributionRequests.map(request => {
+    // Find investor's investment in this project
+    const investorInvestment = investmentRecords.filter(inv => inv.project.id === request.projectId)
+    const investorTotalAmount = investorInvestment.reduce((sum: number, inv: any) => sum + Number(inv.amount), 0)
+    const totalProjectFunding = Number(request.project.currentFunding) || 1
+
+    // Calculate investor's share of the distribution
+    const investorSharePercent = (investorTotalAmount / totalProjectFunding) * 100
+    const estimatedInvestorProfit = (investorSharePercent / 100) * Number(request.estimatedProfit)
+    const estimatedInvestorCapitalReturn = (investorSharePercent / 100) * Number(request.estimatedReturnCapital)
+
+    return {
+      id: request.id,
+      projectId: request.projectId,
+      projectTitle: request.project.title,
+      totalAmount: Number(request.totalAmount),
+      estimatedGainPercent: Number(request.estimatedGainPercent),
+      estimatedClosingPercent: Number(request.estimatedClosingPercent),
+      distributionType: request.distributionType,
+      status: request.status,
+      createdAt: request.createdAt,
+      // Investor-specific estimates
+      investorSharePercent: investorSharePercent,
+      estimatedInvestorProfit: estimatedInvestorProfit,
+      estimatedInvestorCapitalReturn: estimatedInvestorCapitalReturn,
+      estimatedInvestorTotal: estimatedInvestorProfit + estimatedInvestorCapitalReturn
+    }
+  })
+}
+
 // GET /api/wallet/balance - Get user's wallet balance (calculated from transactions)
 export async function GET(request: NextRequest) {
   try {
@@ -265,7 +319,8 @@ export async function GET(request: NextRequest) {
           profitRate: Number(d.profitRate),
           status: d.status
         }))
-      }
+      },
+      pendingDistributions: await getPendingDistributionsForUser(session.user.id, investmentRecords)
     })
 
   } catch (error) {

@@ -515,7 +515,18 @@
       "funded": "Funded",
       "pending": "Pending",
       "cancelled": "Cancelled"
-    }
+    },
+    "pending_estimated_profit": "Pending Estimated Profit",
+    "pending_distributions_count": "{count} distributions pending",
+    "pending_distributions_title": "Pending Distributions",
+    "expected_profit": "Expected Profit",
+    "capital_return": "Capital Return",
+    "return_percent": "Return %",
+    "your_share": "Your Share",
+    "final_distribution": "Final Distribution",
+    "partial_distribution": "Partial Distribution",
+    "pending_approval": "Pending Approval",
+    "approved": "Approved"
   },
   "common": {
     "brand_name": "Sahem Invest",

@@ -516,7 +516,18 @@
       "funded": "ممول",
       "pending": "قيد الانتظار",
       "cancelled": "ملغي"
-    }
+    },
+    "pending_estimated_profit": "الأرباح المتوقعة",
+    "pending_distributions_count": "{count} توزيعات قيد التنفيذ",
+    "pending_distributions_title": "التوزيعات المتوقعة",
+    "expected_profit": "الربح المتوقع",
+    "capital_return": "رأس المال",
+    "return_percent": "نسبة العائد",
+    "your_share": "حصتك",
+    "final_distribution": "توزيع نهائي",
+    "partial_distribution": "توزيع جزئي",
+    "pending_approval": "قيد المراجعة",
+    "approved": "تمت الموافقة"
   },
   "common": {
     "brand_name": "ساهم إنفست",
