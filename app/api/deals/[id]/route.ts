@@ -8,12 +8,14 @@ import { v2 as cloudinary } from 'cloudinary'
 
 const prisma = new PrismaClient()
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+// Configure Cloudinary on-demand (env vars may not be available at module load time)
+const configureCloudinary = () => {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  })
+}
 
 // GET /api/deals/[id] - Get single deal
 export async function GET(
@@ -297,6 +299,7 @@ export async function PUT(
           const buffer = Buffer.from(bytes)
 
           // Upload to Cloudinary using upload_stream
+          configureCloudinary() // Ensure config is set at request time
           const uploadResult = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
               {
