@@ -98,6 +98,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Calculate remaining distributable capital
+    const totalInvested = deal.investments.reduce((sum, inv) => sum + Number(inv.amount), 0)
+
+    // Get completed distributions to calculate already returned capital
+    const completedDistributions = await prisma.profitDistribution.findMany({
+      where: { projectId: dealId }
+    })
+    const distributedCapital = completedDistributions.reduce((sum, dist) => {
+      // dist.amount = total distributed (capital + profit)
+      // We need to extract capital portion using profitRate
+      const profitRate = Number(dist.profitRate) || 0
+      const profit = Number(dist.amount) * (profitRate / 100)
+      return sum + (Number(dist.amount) - profit)
+    }, 0)
+
+    // Get pending/approved distribution requests
+    const pendingRequests = await prisma.profitDistributionRequest.findMany({
+      where: {
+        projectId: dealId,
+        status: { in: ['PENDING', 'APPROVED'] }
+      }
+    })
+    const pendingCapitalReturn = pendingRequests.reduce((sum, req) =>
+      sum + Number(req.estimatedReturnCapital), 0
+    )
+
+    // Calculate remaining and validate
+    const remainingCapital = totalInvested - distributedCapital - pendingCapitalReturn
+    const newCapitalReturn = totalAmount - ((totalAmount * estimatedGainPercent) / 100)
+
+    if (newCapitalReturn > remainingCapital + 0.01) { // Small tolerance for floating point
+      const maxAllowedTotal = remainingCapital / (1 - estimatedGainPercent / 100)
+      return NextResponse.json({
+        error: `Capital return ($${newCapitalReturn.toFixed(2)}) exceeds remaining distributable capital ($${remainingCapital.toFixed(2)}). Maximum allowed total amount is approximately $${maxAllowedTotal.toFixed(2)}.`,
+        remainingCapital: Math.round(remainingCapital * 100) / 100,
+        maxTotalAmount: Math.round(maxAllowedTotal * 100) / 100
+      }, { status: 400 })
+    }
+
     // Calculate values
     const estimatedProfit = (totalAmount * estimatedGainPercent) / 100
     const estimatedReturnCapital = totalAmount - estimatedProfit
