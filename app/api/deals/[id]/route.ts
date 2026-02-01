@@ -27,11 +27,11 @@ export async function GET(
     const includePartner = searchParams.get('includePartner') === 'true'
     const includeInvestments = searchParams.get('includeInvestments') === 'true'
     const includeDistributions = searchParams.get('includeDistributions') === 'true'
-    
+
     // For admin/deal manager, always include full details
     const userRole = session?.user?.role
     const isAdmin = userRole === 'ADMIN' || userRole === 'DEAL_MANAGER'
-    
+
     // Build include object conditionally
     const includeClause: any = {
       owner: {
@@ -78,10 +78,10 @@ export async function GET(
         }
       }
     }
-    
+
     // Check if user is the owner of this deal
     const isOwner = session?.user?.id && session.user.id === (await prisma.project.findUnique({ where: { id }, select: { ownerId: true } }))?.ownerId
-    
+
     // Add investments - we need this for investor count calculation
     // For admins, deal owners, or when explicitly requested, include full investment data
     if (isAdmin || includeInvestments || isOwner) {
@@ -111,7 +111,7 @@ export async function GET(
         }
       }
     }
-    
+
     // Add profit distributions if needed
     // For partners viewing their own deals, always include profit distributions
     if (isAdmin || includeDistributions || isOwner) {
@@ -121,7 +121,7 @@ export async function GET(
         }
       }
     }
-    
+
     const deal = await prisma.project.findUnique({
       where: { id },
       include: includeClause
@@ -140,7 +140,7 @@ export async function GET(
     const isInvestor = !isAdminRole && !isPartner
 
     // Filter sensitive information based on role
-      const filteredDeal = { ...deal }
+    const filteredDeal = { ...deal }
 
     // Hide partner information from investors (unless explicitly requested)
     if (isInvestor && !includePartner) {
@@ -168,7 +168,7 @@ export async function GET(
     // Calculate unique investor count using helper function
     const investments = deal.investments || []
     const uniqueInvestorCount = calculateUniqueInvestors(investments)
-    
+
     // Debug logging for investor count
     debugInvestorCount(deal.id, investments, 'API /deals/[id] route')
 
@@ -197,13 +197,13 @@ export async function PUT(
   try {
     const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     console.log('PUT request received for deal:', id)
     console.log('Session data:', session ? {
       user: session.user,
       expires: session.expires
     } : 'No session')
-    
+
     if (!session?.user) {
       console.log('No session found, returning 401')
       return NextResponse.json(
@@ -247,7 +247,7 @@ export async function PUT(
         { status: 403 }
       )
     }
-    
+
     // If the user is a partner (not admin/deal manager), create an update request instead of updating directly
     const requiresApproval = isPartner && !isAdmin && !isDealManager
 
@@ -279,91 +279,99 @@ export async function PUT(
     if (imageFile && imageFile.size > 0) {
       console.log('Processing image upload...')
       console.log('Cloudinary env check:', {
-        cloud_name: !!process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: !!process.env.CLOUDINARY_API_KEY,
-        api_secret: !!process.env.CLOUDINARY_API_SECRET
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME?.substring(0, 3) + '...',
+        api_key: process.env.CLOUDINARY_API_KEY?.substring(0, 3) + '...',
+        hasSecret: !!process.env.CLOUDINARY_API_SECRET
       })
-      
-      // Check Cloudinary configuration
-      console.log('Cloudinary configuration:', {
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'NOT_SET',
-        api_key: process.env.CLOUDINARY_API_KEY ? 'SET' : 'NOT_SET',
-        api_secret: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'NOT_SET'
-      })
-      
-      // Cloudinary upload - RESTORED
+
+      // Verify config
       if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
         console.error('Cloudinary configuration missing - proceeding without image upload')
-        // Keep existing image and continue with update
         thumbnailImage = existingDeal.thumbnailImage
         images = [...existingDeal.images]
       } else {
-      
-      try {
-        console.log('🚀 Starting Cloudinary upload with Data URI method...')
-        const bytes = await imageFile.arrayBuffer()
-        const buffer = Buffer.from(bytes)
-        
-        // Convert to Data URI (better for serverless)
-        const base64 = buffer.toString('base64')
-        const dataUri = `data:${imageFile.type};base64,${base64}`
-        
-        // Upload to Cloudinary using upload method (not upload_stream)
-        const uploadResult = await cloudinary.uploader.upload(dataUri, {
-          resource_type: 'image',
-          folder: 'sahaminvest/deals',
-          transformation: [
-            { width: 800, height: 600, crop: 'fill' },
-            { quality: 'auto' }
-          ]
-        })
-        
-        console.log('✅ Cloudinary upload successful:', uploadResult.secure_url)
 
-      // Delete old image from Cloudinary if exists
-      if (existingDeal.thumbnailImage && existingDeal.thumbnailImage.includes('cloudinary.com')) {
         try {
-          // Extract public_id from Cloudinary URL
-          // URL format: https://res.cloudinary.com/cloud-name/image/upload/v123456/folder/filename.ext
-          const urlParts = existingDeal.thumbnailImage.split('/')
-          const uploadIndex = urlParts.findIndex(part => part === 'upload')
-          if (uploadIndex !== -1 && uploadIndex < urlParts.length - 1) {
-            // Skip version if present (starts with 'v' followed by numbers)
-            let startIndex = uploadIndex + 1
-            if (urlParts[startIndex] && urlParts[startIndex].match(/^v\d+$/)) {
-              startIndex += 1
-            }
-            // Join the remaining parts and remove file extension
-            const publicId = urlParts.slice(startIndex).join('/').replace(/\.[^/.]+$/, '')
-            console.log('Attempting to delete old image with public_id:', publicId)
-            await cloudinary.uploader.destroy(publicId)
-          }
-        } catch (error) {
-          console.error('Error deleting old image:', error)
-        }
-      }
+          console.log('🚀 Starting Cloudinary upload...')
+          const bytes = await imageFile.arrayBuffer()
+          const buffer = Buffer.from(bytes)
 
-        thumbnailImage = uploadResult.secure_url
-        images = [uploadResult.secure_url, ...images.filter(img => img !== existingDeal.thumbnailImage)]
-        console.log('New image uploaded successfully:', thumbnailImage)
-        console.log('✅ CLOUDINARY UPLOAD SUCCESS - Image URL:', uploadResult.secure_url)
-        console.log('✅ CLOUDINARY UPLOAD SUCCESS - Public ID:', uploadResult.public_id)
-        
-      } catch (uploadError) {
-        console.error('Image upload failed:', uploadError)
-        console.error('Upload error details:', {
-          message: uploadError instanceof Error ? uploadError.message : 'Unknown error',
-          stack: uploadError instanceof Error ? uploadError.stack : 'No stack trace'
-        })
-        
-        // ALWAYS proceed without image upload on error - don't fail the entire update
-        console.log('Proceeding with update without image change due to upload failure')
-        thumbnailImage = existingDeal.thumbnailImage
-        images = [...existingDeal.images]
-        
-        // Log the error but don't return 500 - let the deal update continue
-        console.log('Deal update will continue with existing image due to upload error')
-      }
+          // Upload to Cloudinary using upload_stream
+          const uploadResult = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+              {
+                resource_type: 'image',
+                folder: 'sahaminvest/deals',
+                transformation: [
+                  { width: 800, height: 600, crop: 'fill' },
+                  { quality: 'auto' }
+                ]
+              },
+              (error, result) => {
+                if (error) {
+                  console.error('❌ Cloudinary upload callback error:', error)
+                  reject(error)
+                } else {
+                  console.log('✅ Cloudinary upload success:', result?.secure_url)
+                  resolve(result)
+                }
+              }
+            )
+
+            uploadStream.on('error', (err) => {
+              console.error('❌ Cloudinary stream error:', err)
+              reject(err)
+            })
+
+            uploadStream.end(buffer)
+          }) as any
+
+          console.log('✅ Cloudinary upload successful:', uploadResult.secure_url)
+
+          // Delete old image from Cloudinary if exists
+          if (existingDeal.thumbnailImage && existingDeal.thumbnailImage.includes('cloudinary.com')) {
+            try {
+              // Extract public_id from Cloudinary URL
+              // URL format: https://res.cloudinary.com/cloud-name/image/upload/v123456/folder/filename.ext
+              const urlParts = existingDeal.thumbnailImage.split('/')
+              const uploadIndex = urlParts.findIndex(part => part === 'upload')
+              if (uploadIndex !== -1 && uploadIndex < urlParts.length - 1) {
+                // Skip version if present (starts with 'v' followed by numbers)
+                let startIndex = uploadIndex + 1
+                if (urlParts[startIndex] && urlParts[startIndex].match(/^v\d+$/)) {
+                  startIndex += 1
+                }
+                // Join the remaining parts and remove file extension
+                const publicId = urlParts.slice(startIndex).join('/').replace(/\.[^/.]+$/, '')
+                console.log('Attempting to delete old image with public_id:', publicId)
+                await cloudinary.uploader.destroy(publicId)
+              }
+            } catch (error) {
+              console.error('Error deleting old image:', error)
+            }
+          }
+
+          thumbnailImage = uploadResult.secure_url
+          images = [uploadResult.secure_url, ...images.filter(img => img !== existingDeal.thumbnailImage)]
+          console.log('New image uploaded successfully:', thumbnailImage)
+          console.log('✅ CLOUDINARY UPLOAD SUCCESS - Image URL:', uploadResult.secure_url)
+          console.log('✅ CLOUDINARY UPLOAD SUCCESS - Public ID:', uploadResult.public_id)
+
+        } catch (uploadError) {
+          console.error('Image upload failed:', uploadError)
+          console.error('Upload error details:', {
+            message: uploadError instanceof Error ? uploadError.message : 'Unknown error',
+            stack: uploadError instanceof Error ? uploadError.stack : 'No stack trace'
+          })
+
+          // ALWAYS proceed without image upload on error - don't fail the entire update
+          console.log('Proceeding with update without image change due to upload failure')
+          thumbnailImage = existingDeal.thumbnailImage
+          images = [...existingDeal.images]
+
+          // Log the error but don't return 500 - let the deal update continue
+          console.log('Deal update will continue with existing image due to upload error')
+        }
       }
     } else if (existingImageUrl) {
       // Keep existing image URL (no changes needed)
@@ -420,7 +428,7 @@ export async function PUT(
     // If partner requires approval, create an update request instead of updating directly
     if (requiresApproval) {
       console.log('Partner update detected - creating update request for admin approval')
-      
+
       // Generate changes summary
       const changes: string[] = []
       if (title !== existingDeal.title) changes.push(`Title: "${existingDeal.title}" → "${title}"`)
@@ -431,9 +439,9 @@ export async function PUT(
       if (duration !== existingDeal.duration) changes.push(`Duration: ${existingDeal.duration} → ${duration} days`)
       if (status !== existingDeal.status) changes.push(`Status: ${existingDeal.status} → ${status}`)
       if (thumbnailImage !== existingDeal.thumbnailImage) changes.push(`Image updated`)
-      
+
       const changesSummary = changes.length > 0 ? changes.join('\n') : 'General updates'
-      
+
       // Create the update request
       const updateRequest = await prisma.dealUpdateRequest.create({
         data: {
@@ -459,9 +467,9 @@ export async function PUT(
           }
         }
       })
-      
+
       console.log('Update request created successfully:', updateRequest.id)
-      
+
       return NextResponse.json({
         message: 'Update request submitted successfully. Waiting for admin approval.',
         updateRequest: {
@@ -473,7 +481,7 @@ export async function PUT(
         requiresApproval: true
       })
     }
-    
+
     // Admin/Deal Manager can update directly
     console.log('Admin/Deal Manager update - updating deal directly')
     console.log('Updating deal in database with thumbnailImage:', updateData.thumbnailImage)
@@ -482,7 +490,7 @@ export async function PUT(
       images: updateData.images,
       title: updateData.title
     })
-    
+
     const deal = await prisma.project.update({
       where: { id },
       data: updateData,
@@ -522,7 +530,7 @@ export async function DELETE(
   try {
     const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
