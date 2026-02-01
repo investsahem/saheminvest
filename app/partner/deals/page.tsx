@@ -843,7 +843,11 @@ const PartnerDealsPage = () => {
                         {/* Edit Button */}
                         <Button
                           size="sm"
-                          onClick={() => setEditingDeal(deal)}
+                          onClick={() => {
+                            console.log('🖼️ Edit button clicked, deal thumbnailImage:', deal.thumbnailImage)
+                            console.log('🖼️ Full deal object:', JSON.stringify(deal, null, 2).substring(0, 500))
+                            setEditingDeal(deal)
+                          }}
                           className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1"
                           title="Edit Deal"
                         >
