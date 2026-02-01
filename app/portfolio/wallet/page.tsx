@@ -29,6 +29,7 @@ const WalletPage = () => {
     activeInvestmentValue: 0,
     profitsSummary: {
       distributedProfits: 0,
+      partialCapitalReturned: 0,
       unrealizedGains: 0
     },
     transactionSummary: {
@@ -38,6 +39,10 @@ const WalletPage = () => {
       actualTotalInvested: 0,
       totalReturns: 0,
       calculatedBalance: 0
+    },
+    distributions: {
+      partial: [] as any[],
+      final: [] as any[]
     }
   })
   const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -48,7 +53,7 @@ const WalletPage = () => {
   useEffect(() => {
     const fetchWalletData = async () => {
       if (!session?.user) return
-      
+
       try {
         // Fetch wallet balance
         const balanceResponse = await fetch('/api/wallet/balance')
@@ -98,8 +103,8 @@ const WalletPage = () => {
       if (response.ok) {
         // Refresh wallet data
         refreshWalletData()
-        return { 
-          success: true, 
+        return {
+          success: true,
           message: result.transaction.message,
           transaction: result.transaction
         }
@@ -131,8 +136,8 @@ const WalletPage = () => {
       if (response.ok) {
         // Refresh wallet data
         refreshWalletData()
-        return { 
-          success: true, 
+        return {
+          success: true,
           message: result.transaction.message,
           transaction: result.transaction
         }
@@ -167,6 +172,7 @@ const WalletPage = () => {
         activeInvestmentValue={walletData.activeInvestmentValue}
         profitsSummary={walletData.profitsSummary}
         transactionSummary={walletData.transactionSummary}
+        distributions={walletData.distributions}
         transactions={transactions}
         onDeposit={handleDeposit}
         onWithdraw={handleWithdraw}
@@ -176,3 +182,4 @@ const WalletPage = () => {
 }
 
 export default WalletPage
+

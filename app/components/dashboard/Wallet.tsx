@@ -44,6 +44,7 @@ interface WalletProps {
   activeInvestmentValue?: number
   profitsSummary?: {
     distributedProfits: number
+    partialCapitalReturned?: number
     unrealizedGains: number
   }
   transactionSummary?: {
@@ -53,6 +54,30 @@ interface WalletProps {
     actualTotalInvested: number
     totalReturns: number
     calculatedBalance: number
+  }
+  distributions?: {
+    partial: Array<{
+      id: string
+      projectId: string
+      projectTitle: string
+      amount: number
+      capitalAmount: number
+      profitAmount: number
+      distributionDate: string
+      profitRate: number
+      status: string
+    }>
+    final: Array<{
+      id: string
+      projectId: string
+      projectTitle: string
+      amount: number
+      capitalAmount: number
+      profitAmount: number
+      distributionDate: string
+      profitRate: number
+      status: string
+    }>
   }
   onDeposit?: (amount: number, method: string, cardDetails?: any) => Promise<TransactionResult>
   onWithdraw?: (amount: number, method: string) => Promise<TransactionResult>
@@ -64,8 +89,9 @@ export function Wallet({
   totalReturns,
   transactions,
   activeInvestmentValue = 0,
-  profitsSummary = { distributedProfits: 0, unrealizedGains: 0 },
+  profitsSummary = { distributedProfits: 0, partialCapitalReturned: 0, unrealizedGains: 0 },
   transactionSummary = { totalDeposits: 0, totalWithdrawals: 0, totalInvestments: 0, actualTotalInvested: 0, totalReturns: 0, calculatedBalance: 0 },
+  distributions = { partial: [], final: [] },
   onDeposit,
   onWithdraw
 }: WalletProps) {
@@ -429,9 +455,97 @@ export function Wallet({
               <p className="text-sm text-slate-600">{t('portfolio_wallet.portfolio_performance.unrealized_gains')}</p>
               <p className="text-xs text-slate-500">{t('portfolio_wallet.portfolio_performance.unrealized_gains_desc')}</p>
             </div>
+            {/* Partial Capital Returned Card */}
+            {(profitsSummary.partialCapitalReturned ?? 0) > 0 && (
+              <div className="text-center p-4 bg-white rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100">
+                <p className="text-2xl font-bold text-purple-600">${formatNumber(profitsSummary.partialCapitalReturned ?? 0)}</p>
+                <p className="text-sm text-purple-700">{t('portfolio_wallet.portfolio_performance.partial_capital_returned') || 'رأس المال المسترد (جزئي)'}</p>
+                <p className="text-xs text-purple-600">{t('portfolio_wallet.portfolio_performance.partial_capital_desc') || 'من التوزيعات الجزئية'}</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
+
+      {/* Partial Distributions Section */}
+      {distributions.partial.length > 0 && (
+        <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200 shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-bold text-purple-800">{t('portfolio_wallet.partial_distributions.title') || 'التوزيعات الجزئية'}</h3>
+                <p className="text-sm text-purple-600">{t('portfolio_wallet.partial_distributions.subtitle') || 'رأس المال المسترد من الصفقات النشطة'}</p>
+              </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <ArrowDownLeft className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              {distributions.partial.map((dist) => (
+                <div key={dist.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-purple-100 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <DollarSign className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{dist.projectTitle}</p>
+                      <p className="text-xs text-gray-500">{formatDate(dist.distributionDate)}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-purple-700">${formatNumber(dist.capitalAmount)}</p>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                      {t('portfolio_wallet.partial_distributions.capital_return') || 'استرداد رأس المال'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Final Distributions Section */}
+      {distributions.final.length > 0 && (
+        <Card className="bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200 shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-bold text-amber-800">{t('portfolio_wallet.final_distributions.title') || 'التوزيعات النهائية'}</h3>
+                <p className="text-sm text-amber-600">{t('portfolio_wallet.final_distributions.subtitle') || 'الأرباح الموزعة من الصفقات المكتملة'}</p>
+              </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              {distributions.final.map((dist) => (
+                <div key={dist.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-amber-100 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{dist.projectTitle}</p>
+                      <p className="text-xs text-gray-500">{formatDate(dist.distributionDate)}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-green-700">+${formatNumber(dist.profitAmount)}</p>
+                    {dist.capitalAmount > 0 && (
+                      <p className="text-xs text-gray-500">+ ${formatNumber(dist.capitalAmount)} {t('portfolio_wallet.final_distributions.capital') || 'رأس مال'}</p>
+                    )}
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                      {dist.profitRate > 0 ? `+${dist.profitRate.toFixed(1)}%` : t('portfolio_wallet.final_distributions.completed') || 'مكتمل'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
 
       {/* Action Tabs */}
       <Card>
@@ -443,8 +557,8 @@ export function Wallet({
                   key={tab}
                   onClick={() => setActiveTab(tab as any)}
                   className={`py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                 >
                   {tab === 'overview' && t('portfolio_wallet.tabs.overview')}

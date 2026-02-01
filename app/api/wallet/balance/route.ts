@@ -147,6 +147,53 @@ export async function GET(request: NextRequest) {
     // Note: Capital returns are already handled by the approval route when distributions are approved.
     // We should NOT auto-create capital return transactions here as it causes duplicates.
 
+    // Fetch partial and final distributions separately for granular display
+    const partialDistributions = await prisma.profitDistribution.findMany({
+      where: {
+        investorId: session.user.id,
+        profitPeriod: 'PARTIAL',
+        status: 'COMPLETED'
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            title: true
+          }
+        }
+      },
+      orderBy: {
+        distributionDate: 'desc'
+      }
+    })
+
+    const finalDistributions = await prisma.profitDistribution.findMany({
+      where: {
+        investorId: session.user.id,
+        profitPeriod: 'FINAL',
+        status: 'COMPLETED'
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            title: true
+          }
+        }
+      },
+      orderBy: {
+        distributionDate: 'desc'
+      }
+    })
+
+    // Calculate partial capital returned (from RETURN transactions with "Partial capital return")
+    const partialCapitalTransactions = transactions.filter(
+      t => t.type === 'RETURN' && t.description?.toLowerCase().includes('partial capital return')
+    )
+    const partialCapitalReturned = partialCapitalTransactions.reduce(
+      (sum, t) => sum + Number(t.amount), 0
+    )
+
     // Update user's wallet balance and investment totals
     await prisma.user.update({
       where: { id: session.user.id },
@@ -177,8 +224,33 @@ export async function GET(request: NextRequest) {
         calculatedBalance: calculatedBalance
       },
       profitsSummary: {
-        distributedProfits: accumulatedProfits, // Actual distributed profits
+        distributedProfits: accumulatedProfits, // Actual distributed profits (from FINAL only)
+        partialCapitalReturned: partialCapitalReturned, // Capital returned via partial distributions
         unrealizedGains: 0 // For now, set to 0 - can be calculated based on expected returns later
+      },
+      distributions: {
+        partial: partialDistributions.map(d => ({
+          id: d.id,
+          projectId: d.projectId,
+          projectTitle: d.project.title,
+          amount: Number(d.amount),
+          capitalAmount: Number(d.capitalAmount),
+          profitAmount: Number(d.profitAmount),
+          distributionDate: d.distributionDate,
+          profitRate: Number(d.profitRate),
+          status: d.status
+        })),
+        final: finalDistributions.map(d => ({
+          id: d.id,
+          projectId: d.projectId,
+          projectTitle: d.project.title,
+          amount: Number(d.amount),
+          capitalAmount: Number(d.capitalAmount),
+          profitAmount: Number(d.profitAmount),
+          distributionDate: d.distributionDate,
+          profitRate: Number(d.profitRate),
+          status: d.status
+        }))
       }
     })
 
