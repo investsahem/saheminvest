@@ -677,7 +677,7 @@ export class EmailTriggers {
     }
   }
 
-  // Admin notification for profit distributions
+  // Admin notification for profit distributions (when approved)
   static async notifyAdminProfitDistribution(data: {
     dealTitle: string
     totalAmount: number
@@ -701,6 +701,99 @@ export class EmailTriggers {
       console.log(`Admin profit distribution notification sent to ${settings.adminNotificationEmail}`)
     } catch (error) {
       console.error('Error sending admin profit distribution notification:', error)
+    }
+  }
+
+  // Admin notification when partner SUBMITS a distribution request
+  static async notifyAdminNewDistributionRequest(data: {
+    dealTitle: string
+    partnerName: string
+    partnerEmail: string
+    totalAmount: number
+    distributionType: string
+    estimatedGainPercent: number
+    requestId: string
+  }) {
+    try {
+      const settings = await this.getAdminNotificationSettings()
+
+      if (!settings.adminNotificationEmail || !settings.notifyOnProfitDistribution) {
+        console.log('Admin distribution request notifications disabled or no email configured')
+        return
+      }
+
+      await emailService.sendAdminNewDistributionRequestEmail(
+        settings.adminNotificationEmail,
+        data
+      )
+
+      console.log(`Admin new distribution request notification sent to ${settings.adminNotificationEmail}`)
+    } catch (error) {
+      console.error('Error sending admin distribution request notification:', error)
+    }
+  }
+
+  // Partner notification when their distribution is approved
+  static async notifyPartnerDistributionApproved(data: {
+    partnerEmail: string
+    partnerName: string
+    dealTitle: string
+    totalAmount: number
+    distributionType: string
+    investorCount: number
+    profitDistributed: number
+    capitalReturned: number
+  }) {
+    try {
+      await emailService.sendPartnerDistributionApprovedEmail(
+        data.partnerEmail,
+        data.partnerName,
+        {
+          dealTitle: data.dealTitle,
+          totalAmount: data.totalAmount,
+          distributionType: data.distributionType,
+          investorCount: data.investorCount,
+          profitDistributed: data.profitDistributed,
+          capitalReturned: data.capitalReturned
+        }
+      )
+
+      console.log(`Partner distribution approved notification sent to ${data.partnerEmail}`)
+    } catch (error) {
+      console.error('Error sending partner distribution approved notification:', error)
+    }
+  }
+
+  // Investor notification when they receive a distribution
+  static async notifyInvestorDistribution(data: {
+    investorEmail: string
+    investorName: string
+    dealTitle: string
+    distributionType: string
+    profitAmount: number
+    capitalAmount: number
+    totalAmount: number
+    profitRate: number
+    newWalletBalance: number
+  }) {
+    try {
+      await emailService.sendInvestorDistributionEmail(
+        data.investorEmail,
+        data.investorName,
+        {
+          dealTitle: data.dealTitle,
+          distributionType: data.distributionType,
+          profitAmount: data.profitAmount,
+          capitalAmount: data.capitalAmount,
+          totalAmount: data.totalAmount,
+          profitRate: data.profitRate,
+          newWalletBalance: data.newWalletBalance
+        }
+      )
+
+      console.log(`Investor distribution notification sent to ${data.investorEmail}`)
+    } catch (error) {
+      console.error('Error sending investor distribution notification:', error)
     }
   }
 }

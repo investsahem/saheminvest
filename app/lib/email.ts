@@ -1701,7 +1701,219 @@ Visit us at https://sahaminvest.com
       htmlContent
     })
   }
+
+  // Admin notification for NEW profit distribution request (when partner submits)
+  async sendAdminNewDistributionRequestEmail(adminEmail: string, data: {
+    dealTitle: string
+    partnerName: string
+    partnerEmail: string
+    totalAmount: number
+    distributionType: string
+    estimatedGainPercent: number
+    requestId: string
+  }) {
+    const { dealTitle, partnerName, partnerEmail, totalAmount, distributionType, estimatedGainPercent, requestId } = data
+    const adminUrl = `${process.env.NEXTAUTH_URL}/admin/profit-distributions`
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>New Profit Distribution Request - Sahem Invest Admin</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 28px; font-weight: bold; color: #F59E0B; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #F59E0B; }
+          .badge { display: inline-block; background: ${distributionType === 'FINAL' ? '#10B981' : '#8B5CF6'}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>📋 New Distribution Request</h1>
+          </div>
+          <div class="content">
+            <p>A partner has submitted a new profit distribution request that requires your approval.</p>
+            <div class="amount">$${totalAmount.toLocaleString()}</div>
+            <div class="details">
+              <h3>Request Details:</h3>
+              <p><strong>Deal:</strong> ${dealTitle}</p>
+              <p><strong>Partner:</strong> ${partnerName}</p>
+              <p><strong>Partner Email:</strong> ${partnerEmail}</p>
+              <p><strong>Type:</strong> <span class="badge">${distributionType}</span></p>
+              <p><strong>Estimated Gain:</strong> ${estimatedGainPercent}%</p>
+              <p><strong>Request ID:</strong> ${requestId}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+            <div style="text-align: center;">
+              <a href="${adminUrl}" class="button">Review Request</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest Admin Panel</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email: adminEmail, name: 'Admin' }],
+      subject: `[ADMIN] New Distribution Request: ${dealTitle} - ${distributionType}`,
+      htmlContent
+    })
+  }
+
+  // Partner notification when their distribution request is approved
+  async sendPartnerDistributionApprovedEmail(email: string, partnerName: string, data: {
+    dealTitle: string
+    totalAmount: number
+    distributionType: string
+    investorCount: number
+    profitDistributed: number
+    capitalReturned: number
+  }) {
+    const { dealTitle, totalAmount, distributionType, investorCount, profitDistributed, capitalReturned } = data
+    const partnerUrl = `${process.env.NEXTAUTH_URL}/partner/profit-distributions`
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Distribution Approved - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 28px; font-weight: bold; color: #10B981; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #10B981; }
+          .badge { display: inline-block; background: ${distributionType === 'FINAL' ? '#10B981' : '#8B5CF6'}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>✅ Distribution Approved!</h1>
+          </div>
+          <div class="content">
+            <h2>Hello ${partnerName},</h2>
+            <p>Great news! Your profit distribution request has been approved and processed.</p>
+            <div class="amount">$${totalAmount.toLocaleString()}</div>
+            <div class="details">
+              <h3>Distribution Details:</h3>
+              <p><strong>Deal:</strong> ${dealTitle}</p>
+              <p><strong>Type:</strong> <span class="badge">${distributionType}</span></p>
+              <p><strong>Total Amount:</strong> $${totalAmount.toLocaleString()}</p>
+              ${profitDistributed > 0 ? `<p><strong>Profit Distributed:</strong> $${profitDistributed.toLocaleString()}</p>` : ''}
+              ${capitalReturned > 0 ? `<p><strong>Capital Returned:</strong> $${capitalReturned.toLocaleString()}</p>` : ''}
+              <p><strong>Investors Affected:</strong> ${investorCount}</p>
+              <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+            <p>All investors have been notified and their wallets have been updated accordingly.</p>
+            <div style="text-align: center;">
+              <a href="${partnerUrl}" class="button">View Distributions</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name: partnerName }],
+      subject: `✅ Distribution Approved: ${dealTitle}`,
+      htmlContent
+    })
+  }
+
+  // Investor notification when they receive a profit distribution
+  async sendInvestorDistributionEmail(email: string, investorName: string, data: {
+    dealTitle: string
+    distributionType: string
+    profitAmount: number
+    capitalAmount: number
+    totalAmount: number
+    profitRate: number
+    newWalletBalance: number
+  }) {
+    const { dealTitle, distributionType, profitAmount, capitalAmount, totalAmount, profitRate, newWalletBalance } = data
+    const portfolioUrl = `${process.env.NEXTAUTH_URL}/portfolio/wallet`
+    const isPartial = distributionType === 'PARTIAL'
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html dir="rtl">
+      <head>
+        <meta charset="utf-8">
+        <title>${isPartial ? 'استرداد رأس المال' : 'توزيع الأرباح'} - ساهم إنفست</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.8; color: #333; direction: rtl; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, ${isPartial ? '#8B5CF6, #7C3AED' : '#10B981, #059669'}); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .amount { font-size: 32px; font-weight: bold; color: ${isPartial ? '#8B5CF6' : '#10B981'}; text-align: center; margin: 20px 0; }
+          .details { background: white; padding: 20px; border-radius: 6px; margin: 20px 0; border-right: 4px solid ${isPartial ? '#8B5CF6' : '#10B981'}; }
+          .badge { display: inline-block; background: ${isPartial ? '#8B5CF6' : '#10B981'}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+          .button { display: inline-block; background: #3B82F6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .balance { background: #DBEAFE; padding: 15px; border-radius: 6px; text-align: center; margin: 20px 0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>${isPartial ? '💰 استرداد رأس المال' : '🎉 توزيع الأرباح'}</h1>
+          </div>
+          <div class="content">
+            <h2>مرحباً ${investorName}،</h2>
+            <p>${isPartial ? 'تم إرجاع جزء من رأس المال المستثمر إلى محفظتك.' : 'تهانينا! تم توزيع الأرباح من استثمارك.'}</p>
+            <div class="amount">+$${totalAmount.toLocaleString()}</div>
+            <div class="details">
+              <h3>تفاصيل التوزيع:</h3>
+              <p><strong>الصفقة:</strong> ${dealTitle}</p>
+              <p><strong>النوع:</strong> <span class="badge">${isPartial ? 'توزيع جزئي' : 'توزيع نهائي'}</span></p>
+              ${capitalAmount > 0 ? `<p><strong>رأس المال المسترد:</strong> $${capitalAmount.toLocaleString()}</p>` : ''}
+              ${profitAmount > 0 ? `<p><strong>الأرباح:</strong> $${profitAmount.toLocaleString()}</p>` : ''}
+              ${profitRate > 0 ? `<p><strong>نسبة الربح:</strong> ${profitRate.toFixed(1)}%</p>` : ''}
+              <p><strong>التاريخ:</strong> ${new Date().toLocaleDateString('ar-SA')}</p>
+            </div>
+            <div class="balance">
+              <p><strong>رصيد المحفظة الجديد:</strong></p>
+              <p style="font-size: 24px; font-weight: bold; color: #3B82F6;">$${newWalletBalance.toLocaleString()}</p>
+            </div>
+            <div style="text-align: center;">
+              <a href="${portfolioUrl}" class="button">عرض المحفظة</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} ساهم إنفست. جميع الحقوق محفوظة.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name: investorName }],
+      subject: isPartial ? `💰 استرداد رأس المال - ${dealTitle}` : `🎉 توزيع الأرباح - ${dealTitle}`,
+      htmlContent
+    })
+  }
 }
+
 
 export const emailService = new EmailService()
 export default emailService

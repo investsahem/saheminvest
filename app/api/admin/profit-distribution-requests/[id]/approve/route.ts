@@ -505,6 +505,49 @@ export async function POST(
       console.error('Failed to send admin profit distribution notification:', notificationError)
     }
 
+    // Send partner notification that their distribution was approved
+    try {
+      await EmailTriggers.notifyPartnerDistributionApproved({
+        partnerEmail: distributionRequest.partner.email,
+        partnerName: distributionRequest.partner.name || 'Partner',
+        dealTitle: distributionRequest.project.title,
+        totalAmount: finalTotalAmount,
+        distributionType: distributionRequest.distributionType,
+        investorCount: investorGroups.size,
+        profitDistributed: investorDistributionAmount,
+        capitalReturned: capitalReturnAmount
+      })
+    } catch (partnerNotifyError) {
+      console.error('Failed to send partner distribution notification:', partnerNotifyError)
+    }
+
+    // Send investor notifications for each investor
+    try {
+      for (const [investorId, data] of investorGroups) {
+        const investorData = data as any
+        // Get updated wallet balance for this investor
+        const updatedUser = await prisma.user.findUnique({
+          where: { id: investorId },
+          select: { walletBalance: true }
+        })
+        const newBalance = Number(updatedUser?.walletBalance || 0)
+
+        EmailTriggers.notifyInvestorDistribution({
+          investorEmail: investorData.email,
+          investorName: investorData.name || 'Investor',
+          dealTitle: distributionRequest.project.title,
+          distributionType: distributionRequest.distributionType,
+          profitAmount: isPartialDistribution ? 0 : investorData.profitShare,
+          capitalAmount: investorData.capitalReturn,
+          totalAmount: investorData.totalDistributed,
+          profitRate: investorData.profitRate || 0,
+          newWalletBalance: newBalance
+        }).catch(err => console.error(`Failed to notify investor ${investorId}:`, err))
+      }
+    } catch (investorNotifyError) {
+      console.error('Failed to send investor distribution notifications:', investorNotifyError)
+    }
+
     return NextResponse.json({
       success: true,
       message: finalIsLoss && isFinalDistribution

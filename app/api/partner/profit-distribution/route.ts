@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
+import { EmailTriggers } from '../../../lib/email-triggers'
 
 const prisma = new PrismaClient()
 
@@ -9,7 +10,7 @@ const prisma = new PrismaClient()
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -24,13 +25,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { 
-      dealId, 
-      estimatedGainPercent, 
-      estimatedClosingPercent, 
-      totalAmount, 
-      distributionType, 
-      description 
+    const {
+      dealId,
+      estimatedGainPercent,
+      estimatedClosingPercent,
+      totalAmount,
+      distributionType,
+      description
     } = await request.json()
 
     if (!dealId || !totalAmount || !estimatedGainPercent || !estimatedClosingPercent || !distributionType || !description) {
@@ -119,6 +120,17 @@ export async function POST(request: NextRequest) {
         status: 'PENDING'
       }
     })
+
+    // Send email notification to admin
+    EmailTriggers.notifyAdminNewDistributionRequest({
+      dealTitle: deal.title,
+      partnerName: session.user.name || 'Partner',
+      partnerEmail: session.user.email || '',
+      totalAmount: totalAmount,
+      distributionType: distributionType,
+      estimatedGainPercent: estimatedGainPercent,
+      requestId: distributionRequest.id
+    }).catch(err => console.error('Failed to send admin notification:', err))
 
     return NextResponse.json({
       success: true,
