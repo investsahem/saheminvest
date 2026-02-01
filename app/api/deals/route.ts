@@ -374,38 +374,24 @@ export async function POST(request: NextRequest) {
           throw new Error('Missing Cloudinary configuration')
         }
 
-        // Upload to Cloudinary
+        // Upload to Cloudinary using base64 data URL (more reliable than stream)
         configureCloudinary() // Ensure config is set at request time
-        const uploadResult = await new Promise((resolve, reject) => {
-          const uploadStream = cloudinary.uploader.upload_stream(
-            {
-              resource_type: 'image',
-              folder: 'sahaminvest/deals',
-              // Simplified options to test if transformation is the cause
-              transformation: [
-                { width: 800, height: 600, crop: 'fill' },
-                { quality: 'auto' }
-              ]
-            },
-            (error, result) => {
-              if (error) {
-                console.error('❌ Cloudinary upload callback error:', error)
-                reject(error)
-              } else {
-                console.log('✅ Cloudinary upload success:', result?.secure_url)
-                resolve(result)
-              }
-            }
-          )
 
-          // Handle stream errors
-          uploadStream.on('error', (err) => {
-            console.error('❌ Cloudinary stream error:', err)
-            reject(err)
-          })
+        // Convert buffer to base64 data URL
+        const base64 = buffer.toString('base64')
+        const mimeType = imageFile.type || 'image/jpeg'
+        const dataUrl = `data:${mimeType};base64,${base64}`
 
-          uploadStream.end(buffer)
-        }) as any
+        console.log('☁️ Uploading to Cloudinary via base64...', { size: buffer.length, mimeType })
+
+        const uploadResult = await cloudinary.uploader.upload(dataUrl, {
+          resource_type: 'image',
+          folder: 'sahaminvest/deals',
+          transformation: [
+            { width: 800, height: 600, crop: 'fill' },
+            { quality: 'auto' }
+          ]
+        })
 
         thumbnailImage = uploadResult.secure_url
         images.push(uploadResult.secure_url)
