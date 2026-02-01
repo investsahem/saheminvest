@@ -122,6 +122,27 @@ export async function GET(
           distributionDate: 'desc'
         }
       }
+      // Also include distribution requests (pending/approved) for partner view
+      includeClause.profitDistributionRequests = {
+        select: {
+          id: true,
+          totalAmount: true,
+          estimatedGainPercent: true,
+          estimatedClosingPercent: true,
+          estimatedProfit: true,
+          estimatedReturnCapital: true,
+          distributionType: true,
+          description: true,
+          status: true,
+          createdAt: true,
+          reviewedAt: true,
+          sahemInvestAmount: true,
+          reservedAmount: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      }
     }
 
     const deal = await prisma.project.findUnique({

@@ -28,6 +28,7 @@ interface Deal {
   thumbnailImage?: string
   investments: Investment[]
   profitDistributions: ProfitDistribution[]
+  profitDistributionRequests?: ProfitDistributionRequest[]
   investorCount: number
   _count: {
     investments: number
@@ -51,6 +52,22 @@ interface ProfitDistribution {
   distributionDate: string
   description: string
   status: string
+}
+
+interface ProfitDistributionRequest {
+  id: string
+  totalAmount: number
+  estimatedGainPercent: number
+  estimatedClosingPercent: number
+  estimatedProfit: number
+  estimatedReturnCapital: number
+  distributionType: string
+  description: string
+  status: string
+  createdAt: string
+  reviewedAt: string | null
+  sahemInvestAmount: number
+  reservedAmount: number
 }
 
 interface ProfitDistributionFormData {
@@ -383,64 +400,106 @@ const DealManagePage = () => {
           </CardContent>
         </Card>
 
-        {/* Investors List */}
-        <Card>
+        {/* Investors List - Modern Card Design */}
+        <Card className="bg-gradient-to-br from-white to-gray-50">
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('deal_management.investors_list')}</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-right py-3 px-4 font-medium text-gray-600">{t('deal_management.investor')}</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-600">{t('deal_management.investment_amount')}</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-600">{t('deal_management.investment_date')}</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-600">{t('deal_management.profits_received')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {groupedInvestors.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-8 text-center text-gray-500">
-                        {t('deal_management.no_investments')}
-                      </td>
-                    </tr>
-                  ) : (
-                    groupedInvestors.map((investor, index) => {
-                      // Calculate profits for this investor based on their total investment
-                      const investorProfits = (deal.profitDistributions || [])
-                        .filter(dist => dist.status === 'COMPLETED')
-                        .reduce((sum, dist) => {
-                          const distributionAmount = Number(dist.amount)
-
-                          if (isNaN(investor.totalAmount) || isNaN(distributionAmount) || totalInvested <= 0) {
-                            return sum
-                          }
-
-                          const investorShare = (investor.totalAmount / totalInvested) * distributionAmount
-                          return sum + (isNaN(investorShare) ? 0 : investorShare)
-                        }, 0)
-
-                      return (
-                        <tr key={investor.investorId} className="border-b border-gray-100">
-                          <td className="py-4 px-4 font-medium">
-                            {t('deal_management.investor')} #{index + 1}
-                          </td>
-                          <td className="py-4 px-4">
-                            {formatCurrency(investor.totalAmount)}
-                          </td>
-                          <td className="py-4 px-4">
-                            {formatDate(investor.earliestDate)}
-                          </td>
-                          <td className="py-4 px-4 text-green-600 font-medium">
-                            {formatCurrency(investorProfits)}
-                          </td>
-                        </tr>
-                      )
-                    })
-                  )}
-                </tbody>
-              </table>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">{t('deal_management.investors_list')}</h3>
+              <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                {groupedInvestors.length} {t('deal_management.investor')}
+              </div>
             </div>
+
+            {groupedInvestors.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 text-lg">{t('deal_management.no_investments')}</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {groupedInvestors.map((investor, index) => {
+                  // Calculate profits for this investor based on their total investment
+                  const investorProfits = (deal.profitDistributions || [])
+                    .filter(dist => dist.status === 'COMPLETED')
+                    .reduce((sum, dist) => {
+                      const distributionAmount = Number(dist.amount)
+                      if (isNaN(investor.totalAmount) || isNaN(distributionAmount) || totalInvested <= 0) {
+                        return sum
+                      }
+                      const investorShare = (investor.totalAmount / totalInvested) * distributionAmount
+                      return sum + (isNaN(investorShare) ? 0 : investorShare)
+                    }, 0)
+
+                  // Calculate investor share percentage
+                  const sharePercent = totalInvested > 0
+                    ? ((investor.totalAmount / totalInvested) * 100).toFixed(1)
+                    : '0.0'
+
+                  return (
+                    <div key={investor.investorId}
+                      className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md hover:border-blue-200 transition-all duration-200">
+                      <div className="flex items-center justify-between">
+                        {/* Investor Info */}
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900">{t('deal_management.investor')} #{index + 1}</p>
+                            <p className="text-sm text-gray-500">{formatDate(investor.earliestDate)}</p>
+                          </div>
+                        </div>
+
+                        {/* Investment Details */}
+                        <div className="flex items-center gap-6">
+                          {/* Investment Amount */}
+                          <div className="text-center">
+                            <p className="text-xs text-gray-500 mb-1">{t('deal_management.investment_amount')}</p>
+                            <p className="font-bold text-gray-900 text-lg">{formatCurrency(investor.totalAmount)}</p>
+                          </div>
+
+                          {/* Share Percentage */}
+                          <div className="text-center">
+                            <p className="text-xs text-gray-500 mb-1">{t('deal_management.share_percent') || 'الحصة'}</p>
+                            <div className="flex items-center justify-center">
+                              <div className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-bold">
+                                {sharePercent}%
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Profits Received */}
+                          <div className="text-center min-w-[120px]">
+                            <p className="text-xs text-gray-500 mb-1">{t('deal_management.profits_received')}</p>
+                            <p className={`font-bold text-lg ${investorProfits > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+                              {investorProfits > 0 ? '+' : ''}{formatCurrency(investorProfits)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Progress bar showing profit rate */}
+                      {investorProfits > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                            <span>{t('deal_management.profit_rate') || 'نسبة الربح'}</span>
+                            <span className="text-green-600 font-medium">
+                              {((investorProfits / investor.totalAmount) * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div
+                              className="bg-gradient-to-r from-green-500 to-emerald-500 h-1.5 rounded-full transition-all duration-300"
+                              style={{ width: `${Math.min((investorProfits / investor.totalAmount) * 100, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -456,6 +515,86 @@ const DealManagePage = () => {
               )}
             </div>
 
+            {/* Distribution Requests Section - Shows estimates with pending/approved status */}
+            {(deal.profitDistributionRequests || []).length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  {t('deal_management.distribution_requests') || 'طلبات التوزيع'}
+                </h4>
+                <div className="space-y-3">
+                  {(deal.profitDistributionRequests || []).map((request) => (
+                    <div key={request.id}
+                      className={`rounded-xl border-2 p-4 ${request.status === 'PENDING'
+                          ? 'bg-amber-50 border-amber-200'
+                          : request.status === 'APPROVED'
+                            ? 'bg-green-50 border-green-200'
+                            : 'bg-red-50 border-red-200'
+                        }`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          {/* Distribution Type Badge */}
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${request.distributionType === 'FINAL'
+                              ? 'bg-green-600 text-white'
+                              : 'bg-purple-600 text-white'
+                            }`}>
+                            {request.distributionType === 'FINAL'
+                              ? (t('deal_management.final_distribution') || 'توزيع نهائي')
+                              : (t('deal_management.partial_distribution') || 'توزيع جزئي')
+                            }
+                          </span>
+                          {/* Status Badge */}
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${request.status === 'PENDING'
+                              ? 'bg-amber-200 text-amber-800'
+                              : request.status === 'APPROVED'
+                                ? 'bg-green-200 text-green-800'
+                                : 'bg-red-200 text-red-800'
+                            }`}>
+                            {request.status === 'PENDING' && (t('deal_management.pending_approval') || 'قيد المراجعة')}
+                            {request.status === 'APPROVED' && (t('deal_management.approved') || 'تمت الموافقة')}
+                            {request.status === 'REJECTED' && (t('deal_management.rejected') || 'مرفوض')}
+                          </span>
+                        </div>
+                        <p className="text-2xl font-bold text-gray-900">{formatCurrency(Number(request.totalAmount))}</p>
+                      </div>
+
+                      {request.description && (
+                        <p className="text-sm text-gray-600 mb-3">{request.description}</p>
+                      )}
+
+                      {/* Estimated Percentages Grid */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                        <div className="bg-white/70 rounded-lg p-2">
+                          <p className="text-xs text-gray-500">{t('deal_management.expected_return_percent') || 'العائد المتوقع (%)'}</p>
+                          <p className="text-lg font-bold text-blue-600">{Number(request.estimatedGainPercent).toFixed(1)}%</p>
+                        </div>
+                        <div className="bg-white/70 rounded-lg p-2">
+                          <p className="text-xs text-gray-500">{t('deal_management.closing_percent') || 'نسبة الإغلاق (%)'}</p>
+                          <p className="text-lg font-bold text-purple-600">{Number(request.estimatedClosingPercent).toFixed(1)}%</p>
+                        </div>
+                        <div className="bg-white/70 rounded-lg p-2">
+                          <p className="text-xs text-gray-500">{t('deal_management.estimated_profit') || 'الربح المتوقع'}</p>
+                          <p className="text-lg font-bold text-green-600">{formatCurrency(Number(request.estimatedProfit))}</p>
+                        </div>
+                        <div className="bg-white/70 rounded-lg p-2">
+                          <p className="text-xs text-gray-500">{t('deal_management.capital_return') || 'رأس المال'}</p>
+                          <p className="text-lg font-bold text-gray-700">{formatCurrency(Number(request.estimatedReturnCapital))}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
+                        <span>{t('deal_management.submitted_on') || 'تاريخ الطلب'}: {formatDate(request.createdAt)}</span>
+                        {request.reviewedAt && (
+                          <span>{t('deal_management.reviewed_on') || 'تاريخ المراجعة'}: {formatDate(request.reviewedAt)}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Completed Distributions */}
             {(deal.profitDistributions || []).length > 0 ? (
               <div className="space-y-4">
                 {/* Summary for completed deals */}
@@ -487,8 +626,13 @@ const DealManagePage = () => {
                   </div>
                 )}
 
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  {t('deal_management.completed_distributions') || 'التوزيعات المكتملة'}
+                </h4>
+
                 {(deal.profitDistributions || []).map((distribution) => (
-                  <div key={distribution.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+                  <div key={distribution.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors">
                     <div>
                       <p className="font-medium text-gray-900">{distribution.description || t('deal_management.profit_distribution')}</p>
                       <p className="text-sm text-gray-600">
@@ -515,7 +659,7 @@ const DealManagePage = () => {
                   </div>
                 ))}
               </div>
-            ) : (
+            ) : (deal.profitDistributionRequests || []).length === 0 && (
               <div className="text-center py-8">
                 {deal.status === 'COMPLETED' ? (
                   <div>

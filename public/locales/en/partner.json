@@ -353,7 +353,19 @@
     "distributions_count": "Distributions Count",
     "return_rate": "Return Rate",
     "deal_status_completed": "Completed",
-    "subtitle": "Manage deal details"
+    "subtitle": "Manage deal details",
+    "share_percent": "Share",
+    "distribution_requests": "Distribution Requests",
+    "pending_approval": "Pending Approval",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "expected_return_percent": "Expected Return (%)",
+    "closing_percent": "Closing Percentage (%)",
+    "estimated_profit": "Estimated Profit",
+    "capital_return": "Capital Return",
+    "submitted_on": "Submitted On",
+    "reviewed_on": "Reviewed On",
+    "completed_distributions": "Completed Distributions"
   },
   "investors": {
     "title": "Investor Management",

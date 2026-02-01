@@ -584,7 +584,19 @@
     "distributions_count": "عدد التوزيعات",
     "return_rate": "معدل العائد",
     "deal_status_completed": "مكتملة",
-    "subtitle": "إدارة تفاصيل الصفقة"
+    "subtitle": "إدارة تفاصيل الصفقة",
+    "share_percent": "الحصة",
+    "distribution_requests": "طلبات التوزيع",
+    "pending_approval": "قيد المراجعة",
+    "approved": "تمت الموافقة",
+    "rejected": "مرفوض",
+    "expected_return_percent": "العائد المتوقع (%)",
+    "closing_percent": "نسبة الإغلاق (%)",
+    "estimated_profit": "الربح المتوقع",
+    "capital_return": "رأس المال",
+    "submitted_on": "تاريخ الطلب",
+    "reviewed_on": "تاريخ المراجعة",
+    "completed_distributions": "التوزيعات المكتملة"
   },
   "investors": {
     "title": "إدارة المستثمرين",
