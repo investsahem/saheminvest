@@ -130,7 +130,7 @@
     "title": "Deal Management",
     "subtitle": "Create and manage your investment opportunities",
     "total_deals": "Total Deals",
-    "closed_deals":"Closed Deals",
+    "closed_deals": "Closed Deals",
     "investors": "Investors",
     "card": {
       "progress": "Progress",
@@ -204,7 +204,6 @@
     "phone": "Phone Number",
     "email": "Email"
   },
-  
   "partner_deals": {
     "total_deals": "Total Deals",
     "active": "Active",
@@ -269,6 +268,9 @@
     "save_as_draft": "Save as Draft",
     "save_and_publish": "Save and Publish",
     "cancel": "Cancel",
+    "update_deal": "Update Deal",
+    "update_and_publish": "Update and Publish",
+    "pause_deal": "Pause Deal",
     "form": {
       "title": "Create Deal",
       "subtitle": "Create a new deal to start your investment",

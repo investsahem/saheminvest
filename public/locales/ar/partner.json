@@ -201,11 +201,10 @@
   "profit_distribution": {
     "profit_distribution": "توزيع الأرباح"
   },
-  "forms":{
+  "forms": {
     "phone": "رقم الهاتف",
     "email": "البريد الإلكتروني"
   },
-  
   "partner_deals": {
     "total_deals": "إجمالي الصفقات",
     "active": "نشط",
@@ -270,6 +269,9 @@
     "save_as_draft": "حفظ كمسودة",
     "save_and_publish": "حفظ ونشر",
     "cancel": "إلغاء",
+    "update_deal": "تحديث الصفقة",
+    "update_and_publish": "تحديث ونشر",
+    "pause_deal": "إيقاف الصفقة مؤقتاً",
     "form": {
       "title": "إنشاء صفقة",
       "subtitle": "إنشاء صفقة جديدة لبدء الاستثمار الخاص بك",
@@ -277,7 +279,6 @@
       "create_deal_subtitle": "إنشاء صفقة جديدة لبدء الاستثمار الخاص بك"
     }
   },
-
   "partner_analytics": {
     "title": "التحليلات والتقارير",
     "subtitle": "تحليل أداء صفقاتك واستثماراتك",
@@ -379,8 +380,6 @@
       "percentage": "%"
     }
   },
-
-
   "partner_documents": {
     "title": "المستندات",
     "subtitle": "إدارة المستندات الخاصة بك",
@@ -518,28 +517,28 @@
     "months": "شهر",
     "funding_goal": "هدف التمويل",
     "expected_return": "العائد المتوقع",
-   "duration_period": "مدة الاستثمار",
-   "ends_in": "ينتهي في",
-   "days": "أيام",
-   "hours": "ساعات",
-   "minutes": "دقائق",
-   "seconds": "ثواني",
-   "funding_progress": "تقدم التمويل",
-   "investors_count": "عدد المستثمرين",
-   "days_remaining": "الأيام المتبقية",
-   "manage_deal": "إدارة الصفقة"
-},
-"deal_management": {
-  "completed": "مكتمل",
-  "profit_rate": "معدل الأرباح",
-  "profit_distribution": "توزيع الأرباح",
+    "duration_period": "مدة الاستثمار",
+    "ends_in": "ينتهي في",
+    "days": "أيام",
+    "hours": "ساعات",
+    "minutes": "دقائق",
+    "seconds": "ثواني",
+    "funding_progress": "تقدم التمويل",
+    "investors_count": "عدد المستثمرين",
+    "days_remaining": "الأيام المتبقية",
+    "manage_deal": "إدارة الصفقة"
+  },
+  "deal_management": {
+    "completed": "مكتمل",
+    "profit_rate": "معدل الأرباح",
+    "profit_distribution": "توزيع الأرباح",
     "deal_statuses": {
-        "active": "نشط",
-        "pending": "قيد الانتظار",
-        "completed": "مكتمل",
-        "cancelled": "ملغي",
-        "paused": "متوقف مؤقتاً",
-        "funded": "تم تمويله"
+      "active": "نشط",
+      "pending": "قيد الانتظار",
+      "completed": "مكتمل",
+      "cancelled": "ملغي",
+      "paused": "متوقف مؤقتاً",
+      "funded": "تم تمويله"
     },
     "title": "إدارة الصفقات",
     "close": "إغلاق",
@@ -586,7 +585,7 @@
     "return_rate": "معدل العائد",
     "deal_status_completed": "مكتملة",
     "subtitle": "إدارة تفاصيل الصفقة"
-},
+  },
   "investors": {
     "title": "إدارة المستثمرين",
     "subtitle": "تتبع وإدارة علاقاتك مع المستثمرين",
