@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../lib/auth'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '../../../lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,95 +23,60 @@ export async function GET(request: NextRequest) {
 
     const userId = session.user.id
 
-    // Get partner's deals and investment statistics
-    const [
-      partnerDeals,
-      totalInvestments,
-      completedDeals,
-      activeDeals
-    ] = await Promise.all([
-      // Get all partner's deals
-      prisma.project.findMany({
-        where: { ownerId: userId },
-        include: {
-          investments: {
-            select: {
-              amount: true,
-              status: true
-            }
-          }
-        }
-      }),
+    // Step 1: Get partner's deals first (simple query)
+    const partnerDeals = await prisma.project.findMany({
+      where: { ownerId: userId },
+      select: {
+        id: true,
+        status: true
+      }
+    })
 
-      // Get total investments in partner's deals
-      prisma.investment.aggregate({
-        where: {
-          project: {
-            ownerId: userId
-          },
-          status: 'ACTIVE'
-        },
-        _sum: {
-          amount: true
-        },
-        _count: {
-          id: true
-        }
-      }),
-
-      // Get completed deals count
-      prisma.project.count({
-        where: {
-          ownerId: userId,
-          status: 'COMPLETED'
-        }
-      }),
-
-      // Get active deals count
-      prisma.project.count({
-        where: {
-          ownerId: userId,
-          status: { in: ['ACTIVE', 'PUBLISHED'] }
-        }
-      })
-    ])
-
-    // Calculate statistics
-    const totalRaised = Number(totalInvestments._sum.amount) || 0
-    const totalDeals = partnerDeals.length
-    const successRate = totalDeals > 0 ? (completedDeals / totalDeals) * 100 : 0
-
-    // Calculate additional metrics
-    const avgDealSize = totalDeals > 0 ? totalRaised / totalDeals : 0
-
-    // Get unique investors across all partner's deals
     const partnerDealIds = partnerDeals.map(deal => deal.id)
-    let allInvestments: { investorId: string }[] = []
+    const totalDeals = partnerDeals.length
+    const completedDeals = partnerDeals.filter(d => d.status === 'COMPLETED').length
+    const activeDeals = partnerDeals.filter(d => d.status === 'ACTIVE' || d.status === 'PUBLISHED').length
+
+    // Step 2: Get investments for these deals (if any exist)
+    let totalRaised = 0
+    let totalInvestmentCount = 0
+    let totalInvestors = 0
 
     if (partnerDealIds.length > 0) {
-      allInvestments = await prisma.investment.findMany({
+      // Get investment stats using simple projectId filter
+      const investments = await prisma.investment.findMany({
         where: {
-          projectId: { in: partnerDealIds }
+          projectId: { in: partnerDealIds },
+          status: 'ACTIVE'
         },
         select: {
+          amount: true,
           investorId: true
-        },
-        distinct: ['investorId']
+        }
       })
+
+      totalRaised = investments.reduce((sum, inv) => sum + Number(inv.amount), 0)
+      totalInvestmentCount = investments.length
+
+      // Count unique investors
+      const uniqueInvestorIds = new Set(investments.map(inv => inv.investorId))
+      totalInvestors = uniqueInvestorIds.size
     }
 
-    const totalInvestors = allInvestments.length
+    // Calculate statistics
+    const successRate = totalDeals > 0 ? (completedDeals / totalDeals) * 100 : 0
+    const avgDealSize = totalDeals > 0 ? totalRaised / totalDeals : 0
 
     const stats = {
       totalRaised,
       activeDeals,
-      successRate: Math.round(successRate * 10) / 10, // Round to 1 decimal
+      successRate: Math.round(successRate * 10) / 10,
       totalDeals,
       completedDeals,
       avgDealSize,
       totalInvestors,
-      totalInvestments: totalInvestments._count.id || 0,
-      isGrowing: successRate >= 70 // Consider 70%+ as good performance
+      totalInvestments: totalInvestmentCount,
+      isGrowing: successRate >= 70
     }
 
     return NextResponse.json(stats)
@@ -123,7 +86,5 @@ export async function GET(request: NextRequest) {
       { error: 'Failed to fetch partner statistics' },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }
