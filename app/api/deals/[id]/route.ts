@@ -273,8 +273,13 @@ export async function PUT(
     // Handle image upload if new image provided
     const imageFile = formData.get('image') as File
     const existingImageUrl = formData.get('existingImageUrl') as string
-    console.log('API received image file:', imageFile ? `${imageFile.name} (${imageFile.size} bytes)` : 'No image')
-    console.log('API received existingImageUrl:', existingImageUrl)
+
+    // CRITICAL: Log to stderr which PM2 captures more reliably
+    console.error('======== IMAGE DEBUG ========')
+    console.error('imageFile received:', imageFile ? `YES - ${imageFile.name} (${imageFile.size} bytes, type: ${imageFile.type})` : 'NO')
+    console.error('existingImageUrl:', existingImageUrl || 'None')
+    console.error('=============================')
+
     let thumbnailImage = existingDeal.thumbnailImage
     let images = [...existingDeal.images]
 
