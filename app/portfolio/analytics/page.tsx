@@ -503,12 +503,12 @@ const ReturnsAnalytics = () => {
               {(['1M', '3M', '6M', '1Y', 'ALL'] as const).map((period) => (
                 <Button
                   key={period}
-                  variant={timeframe === period ? 'primary' : 'ghost'}
+                  variant={timeframe === period ? 'primary' : 'outline'}
                   size="sm"
                   onClick={() => setTimeframe(period)}
                   className={`text-xs px-3 ${timeframe === period
-                      ? 'bg-white shadow-sm text-gray-900'
-                      : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white shadow-sm text-gray-900'
+                    : 'text-gray-600 hover:text-gray-900 border-0'
                     }`}
                 >
                   {period}
