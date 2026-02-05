@@ -72,7 +72,18 @@
       "enable": "تفعيل",
       "edit_role_for": "تعديل الدور لـ",
       "select_new_role": "اختر دور جديد",
-      "associated_permissions": "الصلاحيات المرتبطة"
+      "associated_permissions": "الصلاحيات المرتبطة",
+      "save_changes": "حفظ التغييرات",
+      "cancel": "إلغاء",
+      "add_user_title": "إضافة مستخدم جديد",
+      "full_name": "الاسم الكامل",
+      "enter_full_name": "أدخل الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "enter_email": "أدخل عنوان البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "enter_password": "أدخل كلمة المرور",
+      "role_label": "الدور",
+      "add_user": "إضافة مستخدم"
     }
   },
   "users_management": {

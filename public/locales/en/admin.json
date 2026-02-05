@@ -72,7 +72,18 @@
       "enable": "Enable",
       "edit_role_for": "Edit Role for",
       "select_new_role": "Select new role",
-      "associated_permissions": "Associated Permissions"
+      "associated_permissions": "Associated Permissions",
+      "save_changes": "Save Changes",
+      "cancel": "Cancel",
+      "add_user_title": "Add New User",
+      "full_name": "Full Name",
+      "enter_full_name": "Enter full name",
+      "email": "Email",
+      "enter_email": "Enter email address",
+      "password": "Password",
+      "enter_password": "Enter password",
+      "role_label": "Role",
+      "add_user": "Add User"
     }
   },
   "users_management": {
