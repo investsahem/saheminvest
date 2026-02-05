@@ -465,7 +465,21 @@
     "deposit_approved_title": "تمت الموافقة على الإيداع",
     "deposit_approved_message": "تمت الموافقة على إيداعك بمبلغ ${amount}",
     "deposit_rejected_title": "تم رفض الإيداع",
-    "deposit_rejected_message": "تم رفض طلب إيداعك"
+    "deposit_rejected_message": "تم رفض طلب إيداعك",
+    "types": {
+      "info": "معلومات",
+      "success": "نجاح",
+      "warning": "تحذير",
+      "error": "خطأ",
+      "push": "إشعار دفع",
+      "Admin": "إدارة",
+      "Deposit_completed": "إيداع مكتمل",
+      "Deposit_pending": "إيداع قيد الانتظار",
+      "Deposit_rejected": "إيداع مرفوض",
+      "Investment": "استثمار",
+      "Withdrawal": "سحب",
+      "Profit_distribution": "توزيع أرباح"
+    }
   },
   "admin_dashboard": {
     "deal_management": "إدارة الصفقات",

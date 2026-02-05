@@ -426,7 +426,9 @@ const NotificationsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={getTypeBadge(notification.type)}>
-                          {notification.type.charAt(0).toUpperCase() + notification.type.slice(1)}
+                          {translateText(`notifications.types.${notification.type}`) !== `notifications.types.${notification.type}`
+                            ? translateText(`notifications.types.${notification.type}`)
+                            : notification.type.charAt(0).toUpperCase() + notification.type.slice(1).replace(/_/g, ' ')}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

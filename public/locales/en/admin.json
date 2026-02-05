@@ -465,7 +465,21 @@
     "deposit_approved_title": "Deposit Approved",
     "deposit_approved_message": "Your deposit of ${amount} has been approved",
     "deposit_rejected_title": "Deposit Rejected",
-    "deposit_rejected_message": "Your deposit request has been rejected"
+    "deposit_rejected_message": "Your deposit request has been rejected",
+    "types": {
+      "info": "Info",
+      "success": "Success",
+      "warning": "Warning",
+      "error": "Error",
+      "push": "Push",
+      "Admin": "Admin",
+      "Deposit_completed": "Deposit Completed",
+      "Deposit_pending": "Deposit Pending",
+      "Deposit_rejected": "Deposit Rejected",
+      "Investment": "Investment",
+      "Withdrawal": "Withdrawal",
+      "Profit_distribution": "Profit Distribution"
+    }
   },
   "admin_dashboard": {
     "deal_management": "Deal Management",
