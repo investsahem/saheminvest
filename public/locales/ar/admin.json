@@ -84,6 +84,22 @@
       "enter_password": "أدخل كلمة المرور",
       "role_label": "الدور",
       "add_user": "إضافة مستخدم"
+    },
+    "permissions": {
+      "READ_DEALS": "قراءة الصفقات",
+      "WRITE_DEALS": "كتابة الصفقات",
+      "DELETE_DEALS": "حذف الصفقات",
+      "READ_USERS": "قراءة المستخدمين",
+      "WRITE_USERS": "كتابة المستخدمين",
+      "DELETE_USERS": "حذف المستخدمين",
+      "READ_TRANSACTIONS": "قراءة المعاملات",
+      "WRITE_TRANSACTIONS": "كتابة المعاملات",
+      "READ_INVESTMENTS": "قراءة الاستثمارات",
+      "WRITE_INVESTMENTS": "كتابة الاستثمارات",
+      "MANAGE_ROLES": "إدارة الأدوار",
+      "MANAGE_PARTNERS": "إدارة الشركاء",
+      "VIEW_ANALYTICS": "عرض التحليلات",
+      "SYSTEM_SETTINGS": "إعدادات النظام"
     }
   },
   "users_management": {

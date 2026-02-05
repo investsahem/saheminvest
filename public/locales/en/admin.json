@@ -84,6 +84,22 @@
       "enter_password": "Enter password",
       "role_label": "Role",
       "add_user": "Add User"
+    },
+    "permissions": {
+      "READ_DEALS": "Read Deals",
+      "WRITE_DEALS": "Write Deals",
+      "DELETE_DEALS": "Delete Deals",
+      "READ_USERS": "Read Users",
+      "WRITE_USERS": "Write Users",
+      "DELETE_USERS": "Delete Users",
+      "READ_TRANSACTIONS": "Read Transactions",
+      "WRITE_TRANSACTIONS": "Write Transactions",
+      "READ_INVESTMENTS": "Read Investments",
+      "WRITE_INVESTMENTS": "Write Investments",
+      "MANAGE_ROLES": "Manage Roles",
+      "MANAGE_PARTNERS": "Manage Partners",
+      "VIEW_ANALYTICS": "View Analytics",
+      "SYSTEM_SETTINGS": "System Settings"
     }
   },
   "users_management": {
