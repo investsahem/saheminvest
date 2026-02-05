@@ -355,7 +355,8 @@
     "manual_deposit_error_title": "System Error",
     "manual_deposit_error": "Unexpected error occurred",
     "required_fields_title": "Required Fields",
-    "required_fields": "Please fill all required fields"
+    "required_fields": "Please fill all required fields",
+    "balance": "Balance"
   },
   "roles": {
     "ADMIN": "System Administrator",
@@ -417,7 +418,18 @@
     "error": "Error",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "got_it": "Got it"
+  },
+  "notifications": {
+    "new_deposit_request_title": "New Deposit Request",
+    "new_deposit_request_message": "New deposit request of ${amount} from {userEmail}",
+    "deposit_pending_title": "Deposit Pending",
+    "deposit_pending_message": "Your deposit request is under review",
+    "deposit_approved_title": "Deposit Approved",
+    "deposit_approved_message": "Your deposit of ${amount} has been approved",
+    "deposit_rejected_title": "Deposit Rejected",
+    "deposit_rejected_message": "Your deposit request has been rejected"
   },
   "admin_dashboard": {
     "deal_management": "Deal Management",

@@ -355,7 +355,8 @@
     "manual_deposit_error_title": "خطأ النظام",
     "manual_deposit_error": "حدث خطأ غير متوقع",
     "required_fields_title": "حقول مطلوبة",
-    "required_fields": "يرجى ملء جميع الحقول المطلوبة"
+    "required_fields": "يرجى ملء جميع الحقول المطلوبة",
+    "balance": "الرصيد"
   },
   "roles": {
     "ADMIN": "مدير النظام",
@@ -417,7 +418,18 @@
     "error": "خطأ",
     "confirm": "تأكيد",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "got_it": "حسناً"
+  },
+  "notifications": {
+    "new_deposit_request_title": "طلب إيداع جديد",
+    "new_deposit_request_message": "طلب إيداع جديد بمبلغ ${amount} من {userEmail}",
+    "deposit_pending_title": "إيداع قيد الانتظار",
+    "deposit_pending_message": "طلب إيداعك قيد المراجعة",
+    "deposit_approved_title": "تمت الموافقة على الإيداع",
+    "deposit_approved_message": "تمت الموافقة على إيداعك بمبلغ ${amount}",
+    "deposit_rejected_title": "تم رفض الإيداع",
+    "deposit_rejected_message": "تم رفض طلب إيداعك"
   },
   "admin_dashboard": {
     "deal_management": "إدارة الصفقات",
