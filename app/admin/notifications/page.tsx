@@ -47,12 +47,44 @@ const NotificationsPage = () => {
 
   // Helper function to translate stored notification keys
   const translateText = (text: string): string => {
+    if (!text) return text
     // Check if text looks like a translation key (e.g. "notifications.deposit_approved_title")
-    if (text && text.includes('.') && !text.includes(' ')) {
+    if (text.includes('.') && !text.includes(' ')) {
       const translated = t(text)
       // If translation returns the same key, return original text
       return translated !== text ? translated : text
     }
+    return text
+  }
+
+  // Helper to translate notification type from DB
+  const translateType = (type: string): string => {
+    if (!type) return type
+    // Normalize type: replace spaces with underscores for translation lookup
+    const normalizedType = type.replace(/\s+/g, '_')
+    const translationKey = `notifications.types.${normalizedType}`
+    const translated = t(translationKey)
+    // If translation found, return it; otherwise format the original type nicely
+    if (translated !== translationKey) {
+      return translated
+    }
+    // Fallback: capitalize first letter and replace underscores with spaces
+    return type.charAt(0).toUpperCase() + type.slice(1).replace(/_/g, ' ')
+  }
+
+  // Helper to clean up notification message (remove untranslated placeholders)
+  const cleanMessage = (message: string): string => {
+    if (!message) return message
+    // First try to translate if it's a translation key
+    let text = translateText(message)
+    // Remove common placeholder patterns that weren't interpolated
+    text = text.replace(/\$\{amount\}/g, '')
+    text = text.replace(/\{amount\}/g, '')
+    text = text.replace(/\{userEmail\}/g, '')
+    text = text.replace(/\$\{[^}]+\}/g, '')
+    text = text.replace(/\{[^}]+\}/g, '')
+    // Clean up extra spaces
+    text = text.replace(/\s+/g, ' ').trim()
     return text
   }
 
@@ -406,7 +438,7 @@ const NotificationsPage = () => {
                               {translateText(notification.title)}
                             </div>
                             <div className="text-sm text-gray-500 max-w-xs truncate">
-                              {translateText(notification.message)}
+                              {cleanMessage(notification.message)}
                             </div>
                           </div>
                         </div>
@@ -426,9 +458,7 @@ const NotificationsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={getTypeBadge(notification.type)}>
-                          {translateText(`notifications.types.${notification.type}`) !== `notifications.types.${notification.type}`
-                            ? translateText(`notifications.types.${notification.type}`)
-                            : notification.type.charAt(0).toUpperCase() + notification.type.slice(1).replace(/_/g, ' ')}
+                          {translateType(notification.type)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
