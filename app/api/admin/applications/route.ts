@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions)
-    
+
     if (!session || !session.user) {
       return NextResponse.json(
         { message: 'Authentication required' },
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch applications with reviewer information
-    const applications = await prisma.userApplication.findMany({
+    const rawApplications = await prisma.userApplication.findMany({
       include: {
         reviewer: {
           select: {
@@ -41,6 +41,29 @@ export async function GET(request: NextRequest) {
         createdAt: 'desc'
       }
     })
+
+    // Map DB fields to frontend expected format
+    const applications = rawApplications.map((app: any) => ({
+      id: app.id,
+      fullName: [app.firstName, app.lastName].filter(Boolean).join(' ') || '',
+      email: app.email,
+      phone: app.phone,
+      dateOfBirth: app.dateOfBirth,
+      address: app.address,
+      city: app.city,
+      country: app.country,
+      occupation: app.occupation,
+      annualIncome: app.monthlyIncome ? Number(app.monthlyIncome) * 12 : (app.initialInvestment ? Number(app.initialInvestment) : 0),
+      investmentExperience: app.investmentExperience,
+      riskTolerance: app.riskTolerance,
+      investmentGoals: app.investmentGoals,
+      identityDocument: app.nationalId,
+      status: app.status,
+      submittedAt: app.createdAt,
+      reviewedAt: app.reviewedAt,
+      reviewer: app.reviewer,
+      reviewNotes: app.rejectionReason || app.notes
+    }))
 
     return NextResponse.json({
       applications,
