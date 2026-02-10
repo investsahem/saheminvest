@@ -7,16 +7,16 @@ import { Card, CardContent } from '../../components/ui/Card'
 import { Input } from '../../components/ui/Input'
 import { useTranslation } from '../../components/providers/I18nProvider'
 import AdminLayout from '../../components/layout/AdminLayout'
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  Eye, 
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Eye,
   Search,
   Filter,
   FileText,
@@ -82,7 +82,7 @@ export default function ApplicationsPage() {
       if (response.ok) {
         const data = await response.json()
         setApplications(data.applications || [])
-        
+
         // Calculate stats
         const apps = data.applications || []
         const stats = {
@@ -111,31 +111,31 @@ export default function ApplicationsPage() {
         notes,
         session: session?.user
       })
-      
+
       // For rejection, we need to provide a rejection reason
-      const requestBody = action === 'approve' 
-        ? { 
-            status: 'APPROVED', 
-            reviewNotes: notes || 'Application approved by admin'
-          }
-        : { 
-            status: 'REJECTED', 
-            rejectionReason: notes || 'Application rejected by admin - no specific reason provided',
-            reviewNotes: notes || 'Application rejected by admin'
-          }
-      
+      const requestBody = action === 'approve'
+        ? {
+          status: 'APPROVED',
+          reviewNotes: notes || 'Application approved by admin'
+        }
+        : {
+          status: 'REJECTED',
+          rejectionReason: notes || 'Application rejected by admin - no specific reason provided',
+          reviewNotes: notes || 'Application rejected by admin'
+        }
+
       const response = await fetch(`/api/admin/applications/${applicationId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
       })
-      
+
       console.log(`📡 API Response:`, {
         status: response.status,
         statusText: response.statusText,
         url: response.url
       })
-      
+
       if (response.ok) {
         const data = await response.json()
         console.log(`✅ Success:`, data)
@@ -167,7 +167,7 @@ export default function ApplicationsPage() {
 
   const handleRejectConfirm = async () => {
     if (!rejectingApplication || !rejectionReason.trim()) {
-      alert('Please provide a rejection reason')
+      alert(t('applications.rejection_reason_required'))
       return
     }
 
@@ -216,8 +216,8 @@ export default function ApplicationsPage() {
 
   const filteredApplications = applications.filter(app => {
     const matchesSearch = (app.fullName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                         (app.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                         (app.phone || '').includes(searchTerm)
+      (app.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (app.phone || '').includes(searchTerm)
     const matchesStatus = statusFilter === 'all' || (app.status?.toLowerCase() || '') === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -243,10 +243,10 @@ export default function ApplicationsPage() {
             <p className="text-gray-600 mb-6">{t('applications.auth_required_message')}</p>
             <div className="bg-gray-100 p-4 rounded-lg mb-4 text-left">
               <p className="text-sm text-gray-600">
-                Debug Info:<br/>
-                Session: {session ? 'exists' : 'null'}<br/>
-                User: {session?.user ? 'exists' : 'null'}<br/>
-                Role: {session?.user?.role || 'none'}<br/>
+                Debug Info:<br />
+                Session: {session ? 'exists' : 'null'}<br />
+                User: {session?.user ? 'exists' : 'null'}<br />
+                Role: {session?.user?.role || 'none'}<br />
                 Current URL: {typeof window !== 'undefined' ? window.location.href : 'N/A'}
               </p>
             </div>
@@ -270,9 +270,9 @@ export default function ApplicationsPage() {
             <p className="text-gray-600 mb-6">{t('applications.access_denied_message')}</p>
             <div className="bg-gray-100 p-4 rounded-lg mb-4 text-left">
               <p className="text-sm text-gray-600">
-                Your Role: {session.user.role}<br/>
-                Required: ADMIN<br/>
-                User ID: {session.user.id}<br/>
+                Your Role: {session.user.role}<br />
+                Required: ADMIN<br />
+                User ID: {session.user.id}<br />
                 Email: {session.user.email}
               </p>
             </div>
@@ -283,7 +283,7 @@ export default function ApplicationsPage() {
   }
 
   return (
-    <AdminLayout 
+    <AdminLayout
       title={t('applications.title')}
       subtitle={t('applications.subtitle')}
     >
@@ -412,14 +412,14 @@ export default function ApplicationsPage() {
                             <User className="w-5 h-5 text-gray-600" />
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{application.fullName || 'N/A'}</div>
-                            <div className="text-sm text-gray-500">{application.occupation || 'N/A'}</div>
+                            <div className="text-sm font-medium text-gray-900">{application.fullName || t('applications.na')}</div>
+                            <div className="text-sm text-gray-500">{application.occupation || t('applications.na')}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{application.email || 'N/A'}</div>
-                        <div className="text-sm text-gray-500">{application.phone || 'N/A'}</div>
+                        <div className="text-sm text-gray-900">{application.email || t('applications.na')}</div>
+                        <div className="text-sm text-gray-500">{application.phone || t('applications.na')}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
@@ -427,17 +427,17 @@ export default function ApplicationsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 capitalize">{application.investmentExperience || 'N/A'}</div>
-                        <div className="text-sm text-gray-500 capitalize">{t('applications.risk')}: {application.riskTolerance || 'N/A'}</div>
+                        <div className="text-sm text-gray-900">{t(`applications.experience_levels.${application.investmentExperience}`) !== `applications.experience_levels.${application.investmentExperience}` ? t(`applications.experience_levels.${application.investmentExperience}`) : (application.investmentExperience || t('applications.na'))}</div>
+                        <div className="text-sm text-gray-500">{t('applications.risk')}: {t(`applications.risk_levels.${application.riskTolerance}`) !== `applications.risk_levels.${application.riskTolerance}` ? t(`applications.risk_levels.${application.riskTolerance}`) : (application.riskTolerance || t('applications.na'))}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.status || '')}`}>
                           {getStatusIcon(application.status || '')}
-                          <span className="ml-1 capitalize">{(application.status || 'unknown').toLowerCase()}</span>
+                          <span className="ml-1">{t(`applications.${(application.status || 'unknown').toLowerCase()}`)}</span>
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {application.submittedAt ? formatDate(application.submittedAt) : 'N/A'}
+                        {application.submittedAt ? formatDate(application.submittedAt) : t('applications.na')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
@@ -480,17 +480,17 @@ export default function ApplicationsPage() {
                 </tbody>
               </table>
             </div>
-            
+
             {filteredApplications.length === 0 && (
               <div className="text-center py-12">
                 <FileText className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">{t('applications.no_applications_found')}</h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  {searchTerm || statusFilter !== 'all' 
+                  {searchTerm || statusFilter !== 'all'
                     ? t('applications.adjust_search')
                     : t('applications.no_submissions')}
                 </p>
-            </div>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -517,20 +517,20 @@ export default function ApplicationsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-medium text-gray-700">{t('applications.full_name')}</label>
-                        <p className="text-sm text-gray-900">{selectedApplication.fullName || 'N/A'}</p>
+                        <p className="text-sm text-gray-900">{selectedApplication.fullName || t('applications.na')}</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700">{t('applications.email')}</label>
-                        <p className="text-sm text-gray-900">{selectedApplication.email || 'N/A'}</p>
+                        <p className="text-sm text-gray-900">{selectedApplication.email || t('applications.na')}</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700">{t('applications.phone')}</label>
-                        <p className="text-sm text-gray-900">{selectedApplication.phone || 'N/A'}</p>
+                        <p className="text-sm text-gray-900">{selectedApplication.phone || t('applications.na')}</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700">{t('applications.date_of_birth')}</label>
                         <p className="text-sm text-gray-900">
-                          {selectedApplication.dateOfBirth ? new Date(selectedApplication.dateOfBirth).toLocaleDateString() : 'N/A'}
+                          {selectedApplication.dateOfBirth ? new Date(selectedApplication.dateOfBirth).toLocaleDateString() : t('applications.na')}
                         </p>
                       </div>
                       <div className="md:col-span-2">
@@ -538,7 +538,7 @@ export default function ApplicationsPage() {
                         <p className="text-sm text-gray-900">
                           {[selectedApplication.address, selectedApplication.city, selectedApplication.country]
                             .filter(Boolean)
-                            .join(', ') || 'N/A'}
+                            .join(', ') || t('applications.na')}
                         </p>
                       </div>
                     </div>
@@ -550,7 +550,7 @@ export default function ApplicationsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-medium text-gray-700">{t('applications.occupation')}</label>
-                        <p className="text-sm text-gray-900">{selectedApplication.occupation || 'N/A'}</p>
+                        <p className="text-sm text-gray-900">{selectedApplication.occupation || t('applications.na')}</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700">{t('applications.annual_income')}</label>
@@ -565,15 +565,15 @@ export default function ApplicationsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-medium text-gray-700">{t('applications.investment_experience')}</label>
-                        <p className="text-sm text-gray-900 capitalize">{selectedApplication.investmentExperience || 'N/A'}</p>
+                        <p className="text-sm text-gray-900">{t(`applications.experience_levels.${selectedApplication.investmentExperience}`) !== `applications.experience_levels.${selectedApplication.investmentExperience}` ? t(`applications.experience_levels.${selectedApplication.investmentExperience}`) : (selectedApplication.investmentExperience || t('applications.na'))}</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700">{t('applications.risk_tolerance')}</label>
-                        <p className="text-sm text-gray-900 capitalize">{selectedApplication.riskTolerance || 'N/A'}</p>
+                        <p className="text-sm text-gray-900">{t(`applications.risk_levels.${selectedApplication.riskTolerance}`) !== `applications.risk_levels.${selectedApplication.riskTolerance}` ? t(`applications.risk_levels.${selectedApplication.riskTolerance}`) : (selectedApplication.riskTolerance || t('applications.na'))}</p>
                       </div>
                       <div className="md:col-span-2">
                         <label className="text-sm font-medium text-gray-700">{t('applications.investment_goals')}</label>
-                        <p className="text-sm text-gray-900">{selectedApplication.investmentGoals || 'N/A'}</p>
+                        <p className="text-sm text-gray-900">{selectedApplication.investmentGoals || t('applications.na')}</p>
                       </div>
                     </div>
                   </div>
@@ -616,7 +616,7 @@ export default function ApplicationsPage() {
             <div className="bg-white rounded-lg max-w-md w-full">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Reject Application</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('applications.reject_application')}</h3>
                   <button
                     onClick={() => setShowRejectModal(false)}
                     className="text-gray-400 hover:text-gray-600"
@@ -627,16 +627,16 @@ export default function ApplicationsPage() {
 
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 mb-2">
-                    You are about to reject the application from <strong>{rejectingApplication.fullName}</strong>.
+                    {t('applications.reject_confirm_message')} <strong>{rejectingApplication.fullName}</strong>.
                   </p>
                   <p className="text-sm text-gray-600 mb-4">
-                    Please provide a reason for rejection:
+                    {t('applications.rejection_reason_prompt')}
                   </p>
-                  
+
                   <textarea
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
-                    placeholder="Enter rejection reason..."
+                    placeholder={t('applications.rejection_reason_placeholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     rows={4}
                     required
@@ -649,7 +649,7 @@ export default function ApplicationsPage() {
                     onClick={() => setShowRejectModal(false)}
                     disabled={processing === rejectingApplication.id}
                   >
-                    Cancel
+                    {t('applications.cancel')}
                   </Button>
                   <Button
                     onClick={handleRejectConfirm}
@@ -661,7 +661,7 @@ export default function ApplicationsPage() {
                     ) : (
                       <XCircle className="w-4 h-4 mr-2" />
                     )}
-                    Reject Application
+                    {t('applications.reject_application')}
                   </Button>
                 </div>
               </div>

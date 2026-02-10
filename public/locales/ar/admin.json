@@ -207,6 +207,7 @@
     "submitted": "تاريخ التقديم",
     "actions": "الإجراءات",
     "risk": "المخاطرة",
+    "na": "غير متوفر",
     "no_applications_found": "لم يتم العثور على طلبات",
     "adjust_search": "حاول تعديل معايير البحث أو الفلتر.",
     "no_submissions": "لم يتم تقديم أي طلبات مستثمرين بعد.",
@@ -226,11 +227,35 @@
     "investment_goals": "الأهداف الاستثمارية",
     "reject": "رفض",
     "approve": "موافقة",
+    "reject_application": "رفض الطلب",
+    "reject_confirm_message": "أنت على وشك رفض الطلب المقدم من",
+    "rejection_reason_prompt": "يرجى تقديم سبب الرفض:",
+    "rejection_reason_placeholder": "أدخل سبب الرفض...",
+    "rejection_reason_required": "يرجى تقديم سبب الرفض",
+    "cancel": "إلغاء",
     "authentication_required": "المصادقة مطلوبة",
     "auth_required_message": "تحتاج إلى تسجيل الدخول كمسؤول للوصول إلى هذه الصفحة.",
     "sign_in": "تسجيل الدخول",
     "access_denied": "تم رفض الوصول",
-    "access_denied_message": "تحتاج إلى دور المسؤول (ADMIN) للوصول إلى هذه الصفحة."
+    "access_denied_message": "تحتاج إلى دور المسؤول (ADMIN) للوصول إلى هذه الصفحة.",
+    "experience_levels": {
+      "Beginner": "مبتدئ",
+      "Intermediate": "متوسط",
+      "Advanced": "متقدم",
+      "Expert": "خبير",
+      "beginner": "مبتدئ",
+      "intermediate": "متوسط",
+      "advanced": "متقدم",
+      "expert": "خبير"
+    },
+    "risk_levels": {
+      "Low": "منخفض",
+      "Medium": "متوسط",
+      "High": "مرتفع",
+      "low": "منخفض",
+      "medium": "متوسط",
+      "high": "مرتفع"
+    }
   },
   "finances": {
     "title": "المعاملات المالية",

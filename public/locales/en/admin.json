@@ -207,6 +207,7 @@
     "submitted": "Submitted",
     "actions": "Actions",
     "risk": "Risk",
+    "na": "N/A",
     "no_applications_found": "No applications found",
     "adjust_search": "Try adjusting your search criteria or filters.",
     "no_submissions": "No investor applications have been submitted yet.",
@@ -226,11 +227,35 @@
     "investment_goals": "Investment Goals",
     "reject": "Reject",
     "approve": "Approve",
+    "reject_application": "Reject Application",
+    "reject_confirm_message": "You are about to reject the application from",
+    "rejection_reason_prompt": "Please provide a reason for rejection:",
+    "rejection_reason_placeholder": "Enter rejection reason...",
+    "rejection_reason_required": "Please provide a rejection reason",
+    "cancel": "Cancel",
     "authentication_required": "Authentication Required",
     "auth_required_message": "You need to sign in as an admin to access this page.",
     "sign_in": "Sign In",
     "access_denied": "Access Denied",
-    "access_denied_message": "You need admin (ADMIN) role to access this page."
+    "access_denied_message": "You need admin (ADMIN) role to access this page.",
+    "experience_levels": {
+      "Beginner": "Beginner",
+      "Intermediate": "Intermediate",
+      "Advanced": "Advanced",
+      "Expert": "Expert",
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "expert": "Expert"
+    },
+    "risk_levels": {
+      "Low": "Low",
+      "Medium": "Medium",
+      "High": "High",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    }
   },
   "finances": {
     "title": "Financial Transactions",
