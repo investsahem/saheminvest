@@ -8,8 +8,8 @@ import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { LanguageSwitcher } from '../../components/common/LanguageSwitcher'
-import { 
-  User, Building2, Mail, Phone, MapPin, Globe, 
+import {
+  User, Building2, Mail, Phone, MapPin, Globe,
   Bell, Shield, CreditCard, Eye, EyeOff, Save,
   Camera, Edit, Trash2, Plus, Settings as SettingsIcon,
   Lock, Key, Smartphone, Calendar, Clock, CheckCircle
@@ -113,13 +113,13 @@ const PartnerSettingsPage = () => {
   useEffect(() => {
     const fetchPartnerData = async () => {
       if (!session?.user) return
-      
+
       try {
         // Fetch partner profile
         const profileResponse = await fetch('/api/partner/profile')
         if (profileResponse.ok) {
           const profileData = await profileResponse.json()
-          
+
           setProfile(prev => ({
             ...prev,
             id: profileData.id || '',
@@ -169,7 +169,7 @@ const PartnerSettingsPage = () => {
 
   const handleProfileSave = async () => {
     setSaving(true)
-    
+
     try {
       const response = await fetch('/api/partner/profile', {
         method: 'PUT',
@@ -197,14 +197,14 @@ const PartnerSettingsPage = () => {
       })
 
       if (response.ok) {
-        alert('Profile updated successfully!')
+        alert(t('partner_settings.profile.profile_updated'))
       } else {
         const errorData = await response.json()
-        alert(errorData.error || 'Failed to update profile')
+        alert(errorData.error || t('partner_settings.profile.profile_update_failed'))
       }
     } catch (error) {
       console.error('Error updating profile:', error)
-      alert('Failed to update profile')
+      alert(t('partner_settings.profile.profile_update_failed'))
     } finally {
       setSaving(false)
     }
@@ -212,7 +212,7 @@ const PartnerSettingsPage = () => {
 
   const handleNotificationSave = async () => {
     setSaving(true)
-    
+
     try {
       const response = await fetch('/api/partner/settings/notifications', {
         method: 'PUT',
@@ -223,14 +223,14 @@ const PartnerSettingsPage = () => {
       })
 
       if (response.ok) {
-        alert('Notification settings updated successfully!')
+        alert(t('partner_settings.notifications.updated'))
       } else {
         const errorData = await response.json()
-        alert(errorData.error || 'Failed to update notification settings')
+        alert(errorData.error || t('partner_settings.notifications.update_failed'))
       }
     } catch (error) {
       console.error('Error updating notifications:', error)
-      alert('Failed to update notification settings')
+      alert(t('partner_settings.notifications.update_failed'))
     } finally {
       setSaving(false)
     }
@@ -238,7 +238,7 @@ const PartnerSettingsPage = () => {
 
   const handleSecuritySave = async () => {
     setSaving(true)
-    
+
     try {
       const response = await fetch('/api/partner/settings/security', {
         method: 'PUT',
@@ -249,14 +249,14 @@ const PartnerSettingsPage = () => {
       })
 
       if (response.ok) {
-        alert('Security settings updated successfully!')
+        alert(t('partner_settings.security.updated'))
       } else {
         const errorData = await response.json()
-        alert(errorData.error || 'Failed to update security settings')
+        alert(errorData.error || t('partner_settings.security.update_failed'))
       }
     } catch (error) {
       console.error('Error updating security settings:', error)
-      alert('Failed to update security settings')
+      alert(t('partner_settings.security.update_failed'))
     } finally {
       setSaving(false)
     }
@@ -264,11 +264,11 @@ const PartnerSettingsPage = () => {
 
   const handlePasswordChange = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('New passwords do not match!')
+      alert(t('partner_settings.security.passwords_not_match'))
       return
     }
     if (passwordData.newPassword.length < 8) {
-      alert('Password must be at least 8 characters long!')
+      alert(t('partner_settings.security.password_too_short'))
       return
     }
 
@@ -277,7 +277,7 @@ const PartnerSettingsPage = () => {
     setTimeout(() => {
       setSaving(false)
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
-      alert('Password changed successfully!')
+      alert(t('partner_settings.security.password_changed'))
     }, 1000)
   }
 
@@ -302,7 +302,7 @@ const PartnerSettingsPage = () => {
 
         try {
           setSaving(true)
-          
+
           // Create FormData for upload
           const formData = new FormData()
           formData.append('image', file)
@@ -365,11 +365,10 @@ const PartnerSettingsPage = () => {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === tab.key
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab.key
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
@@ -418,7 +417,7 @@ const PartnerSettingsPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.company_name')}</label>
                     <Input
                       type="text"
                       value={profile.companyName}
@@ -427,7 +426,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Contact Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.contact_name')}</label>
                     <Input
                       type="text"
                       value={profile.contactName}
@@ -436,7 +435,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.email')}</label>
                     <Input
                       type="email"
                       value={profile.email}
@@ -445,7 +444,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.phone')}</label>
                     <Input
                       type="tel"
                       value={profile.phone}
@@ -454,7 +453,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.industry')}</label>
                     <select
                       value={profile.industry}
                       onChange={(e) => setProfile(prev => ({ ...prev, industry: e.target.value }))}
@@ -472,7 +471,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.website')}</label>
                     <Input
                       type="url"
                       value={profile.website}
@@ -482,13 +481,13 @@ const PartnerSettingsPage = () => {
                 </div>
 
                 <div className="mt-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Company Description</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.company_description')}</label>
                   <textarea
                     value={profile.description}
                     onChange={(e) => setProfile(prev => ({ ...prev, description: e.target.value }))}
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Brief description of your company..."
+                    placeholder={t('partner_settings.profile.description_placeholder')}
                   />
                 </div>
               </CardContent>
@@ -497,10 +496,10 @@ const PartnerSettingsPage = () => {
             {/* Address Information */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Address Information</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('partner_settings.profile.address_information')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.address')}</label>
                     <Input
                       type="text"
                       value={profile.address}
@@ -509,7 +508,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.city')}</label>
                     <Input
                       type="text"
                       value={profile.city}
@@ -518,7 +517,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.country')}</label>
                     <Input
                       type="text"
                       value={profile.country}
@@ -532,10 +531,10 @@ const PartnerSettingsPage = () => {
             {/* Banking Information */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Banking & Legal Information</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('partner_settings.profile.banking_legal')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Tax ID</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.tax_id')}</label>
                     <Input
                       type="text"
                       value={profile.taxId}
@@ -544,7 +543,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Business License</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.business_license')}</label>
                     <Input
                       type="text"
                       value={profile.businessLicense}
@@ -553,7 +552,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Bank Account</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.bank_account')}</label>
                     <Input
                       type="text"
                       value={profile.bankAccount}
@@ -562,7 +561,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">IBAN</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.iban')}</label>
                     <Input
                       type="text"
                       value={profile.iban}
@@ -571,7 +570,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">SWIFT Code</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.profile.swift_code')}</label>
                     <Input
                       type="text"
                       value={profile.swiftCode}
@@ -589,22 +588,22 @@ const PartnerSettingsPage = () => {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Notification Preferences</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('partner_settings.notifications.title')}</h3>
                 <Button onClick={handleNotificationSave} disabled={saving}>
                   <Save className="w-4 h-4 mr-2" />
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  {saving ? t('partner_settings.notifications.saving') : t('partner_settings.notifications.save')}
                 </Button>
               </div>
 
               <div className="space-y-6">
                 {/* Communication Channels */}
                 <div>
-                  <h4 className="text-md font-semibold text-gray-900 mb-4">Communication Channels</h4>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">{t('partner_settings.notifications.communication_channels')}</h4>
                   <div className="space-y-4">
                     {[
-                      { key: 'emailNotifications', label: 'Email Notifications', description: 'Receive notifications via email' },
-                      { key: 'smsNotifications', label: 'SMS Notifications', description: 'Receive notifications via SMS' },
-                      { key: 'pushNotifications', label: 'Push Notifications', description: 'Receive browser push notifications' }
+                      { key: 'emailNotifications', label: t('partner_settings.notifications.email_notifications'), description: t('partner_settings.notifications.email_notifications_desc') },
+                      { key: 'smsNotifications', label: t('partner_settings.notifications.sms_notifications'), description: t('partner_settings.notifications.sms_notifications_desc') },
+                      { key: 'pushNotifications', label: t('partner_settings.notifications.push_notifications'), description: t('partner_settings.notifications.push_notifications_desc') }
                     ].map((item) => (
                       <div key={item.key} className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
@@ -627,15 +626,15 @@ const PartnerSettingsPage = () => {
 
                 {/* Notification Types */}
                 <div>
-                  <h4 className="text-md font-semibold text-gray-900 mb-4">Notification Types</h4>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">{t('partner_settings.notifications.notification_types')}</h4>
                   <div className="space-y-4">
                     {[
-                      { key: 'dealUpdates', label: 'Deal Updates', description: 'Updates about your active deals' },
-                      { key: 'investorMessages', label: 'Investor Messages', description: 'Messages from investors' },
-                      { key: 'systemAlerts', label: 'System Alerts', description: 'Important system notifications' },
-                      { key: 'marketingEmails', label: 'Marketing Emails', description: 'Promotional and marketing content' },
-                      { key: 'weeklyReports', label: 'Weekly Reports', description: 'Weekly performance summaries' },
-                      { key: 'monthlyStatements', label: 'Monthly Statements', description: 'Monthly financial statements' }
+                      { key: 'dealUpdates', label: t('partner_settings.notifications.deal_updates'), description: t('partner_settings.notifications.deal_updates_desc') },
+                      { key: 'investorMessages', label: t('partner_settings.notifications.investor_messages'), description: t('partner_settings.notifications.investor_messages_desc') },
+                      { key: 'systemAlerts', label: t('partner_settings.notifications.system_alerts'), description: t('partner_settings.notifications.system_alerts_desc') },
+                      { key: 'marketingEmails', label: t('partner_settings.notifications.marketing_emails'), description: t('partner_settings.notifications.marketing_emails_desc') },
+                      { key: 'weeklyReports', label: t('partner_settings.notifications.weekly_reports'), description: t('partner_settings.notifications.weekly_reports_desc') },
+                      { key: 'monthlyStatements', label: t('partner_settings.notifications.monthly_statements'), description: t('partner_settings.notifications.monthly_statements_desc') }
                     ].map((item) => (
                       <div key={item.key} className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
@@ -666,10 +665,10 @@ const PartnerSettingsPage = () => {
             {/* Password Change */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Change Password</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('partner_settings.security.change_password')}</h3>
                 <div className="space-y-4 max-w-md">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.security.current_password')}</label>
                     <div className="relative">
                       <Input
                         type={showPassword ? 'text' : 'password'}
@@ -687,7 +686,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.security.new_password')}</label>
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       value={passwordData.newPassword}
@@ -696,7 +695,7 @@ const PartnerSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('partner_settings.security.confirm_new_password')}</label>
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       value={passwordData.confirmPassword}
@@ -706,7 +705,7 @@ const PartnerSettingsPage = () => {
 
                   <Button onClick={handlePasswordChange} disabled={saving}>
                     <Lock className="w-4 h-4 mr-2" />
-                    {saving ? 'Changing...' : 'Change Password'}
+                    {saving ? t('partner_settings.security.changing') : t('partner_settings.security.change_password_btn')}
                   </Button>
                 </div>
               </CardContent>
@@ -716,10 +715,10 @@ const PartnerSettingsPage = () => {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Security Settings</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('partner_settings.security.security_settings')}</h3>
                   <Button onClick={handleSecuritySave} disabled={saving}>
                     <Save className="w-4 h-4 mr-2" />
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? t('partner_settings.security.saving') : t('partner_settings.security.save')}
                   </Button>
                 </div>
 
@@ -731,20 +730,20 @@ const PartnerSettingsPage = () => {
                         <Smartphone className="w-5 h-5 text-green-600" />
                       </div>
                       <div>
-                        <h5 className="font-medium text-gray-900">Two-Factor Authentication</h5>
-                        <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
+                        <h5 className="font-medium text-gray-900">{t('partner_settings.security.two_factor_auth')}</h5>
+                        <p className="text-sm text-gray-600">{t('partner_settings.security.two_factor_desc')}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       {security.twoFactorEnabled && (
-                        <span className="text-sm text-green-600 font-medium">Enabled</span>
+                        <span className="text-sm text-green-600 font-medium">{t('partner_settings.security.enabled')}</span>
                       )}
                       <Button
                         variant={security.twoFactorEnabled ? "outline" : "primary"}
                         size="sm"
                         onClick={() => setSecurity(prev => ({ ...prev, twoFactorEnabled: !prev.twoFactorEnabled }))}
                       >
-                        {security.twoFactorEnabled ? 'Disable' : 'Enable'}
+                        {security.twoFactorEnabled ? t('partner_settings.security.disable') : t('partner_settings.security.enable')}
                       </Button>
                     </div>
                   </div>
@@ -756,8 +755,8 @@ const PartnerSettingsPage = () => {
                         <Clock className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <h5 className="font-medium text-gray-900">Session Timeout</h5>
-                        <p className="text-sm text-gray-600">Automatically log out after period of inactivity</p>
+                        <h5 className="font-medium text-gray-900">{t('partner_settings.security.session_timeout')}</h5>
+                        <p className="text-sm text-gray-600">{t('partner_settings.security.session_timeout_desc')}</p>
                       </div>
                     </div>
                     <div className="max-w-xs">
@@ -766,11 +765,11 @@ const PartnerSettingsPage = () => {
                         onChange={(e) => setSecurity(prev => ({ ...prev, sessionTimeout: parseInt(e.target.value) }))}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value={15}>15 minutes</option>
-                        <option value={30}>30 minutes</option>
-                        <option value={60}>1 hour</option>
-                        <option value={120}>2 hours</option>
-                        <option value={240}>4 hours</option>
+                        <option value={15}>{t('partner_settings.security.15_minutes')}</option>
+                        <option value={30}>{t('partner_settings.security.30_minutes')}</option>
+                        <option value={60}>{t('partner_settings.security.1_hour')}</option>
+                        <option value={120}>{t('partner_settings.security.2_hours')}</option>
+                        <option value={240}>{t('partner_settings.security.4_hours')}</option>
                       </select>
                     </div>
                   </div>
@@ -782,8 +781,8 @@ const PartnerSettingsPage = () => {
                         <Bell className="w-5 h-5 text-yellow-600" />
                       </div>
                       <div>
-                        <h5 className="font-medium text-gray-900">Login Alerts</h5>
-                        <p className="text-sm text-gray-600">Get notified of new login attempts</p>
+                        <h5 className="font-medium text-gray-900">{t('partner_settings.security.login_alerts')}</h5>
+                        <p className="text-sm text-gray-600">{t('partner_settings.security.login_alerts_desc')}</p>
                       </div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -809,38 +808,38 @@ const PartnerSettingsPage = () => {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Current Plan</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{t('partner_settings.billing.current_plan')}</h3>
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                     <CheckCircle className="w-4 h-4 mr-1" />
-                    Active
+                    {t('partner_settings.billing.active')}
                   </span>
                 </div>
 
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 mb-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-xl font-bold text-gray-900">Professional Plan</h4>
-                      <p className="text-gray-600">Full access to all partner features</p>
+                      <h4 className="text-xl font-bold text-gray-900">{t('partner_settings.billing.professional_plan')}</h4>
+                      <p className="text-gray-600">{t('partner_settings.billing.plan_description')}</p>
                     </div>
                     <div className="text-right">
                       <div className="text-3xl font-bold text-blue-600">$299</div>
-                      <div className="text-sm text-gray-600">per month</div>
+                      <div className="text-sm text-gray-600">{t('partner_settings.billing.per_month')}</div>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">Unlimited</div>
-                    <div className="text-sm text-gray-600">Deals</div>
+                    <div className="text-2xl font-bold text-gray-900">{t('partner_settings.billing.unlimited')}</div>
+                    <div className="text-sm text-gray-600">{t('partner_settings.billing.deals')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-gray-900">24/7</div>
-                    <div className="text-sm text-gray-600">Support</div>
+                    <div className="text-sm text-gray-600">{t('partner_settings.billing.support')}</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">Premium</div>
-                    <div className="text-sm text-gray-600">Analytics</div>
+                    <div className="text-2xl font-bold text-gray-900">{t('partner_settings.billing.premium')}</div>
+                    <div className="text-sm text-gray-600">{t('partner_settings.billing.analytics')}</div>
                   </div>
                 </div>
               </CardContent>
@@ -849,7 +848,7 @@ const PartnerSettingsPage = () => {
             {/* Payment Method */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Payment Method</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('partner_settings.billing.payment_method')}</h3>
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -857,12 +856,12 @@ const PartnerSettingsPage = () => {
                     </div>
                     <div>
                       <h5 className="font-medium text-gray-900">•••• •••• •••• 4242</h5>
-                      <p className="text-sm text-gray-600">Expires 12/25</p>
+                      <p className="text-sm text-gray-600">{t('partner_settings.billing.expires')} 12/25</p>
                     </div>
                   </div>
                   <Button variant="outline" size="sm">
                     <Edit className="w-4 h-4 mr-2" />
-                    Update
+                    {t('partner_settings.billing.update')}
                   </Button>
                 </div>
               </CardContent>
@@ -871,7 +870,7 @@ const PartnerSettingsPage = () => {
             {/* Billing History */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Billing History</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('partner_settings.billing.billing_history')}</h3>
                 <div className="space-y-4">
                   {[
                     { date: '2024-01-01', amount: 299, status: 'Paid', invoice: 'INV-2024-001' },
@@ -891,10 +890,10 @@ const PartnerSettingsPage = () => {
                       <div className="flex items-center gap-4">
                         <div className="text-right">
                           <div className="font-semibold text-gray-900">${bill.amount}</div>
-                          <div className="text-sm text-green-600">{bill.status}</div>
+                          <div className="text-sm text-green-600">{t('partner_settings.billing.paid')}</div>
                         </div>
                         <Button variant="outline" size="sm">
-                          Download
+                          {t('partner_settings.billing.download')}
                         </Button>
                       </div>
                     </div>
@@ -908,11 +907,11 @@ const PartnerSettingsPage = () => {
         {/* Language & Region */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Language & Region</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('partner_settings.language_region.title')}</h3>
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium text-gray-900">Language</h4>
-                <p className="text-sm text-gray-600">Choose your preferred language</p>
+                <h4 className="font-medium text-gray-900">{t('partner_settings.language_region.language')}</h4>
+                <p className="text-sm text-gray-600">{t('partner_settings.language_region.choose_language')}</p>
               </div>
               <LanguageSwitcher />
             </div>
