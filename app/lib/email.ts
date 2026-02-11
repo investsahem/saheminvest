@@ -1208,6 +1208,117 @@ Visit us at https://sahaminvest.com
     })
   }
 
+  // Partner Welcome/Approval Email (Bilingual)
+  async sendPartnerWelcomeEmail(email: string, name: string, password?: string) {
+    const dashboardUrl = `${process.env.NEXTAUTH_URL}/partner/dashboard`
+    const loginUrl = `${process.env.NEXTAUTH_URL}/auth/signin`
+
+    const credentialsSection = password ? `
+      <div style="background: #EFF6FF; border: 1px solid #3B82F6; padding: 20px; border-radius: 8px; margin: 25px 0;">
+        <h3 style="color: #1D4ED8; margin-top: 0;">🔑 بيانات تسجيل الدخول | Login Credentials</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #374151;"><strong>البريد الإلكتروني | Email:</strong></td>
+            <td style="padding: 8px 0; color: #1D4ED8;">${email}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #374151;"><strong>كلمة المرور | Password:</strong></td>
+            <td style="padding: 8px 0; color: #1D4ED8;">${password}</td>
+          </tr>
+        </table>
+        <p style="margin-top: 15px; color: #92400E; font-size: 13px;">
+          ⚠️ يرجى تغيير كلمة المرور بعد تسجيل الدخول الأول
+          <br/>⚠️ Please change your password after first login
+        </p>
+      </div>
+    ` : ''
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Welcome Partner - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 40px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 40px; border-radius: 0 0 8px 8px; }
+          .welcome-box { background: #D1FAE5; border: 1px solid #10B981; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center; }
+          .features { background: white; padding: 25px; border-radius: 8px; margin: 20px 0; border: 1px solid #E5E7EB; }
+          .button { display: inline-block; background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; font-size: 16px; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+          .step { display: flex; align-items: flex-start; margin: 12px 0; }
+          .step-number { background: #3B82F6; color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 12px; flex-shrink: 0; }
+          @media (max-width: 600px) {
+            .container { padding: 10px; }
+            .header, .content { padding: 20px; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🎉 مرحباً بك كشريك في ساهم إنفست</h1>
+            <p style="font-size: 18px; margin-top: 10px;">Welcome as a Partner at Sahem Invest</p>
+          </div>
+          <div class="content">
+            <h2>مرحباً ${name}! 👋</h2>
+
+            <div class="welcome-box">
+              <h3 style="color: #059669; margin: 0;">✅ تم تفعيل حسابك كشريك</h3>
+              <p style="margin: 10px 0 0 0; color: #065F46;">Your partner account has been activated successfully</p>
+            </div>
+
+            <p>يسعدنا انضمامك إلى منصة ساهم إنفست كشريك معتمد. يمكنك الآن إنشاء وإدارة الصفقات الاستثمارية.</p>
+            <p>We're delighted to have you join Sahem Invest as an approved partner. You can now create and manage investment deals.</p>
+
+            ${credentialsSection}
+
+            <div class="features">
+              <h3>🚀 خطوات البدء | Getting Started</h3>
+              <div style="margin: 15px 0;">
+                <p><span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 13px; margin-right: 8px;">1</span> <strong>سجل الدخول إلى لوحة التحكم</strong> | Log in to your dashboard</p>
+                <p><span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 13px; margin-right: 8px;">2</span> <strong>أكمل ملفك الشخصي</strong> | Complete your profile</p>
+                <p><span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 13px; margin-right: 8px;">3</span> <strong>أنشئ أول صفقة استثمارية</strong> | Create your first investment deal</p>
+                <p><span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 13px; margin-right: 8px;">4</span> <strong>تابع أداء صفقاتك</strong> | Track your deals performance</p>
+              </div>
+            </div>
+
+            <div class="features">
+              <h3>✨ مميزات حسابك | Your Account Features</h3>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>📊 لوحة تحكم شاملة | Comprehensive dashboard</li>
+                <li>💼 إنشاء وإدارة الصفقات | Create & manage deals</li>
+                <li>👥 متابعة المستثمرين | Track investors</li>
+                <li>📈 تحليلات الأداء | Performance analytics</li>
+                <li>💰 إدارة توزيع الأرباح | Profit distribution management</li>
+              </ul>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${dashboardUrl}" class="button">🚀 الدخول إلى لوحة التحكم | Go to Dashboard</a>
+            </div>
+
+            <p><strong>تحتاج مساعدة؟</strong> تواصل مع فريق الدعم على <a href="mailto:${this.supportEmail}">${this.supportEmail}</a></p>
+            <p><strong>Need help?</strong> Contact our support team at <a href="mailto:${this.supportEmail}">${this.supportEmail}</a></p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+            <p>Visit us at <a href="https://sahaminvest.com">sahaminvest.com</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: '🎉 مرحباً بك كشريك في ساهم إنفست | Welcome Partner - Sahem Invest',
+      htmlContent
+    })
+  }
+
   // Account Verification Email
   async sendAccountVerificationEmail(email: string, name: string, verificationUrl: string) {
     const htmlContent = `

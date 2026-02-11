@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../../../../lib/auth'
 import { prisma } from '../../../../../lib/db'
+import { emailService } from '../../../../../lib/email'
 
 // PATCH /api/admin/users/[id]/role - Update user role
 export async function PATCH(
@@ -56,13 +57,24 @@ export async function PATCH(
         where: { userId: id }
       })
       if (!existingPartner) {
-        await prisma.partner.create({
+        const newPartner = await prisma.partner.create({
           data: {
             userId: id,
             companyName: updatedUser.name || 'Partner',
             status: 'ACTIVE',
           }
         })
+      }
+
+      // Send partner welcome/approval email
+      try {
+        await emailService.sendPartnerWelcomeEmail(
+          updatedUser.email,
+          updatedUser.name || 'Partner'
+        )
+        console.log(`Partner approval email sent to ${updatedUser.email}`)
+      } catch (emailError) {
+        console.error('Failed to send partner approval email:', emailError)
       }
     }
 

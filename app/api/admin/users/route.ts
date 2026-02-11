@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../../../lib/auth'
 import { prisma } from '../../../lib/db'
 import bcrypt from 'bcryptjs'
+import { emailService } from '../../../lib/email'
 
 // GET /api/admin/users - Get all users for admin management
 export async function GET(request: NextRequest) {
@@ -147,13 +148,21 @@ export async function POST(request: NextRequest) {
 
     // If role is PARTNER, also create the Partner profile record
     if (role.toUpperCase() === 'PARTNER') {
-      await prisma.partner.create({
+      const partner = await prisma.partner.create({
         data: {
           userId: user.id,
           companyName: name,
           status: 'ACTIVE',
         }
       })
+
+      // Send partner welcome email with login credentials
+      try {
+        await emailService.sendPartnerWelcomeEmail(email, name, password)
+        console.log(`Partner welcome email sent to ${email}`)
+      } catch (emailError) {
+        console.error('Failed to send partner welcome email:', emailError)
+      }
     }
 
     // Format response
