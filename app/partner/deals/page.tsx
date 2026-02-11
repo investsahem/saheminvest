@@ -855,7 +855,7 @@ const PartnerDealsPage = () => {
                           title="Edit Deal"
                         >
                           <Edit className="w-4 h-4" />
-                          <span className="text-xs">تعديل</span>
+                          <span className="text-xs">{t('partner_deals.edit')}</span>
                         </Button>
 
                         {/* View Button */}
@@ -867,7 +867,7 @@ const PartnerDealsPage = () => {
                           title="View Deal"
                         >
                           <Eye className="w-4 h-4" />
-                          <span className="text-xs">عرض</span>
+                          <span className="text-xs">{t('partner_deals.view')}</span>
                         </Button>
 
                         {/* Manage Deal Button - Only for deals with investments */}
@@ -876,10 +876,10 @@ const PartnerDealsPage = () => {
                             size="sm"
                             onClick={() => router.push(`/partner/deals/${deal.id}/manage`)}
                             className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-1"
-                            title="ادارة الصفقة"
+                            title={t('partner_deals.manage_deal')}
                           >
                             <BarChart3 className="w-4 h-4" />
-                            <span className="text-xs">إدارة</span>
+                            <span className="text-xs">{t('partner_deals.manage')}</span>
                           </Button>
                         )}
 
@@ -893,7 +893,7 @@ const PartnerDealsPage = () => {
                               title="Distribute Profits"
                             >
                               <DollarSign className="w-4 h-4" />
-                              <span className="text-xs">أرباح</span>
+                              <span className="text-xs">{t('partner_deals.profits')}</span>
                             </Button>
                           )}
 
@@ -906,7 +906,7 @@ const PartnerDealsPage = () => {
                             title="View Profit History"
                           >
                             <DollarSign className="w-4 h-4" />
-                            <span className="text-xs">سجل</span>
+                            <span className="text-xs">{t('partner_deals.history')}</span>
                           </Button>
                         )}
 

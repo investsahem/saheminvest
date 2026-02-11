@@ -295,6 +295,12 @@
     "status_rejected": "Rejected",
     "pause_deal": "Pause Deal",
     "resume_deal": "Resume Deal",
+    "edit": "Edit",
+    "view": "View",
+    "manage": "Manage",
+    "manage_deal": "Manage Deal",
+    "profits": "Profits",
+    "history": "History",
     "form": {
       "title": "Create Deal",
       "subtitle": "Create a new deal to start your investment",
