@@ -316,12 +316,15 @@ const PartnerDealsPage = () => {
           mode="edit"
           onSubmit={async (formData: FormData) => {
             try {
-              // If deal is already active/published, set it back to PENDING for re-approval
+              // Get the status from formData (set by DealForm buttons)
+              const submittedStatus = formData.get('status') as string
+
+              // If deal is already active/published and being edited, set to PENDING for re-approval
               if (editingDeal.status === 'ACTIVE' || editingDeal.status === 'PUBLISHED') {
-                formData.append('status', 'PENDING')
+                formData.set('status', 'PENDING')
               }
 
-              console.log('🚀 Sending PUT request to update deal:', editingDeal.id)
+              console.log('🚀 Sending PUT request to update deal:', editingDeal.id, 'with status:', formData.get('status'))
 
               const response = await fetch(`/api/deals/${editingDeal.id}`, {
                 method: 'PUT',
@@ -334,34 +337,34 @@ const PartnerDealsPage = () => {
               if (response.ok) {
                 const updatedDeal = await response.json()
                 console.log('✅ Deal updated successfully:', {
-                  id: updatedDeal.id,
-                  title: updatedDeal.title,
-                  thumbnailImage: updatedDeal.thumbnailImage
+                  id: updatedDeal.id || updatedDeal?.updateRequest?.id,
+                  status: formData.get('status')
                 })
 
-                // Send notification to admins if deal was active/published (requires re-approval)
-                if (editingDeal.status === 'ACTIVE' || editingDeal.status === 'PUBLISHED') {
-                  await sendDealNotification(editingDeal.id, 'updated', ['Deal details updated'])
+                // Send notification to admins if deal needs review
+                const finalStatus = formData.get('status') as string
+                if (finalStatus === 'PENDING') {
+                  await sendDealNotification(editingDeal.id, 'updated', ['Deal submitted for review'])
                 }
 
                 setEditingDeal(null)
 
                 // Force a hard refresh of the deals data
                 console.log('🔄 Force refreshing deals data...')
-                setLoading(true) // Show loading state
-                setDeals([]) // Clear current deals first
-                await fetchDeals() // Wait for deals to refresh
-                console.log('🔄 Deals refreshed after update')
+                setLoading(true)
+                setDeals([])
+                await fetchDeals()
 
-                if (editingDeal.status === 'ACTIVE' || editingDeal.status === 'PUBLISHED') {
+                // Show appropriate success message
+                if (finalStatus === 'PENDING') {
                   showSuccess(
-                    'Deal Updated Successfully!',
-                    'Your changes have been saved and will be reviewed by admin before being published again.'
+                    'Deal Submitted for Review!',
+                    'Your deal has been submitted and will be reviewed by admin before being activated.'
                   )
                 } else {
                   showSuccess(
                     'Deal Updated Successfully!',
-                    'All your changes have been saved and are now live.'
+                    'All your changes have been saved.'
                   )
                 }
               } else {

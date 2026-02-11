@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useTranslation } from '../providers/I18nProvider'
 import { Button } from '../ui/Button'
 import { Card, CardContent } from '../ui/Card'
-import { 
-  Upload, X, DollarSign, Calendar, MapPin, Tag, 
-  FileText, Image as ImageIcon, AlertCircle, 
+import {
+  Upload, X, DollarSign, Calendar, MapPin, Tag,
+  FileText, Image as ImageIcon, AlertCircle,
   Save, Eye, Trash2, Pause, Play
 } from 'lucide-react'
 
@@ -101,7 +101,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
 
     try {
       const submitFormData = new FormData()
-      
+
       // Add all form fields
       Object.entries(formData).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
@@ -121,7 +121,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
       // Handle image upload
       const imageInput = imageInputRef.current
       const hasNewImageFile = imageInput?.files && imageInput.files.length > 0 && imageInput.files[0]
-      
+
       console.log('🔍 Image handling debug info:', {
         hasNewImageFile: !!hasNewImageFile,
         mode,
@@ -132,7 +132,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
         imageInputId: imageInputRef.current?.id || 'no-id',
         imageInputName: imageInputRef.current?.name || 'no-name'
       })
-      
+
       if (hasNewImageFile && imageInput.files && imageInput.files.length > 0) {
         const file = imageInput.files[0]
         console.log('✅ Adding new image to form data:', {
@@ -141,21 +141,21 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
           type: file.type,
           lastModified: file.lastModified
         })
-        
+
         // Validate file size (10MB limit)
         if (file.size > 10 * 1024 * 1024) {
           alert('Image file is too large. Please select a file under 10MB.')
           setLoading(false)
           return
         }
-        
+
         // Validate file type
         if (!file.type.startsWith('image/')) {
           alert('Please select a valid image file.')
           setLoading(false)
           return
         }
-        
+
         submitFormData.append('image', file)
         console.log('📤 New image file added to form data')
       } else if (mode === 'edit' && imagePreview && !imagePreview.startsWith('data:')) {
@@ -176,7 +176,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
         // Default API call
         const url = mode === 'edit' ? `/api/deals/${deal.id}` : '/api/deals'
         const method = mode === 'edit' ? 'PUT' : 'POST'
-        
+
         const response = await fetch(url, {
           method,
           body: submitFormData
@@ -190,7 +190,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
 
         const result = await response.json()
         console.log('API Response:', result)
-        
+
         // Redirect based on status
         if (status === 'PUBLISHED' || formData.status === 'PUBLISHED') {
           router.push('/deals')
@@ -207,7 +207,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
   }
 
   const categories = [
-    'Technology', 'Real Estate', 'Healthcare', 'Energy', 
+    'Technology', 'Real Estate', 'Healthcare', 'Energy',
     'Agriculture', 'Manufacturing', 'Finance', 'Education',
     'Transportation', 'Entertainment', 'Food & Beverage', 'Other'
   ]
@@ -227,7 +227,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
               {mode === 'edit' ? t('partner_deals.edit_deal') : t('partner_deals.create_new_deal')}
             </h1>
             <p className="text-gray-600">
-              {mode === 'edit' 
+              {mode === 'edit'
                 ? t('partner_deals.update_deal_subtitle')
                 : t('partner_deals.form.subtitle')
               }
@@ -238,13 +238,13 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
             {/* Basic Information */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
-{t('partner_deals.basic_information')}
+                {t('partner_deals.basic_information')}
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-{t('partner_deals.deal_title')} {t('partner_deals.required_field')}
+                    {t('partner_deals.deal_title')} {t('partner_deals.required_field')}
                   </label>
                   <input
                     type="text"
@@ -312,7 +312,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
                 {t('partner_deals.financial_details')}
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -411,7 +411,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
                 {t('partner_deals.timeline')}
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -447,7 +447,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
                 {t('partner_deals.media')}
               </h2>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <ImageIcon className="w-4 h-4 inline mr-1" />
@@ -464,7 +464,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                     onChange={handleImageChange}
                     className="sr-only"
                   />
-                  
+
                   {imagePreview ? (
                     <div className="relative">
                       <img
@@ -527,7 +527,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
                 {t('partner_deals.key_highlights')}
               </h2>
-              
+
               <div className="space-y-3">
                 {highlights.map((highlight, index) => (
                   <div key={index} className="flex gap-2">
@@ -565,7 +565,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                 <Tag className="w-5 h-5 inline mr-2" />
                 {t('partner_deals.tags')}
               </h2>
-              
+
               <div className="space-y-3">
                 {tags.map((tag, index) => (
                   <div key={index} className="flex gap-2">
@@ -602,7 +602,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
               <h2 className="text-xl font-semibold text-gray-900 border-b pb-2">
                 {t('partner_deals.settings')}
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -639,6 +639,7 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 pt-8 border-t">
+              {/* Save as Draft / Update Deal (keeps current status) */}
               <Button
                 type="submit"
                 disabled={loading}
@@ -648,15 +649,18 @@ const DealForm = ({ deal, onSubmit, onCancel, mode = 'create' }: DealFormProps) 
                 {loading ? t('partner_deals.saving') : mode === 'edit' ? t('partner_deals.update_deal') : t('partner_deals.save_as_draft')}
               </Button>
 
-              <Button
-                type="button"
-                onClick={(e) => handleSubmit(e, 'PUBLISHED')}
-                disabled={loading}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                {mode === 'edit' ? t('partner_deals.update_and_publish') : t('partner_deals.save_and_publish')}
-              </Button>
+              {/* Submit for Review / Update and Submit for Review (sets PENDING) */}
+              {(!deal || deal?.status === 'DRAFT' || deal?.status === 'REJECTED') && (
+                <Button
+                  type="button"
+                  onClick={(e) => handleSubmit(e, 'PENDING')}
+                  disabled={loading}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  {mode === 'edit' ? t('partner_deals.update_and_submit') : t('partner_deals.submit_for_review')}
+                </Button>
+              )}
 
               {mode === 'edit' && deal?.status === 'ACTIVE' && (
                 <Button

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../../lib/auth'
 import { PrismaClient } from '@prisma/client'
+import { emailService } from '../../../../lib/email'
 
 const prisma = new PrismaClient()
 
@@ -13,7 +14,7 @@ export async function POST(
   try {
     const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -33,11 +34,21 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
 
-    // Get the update request
+    // Get the update request with project and requester info
     const updateRequest = await prisma.dealUpdateRequest.findUnique({
       where: { id },
       include: {
-        project: true
+        project: {
+          include: {
+            owner: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
+          }
+        }
       }
     })
 
@@ -49,10 +60,18 @@ export async function POST(
       return NextResponse.json({ error: 'Update request already processed' }, { status: 400 })
     }
 
+    const partnerEmail = updateRequest.project.owner.email
+    const partnerName = updateRequest.project.owner.name || 'Partner'
+    const dealTitle = updateRequest.project.title
+    const dealId = updateRequest.project.id
+
     if (action === 'approve') {
       // Apply the proposed changes to the deal
       const proposedChanges = updateRequest.proposedChanges as any
-      
+
+      // Ensure the deal becomes ACTIVE on approval
+      proposedChanges.status = 'ACTIVE'
+
       await prisma.project.update({
         where: { id: updateRequest.projectId },
         data: proposedChanges
@@ -68,12 +87,20 @@ export async function POST(
         }
       })
 
+      // Send approval email to partner
+      try {
+        await emailService.sendDealApprovedEmail(partnerEmail, partnerName, dealTitle, dealId)
+        console.log(`Deal approval email sent to ${partnerEmail} for deal: ${dealTitle}`)
+      } catch (emailError) {
+        console.error('Failed to send deal approval email:', emailError)
+      }
+
       return NextResponse.json({
         message: 'Update request approved and changes applied',
         status: 'approved'
       })
     } else {
-      // Reject the update request
+      // Reject the update request and set deal status to REJECTED
       await prisma.dealUpdateRequest.update({
         where: { id },
         data: {
@@ -83,6 +110,20 @@ export async function POST(
           rejectionReason: rejectionReason || 'No reason provided'
         }
       })
+
+      // Set the deal status to REJECTED so partner can edit and re-submit
+      await prisma.project.update({
+        where: { id: updateRequest.projectId },
+        data: { status: 'REJECTED' }
+      })
+
+      // Send rejection email to partner
+      try {
+        await emailService.sendDealRejectedEmail(partnerEmail, partnerName, dealTitle, rejectionReason)
+        console.log(`Deal rejection email sent to ${partnerEmail} for deal: ${dealTitle}`)
+      } catch (emailError) {
+        console.error('Failed to send deal rejection email:', emailError)
+      }
 
       return NextResponse.json({
         message: 'Update request rejected',
@@ -106,7 +147,7 @@ export async function GET(
   try {
     const { id } = await params
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

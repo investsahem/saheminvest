@@ -1319,6 +1319,145 @@ Visit us at https://sahaminvest.com
     })
   }
 
+  // Deal Approved Email (Bilingual)
+  async sendDealApprovedEmail(email: string, name: string, dealTitle: string, dealId: string) {
+    const dashboardUrl = `${process.env.NEXTAUTH_URL}/partner/deals/${dealId}/manage`
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Deal Approved - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 40px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 40px; border-radius: 0 0 8px 8px; }
+          .status-box { background: #D1FAE5; border: 1px solid #10B981; padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center; }
+          .deal-info { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #E5E7EB; }
+          .button { display: inline-block; background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; font-size: 16px; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>✅ تمت الموافقة على صفقتك</h1>
+            <p style="font-size: 18px; margin-top: 10px;">Your Deal Has Been Approved</p>
+          </div>
+          <div class="content">
+            <h2>مرحباً ${name}! 👋</h2>
+
+            <div class="status-box">
+              <h3 style="color: #059669; margin: 0;">✅ تمت الموافقة على صفقتك وهي الآن نشطة</h3>
+              <p style="margin: 10px 0 0 0; color: #065F46;">Your deal has been approved and is now active</p>
+            </div>
+
+            <div class="deal-info">
+              <h3>📋 تفاصيل الصفقة | Deal Details</h3>
+              <p><strong>اسم الصفقة | Deal Name:</strong> ${dealTitle}</p>
+              <p><strong>الحالة | Status:</strong> <span style="color: #059669; font-weight: bold;">نشطة | Active ✅</span></p>
+            </div>
+
+            <p>يمكن للمستثمرين الآن الاطلاع على صفقتك والاستثمار فيها.</p>
+            <p>Investors can now view and invest in your deal.</p>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${dashboardUrl}" class="button">📊 إدارة الصفقة | Manage Deal</a>
+            </div>
+
+            <p><strong>تحتاج مساعدة؟</strong> تواصل مع فريق الدعم على <a href="mailto:${this.supportEmail}">${this.supportEmail}</a></p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: `✅ تمت الموافقة على صفقتك: ${dealTitle} | Deal Approved - Sahem Invest`,
+      htmlContent
+    })
+  }
+
+  // Deal Rejected Email (Bilingual)
+  async sendDealRejectedEmail(email: string, name: string, dealTitle: string, reason?: string) {
+    const dashboardUrl = `${process.env.NEXTAUTH_URL}/partner/deals`
+
+    const reasonSection = reason ? `
+      <div style="background: #FEF2F2; border: 1px solid #EF4444; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #DC2626; margin-top: 0;">📝 سبب الرفض | Rejection Reason</h3>
+        <p style="color: #7F1D1D;">${reason}</p>
+      </div>
+    ` : ''
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Deal Rejected - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 40px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 40px; border-radius: 0 0 8px 8px; }
+          .status-box { background: #FEF2F2; border: 1px solid #EF4444; padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center; }
+          .deal-info { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #E5E7EB; }
+          .button { display: inline-block; background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; font-size: 16px; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>❌ تم رفض صفقتك</h1>
+            <p style="font-size: 18px; margin-top: 10px;">Your Deal Has Been Rejected</p>
+          </div>
+          <div class="content">
+            <h2>مرحباً ${name}! 👋</h2>
+
+            <div class="status-box">
+              <h3 style="color: #DC2626; margin: 0;">❌ لم تتم الموافقة على صفقتك</h3>
+              <p style="margin: 10px 0 0 0; color: #7F1D1D;">Your deal was not approved</p>
+            </div>
+
+            <div class="deal-info">
+              <h3>📋 تفاصيل الصفقة | Deal Details</h3>
+              <p><strong>اسم الصفقة | Deal Name:</strong> ${dealTitle}</p>
+              <p><strong>الحالة | Status:</strong> <span style="color: #DC2626; font-weight: bold;">مرفوضة | Rejected ❌</span></p>
+            </div>
+
+            ${reasonSection}
+
+            <p>يمكنك تعديل الصفقة وإعادة تقديمها للمراجعة.</p>
+            <p>You can edit the deal and resubmit it for review.</p>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${dashboardUrl}" class="button">📝 تعديل الصفقة | Edit Deal</a>
+            </div>
+
+            <p><strong>تحتاج مساعدة؟</strong> تواصل مع فريق الدعم على <a href="mailto:${this.supportEmail}">${this.supportEmail}</a></p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: `❌ تم رفض صفقتك: ${dealTitle} | Deal Rejected - Sahem Invest`,
+      htmlContent
+    })
+  }
+
   // Account Verification Email
   async sendAccountVerificationEmail(email: string, name: string, verificationUrl: string) {
     const htmlContent = `

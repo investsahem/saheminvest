@@ -45,6 +45,7 @@ enum ProjectStatus {
   FUNDED
   COMPLETED
   CANCELLED
+  REJECTED
 }
 
 enum InvestmentStatus {
