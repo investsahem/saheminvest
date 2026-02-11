@@ -3,18 +3,24 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../../lib/auth'
 import { v2 as cloudinary } from 'cloudinary'
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
-
 // POST /api/partner/upload-image - Upload partner images to Cloudinary
 export async function POST(request: NextRequest) {
   try {
+    // Configure Cloudinary at request time to ensure env vars are available
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    })
+
+    console.log('📸 Partner image upload - Cloudinary config:', {
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? 'set' : 'MISSING',
+      api_key: process.env.CLOUDINARY_API_KEY ? 'set' : 'MISSING',
+      api_secret: process.env.CLOUDINARY_API_SECRET ? 'set' : 'MISSING',
+    })
+
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -26,10 +32,12 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get('image') as File
     const type = formData.get('type') as string || 'logo'
-    
+
     if (!file) {
       return NextResponse.json({ error: 'No image file provided' }, { status: 400 })
     }
+
+    console.log('📸 File received:', { name: file.name, size: file.size, type: file.type })
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
@@ -44,7 +52,9 @@ export async function POST(request: NextRequest) {
     // Convert file to buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    
+
+    console.log('📸 Uploading to Cloudinary, buffer size:', buffer.length)
+
     // Upload to Cloudinary
     const uploadResult = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
@@ -52,14 +62,17 @@ export async function POST(request: NextRequest) {
           resource_type: 'image',
           folder: `sahaminvest/partners/${session.user.id}`,
           public_id: `${type}_${Date.now()}`,
-          transformation: [
-            { width: 400, height: 400, crop: 'fill', quality: 'auto' },
-            { format: 'webp' }
-          ]
+          format: 'webp',
+          quality: 'auto',
         },
         (error, result) => {
-          if (error) reject(error)
-          else resolve(result)
+          if (error) {
+            console.error('📸 Cloudinary upload error:', error)
+            reject(error)
+          } else {
+            console.log('📸 Cloudinary upload success:', result?.secure_url)
+            resolve(result)
+          }
         }
       ).end(buffer)
     }) as any
@@ -71,7 +84,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error uploading image:', error)
+    console.error('📸 Error uploading image:', error)
     return NextResponse.json(
       { error: 'Failed to upload image' },
       { status: 500 }
