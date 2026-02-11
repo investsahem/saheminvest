@@ -1993,6 +1993,76 @@ Visit us at https://sahaminvest.com
       htmlContent
     })
   }
+
+  // Password Changed Confirmation Email
+  async sendPasswordChangedEmail(email: string, name: string) {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Password Changed - Sahem Invest</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 40px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 40px; border-radius: 0 0 8px 8px; }
+          .security-notice { background: #FEF3C7; border: 1px solid #F59E0B; padding: 20px; border-radius: 8px; margin: 25px 0; }
+          .success-box { background: #D1FAE5; border: 1px solid #10B981; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+          @media (max-width: 600px) {
+            .container { padding: 10px; }
+            .header, .content { padding: 20px; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🔐 تم تغيير كلمة المرور</h1>
+            <p style="font-size: 18px; margin-top: 10px;">Password Changed Successfully</p>
+          </div>
+          <div class="content">
+            <h2>مرحباً ${name},</h2>
+
+            <div class="success-box">
+              <h3 style="color: #059669; margin: 0;">✅ تم تغيير كلمة المرور بنجاح</h3>
+              <p style="margin: 10px 0 0 0; color: #065F46;">Your password has been changed successfully</p>
+            </div>
+
+            <p>تم تغيير كلمة مرور حسابك في سهم للاستثمار بنجاح.</p>
+            <p>Your Sahem Invest account password has been successfully changed.</p>
+
+            <div class="security-notice">
+              <h3>⚠️ تنبيه أمني | Security Notice</h3>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>التاريخ والوقت:</strong> ${new Date().toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' })}</li>
+                <li><strong>Date & Time:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Riyadh' })}</li>
+                <li><strong>الحساب:</strong> ${email}</li>
+              </ul>
+              <p style="margin-top: 15px; color: #92400E;">
+                إذا لم تقم بهذا التغيير، يرجى التواصل مع فريق الدعم فوراً.
+                <br/>If you did not make this change, please contact our support team immediately.
+              </p>
+            </div>
+
+            <p><strong>تحتاج مساعدة؟</strong> تواصل مع فريق الدعم على <a href="mailto:${this.supportEmail}">${this.supportEmail}</a></p>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest. All rights reserved.</p>
+            <p>Visit us at <a href="https://sahaminvest.com">sahaminvest.com</a></p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email, name }],
+      subject: '🔐 تم تغيير كلمة المرور بنجاح | Password Changed - Sahem Invest',
+      htmlContent
+    })
+  }
 }
 
 

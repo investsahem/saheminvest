@@ -273,12 +273,29 @@ const PartnerSettingsPage = () => {
     }
 
     setSaving(true)
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/partner/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
+      })
+
+      if (response.ok) {
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
+        alert(t('partner_settings.security.password_changed'))
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || t('partner_settings.security.update_failed'))
+      }
+    } catch (error) {
+      console.error('Error changing password:', error)
+      alert(t('partner_settings.security.update_failed'))
+    } finally {
       setSaving(false)
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
-      alert(t('partner_settings.security.password_changed'))
-    }, 1000)
+    }
   }
 
   const handleLogoUpload = async () => {
