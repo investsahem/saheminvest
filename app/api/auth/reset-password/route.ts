@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
-import EmailTriggers from '../../../lib/email-triggers'
 
 const prisma = new PrismaClient()
 
@@ -55,8 +54,10 @@ export async function POST(request: NextRequest) {
 
     // Send security notification email
     try {
-      await EmailTriggers.onPasswordChange(user.id)
-      console.log(`Password change notification sent to user ${user.id}`)
+      // Use the dedicated password changed email template
+      const { emailService } = await import('../../../lib/email')
+      await emailService.sendPasswordChangedEmail(user.email, user.name || 'User')
+      console.log(`Password change notification sent to ${user.email}`)
     } catch (emailError) {
       console.error('Failed to send password change notification:', emailError)
       // Don't fail the password reset if email fails
