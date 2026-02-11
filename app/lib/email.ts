@@ -1912,6 +1912,87 @@ Visit us at https://sahaminvest.com
       htmlContent
     })
   }
+
+  // Application Rejection Email
+  async sendApplicationRejectionEmail(data: {
+    to: string
+    applicantName: string
+    rejectionReason: string
+  }) {
+    const { to, applicantName, rejectionReason } = data
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html dir="rtl" lang="ar">
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          .container { max-width: 600px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; direction: rtl; }
+          .header { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+          .header h1 { margin: 0; font-size: 24px; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .content h2 { color: #1a1a1a; }
+          .content p { color: #333; line-height: 1.8; font-size: 15px; }
+          .reason-box { background: #FEF2F2; border: 1px solid #FECACA; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          .reason-box h3 { color: #991B1B; margin-top: 0; }
+          .reason-box p { color: #7F1D1D; }
+          .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #E5E7EB; }
+          .button { display: inline-block; background: #2563EB; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; }
+          .footer { text-align: center; margin-top: 30px; color: #999; font-size: 13px; }
+          .divider { border: none; border-top: 1px solid #E5E7EB; margin: 30px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>❌ تم رفض الطلب</h1>
+            <p style="margin: 10px 0 0; opacity: 0.9;">Application Rejected</p>
+          </div>
+          <div class="content">
+            <h2>مرحباً ${applicantName}،</h2>
+            <p>نأسف لإبلاغك بأنه تم مراجعة طلبك للانضمام إلى منصة سهم للاستثمار، وللأسف لم تتم الموافقة عليه في هذا الوقت.</p>
+            
+            <div class="reason-box">
+              <h3>📋 سبب الرفض:</h3>
+              <p>${rejectionReason}</p>
+            </div>
+            
+            <div class="info-box">
+              <h3>ماذا يمكنك فعله؟</h3>
+              <ul style="color: #333; line-height: 2;">
+                <li>مراجعة سبب الرفض أعلاه وتصحيح أي معلومات ناقصة</li>
+                <li>التواصل مع فريق الدعم للحصول على مزيد من التوضيح</li>
+                <li>إعادة تقديم طلبك بعد استيفاء المتطلبات</li>
+              </ul>
+            </div>
+
+            <hr class="divider">
+
+            <p style="color: #666; font-size: 13px;">
+              <strong>Dear ${applicantName},</strong><br>
+              We regret to inform you that your application to join Sahem Invest has been reviewed and unfortunately was not approved at this time.<br>
+              <strong>Reason:</strong> ${rejectionReason}<br>
+              If you have any questions, please don't hesitate to contact our support team.
+            </p>
+
+            <div style="text-align: center;">
+              <a href="mailto:support@sahaminvest.com" class="button">📧 تواصل مع الدعم</a>
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} Sahem Invest - سهم للاستثمار. جميع الحقوق محفوظة.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `
+
+    return await this.sendEmail({
+      to: [{ email: to, name: applicantName }],
+      subject: '❌ تم رفض طلبك - سهم للاستثمار | Application Rejected - Sahem Invest',
+      htmlContent
+    })
+  }
 }
 
 

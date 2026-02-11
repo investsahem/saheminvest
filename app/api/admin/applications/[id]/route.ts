@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client'
 import { authOptions } from '../../../../lib/auth'
 import { z } from 'zod'
 import { createUserFromApplication } from '../../../../lib/user-onboarding'
+import { emailService } from '../../../../lib/email'
 
 const prisma = new PrismaClient()
 
@@ -19,7 +20,7 @@ export async function PATCH(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session || !session.user) {
       return NextResponse.json(
         { message: 'Authentication required' },
@@ -38,12 +39,12 @@ export async function PATCH(
 
     const body = await request.json()
     const validationResult = updateApplicationSchema.safeParse(body)
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
+        {
           message: 'Invalid request data',
-          errors: validationResult.error.errors 
+          errors: validationResult.error.errors
         },
         { status: 400 }
       )
@@ -97,7 +98,7 @@ export async function PATCH(
     // If approved, create user account and send welcome email
     if (status === 'APPROVED') {
       console.log('🎉 Application approved, creating user account for:', existingApplication.email)
-      
+
       try {
         const userCreationResult = await createUserFromApplication({
           email: existingApplication.email,
@@ -107,17 +108,32 @@ export async function PATCH(
           applicationId: applicationId,
           applicationType: 'investor'
         })
-        
+
         if (userCreationResult.success) {
           console.log('✅ User account created successfully for:', existingApplication.email)
         } else {
           console.error('❌ Failed to create user account:', userCreationResult.error)
-          // Don't fail the approval if user creation fails, just log it
-          // The admin can manually create the account if needed
         }
       } catch (userCreationError) {
         console.error('❌ Error during user creation:', userCreationError)
-        // Continue with the approval even if user creation fails
+      }
+    }
+
+    // If rejected, send rejection email to the applicant
+    if (status === 'REJECTED') {
+      const applicantName = [existingApplication.firstName, existingApplication.lastName].filter(Boolean).join(' ') || 'Applicant'
+      console.log('📧 Sending rejection email to:', existingApplication.email)
+
+      try {
+        await emailService.sendApplicationRejectionEmail({
+          to: existingApplication.email,
+          applicantName,
+          rejectionReason: rejectionReason || 'No specific reason provided'
+        })
+        console.log('✅ Rejection email sent successfully to:', existingApplication.email)
+      } catch (emailError) {
+        console.error('❌ Failed to send rejection email:', emailError)
+        // Don't fail the rejection if email fails
       }
     }
 
@@ -128,7 +144,7 @@ export async function PATCH(
 
   } catch (error) {
     console.error('Error updating application:', error)
-    
+
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { message: 'Application not found' },
