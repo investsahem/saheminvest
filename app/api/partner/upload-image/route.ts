@@ -49,33 +49,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
     }
 
-    // Convert file to buffer
+    // Convert file to base64 data URI (more reliable than upload_stream)
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+    const base64 = buffer.toString('base64')
+    const dataUri = `data:${file.type};base64,${base64}`
 
-    console.log('📸 Uploading to Cloudinary, buffer size:', buffer.length)
+    console.log('📸 Uploading to Cloudinary via base64, size:', buffer.length, 'type:', file.type)
 
-    // Upload to Cloudinary
-    const uploadResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        {
-          resource_type: 'image',
-          folder: `sahaminvest/partners/${session.user.id}`,
-          public_id: `${type}_${Date.now()}`,
-          format: 'webp',
-          quality: 'auto',
-        },
-        (error, result) => {
-          if (error) {
-            console.error('📸 Cloudinary upload error:', error)
-            reject(error)
-          } else {
-            console.log('📸 Cloudinary upload success:', result?.secure_url)
-            resolve(result)
-          }
-        }
-      ).end(buffer)
-    }) as any
+    // Upload to Cloudinary using base64 data URI
+    const uploadResult = await cloudinary.uploader.upload(dataUri, {
+      resource_type: 'image',
+      folder: `sahaminvest/partners/${session.user.id}`,
+      public_id: `${type}_${Date.now()}`,
+      format: 'webp',
+      quality: 'auto',
+    })
+
+    console.log('📸 Upload success:', uploadResult.secure_url)
 
     return NextResponse.json({
       success: true,
@@ -83,10 +74,10 @@ export async function POST(request: NextRequest) {
       publicId: uploadResult.public_id
     })
 
-  } catch (error) {
-    console.error('📸 Error uploading image:', error)
+  } catch (error: any) {
+    console.error('📸 Error uploading image:', error?.message || error)
     return NextResponse.json(
-      { error: 'Failed to upload image' },
+      { error: error?.message || 'Failed to upload image' },
       { status: 500 }
     )
   }
