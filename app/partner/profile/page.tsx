@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import PartnerLayout from '../../components/layout/PartnerLayout'
 import { useTranslation } from '../../components/providers/I18nProvider'
@@ -57,6 +57,8 @@ const PartnerProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [activeTab, setActiveTab] = useState('company')
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [profile, setProfile] = useState<PartnerProfile>({
     id: '',
@@ -197,6 +199,53 @@ const PartnerProfilePage = () => {
     }).format(amount)
   }
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: t('partner.file_too_large') || 'File must be less than 5MB' })
+      return
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage({ type: 'error', text: t('partner.invalid_file_type') || 'File must be an image' })
+      return
+    }
+
+    setUploadingLogo(true)
+    setMessage(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      formData.append('type', 'logo')
+
+      const response = await fetch('/api/partner/upload-image', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        handleInputChange('logo', data.imageUrl)
+        setMessage({ type: 'success', text: t('partner.logo_uploaded') || 'Logo uploaded successfully' })
+      } else {
+        const errorData = await response.json()
+        setMessage({ type: 'error', text: errorData.error || t('partner.error_occurred') })
+      }
+    } catch (error) {
+      console.error('Error uploading logo:', error)
+      setMessage({ type: 'error', text: t('partner.error_occurred') })
+    } finally {
+      setUploadingLogo(false)
+      // Reset file input
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
   if (loading) {
     return (
       <PartnerLayout title="Partner Profile" subtitle="Manage your company profile">
@@ -222,8 +271,8 @@ const PartnerProfilePage = () => {
           <div className="flex items-center gap-3">
             {message && (
               <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${message.type === 'success'
-                  ? 'bg-green-50 text-green-700 border border-green-200'
-                  : 'bg-red-50 text-red-700 border border-red-200'
+                ? 'bg-green-50 text-green-700 border border-green-200'
+                : 'bg-red-50 text-red-700 border border-red-200'
                 }`}>
                 {message.type === 'success' ? (
                   <CheckCircle className="w-4 h-4" />
@@ -275,8 +324,8 @@ const PartnerProfilePage = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -303,10 +352,24 @@ const PartnerProfilePage = () => {
                     )}
                   </div>
                   {isEditing && (
-                    <Button variant="outline" size="sm">
-                      <Camera className="w-4 h-4 mr-2" />
-                      {t('partner.upload')}
-                    </Button>
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                        className="hidden"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingLogo}
+                      >
+                        <Camera className="w-4 h-4 mr-2" />
+                        {uploadingLogo ? t('partner.loading') : t('partner.upload')}
+                      </Button>
+                    </>
                   )}
                 </div>
               </CardContent>

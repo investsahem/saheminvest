@@ -140,7 +140,10 @@
     "enter_company_name": "أدخل اسم الشركة",
     "describe_company": "وصف شركتك...",
     "no_description": "لا يوجد وصف",
-    "no_focus_areas": "لم يتم تحديد مجالات الاستثمار"
+    "no_focus_areas": "لم يتم تحديد مجالات الاستثمار",
+    "logo_uploaded": "تم رفع الشعار بنجاح",
+    "file_too_large": "يجب أن يكون حجم الملف أقل من 5 ميغابايت",
+    "invalid_file_type": "يجب أن يكون الملف صورة"
   },
   "deals": {
     "title": "إدارة الصفقات",

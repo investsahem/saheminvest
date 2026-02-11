@@ -140,6 +140,9 @@
     "describe_company": "Describe your company...",
     "no_description": "No description provided",
     "no_focus_areas": "No investment focus areas specified",
+    "logo_uploaded": "Logo uploaded successfully",
+    "file_too_large": "File must be less than 5MB",
+    "invalid_file_type": "File must be an image",
     "Amount": "Amount"
   },
   "deals": {
