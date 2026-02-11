@@ -70,6 +70,8 @@
       "edit_role": "تعديل الدور",
       "disable": "تعطيل",
       "enable": "تفعيل",
+      "verified": "موثّق ✓",
+      "verify": "توثيق",
       "edit_role_for": "تعديل الدور لـ",
       "select_new_role": "اختر دور جديد",
       "associated_permissions": "الصلاحيات المرتبطة",

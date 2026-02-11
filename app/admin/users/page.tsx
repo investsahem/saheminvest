@@ -16,6 +16,7 @@ interface User {
   createdAt: string
   lastLogin: string | null
   permissions: string[]
+  partnerVerified?: boolean
 }
 
 const rolePermissions = {
@@ -95,7 +96,7 @@ export default function UsersManagementPage() {
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesRole = filterRole === 'ALL' || user.role === filterRole
     return matchesSearch && matchesRole
   })
@@ -109,8 +110,8 @@ export default function UsersManagementPage() {
   }
 
   const getStatusBadge = (isActive: boolean) => {
-    return isActive 
-      ? 'bg-green-100 text-green-800' 
+    return isActive
+      ? 'bg-green-100 text-green-800'
       : 'bg-red-100 text-red-800'
   }
 
@@ -130,8 +131,8 @@ export default function UsersManagementPage() {
       }
 
       // Update local state
-      setUsers(users.map(user => 
-        user.id === userId 
+      setUsers(users.map(user =>
+        user.id === userId
           ? { ...user, role: newRole, permissions: rolePermissions[newRole] }
           : user
       ))
@@ -160,7 +161,7 @@ export default function UsersManagementPage() {
         }
 
         const data = await response.json()
-        
+
         // Add the new user to local state
         const createdUser: User = {
           ...data.user,
@@ -195,8 +196,8 @@ export default function UsersManagementPage() {
       }
 
       // Update local state
-      setUsers(users.map(u => 
-        u.id === userId 
+      setUsers(users.map(u =>
+        u.id === userId
           ? { ...u, isActive: !u.isActive }
           : u
       ))
@@ -206,9 +207,41 @@ export default function UsersManagementPage() {
     }
   }
 
+  const togglePartnerVerified = async (userId: string) => {
+    const user = users.find(u => u.id === userId)
+    if (!user || user.role !== 'PARTNER') return
+
+    const newVerified = !user.partnerVerified
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/verified`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ verified: newVerified })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update partner verified status')
+      }
+
+      // Update local state
+      setUsers(users.map(u =>
+        u.id === userId
+          ? { ...u, partnerVerified: newVerified }
+          : u
+      ))
+    } catch (error) {
+      console.error('Error updating partner verified status:', error)
+      alert('Failed to update partner verified status. Please try again.')
+    }
+  }
+
   if (loading) {
     return (
-      <AdminLayout 
+      <AdminLayout
         title={t('admin.users_management.title')}
         subtitle={t('admin.users_management.subtitle')}
       >
@@ -221,7 +254,7 @@ export default function UsersManagementPage() {
 
   if (error) {
     return (
-      <AdminLayout 
+      <AdminLayout
         title={t('admin.users_management.title')}
         subtitle={t('admin.users_management.subtitle')}
       >
@@ -244,246 +277,260 @@ export default function UsersManagementPage() {
   }
 
   return (
-    <AdminLayout 
+    <AdminLayout
       title={t('admin.users_management.title')}
       subtitle={t('admin.users_management.subtitle')}
     >
 
-        {/* Controls */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between">
-          <div className="flex gap-4">
-            <Input
-              placeholder={t('admin.users_management.search_placeholder')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-64"
-            />
-            <select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="ALL">{t('admin.users_management.all_roles')}</option>
-              {Object.keys(rolePermissions).map((role) => (
-                <option key={role} value={role}>{t(`roles.${role}`)}</option>
-              ))}
-            </select>
-          </div>
-          <Button onClick={() => setShowAddUser(true)}>
-            {t('admin.users_management.add_new_user')}
-          </Button>
+      {/* Controls */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between">
+        <div className="flex gap-4">
+          <Input
+            placeholder={t('admin.users_management.search_placeholder')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-64"
+          />
+          <select
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">{t('admin.users_management.all_roles')}</option>
+            {Object.keys(rolePermissions).map((role) => (
+              <option key={role} value={role}>{t(`roles.${role}`)}</option>
+            ))}
+          </select>
         </div>
+        <Button onClick={() => setShowAddUser(true)}>
+          {t('admin.users_management.add_new_user')}
+        </Button>
+      </div>
 
-        {/* Users Table */}
-        <Card>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('admin.users_management.user')}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('admin.users_management.role')}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('admin.users_management.status')}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('admin.users_management.creation_date')}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('admin.users_management.last_login')}
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {t('admin.users_management.actions')}
-                    </th>
+      {/* Users Table */}
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {t('admin.users_management.user')}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {t('admin.users_management.role')}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {t('admin.users_management.status')}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {t('admin.users_management.creation_date')}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {t('admin.users_management.last_login')}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {t('admin.users_management.actions')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredUsers.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                        <div className="text-sm text-gray-500">{user.email}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {t(`roles.${user.role}`)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(user.isActive)}`}>
+                        {user.isActive ? t('admin.users_management.active') : t('admin.users_management.inactive')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatDate(user.createdAt)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {user.lastLogin ? formatDate(user.lastLogin) : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedUser(user)
+                            setShowRoleModal(true)
+                          }}
+                        >
+                          {t('admin.users_management.edit_role')}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleUserStatus(user.id)}
+                          className={user.isActive ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}
+                        >
+                          {user.isActive ? t('admin.users_management.disable') : t('admin.users_management.enable')}
+                        </Button>
+                        {user.role === 'PARTNER' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => togglePartnerVerified(user.id)}
+                            className={user.partnerVerified ? 'text-green-600 border-green-300 hover:bg-green-50' : 'text-gray-400 border-gray-300 hover:bg-gray-50'}
+                            title={user.partnerVerified ? 'Remove verification' : 'Verify partner'}
+                          >
+                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            {user.partnerVerified ? t('admin.users_management.verified') : t('admin.users_management.verify')}
+                          </Button>
+                        )}
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredUsers.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {t(`roles.${user.role}`)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(user.isActive)}`}>
-                          {user.isActive ? t('admin.users_management.active') : t('admin.users_management.inactive')}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDate(user.createdAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {user.lastLogin ? formatDate(user.lastLogin) : '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedUser(user)
-                              setShowRoleModal(true)
-                            }}
-                          >
-                            {t('admin.users_management.edit_role')}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => toggleUserStatus(user.id)}
-                            className={user.isActive ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}
-                          >
-                            {user.isActive ? t('admin.users_management.disable') : t('admin.users_management.enable')}
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Role Assignment Modal */}
+      {showRoleModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">
+              {t('admin.users_management.edit_role_for')} {selectedUser.name}
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('admin.users_management.select_new_role')}
+                </label>
+                <div className="space-y-2">
+                  {Object.keys(rolePermissions).map((role) => (
+                    <label key={role} className="flex items-center">
+                      <input
+                        type="radio"
+                        name="role"
+                        value={role}
+                        checked={selectedUser.role === role}
+                        onChange={() => setSelectedUser({ ...selectedUser, role: role as keyof typeof rolePermissions })}
+                        className="ml-2"
+                      />
+                      <span className="font-medium">{t(`roles.${role}`)}</span>
+                    </label>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+              </div>
 
-        {/* Role Assignment Modal */}
-        {showRoleModal && selectedUser && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
-                {t('admin.users_management.edit_role_for')} {selectedUser.name}
-              </h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('admin.users_management.select_new_role')}
-                  </label>
-                  <div className="space-y-2">
-                    {Object.keys(rolePermissions).map((role) => (
-                      <label key={role} className="flex items-center">
-                        <input
-                          type="radio"
-                          name="role"
-                          value={role}
-                          checked={selectedUser.role === role}
-                          onChange={() => setSelectedUser({...selectedUser, role: role as keyof typeof rolePermissions})}
-                          className="ml-2"
-                        />
-                        <span className="font-medium">{t(`roles.${role}`)}</span>
-                      </label>
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-2">
+                  {t('admin.users_management.associated_permissions')}
+                </h4>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <div className="grid grid-cols-1 gap-1 text-xs text-gray-600">
+                    {rolePermissions[selectedUser.role as keyof typeof rolePermissions]?.map(permission => (
+                      <div key={permission}>
+                        • {t(`admin.permissions.${permission}`)}
+                      </div>
                     ))}
                   </div>
                 </div>
-
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">
-                    {t('admin.users_management.associated_permissions')}
-                  </h4>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <div className="grid grid-cols-1 gap-1 text-xs text-gray-600">
-                      {rolePermissions[selectedUser.role as keyof typeof rolePermissions]?.map(permission => (
-                        <div key={permission}>
-                          • {t(`admin.permissions.${permission}`)}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-6">
-                <Button 
-                  onClick={() => handleRoleChange(selectedUser.id, selectedUser.role as keyof typeof rolePermissions)}
-                >
-                  {t('admin.users_management.save_changes')}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setShowRoleModal(false)
-                    setSelectedUser(null)
-                  }}
-                >
-                  {t('admin.users_management.cancel')}
-                </Button>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Add User Modal */}
-        {showAddUser && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
-                {t('admin.users_management.add_user_title')}
-              </h3>
-              
-              <div className="space-y-4">
-                <Input
-                  label={t('admin.users_management.full_name')}
-                  value={newUser.name}
-                  onChange={(e) => setNewUser({...newUser, name: e.target.value})}
-                  placeholder={t('admin.users_management.enter_full_name')}
-                />
-                <Input
-                  label={t('admin.users_management.email')}
-                  type="email"
-                  value={newUser.email}
-                  onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                  placeholder={t('admin.users_management.enter_email')}
-                />
-                <Input
-                  label={t('admin.users_management.password')}
-                  type="password"
-                  value={newUser.password}
-                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                  placeholder={t('admin.users_management.enter_password')}
-                />
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('admin.users_management.role_label')}
-                  </label>
-                  <select
-                    value={newUser.role}
-                    onChange={(e) => setNewUser({...newUser, role: e.target.value as keyof typeof rolePermissions})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {Object.keys(rolePermissions).map((role) => (
-                      <option key={role} value={role}>{t(`roles.${role}`)}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-6">
-                <Button onClick={handleAddUser}>
-                  {t('admin.users_management.add_user')}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setShowAddUser(false)
-                    setNewUser({ name: '', email: '', role: 'INVESTOR', password: '' })
-                  }}
-                >
-                  {t('admin.users_management.cancel')}
-                </Button>
-              </div>
+            <div className="flex gap-3 mt-6">
+              <Button
+                onClick={() => handleRoleChange(selectedUser.id, selectedUser.role as keyof typeof rolePermissions)}
+              >
+                {t('admin.users_management.save_changes')}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowRoleModal(false)
+                  setSelectedUser(null)
+                }}
+              >
+                {t('admin.users_management.cancel')}
+              </Button>
             </div>
           </div>
-                  )}
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">
+              {t('admin.users_management.add_user_title')}
+            </h3>
+
+            <div className="space-y-4">
+              <Input
+                label={t('admin.users_management.full_name')}
+                value={newUser.name}
+                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                placeholder={t('admin.users_management.enter_full_name')}
+              />
+              <Input
+                label={t('admin.users_management.email')}
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                placeholder={t('admin.users_management.enter_email')}
+              />
+              <Input
+                label={t('admin.users_management.password')}
+                type="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                placeholder={t('admin.users_management.enter_password')}
+              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('admin.users_management.role_label')}
+                </label>
+                <select
+                  value={newUser.role}
+                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value as keyof typeof rolePermissions })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {Object.keys(rolePermissions).map((role) => (
+                    <option key={role} value={role}>{t(`roles.${role}`)}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <Button onClick={handleAddUser}>
+                {t('admin.users_management.add_user')}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowAddUser(false)
+                  setNewUser({ name: '', email: '', role: 'INVESTOR', password: '' })
+                }}
+              >
+                {t('admin.users_management.cancel')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   )
 } 

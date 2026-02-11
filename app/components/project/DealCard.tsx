@@ -47,10 +47,10 @@ interface DealCardProps {
   onReviewPartner?: (partnerId: string, dealId: string, partnerName: string) => void
 }
 
-export function DealCard({ 
+export function DealCard({
   id,
-  title, 
-  description, 
+  title,
+  description,
   image,
   fundingGoal,
   currentFunding,
@@ -136,7 +136,7 @@ export function DealCard({
   // Extract version from Cloudinary URL to use as key for cache busting
   const getImageKey = (imageUrl: string) => {
     if (!imageUrl) return 'no-image'
-    
+
     // For Cloudinary images, extract the version number (v1234567890)
     if (imageUrl.includes('cloudinary.com')) {
       const versionMatch = imageUrl.match(/\/v(\d+)\//);
@@ -144,7 +144,7 @@ export function DealCard({
         return `cloudinary-${versionMatch[1]}`
       }
     }
-    
+
     // For other images, use the full URL as key
     return imageUrl
   }
@@ -170,7 +170,7 @@ export function DealCard({
           </div>
         ) : null}
       </div>
-      
+
       <CardContent className="p-4">
         {/* Deal Header */}
         <div className="mb-3">
@@ -178,12 +178,12 @@ export function DealCard({
             <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{title}</h3>
           </div>
           <p className="text-gray-600 text-sm line-clamp-2 mb-2">{description}</p>
-          
+
           {/* Partner Info - Only show to admins and partners */}
           {showPartnerName && (
             <div className="flex items-center text-sm text-gray-600 mb-3">
               {partnerProfile && partnerProfile.isPublic ? (
-                <Link 
+                <Link
                   href={`/partners/${ownerId}`}
                   className="flex items-center gap-2 hover:text-blue-600 transition-colors"
                 >
@@ -202,8 +202,8 @@ export function DealCard({
                     {partnerProfile.displayName || partnerProfile.companyName}
                   </span>
                   {partnerProfile.isVerified && (
-                    <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center">
-                      <svg className="w-2.5 h-2.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="w-4 h-4 bg-green-100 rounded-full flex items-center justify-center" title="Verified Partner">
+                      <svg className="w-2.5 h-2.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
@@ -248,8 +248,8 @@ export function DealCard({
               {isClosedView ? t('deals.final_return') : t('deal_card.expected_return')}
             </span>
             <div className="font-bold text-green-600">
-              {isClosedView && actualReturn ? 
-                `${actualReturn}%` : 
+              {isClosedView && actualReturn ?
+                `${actualReturn}%` :
                 `${expectedReturn.min}% ${expectedReturn.max === expectedReturn.min ? '' : `- ${expectedReturn.max}%`}`
               }
             </div>
@@ -329,11 +329,11 @@ export function DealCard({
           {/* Funding Progress */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-                             <span className="text-gray-600">{t('deal_card.funding_progress')}</span>
+              <span className="text-gray-600">{t('deal_card.funding_progress')}</span>
               <span className="font-medium">{fundingProgress.toFixed(1)}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
+              <div
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(fundingProgress, 100)}%` }}
               />
@@ -390,8 +390,8 @@ export function DealCard({
                 </Link>
                 {/* Review Partner Button for Portfolio View */}
                 {isPortfolioView && partnerId && onReviewPartner && (
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
                     onClick={() => onReviewPartner(partnerId, id, partnerName)}
                   >

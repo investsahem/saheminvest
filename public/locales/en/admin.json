@@ -70,6 +70,8 @@
       "edit_role": "Edit Role",
       "disable": "Disable",
       "enable": "Enable",
+      "verified": "Verified ✓",
+      "verify": "Verify",
       "edit_role_for": "Edit Role for",
       "select_new_role": "Select new role",
       "associated_permissions": "Associated Permissions",

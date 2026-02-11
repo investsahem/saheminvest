@@ -47,6 +47,11 @@ export async function GET(request: NextRequest) {
             investments: true,
             transactions: true
           }
+        },
+        partnerProfile: {
+          select: {
+            isVerified: true
+          }
         }
       },
       orderBy: {
@@ -76,7 +81,8 @@ export async function GET(request: NextRequest) {
       totalInvested: Number(user.totalInvested),
       totalReturns: Number(user.totalReturns),
       investmentCount: user._count.investments,
-      transactionCount: user._count.transactions
+      transactionCount: user._count.transactions,
+      partnerVerified: user.partnerProfile?.isVerified || false
     }))
 
     return NextResponse.json({
