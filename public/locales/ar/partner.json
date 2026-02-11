@@ -125,7 +125,22 @@
     "submitting": "جاري الإرسال...",
     "submit_for_admin_review": "إرسال للمراجعة الإدارية",
     "profit_distribution_submitted": "تم إرسال طلب توزيع الأرباح بنجاح",
-    "Amount": "المبلغ"
+    "Amount": "المبلغ",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "upload": "رفع",
+    "loading": "جاري التحميل...",
+    "updated_successfully": "تم تحديث الملف الشخصي بنجاح",
+    "error_occurred": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "Add Member": "إضافة عضو",
+    "add_first_member": "إضافة أول عضو",
+    "team": "الفريق",
+    "not_specified": "لم يتم تحديد",
+    "select_industry": "اختر الصناعة",
+    "enter_company_name": "أدخل اسم الشركة",
+    "describe_company": "وصف شركتك...",
+    "no_description": "لا يوجد وصف",
+    "no_focus_areas": "لم يتم تحديد مجالات الاستثمار"
   },
   "deals": {
     "title": "إدارة الصفقات",

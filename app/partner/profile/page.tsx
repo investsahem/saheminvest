@@ -7,8 +7,8 @@ import { useTranslation } from '../../components/providers/I18nProvider'
 import { Card, CardContent } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
-import { 
-  Building2, Mail, Phone, MapPin, Globe, Users, 
+import {
+  Building2, Mail, Phone, MapPin, Globe, Users,
   DollarSign, Target, Award, Camera, Edit, Save,
   X, Plus, Trash2, AlertCircle, CheckCircle, TrendingUp
 } from 'lucide-react'
@@ -57,7 +57,7 @@ const PartnerProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [activeTab, setActiveTab] = useState('company')
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  
+
   const [profile, setProfile] = useState<PartnerProfile>({
     id: '',
     companyName: '',
@@ -95,7 +95,7 @@ const PartnerProfilePage = () => {
   ]
 
   const employeeCounts = ['1-10', '11-50', '51-200', '201-500', '500+']
-  
+
   const investmentAreas = [
     'Technology Startups', 'Real Estate Development', 'Healthcare Innovation',
     'Renewable Energy', 'Agricultural Projects', 'Manufacturing',
@@ -106,7 +106,7 @@ const PartnerProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!session?.user) return
-      
+
       try {
         const response = await fetch('/api/partner/profile')
         if (response.ok) {
@@ -128,7 +128,7 @@ const PartnerProfilePage = () => {
   const handleSave = async () => {
     setSaving(true)
     setMessage(null)
-    
+
     try {
       const response = await fetch('/api/partner/profile', {
         method: 'PUT',
@@ -208,8 +208,8 @@ const PartnerProfilePage = () => {
   }
 
   return (
-    <PartnerLayout 
-      title={t('partner.profile')} 
+    <PartnerLayout
+      title={t('partner.profile')}
       subtitle={t('partner.profile_settings_title')}
     >
       <div className="space-y-6">
@@ -221,11 +221,10 @@ const PartnerProfilePage = () => {
           </div>
           <div className="flex items-center gap-3">
             {message && (
-              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${
-                message.type === 'success' 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${message.type === 'success'
+                  ? 'bg-green-50 text-green-700 border border-green-200'
                   : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
+                }`}>
                 {message.type === 'success' ? (
                   <CheckCircle className="w-4 h-4" />
                 ) : (
@@ -268,18 +267,17 @@ const PartnerProfilePage = () => {
               { id: 'company', label: t('partner.company_name'), icon: Building2 },
               { id: 'contact', label: t('partner.contact_name'), icon: Mail },
               { id: 'investment', label: t('deals.investment_amount'), icon: DollarSign },
-              { id: 'team', label: 'Team', icon: Users },
+              { id: 'team', label: t('partner.team'), icon: Users },
             ].map((tab) => {
               const Icon = tab.icon
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
+                  className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
                   {tab.label}
@@ -318,7 +316,7 @@ const PartnerProfilePage = () => {
             <Card className="lg:col-span-2">
               <CardContent className="p-6 space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('partner.company_name')}</h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -328,10 +326,10 @@ const PartnerProfilePage = () => {
                       <Input
                         value={profile.companyName}
                         onChange={(e) => handleInputChange('companyName', e.target.value)}
-                        placeholder="Enter company name"
+                        placeholder={t('partner.enter_company_name')}
                       />
                     ) : (
-                      <p className="text-gray-900">{profile.companyName || 'Not specified'}</p>
+                      <p className="text-gray-900">{profile.companyName || t('partner.not_specified')}</p>
                     )}
                   </div>
 
@@ -345,13 +343,13 @@ const PartnerProfilePage = () => {
                         onChange={(e) => handleInputChange('industry', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        <option value="">Select Industry</option>
+                        <option value="">{t('partner.select_industry')}</option>
                         {industries.map(industry => (
                           <option key={industry} value={industry}>{industry}</option>
                         ))}
                       </select>
                     ) : (
-                      <p className="text-gray-900">{profile.industry || 'Not specified'}</p>
+                      <p className="text-gray-900">{profile.industry || t('partner.not_specified')}</p>
                     )}
                   </div>
 
@@ -368,7 +366,7 @@ const PartnerProfilePage = () => {
                         max={new Date().getFullYear()}
                       />
                     ) : (
-                      <p className="text-gray-900">{profile.foundedYear || 'Not specified'}</p>
+                      <p className="text-gray-900">{profile.foundedYear || t('partner.not_specified')}</p>
                     )}
                   </div>
 
@@ -402,10 +400,10 @@ const PartnerProfilePage = () => {
                       onChange={(e) => handleInputChange('companyDescription', e.target.value)}
                       rows={4}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Describe your company..."
+                      placeholder={t('partner.describe_company')}
                     />
                   ) : (
-                    <p className="text-gray-900">{profile.companyDescription || 'No description provided'}</p>
+                    <p className="text-gray-900">{profile.companyDescription || t('partner.no_description')}</p>
                   )}
                 </div>
               </CardContent>
@@ -418,7 +416,7 @@ const PartnerProfilePage = () => {
           <Card>
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('partner.contact_name')}</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -433,7 +431,7 @@ const PartnerProfilePage = () => {
                       placeholder="company@example.com"
                     />
                   ) : (
-                    <p className="text-gray-900">{profile.email || 'Not specified'}</p>
+                    <p className="text-gray-900">{profile.email || t('partner.not_specified')}</p>
                   )}
                 </div>
 
@@ -450,7 +448,7 @@ const PartnerProfilePage = () => {
                       placeholder="+961 XX XXX XXX"
                     />
                   ) : (
-                    <p className="text-gray-900">{profile.phone || 'Not specified'}</p>
+                    <p className="text-gray-900">{profile.phone || t('partner.not_specified')}</p>
                   )}
                 </div>
 
@@ -473,7 +471,7 @@ const PartnerProfilePage = () => {
                           {profile.website}
                         </a>
                       ) : (
-                        'Not specified'
+                        t('partner.not_specified')
                       )}
                     </p>
                   )}
@@ -507,7 +505,7 @@ const PartnerProfilePage = () => {
                       placeholder="Full address"
                     />
                   ) : (
-                    <p className="text-gray-900">{profile.address || 'Not specified'}</p>
+                    <p className="text-gray-900">{profile.address || t('partner.not_specified')}</p>
                   )}
                 </div>
 
@@ -522,7 +520,7 @@ const PartnerProfilePage = () => {
                       placeholder="Beirut"
                     />
                   ) : (
-                    <p className="text-gray-900">{profile.city || 'Not specified'}</p>
+                    <p className="text-gray-900">{profile.city || t('partner.not_specified')}</p>
                   )}
                 </div>
               </div>
@@ -635,7 +633,7 @@ const PartnerProfilePage = () => {
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('partner.Investment Preferences')}</h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -675,7 +673,7 @@ const PartnerProfilePage = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     {t('partner.Investment Focus Areas')}
                   </label>
-                  
+
                   {isEditing && (
                     <div className="mb-4">
                       <div className="flex flex-wrap gap-2">
@@ -711,7 +709,7 @@ const PartnerProfilePage = () => {
                       </div>
                     ))}
                     {profile.investmentFocus.length === 0 && (
-                      <p className="text-gray-500 text-sm">No investment focus areas specified</p>
+                      <p className="text-gray-500 text-sm">{t('partner.no_focus_areas')}</p>
                     )}
                   </div>
                 </div>
@@ -769,7 +767,7 @@ const PartnerProfilePage = () => {
                   {isEditing && (
                     <Button size="sm" className="mt-3">
                       <Plus className="w-4 h-4 mr-2" />
-                      Add First Member
+                      {t('partner.add_first_member')}
                     </Button>
                   )}
                 </div>
