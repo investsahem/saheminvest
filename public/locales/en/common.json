@@ -356,6 +356,21 @@
       "admin_login": "Admin Login",
       "security_notice": "Protected with high-level security"
     },
+    "forgot_password": {
+      "title": "Forgot Password?",
+      "subtitle": "Enter your email address and we'll send you a link to reset your password",
+      "email_label": "Email Address",
+      "email_placeholder": "Enter your email",
+      "send_reset_link": "Send Reset Link",
+      "sending": "Sending...",
+      "back_to_signin": "Back to Sign In",
+      "no_account": "Don't have an account?",
+      "signup_here": "Sign up here",
+      "check_email": "Check Your Email",
+      "check_email_message": "If an account with that email exists, we've sent you a password reset link.",
+      "check_spam": "Didn't receive the email? Check your spam folder or try again.",
+      "try_different_email": "Try Different Email"
+    },
     "signup": {
       "title": "Create New Account",
       "subtitle": "Join Sahem Invest platform and start your investment journey",
