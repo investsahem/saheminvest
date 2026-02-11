@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs'
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -144,6 +144,17 @@ export async function POST(request: NextRequest) {
         totalReturns: 0
       }
     })
+
+    // If role is PARTNER, also create the Partner profile record
+    if (role.toUpperCase() === 'PARTNER') {
+      await prisma.partner.create({
+        data: {
+          userId: user.id,
+          companyName: name,
+          status: 'ACTIVE',
+        }
+      })
+    }
 
     // Format response
     const formattedUser = {

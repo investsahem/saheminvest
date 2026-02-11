@@ -10,7 +10,7 @@ export async function PATCH(
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -49,6 +49,22 @@ export async function PATCH(
       where: { id },
       data: { role: role.toUpperCase() }
     })
+
+    // If changing to PARTNER role, ensure a Partner profile record exists
+    if (role.toUpperCase() === 'PARTNER') {
+      const existingPartner = await prisma.partner.findUnique({
+        where: { userId: id }
+      })
+      if (!existingPartner) {
+        await prisma.partner.create({
+          data: {
+            userId: id,
+            companyName: updatedUser.name || 'Partner',
+            status: 'ACTIVE',
+          }
+        })
+      }
+    }
 
     return NextResponse.json({
       message: 'User role updated successfully',
