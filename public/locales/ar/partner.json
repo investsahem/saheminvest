@@ -143,7 +143,9 @@
     "no_focus_areas": "لم يتم تحديد مجالات الاستثمار",
     "logo_uploaded": "تم رفع الشعار بنجاح",
     "file_too_large": "يجب أن يكون حجم الملف أقل من 5 ميغابايت",
-    "invalid_file_type": "يجب أن يكون الملف صورة"
+    "invalid_file_type": "يجب أن يكون الملف صورة",
+    "settings_label": "الإعدادات",
+    "sign_out": "تسجيل الخروج"
   },
   "deals": {
     "title": "إدارة الصفقات",
@@ -217,7 +219,42 @@
     }
   },
   "profit_distribution": {
-    "profit_distribution": "توزيع الأرباح"
+    "profit_distribution": "توزيع الأرباح",
+    "new_distribution": "توزيع أرباح جديد",
+    "close": "إغلاق",
+    "capital_info": "معلومات رأس المال",
+    "total_capital": "إجمالي رأس المال",
+    "total_available_capital": "إجمالي رأس المال المتاح",
+    "distributed_partial": "تم توزيعه في توزيعات جزئية",
+    "remaining_available": "المتبقي المتاح للتوزيع",
+    "no_previous": "لا توجد توزيعات سابقة. كامل رأس المال متاح للتوزيع.",
+    "auto_filled": "تم التعبئة تلقائياً - يمكن التعديل",
+    "auto_filled_hint": "تم تعبئة المبلغ تلقائياً برأس المال المتبقي. يمكنك تعديله حسب الحاجة.",
+    "type": "نوع التوزيع",
+    "partial": "توزيع جزئي",
+    "final": "توزيع نهائي",
+    "final_warning_title": "توزيع نهائي (إغلاق الصفقة)",
+    "final_amount_note": "المبلغ = رأس المال المتبقي + الأرباح",
+    "final_filled_note": "المبلغ المعبأ هو رأس المال المتبقي فقط. أضف الأرباح إليه.",
+    "final_enter_total": "أدخل المبلغ الإجمالي (رأس المال + الأرباح)",
+    "final_commission": "سيتم خصم عمولة ساهم انفست من الأرباح فقط (لا احتياطي في النهائي)",
+    "commission_label": "العمولة",
+    "partial_info_title": "توزيع جزئي (استرداد رأس مال)",
+    "partial_note1": "التوزيع الجزئي = استرداد جزء من رأس المال (لا يشمل أرباح)",
+    "partial_filled_note": "المبلغ المعبأ هو رأس المال المتبقي بالكامل",
+    "partial_reduce_note": "يمكنك تقليله لتوزيع جزء منه فقط",
+    "partial_commission": "سيتم خصم عمولة ساهم انفست والاحتياطي من المبلغ الإجمالي",
+    "description_label": "وصف التوزيع",
+    "description_placeholder": "مثال: توزيع أرباح الربع الأول",
+    "submitting": "جاري الإرسال...",
+    "submit_review": "إرسال للمراجعة الإدارية",
+    "cancel": "إلغاء",
+    "submit_error_title": "خطأ في إرسال التوزيع",
+    "submit_error_message": "يرجى المحاولة مرة أخرى",
+    "submit_success_title": "تم إرسال طلب التوزيع بنجاح!",
+    "submit_success_message": "سيتم مراجعة طلب توزيع الأرباح من قبل الإدارة قريباً",
+    "view_details": "عرض التفاصيل",
+    "back": "العودة"
   },
   "forms": {
     "phone": "رقم الهاتف",
@@ -306,7 +343,11 @@
       "subtitle": "إنشاء صفقة جديدة لبدء الاستثمار الخاص بك",
       "create_deal": "إنشاء صفقة",
       "create_deal_subtitle": "إنشاء صفقة جديدة لبدء الاستثمار الخاص بك"
-    }
+    },
+    "awaiting_approval": "بانتظار موافقة الإدارة",
+    "previous": "السابق",
+    "next": "التالي",
+    "adjust_search": "حاول تعديل البحث أو معايير التصفية."
   },
   "partner_analytics": {
     "title": "التحليلات والتقارير",

@@ -154,7 +154,7 @@ const PartnerDealsPage = () => {
         throw new Error(errorData.error || 'Failed to submit profit distribution')
       }
 
-      showSuccess('تم إرسال طلب التوزيع بنجاح!', 'سيتم مراجعة طلب توزيع الأرباح من قبل الإدارة قريباً')
+      showSuccess(t('profit_distribution.submit_success_title'), t('profit_distribution.submit_success_message'))
       setDistributingProfits(null)
       fetchDeals() // Refresh deals
     } catch (error) {
@@ -392,13 +392,13 @@ const PartnerDealsPage = () => {
         <div className="max-w-2xl mx-auto">
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">توزيع أرباح جديد</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{t('profit_distribution.new_distribution')}</h2>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setDistributingProfits(null)}
               >
-                إغلاق
+                {t('profit_distribution.close')}
               </Button>
             </div>
 
@@ -412,21 +412,21 @@ const PartnerDealsPage = () => {
                   <div className="p-4 bg-blue-50 border-2 border-blue-400 rounded-lg">
                     <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
                       <DollarSign className="w-5 h-5 mr-2" />
-                      معلومات رأس المال
+                      {t('profit_distribution.capital_info')}
                     </h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-blue-800">إجمالي رأس المال:</span>
+                        <span className="text-blue-800">{t('profit_distribution.total_capital')}:</span>
                         <span className="font-bold text-blue-900">{formatCurrency(remaining.totalCapital)}</span>
                       </div>
                       {partialHistory.distributionCount > 0 && (
                         <>
                           <div className="flex justify-between">
-                            <span className="text-blue-800">تم توزيعه في توزيعات جزئية ({partialHistory.distributionCount}):</span>
+                            <span className="text-blue-800">{t('profit_distribution.distributed_partial')} ({partialHistory.distributionCount}):</span>
                             <span className="font-bold text-red-700">- {formatCurrency(remaining.partialCapitalPaid)}</span>
                           </div>
                           <div className="flex justify-between pt-2 border-t-2 border-blue-400">
-                            <span className="text-blue-900 font-bold">المتبقي المتاح للتوزيع:</span>
+                            <span className="text-blue-900 font-bold">{t('profit_distribution.remaining_available')}:</span>
                             <span className="font-bold text-green-700">{formatCurrency(remaining.remainingCapital)}</span>
                           </div>
                         </>
@@ -441,15 +441,15 @@ const PartnerDealsPage = () => {
                 <div className="p-4 bg-blue-50 border border-blue-300 rounded-lg">
                   <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
                     <DollarSign className="w-5 h-5 mr-2" />
-                    معلومات رأس المال
+                    {t('profit_distribution.capital_info')}
                   </h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-blue-800">إجمالي رأس المال المتاح:</span>
+                      <span className="text-blue-800">{t('profit_distribution.total_available_capital')}:</span>
                       <span className="font-bold text-blue-900">{formatCurrency(distributingProfits.currentFunding)}</span>
                     </div>
                     <p className="text-xs text-blue-700 mt-2">
-                      لا توجد توزيعات سابقة. كامل رأس المال متاح للتوزيع.
+                      {t('profit_distribution.no_previous')}
                     </p>
                   </div>
                 </div>
@@ -459,7 +459,7 @@ const PartnerDealsPage = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('partner.amount')} ($) *
-                  <span className="text-xs text-gray-500 font-normal mr-2">(تم التعبئة تلقائياً - يمكن التعديل)</span>
+                  <span className="text-xs text-gray-500 font-normal mr-2">({t('profit_distribution.auto_filled')})</span>
                 </label>
                 <input
                   type="number"
@@ -471,7 +471,7 @@ const PartnerDealsPage = () => {
                   className="w-full px-3 py-2 border-2 border-green-300 bg-green-50 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 font-semibold"
                 />
                 <p className="text-xs text-gray-600 mt-1">
-                  💡 تم تعبئة المبلغ تلقائياً برأس المال المتبقي. يمكنك تعديله حسب الحاجة.
+                  💡 {t('profit_distribution.auto_filled_hint')}
                 </p>
               </div>
 
@@ -511,7 +511,7 @@ const PartnerDealsPage = () => {
 
               {/* Distribution Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">نوع التوزيع</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('profit_distribution.type')}</label>
                 <div className="flex gap-4">
                   <label className="flex items-center">
                     <input
@@ -522,7 +522,7 @@ const PartnerDealsPage = () => {
                       onChange={(e) => setProfitFormData(prev => ({ ...prev, distributionType: e.target.value as 'PARTIAL' | 'FINAL' }))}
                       className="mr-2"
                     />
-                    توزيع جزئي
+                    {t('profit_distribution.partial')}
                   </label>
                   <label className="flex items-center">
                     <input
@@ -533,7 +533,7 @@ const PartnerDealsPage = () => {
                       onChange={(e) => setProfitFormData(prev => ({ ...prev, distributionType: e.target.value as 'PARTIAL' | 'FINAL' }))}
                       className="mr-2"
                     />
-                    توزيع نهائي
+                    {t('profit_distribution.final')}
                   </label>
                 </div>
               </div>
@@ -542,16 +542,16 @@ const PartnerDealsPage = () => {
               {profitFormData.distributionType === 'FINAL' && (
                 <div className="p-4 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-400 rounded-lg space-y-2">
                   <p className="text-sm text-yellow-900">
-                    <strong>⚠️ توزيع نهائي (إغلاق الصفقة):</strong>
+                    <strong>⚠️ {t('profit_distribution.final_warning_title')}:</strong>
                   </p>
                   <ul className="text-sm text-yellow-800 space-y-1 mr-4">
-                    <li>• المبلغ = رأس المال المتبقي + الأرباح</li>
+                     <li>• {t('profit_distribution.final_amount_note')}</li>
                     {partialHistory && partialHistory.distributionCount > 0 ? (
-                      <li>• المبلغ المعبأ ({formatCurrency(profitFormData.totalAmount)}) هو رأس المال المتبقي فقط. أضف الأرباح إليه.</li>
+                       <li>• {t('profit_distribution.final_filled_note')} ({formatCurrency(profitFormData.totalAmount)})</li>
                     ) : (
-                      <li>• أدخل المبلغ الإجمالي (رأس المال + الأرباح)</li>
+                       <li>• {t('profit_distribution.final_enter_total')}</li>
                     )}
-                    <li>• <strong className="text-orange-700">العمولة:</strong> سيتم خصم عمولة ساهم انفست من الأرباح فقط (لا احتياطي في النهائي)</li>
+                     <li>• <strong className="text-orange-700">{t('profit_distribution.commission_label')}:</strong> {t('profit_distribution.final_commission')}</li>
                   </ul>
                 </div>
               )}
@@ -560,25 +560,25 @@ const PartnerDealsPage = () => {
               {profitFormData.distributionType === 'PARTIAL' && (
                 <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-lg space-y-2">
                   <p className="text-sm text-green-900">
-                    <strong>💡 توزيع جزئي (استرداد رأس مال):</strong>
+                    <strong>💡 {t('profit_distribution.partial_info_title')}:</strong>
                   </p>
                   <ul className="text-sm text-green-800 space-y-1 mr-4">
-                    <li>• التوزيع الجزئي = استرداد جزء من رأس المال (لا يشمل أرباح)</li>
-                    <li>• المبلغ المعبأ ({formatCurrency(profitFormData.totalAmount)}) هو رأس المال المتبقي بالكامل</li>
-                    <li>• يمكنك تقليله لتوزيع جزء منه فقط</li>
-                    <li>• <strong className="text-orange-700">العمولة:</strong> سيتم خصم عمولة ساهم انفست والاحتياطي من المبلغ الإجمالي</li>
+                     <li>• {t('profit_distribution.partial_note1')}</li>
+                     <li>• {t('profit_distribution.partial_filled_note')} ({formatCurrency(profitFormData.totalAmount)})</li>
+                     <li>• {t('profit_distribution.partial_reduce_note')}</li>
+                     <li>• <strong className="text-orange-700">{t('profit_distribution.commission_label')}:</strong> {t('profit_distribution.partial_commission')}</li>
                   </ul>
                 </div>
               )}
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">وصف التوزيع</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t('profit_distribution.description_label')}</label>
                 <input
                   type="text"
                   value={profitFormData.description}
                   onChange={(e) => setProfitFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="مثال: توزيع أرباح الربع الأول"
+                  placeholder={t('profit_distribution.description_placeholder')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -600,7 +600,7 @@ const PartnerDealsPage = () => {
                       })
                     } catch (error) {
                       console.error('Error submitting profit distribution:', error)
-                      showError('خطأ في إرسال التوزيع', 'يرجى المحاولة مرة أخرى')
+                      showError(t('profit_distribution.submit_error_title'), t('profit_distribution.submit_error_message'))
                     } finally {
                       setSubmittingProfit(false)
                     }
@@ -609,7 +609,7 @@ const PartnerDealsPage = () => {
                   className="bg-green-600 hover:bg-green-700 flex-1"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  {submittingProfit ? 'جاري الإرسال...' : 'إرسال للمراجعة الإدارية'}
+                  {submittingProfit ? t('profit_distribution.submitting') : t('profit_distribution.submit_review')}
                 </Button>
                 <Button
                   variant="outline"
@@ -626,7 +626,7 @@ const PartnerDealsPage = () => {
                   }}
                   disabled={submittingProfit}
                 >
-                  إلغاء
+                  {t('profit_distribution.cancel')}
                 </Button>
               </div>
             </div>
@@ -837,7 +837,7 @@ const PartnerDealsPage = () => {
                       {/* Pending notification */}
                       {deal.status === 'PENDING' && (
                         <div className="px-2 py-1 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
-                          Awaiting admin approval
+                         {t('partner_deals.awaiting_approval')}
                         </div>
                       )}
 
@@ -937,7 +937,7 @@ const PartnerDealsPage = () => {
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage(currentPage - 1)}
                   >
-                    Previous
+                    {t('partner_deals.previous')}
                   </Button>
 
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -957,7 +957,7 @@ const PartnerDealsPage = () => {
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage(currentPage + 1)}
                   >
-                    Next
+                    {t('partner_deals.next')}
                   </Button>
                 </div>
               )}
@@ -971,7 +971,7 @@ const PartnerDealsPage = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('partner_deals.no_deals_found')}</h3>
                 <p className="text-gray-600 mb-4">
                   {searchTerm || filterStatus !== 'all'
-                    ? 'Try adjusting your search or filter criteria.'
+                    ? t('partner_deals.adjust_search')
                     : t('partner_deals.no_deals_message')
                   }
                 </p>

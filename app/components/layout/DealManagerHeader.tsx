@@ -21,9 +21,9 @@ const DealManagerHeader = ({ title, subtitle, onMobileMenuClick }: DealManagerHe
 
   const formatGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 12) return locale === 'ar' ? 'صباح الخير' : 'Good morning'
-    if (hour < 17) return locale === 'ar' ? 'مساء الخير' : 'Good afternoon'
-    return locale === 'ar' ? 'مساء الخير' : 'Good evening'
+    if (hour < 12) return t('greetings.good_morning')
+    if (hour < 17) return t('greetings.good_afternoon')
+    return t('greetings.good_evening')
   }
 
   const handleLogout = async () => {

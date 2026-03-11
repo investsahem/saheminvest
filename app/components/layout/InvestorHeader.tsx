@@ -55,9 +55,9 @@ const InvestorHeader = ({ title, subtitle, onMobileMenuClick }: InvestorHeaderPr
 
   const formatGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 12) return locale === 'ar' ? 'صباح الخير' : 'Good morning'
-    if (hour < 17) return locale === 'ar' ? 'مساء الخير' : 'Good afternoon'
-    return locale === 'ar' ? 'مساء الخير' : 'Good evening'
+    if (hour < 12) return t('greetings.good_morning')
+    if (hour < 17) return t('greetings.good_afternoon')
+    return t('greetings.good_evening')
   }
 
   const formatCurrency = (amount: number) => {
@@ -232,7 +232,7 @@ const InvestorHeader = ({ title, subtitle, onMobileMenuClick }: InvestorHeaderPr
                       }`}
                     >
                       <User className={`w-5 h-5 ${locale === 'ar' ? 'ml-3' : 'mr-3'} ${isDashboardActive ? 'text-green-600' : ''}`} />
-                      {locale === 'ar' ? 'الملف الشخصي' : 'Dashboard'}
+                      {t('portfolio.profile')}
                     </button>
                     
                     <button
@@ -244,7 +244,7 @@ const InvestorHeader = ({ title, subtitle, onMobileMenuClick }: InvestorHeaderPr
                       }`}
                     >
                       <Settings className={`w-5 h-5 ${locale === 'ar' ? 'ml-3' : 'mr-3'} ${isSettingsActive ? 'text-green-600' : ''}`} />
-                      {locale === 'ar' ? 'الإعدادات' : 'Settings'}
+                      {t('portfolio.settings_label')}
                     </button>
                     
                     <div className="border-t border-gray-100 my-2"></div>
@@ -257,7 +257,7 @@ const InvestorHeader = ({ title, subtitle, onMobileMenuClick }: InvestorHeaderPr
                       className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors ${locale === 'ar' ? 'text-right' : 'text-left'}`}
                     >
                       <LogOut className={`w-5 h-5 ${locale === 'ar' ? 'ml-3' : 'mr-3'}`} />
-                      {locale === 'ar' ? 'تسجيل الخروج' : 'Sign out'}
+                      {t('portfolio.sign_out')}
                     </button>
                   </div>
                 </div>

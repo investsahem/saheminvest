@@ -274,7 +274,7 @@ export async function PUT(
     // If the user is a partner (not admin/deal manager), check if this requires approval
     // Partners can directly update DRAFT and REJECTED deals
     // For ACTIVE/PUBLISHED/PENDING deals, partner updates go through the approval request flow
-    const isDraftOrRejected = existingDeal.status === 'DRAFT' || existingDeal.status === 'REJECTED'
+    const isDraftOrRejected = existingDeal.status === 'DRAFT' || (existingDeal.status as string) === 'REJECTED'
     const requiresApproval = isPartner && !isAdmin && !isDealManager && !isDraftOrRejected
 
     const formData = await request.formData()

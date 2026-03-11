@@ -54,9 +54,9 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
 
   const formatGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 12) return locale === 'ar' ? 'صباح الخير' : 'Good morning'
-    if (hour < 17) return locale === 'ar' ? 'مساء الخير' : 'Good afternoon'
-    return locale === 'ar' ? 'مساء الخير' : 'Good evening'
+    if (hour < 12) return t('greetings.good_morning')
+    if (hour < 17) return t('greetings.good_afternoon')
+    return t('greetings.good_evening')
   }
 
   return (
@@ -192,7 +192,7 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
                     className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 ${locale === 'ar' ? 'text-right' : 'text-left'}`}
                   >
                     <User className={`w-4 h-4 ${locale === 'ar' ? 'ml-3' : 'mr-3'}`} />
-                    {locale === 'ar' ? 'الملف الشخصي' : 'Profile'}
+                    {t('admin.profile')}
                   </button>
                   
                   <button
@@ -203,7 +203,7 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
                     className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 ${locale === 'ar' ? 'text-right' : 'text-left'}`}
                   >
                     <Settings className={`w-4 h-4 ${locale === 'ar' ? 'ml-3' : 'mr-3'}`} />
-                    {locale === 'ar' ? 'الإعدادات' : 'Settings'}
+                    {t('admin.settings')}
                   </button>
                   
                   <div className="border-t border-gray-100 my-2"></div>
@@ -216,7 +216,7 @@ const AdminHeader = ({ title, subtitle, onMobileMenuClick }: AdminHeaderProps) =
                     className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 ${locale === 'ar' ? 'text-right' : 'text-left'}`}
                   >
                     <LogOut className={`w-4 h-4 ${locale === 'ar' ? 'ml-3' : 'mr-3'}`} />
-                    {locale === 'ar' ? 'تسجيل الخروج' : 'Sign out'}
+                    {t('admin.sign_out')}
                   </button>
                 </div>
               </div>

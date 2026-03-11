@@ -54,7 +54,9 @@
     "invest_more": "استثمر أكثر",
     "withdraw_funds": "سحب الأموال",
     "reinvest": "إعادة استثمار",
-    "export_report": "تصدير التقرير"
+    "export_report": "تصدير التقرير",
+    "settings_label": "الإعدادات",
+    "sign_out": "تسجيل الخروج"
   },
   "investments": {
     "title": "إدارة الاستثمارات",
@@ -518,7 +520,7 @@
       "cancelled": "ملغي"
     },
     "pending_estimated_profit": "الأرباح المتوقعة",
-    "pending_distributions_count": "{count} توزيعات قيد التنفيذ",
+    "pending_distributions_count": "{{count}} توزيعات قيد التنفيذ",
     "pending_distributions_title": "التوزيعات المتوقعة",
     "expected_profit": "الربح المتوقع",
     "capital_return": "رأس المال",
@@ -527,7 +529,8 @@
     "final_distribution": "توزيع نهائي",
     "partial_distribution": "توزيع جزئي",
     "pending_approval": "قيد المراجعة",
-    "approved": "تمت الموافقة"
+    "approved": "تمت الموافقة",
+    "capital_and_profits": "رأس المال + الأرباح"
   },
   "common": {
     "brand_name": "ساهم إنفست",
@@ -954,7 +957,8 @@
       "last_active": "آخر نشاط",
       "password_auth_title": "كلمة المرور والمصادقة",
       "disabled": "غير مفعل",
-      "current": "الحالي"
+      "current": "الحالي",
+      "enabled": "مفعّل"
     },
     "notifications": {
       "title": "إعدادات الإشعارات",
@@ -1114,5 +1118,36 @@
   "portfolioAdvisor": {
     "advisor_application": "طلب المستشار",
     "apply_for_advisor": "التقدم للمستشار"
+  },
+  "timeline": {
+    "title": "الجدول الزمني للمشروع",
+    "new_milestone": "مرحلة جديدة",
+    "retry": "إعادة المحاولة",
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ في تحميل الجدول الزمني",
+    "no_milestones": "لا توجد مراحل مضافة بعد",
+    "add_first": "أضف أول مرحلة للمشروع",
+    "add_milestone": "إضافة مرحلة",
+    "title_label": "العنوان",
+    "title_placeholder": "عنوان المرحلة",
+    "description_label": "الوصف",
+    "description_placeholder": "وصف المرحلة",
+    "date_label": "التاريخ",
+    "status_label": "الحالة",
+    "status": {
+      "completed": "مكتمل",
+      "in_progress": "قيد التنفيذ",
+      "upcoming": "قادم"
+    },
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete_confirm": "هل أنت متأكد من حذف هذه المرحلة؟"
+  },
+  "partner_profile": {
+    "average_return": "متوسط العائد",
+    "latest_deals": "آخر الصفقات",
+    "expected": "متوقع",
+    "view_details": "عرض التفاصيل",
+    "no_deals": "لا توجد صفقات حالياً"
   }
 }

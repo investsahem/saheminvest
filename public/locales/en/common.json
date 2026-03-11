@@ -272,7 +272,13 @@
       },
       "min": "Min",
       "view_details": "View Details",
-      "invest_now": "Invest Now"
+      "invest_now": "Invest Now",
+      "about_investment": "About the Investment",
+      "investment_timeline": "Investment Timeline",
+      "risk_assessment": "Risk Assessment",
+      "team_size": "Team Size",
+      "location": "Location",
+      "website": "Website"
     },
     "investors": "investors",
     "view_results": "View Results",
@@ -281,7 +287,7 @@
     "deal_closed_desc": "This deal has been closed and is no longer accepting investments.",
     "investment_closed": "Investment is closed for this deal",
     "ready_to_invest": "Ready to Invest?",
-    "join_investors": "Join",
+    "join_investors": "Join {{count}} other investors and start earning returns up to {{return}}% annually.",
     "other_investors": "other investors",
     "earning_returns": "earning returns of",
     "annually": "annually",
@@ -293,7 +299,28 @@
       "team_size": "Team Size",
       "location": "Location",
       "website": "Website"
-    }
+    },
+    "back_to_deals": "Back to Deals",
+    "funding_progress": "Funding Progress",
+    "by": "By",
+    "duration": "Duration",
+    "expected_return": "Expected Return",
+    "min_investment": "Minimum Investment",
+    "raised": "Raised",
+    "goal": "Goal",
+    "learn_more": "Learn More",
+    "invest_now": "Invest Now",
+    "team_size": "Team Size",
+    "location": "Location",
+    "website": "Website",
+    "by_partner": "by",
+    "public_view": "Public View",
+    "verified": "Verified",
+    "investment_opportunities": "Investment Opportunities",
+    "discover_invest": "Discover and invest in the best available deals",
+    "documents_count": "documents",
+    "downloads": "downloads",
+    "related_to": "Related to"
   },
   "deal_card": {
     "search_deals": "Search deals"
@@ -435,7 +462,7 @@
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
-    "search": "Search",
+    "search": "Search...",
     "filter": "Filter",
     "export": "Export",
     "actions": "Actions",
@@ -460,7 +487,14 @@
     "yes": "Yes",
     "no": "No",
     "select": "Select",
-    "view_all": "View All"
+    "view_all": "View All",
+    "month": "month",
+    "months": "months",
+    "try_again": "Try again",
+    "refresh": "Refresh",
+    "profile": "Profile",
+    "settings": "Settings",
+    "sign_out": "Sign out"
   },
   "timeline": {
     "deal_created": "Deal Created",
@@ -789,5 +823,28 @@
       "help_center": "Visit Help Center",
       "email_us": "Email Security Team"
     }
+  },
+  "greetings": {
+    "good_morning": "Good morning",
+    "good_afternoon": "Good afternoon",
+    "good_evening": "Good evening",
+    "welcome": "Welcome"
+  },
+  "time": {
+    "just_now": "Just now",
+    "minutes_ago": "{{count}}m ago",
+    "hours_ago": "{{count}}h ago",
+    "days_ago": "{{count}}d ago"
+  },
+  "language": {
+    "arabic": "العربية",
+    "english": "English"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "mark_all_read": "Mark all as read",
+    "view_all": "View all notifications",
+    "no_notifications": "No notifications",
+    "empty_message": "You will be notified of any updates"
   }
 }

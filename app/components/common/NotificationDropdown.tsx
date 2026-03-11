@@ -117,14 +117,14 @@ const NotificationDropdown = ({
     const now = new Date()
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
 
-    if (diffInMinutes < 1) return locale === 'ar' ? 'الآن' : 'Just now'
-    if (diffInMinutes < 60) return locale === 'ar' ? `منذ ${diffInMinutes} دقيقة` : `${diffInMinutes}m ago`
+    if (diffInMinutes < 1) return t('time.just_now')
+    if (diffInMinutes < 60) return t('time.minutes_ago', { count: diffInMinutes })
 
     const diffInHours = Math.floor(diffInMinutes / 60)
-    if (diffInHours < 24) return locale === 'ar' ? `منذ ${diffInHours} ساعة` : `${diffInHours}h ago`
+    if (diffInHours < 24) return t('time.hours_ago', { count: diffInHours })
 
     const diffInDays = Math.floor(diffInHours / 24)
-    if (diffInDays < 7) return locale === 'ar' ? `منذ ${diffInDays} يوم` : `${diffInDays}d ago`
+    if (diffInDays < 7) return t('time.days_ago', { count: diffInDays })
 
     return date.toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')
   }
@@ -208,7 +208,7 @@ const NotificationDropdown = ({
           <div className="p-4 border-b border-gray-100">
             <div className={`flex items-center justify-between ${locale === 'ar' ? 'flex-row-reverse' : ''}`}>
               <h3 className={`text-lg font-semibold text-gray-900 ${locale === 'ar' ? 'text-right font-arabic' : ''}`}>
-                {locale === 'ar' ? 'الإشعارات' : 'Notifications'}
+                {t('notifications.title')}
               </h3>
               <div className={`flex items-center ${locale === 'ar' ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
                 {stats.unread > 0 && (
@@ -220,7 +220,7 @@ const NotificationDropdown = ({
                     className="text-xs"
                   >
                     <CheckCheck className="w-3 h-3 mr-1" />
-                    {locale === 'ar' ? 'تم قراءة الكل' : 'Mark all read'}
+                    {t('notifications.mark_all_read')}
                   </Button>
                 )}
                 <Button
@@ -250,7 +250,7 @@ const NotificationDropdown = ({
               <div className="p-6 text-center">
                 <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
                 <p className={`text-sm text-gray-500 ${locale === 'ar' ? 'font-arabic' : ''}`}>
-                  {locale === 'ar' ? 'جاري التحميل...' : 'Loading...'}
+                  {t('common.loading')}
                 </p>
               </div>
             ) : error ? (
@@ -264,14 +264,14 @@ const NotificationDropdown = ({
                   onClick={onRefresh}
                   className="mt-2"
                 >
-                  {locale === 'ar' ? 'إعادة المحاولة' : 'Try again'}
+                  {t('common.try_again')}
                 </Button>
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-6 text-center">
                 <Bell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <p className={`text-sm text-gray-500 ${locale === 'ar' ? 'font-arabic' : ''}`}>
-                  {locale === 'ar' ? 'لا توجد إشعارات' : 'No notifications'}
+                  {t('notifications.no_notifications')}
                 </p>
               </div>
             ) : (
@@ -344,7 +344,7 @@ const NotificationDropdown = ({
               className={`block text-sm text-blue-600 hover:text-blue-800 font-medium ${locale === 'ar' ? 'text-right font-arabic' : ''}`}
               onClick={() => setShowDropdown(false)}
             >
-              {locale === 'ar' ? 'عرض جميع الإشعارات' : 'View all notifications'}
+              {t('notifications.view_all')}
             </a>
           </div>
         </div>

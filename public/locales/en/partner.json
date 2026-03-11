@@ -143,7 +143,9 @@
     "logo_uploaded": "Logo uploaded successfully",
     "file_too_large": "File must be less than 5MB",
     "invalid_file_type": "File must be an image",
-    "Amount": "Amount"
+    "Amount": "Amount",
+    "settings_label": "Settings",
+    "sign_out": "Sign out"
   },
   "deals": {
     "title": "Deal Management",
@@ -217,7 +219,42 @@
     }
   },
   "profit_distribution": {
-    "profit_distribution": "Profit Distribution"
+    "profit_distribution": "Profit Distribution",
+    "new_distribution": "New Profit Distribution",
+    "close": "Close",
+    "capital_info": "Capital Information",
+    "total_capital": "Total Capital",
+    "total_available_capital": "Total Available Capital",
+    "distributed_partial": "Distributed in partial distributions",
+    "remaining_available": "Remaining Available for Distribution",
+    "no_previous": "No previous distributions. Full capital available for distribution.",
+    "auto_filled": "Auto-filled - can be modified",
+    "auto_filled_hint": "Amount auto-filled with remaining capital. You can modify as needed.",
+    "type": "Distribution Type",
+    "partial": "Partial Distribution",
+    "final": "Final Distribution",
+    "final_warning_title": "Final Distribution (Deal Closure)",
+    "final_amount_note": "Amount = Remaining Capital + Profits",
+    "final_filled_note": "The filled amount is remaining capital only. Add profits to it.",
+    "final_enter_total": "Enter total amount (Capital + Profits)",
+    "final_commission": "SahemInvest commission will be deducted from profits only (no reserve in final)",
+    "commission_label": "Commission",
+    "partial_info_title": "Partial Distribution (Capital Recovery)",
+    "partial_note1": "Partial distribution = recovery of part of the capital (does not include profits)",
+    "partial_filled_note": "The filled amount is the entire remaining capital",
+    "partial_reduce_note": "You can reduce it to distribute only a portion",
+    "partial_commission": "SahemInvest commission and reserve will be deducted from total amount",
+    "description_label": "Distribution Description",
+    "description_placeholder": "Example: Q1 profit distribution",
+    "submitting": "Submitting...",
+    "submit_review": "Submit for Admin Review",
+    "cancel": "Cancel",
+    "submit_error_title": "Distribution Submission Error",
+    "submit_error_message": "Please try again",
+    "submit_success_title": "Distribution Request Submitted Successfully!",
+    "submit_success_message": "The profit distribution request will be reviewed by management soon",
+    "view_details": "View Details",
+    "back": "Back"
   },
   "forms": {
     "phone": "Phone Number",
@@ -306,7 +343,11 @@
       "subtitle": "Create a new deal to start your investment",
       "create_deal": "Create Deal",
       "create_deal_subtitle": "Create a new deal to start your investment"
-    }
+    },
+    "awaiting_approval": "Awaiting admin approval",
+    "previous": "Previous",
+    "next": "Next",
+    "adjust_search": "Try adjusting your search or filter criteria."
   },
   "deal_card": {
     "company_logo": "Company Logo",
@@ -337,7 +378,8 @@
       "pending": "Pending",
       "completed": "Completed",
       "cancelled": "Cancelled",
-      "paused": "Paused"
+      "paused": "Paused",
+      "funded": "Funded"
     },
     "title": "Deal Management",
     "close": "Close",
@@ -960,6 +1002,14 @@
     "cancelled": "Cancelled",
     "draft": "Draft",
     "published": "Published",
-    "archived": "Archived"
+    "archived": "Archived",
+    "go_back": "Go Back"
+  },
+  "deposits": {
+    "deposit_rejected_title": "Deposit Rejected",
+    "deposit_rejected": "Deposit Rejected",
+    "deposit_marked_rejected": "Deposit Marked as Rejected",
+    "user_notified_rejection": "User Notified of Rejection",
+    "no_refunds_added": "No Rejected Refunds"
   }
 }

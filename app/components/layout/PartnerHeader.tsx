@@ -57,9 +57,9 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
 
   const formatGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 12) return locale === 'ar' ? 'صباح الخير' : 'Good morning'
-    if (hour < 17) return locale === 'ar' ? 'مساء الخير' : 'Good afternoon'
-    return locale === 'ar' ? 'مساء الخير' : 'Good evening'
+    if (hour < 12) return t('greetings.good_morning')
+    if (hour < 17) return t('greetings.good_afternoon')
+    return t('greetings.good_evening')
   }
 
   // Use real data from API or fallback to defaults
@@ -294,7 +294,7 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
                     }`}
                   >
                     <User className={`w-5 h-5 ${locale === 'ar' ? 'ml-3' : 'mr-3'} ${isProfileActive ? 'text-blue-600' : ''}`} />
-                    {locale === 'ar' ? 'الملف الشخصي' : 'Profile'}
+                    {t('partner.profile')}
                   </button>
                   
                   <button
@@ -306,7 +306,7 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
                     }`}
                   >
                     <Settings className={`w-5 h-5 ${locale === 'ar' ? 'ml-3' : 'mr-3'} ${isSettingsActive ? 'text-blue-600' : ''}`} />
-                    {locale === 'ar' ? 'الإعدادات' : 'Settings'}
+                    {t('partner.settings_label')}
                   </button>
                   
                   <div className="border-t border-gray-100 my-2"></div>
@@ -319,7 +319,7 @@ const PartnerHeader = ({ title, subtitle, onMobileMenuClick }: PartnerHeaderProp
                     className={`flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors ${locale === 'ar' ? 'text-right' : 'text-left'}`}
                   >
                     <LogOut className={`w-5 h-5 ${locale === 'ar' ? 'ml-3' : 'mr-3'}`} />
-                    {locale === 'ar' ? 'تسجيل الخروج' : 'Sign out'}
+                    {t('partner.sign_out')}
                   </button>
                 </div>
               </div>

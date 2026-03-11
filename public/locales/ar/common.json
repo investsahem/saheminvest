@@ -286,16 +286,19 @@
     "deal_closed": "صفقة مغلقة",
     "deal_closed_desc": "تم إغلاق هذه الصفقة ولم تعد تقبل استثمارات جديدة.",
     "investment_closed": "الاستثمار مغلق لهذه الصفقة",
-    "ready_to_invest": "مستعد للاستثمار؟",
-    "join_investors": "انضم إلى",
-    "other_investors": "مستثمرين آخرين",
-    "earning_returns": "يحققون عوائد بنسبة",
+    "ready_to_invest": "هل أنت مستعد للاستثمار؟",
+    "join_investors": "انضم إلى {{count}} مستثمر آخر وابدأ في كسب عوائد تصل إلى {{return}}% سنوياً.",
+    "other_investors": "المستثمرين الآخرين",
+    "earning_returns": "أرباح العوائد",
     "annually": "سنوياً",
     "cta": {
       "title": "ابدأ رحلتك الاستثمارية اليوم",
       "description": "انضم إلى آلاف المستثمرين الذين يحققون أهدافهم المالية معنا",
       "create_account": "إنشاء حساب",
-      "learn_more": "اعرف المزيد"
+      "learn_more": "اعرف المزيد",
+      "team_size": "حجم الفريق",
+      "location": "الموقع",
+      "website": "الموقع الإلكتروني"
     },
     "back_to_deals": "العودة للصفقات",
     "funding_progress": "تقدم التمويل",
@@ -303,18 +306,21 @@
     "duration": "المدة",
     "expected_return": "العائد المتوقع",
     "min_investment": "الحد الأدنى للاستثمار",
-    "ready_to_invest": "مستعد للاستثمار؟",
-    "join_investors": "انضم إلى المستثمرين",
-    "other_investors": "المستثمرين الآخرين",
-    "earning_returns": "أرباح العوائد",
-    "annually": "سنوياً",
     "raised": "جمع",
     "goal": "الهدف",
     "learn_more": "اعرف المزيد",
     "invest_now": "استثمر الآن",
     "team_size": "حجم الفريق",
     "location": "الموقع",
-    "website": "الموقع الإلكتروني"
+    "website": "الموقع الإلكتروني",
+    "by_partner": "بواسطة",
+    "public_view": "عرض عام",
+    "verified": "موثق",
+    "investment_opportunities": "فرص الاستثمار",
+    "discover_invest": "اكتشف واستثمر في أفضل الصفقات المتاحة",
+    "documents_count": "وثيقة",
+    "downloads": "تحميل",
+    "related_to": "مرتبط بـ"
   },
   "deal_card": {
     "search_deals": "البحث في الصفقات"
@@ -456,7 +462,7 @@
     "back": "رجوع",
     "next": "التالي",
     "previous": "السابق",
-    "search": "بحث",
+    "search": "بحث...",
     "filter": "تصفية",
     "month": "شهر",
     "months": "أشهر",
@@ -483,7 +489,12 @@
     "yes": "نعم",
     "no": "لا",
     "select": "اختر",
-    "view_all": "عرض الكل"
+    "view_all": "عرض الكل",
+    "try_again": "إعادة المحاولة",
+    "refresh": "تحديث",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "sign_out": "تسجيل الخروج"
   },
   "timeline": {
     "deal_created": "إنشاء الصفقة",
@@ -812,5 +823,28 @@
       "help_center": "زيارة مركز المساعدة",
       "email_us": "راسل فريق الأمان"
     }
+  },
+  "greetings": {
+    "good_morning": "صباح الخير",
+    "good_afternoon": "مساء الخير",
+    "good_evening": "مساء الخير",
+    "welcome": "مرحباً"
+  },
+  "time": {
+    "just_now": "الآن",
+    "minutes_ago": "منذ {{count}} دقيقة",
+    "hours_ago": "منذ {{count}} ساعة",
+    "days_ago": "منذ {{count}} يوم"
+  },
+  "language": {
+    "arabic": "العربية",
+    "english": "English"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "mark_all_read": "تحديد الكل كمقروء",
+    "view_all": "عرض جميع الإشعارات",
+    "no_notifications": "لا توجد إشعارات",
+    "empty_message": "سيتم إشعارك بكل جديد"
   }
 }
