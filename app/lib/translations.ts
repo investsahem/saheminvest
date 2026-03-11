@@ -43,20 +43,42 @@ export function getTranslations(locale: Language, portal: Portal = 'common') {
   return portalTranslations[locale]?.[portal] || portalTranslations.ar.common
 }
 
+function isObject(item: any) {
+  return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
+function deepMerge(target: any, ...sources: any[]): any {
+  if (!sources.length) return target;
+  const source = sources.shift();
+
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) Object.assign(target, { [key]: {} });
+        deepMerge(target[key], source[key]);
+      } else {
+        Object.assign(target, { [key]: source[key] });
+      }
+    }
+  }
+
+  return deepMerge(target, ...sources);
+}
+
 // Enhanced function to get translations with portal support
 export function getPortalTranslations(locale: Language, portal: Portal) {
-  const portalTrans = portalTranslations[locale]?.[portal] || portalTranslations.ar[portal]
-  const commonTrans = portalTranslations[locale]?.common || portalTranslations.ar.common
-  const portfolioTrans = portalTranslations[locale]?.portfolio || portalTranslations.ar.portfolio
+  const portalTrans = portalTranslations[locale]?.[portal] || portalTranslations.ar[portal] || {}
+  const commonTrans = portalTranslations[locale]?.common || portalTranslations.ar.common || {}
+  const portfolioTrans = portalTranslations[locale]?.portfolio || portalTranslations.ar.portfolio || {}
 
-  // Merge common, portfolio (for notifications), and portal-specific translations
-  // Portfolio is included so notification translations are available in all portals
+  // Deep merge common, portfolio (for notifications), and portal-specific translations
   // Portal-specific takes precedence over portfolio, which takes precedence over common
-  return {
-    ...commonTrans,
-    ...portfolioTrans,  // Include notifications from portfolio for all portals
-    ...portalTrans
-  }
+  return deepMerge(
+    {}, 
+    commonTrans, 
+    portfolioTrans,
+    portalTrans
+  )
 }
 
 // Detect portal from current path
