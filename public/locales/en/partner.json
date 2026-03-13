@@ -379,7 +379,8 @@
       "completed": "Completed",
       "cancelled": "Cancelled",
       "paused": "Paused",
-      "funded": "Funded"
+      "funded": "Funded",
+      "draft": "Draft"
     },
     "title": "Deal Management",
     "close": "Close",

@@ -649,7 +649,20 @@
     "reject": "رفض",
     "approve_confirmation": "هل أنت متأكد أنك تريد الموافقة على طلب التحديث هذا؟",
     "approved_success": "تمت الموافقة على طلب التحديث بنجاح",
-    "processing": "جاري المعالجة..."
+    "processing": "جاري المعالجة...",
+    "update_request_details": "تفاصيل طلب التحديث",
+    "deal": "الصفقة",
+    "changes_summary": "ملخص التغييرات",
+    "detailed_changes": "التغييرات التفصيلية",
+    "rejection_reason_label": "سبب الرفض",
+    "rejection_placeholder": "أدخل سبب الرفض...",
+    "close": "إغلاق",
+    "approval_failed": "فشل في الموافقة على طلب التحديث",
+    "approval_error": "خطأ في الموافقة على طلب التحديث",
+    "rejection_reason_required": "يرجى تقديم سبب الرفض",
+    "rejected_success": "تم رفض طلب التحديث بنجاح",
+    "rejection_failed": "فشل في رفض طلب التحديث",
+    "rejection_error": "خطأ في رفض طلب التحديث"
   },
   "analytics": {
     "title": "التحليلات",

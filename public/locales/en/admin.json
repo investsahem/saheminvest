@@ -649,7 +649,20 @@
     "reject": "Reject",
     "approve_confirmation": "Are you sure you want to approve this update request?",
     "approved_success": "Update request approved successfully",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "update_request_details": "Update Request Details",
+    "deal": "Deal",
+    "changes_summary": "Changes Summary",
+    "detailed_changes": "Detailed Changes",
+    "rejection_reason_label": "Rejection Reason",
+    "rejection_placeholder": "Enter reason for rejection...",
+    "close": "Close",
+    "approval_failed": "Failed to approve update request",
+    "approval_error": "Error approving update request",
+    "rejection_reason_required": "Please provide a rejection reason",
+    "rejected_success": "Update request rejected successfully",
+    "rejection_failed": "Failed to reject update request",
+    "rejection_error": "Error rejecting update request"
   },
   "analytics": {
     "title": "Analytics",
